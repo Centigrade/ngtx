@@ -1,4 +1,4 @@
-import { convert } from './convert';
+import { convert } from '../utility/convert';
 
 describe('convert', () => {
   it('should return the original value if no converter is passed', () => {

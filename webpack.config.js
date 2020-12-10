@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 var PATHS = {
-  entryPoint: path.resolve(__dirname, 'projects/library/index.ts'),
+  entryPoint: path.resolve(__dirname, 'library/index.ts'),
   bundles: path.resolve(__dirname, 'dist/_bundles'),
 };
 
@@ -23,7 +23,7 @@ var config = {
     path: PATHS.bundles,
     filename: '[name].js',
     libraryTarget: 'umd',
-    library: 'ObserverLibrary',
+    library: 'ngtxLibrary',
     umdNamedDefine: true,
   },
   // Add resolve for `tsx` and `ts` files, otherwise Webpack would

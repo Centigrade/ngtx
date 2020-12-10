@@ -10,12 +10,13 @@
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "declaration": true,
-    "rootDir": "projects/library",
-    "esModuleInterop": true
+    "rootDir": "library",
+    "esModuleInterop": true,
+    "experimentalDecorators": true
   },
-  "include": ["projects/library"],
+  "include": ["library"],
   "exclude": ["node_modules", "dist"],
-  "files": ["./projects/library/index.ts"],
+  "files": ["library/index.ts"],
   "compileOnSave": false,
   "buildOnSave": false
 }
