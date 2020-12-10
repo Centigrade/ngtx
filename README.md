@@ -21,7 +21,7 @@ import { ngtx } from 'ngtx';
 
 describe(
   'MyTestSuite',
-  withHelpers(({ useFixture }) => {
+  ngtx(({ useFixture }) => {
     // other stuff ...
     beforeEach(() => {
       fixture = TestBed.createComponent(MyComponent);
@@ -30,7 +30,7 @@ describe(
     });
 
     it('should work like this', () => {
-      // helpers are initialized!
+      // ngtx helpers are initialized!
     });
   }),
 );
