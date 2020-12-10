@@ -8,7 +8,7 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 ## How?
 
-ngtx "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
+`ngtx` "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
 
 1.  wrap your test-suite callback in a `ngtx` call
 2.  import the helpers you want to use
@@ -40,7 +40,7 @@ describe(
 
 ## Quick Examples
 
-The following examples are just a random collection of tests, demonstrating how the helpers of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are acutally testing different components and **come from multiple, unrelated test-suites**. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s, of course.
+The following examples are just a random collection of tests, demonstrating how `ngtx` of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are acutally testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
 
 ```ts
 import { ngtx, asBool, toNativeElement } from 'ngtx';
@@ -458,5 +458,5 @@ describe(
 
 ## Core Team
 
-- Julian Lang (GitHub: JulianLang)
+- Julian Lang (GitHub: JulianLang, author of `ngtx`)
 
