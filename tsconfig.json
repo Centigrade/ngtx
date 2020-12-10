@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "esnext",
+    "target": "es5",
+    "lib": ["es2015", "dom"],
+    "outDir": "dist/lib",
+    "allowSyntheticDefaultImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true,
+    "declaration": true,
+    "rootDir": "projects/library",
+    "esModuleInterop": true
+  },
+  "include": ["projects/library"],
+  "exclude": ["node_modules", "dist"],
+  "files": ["./projects/library/index.ts"],
+  "compileOnSave": false,
+  "buildOnSave": false
+}
