@@ -4,7 +4,9 @@
  */
 export function isNativeElement(value: any): value is HTMLElement {
   // from: https://stackoverflow.com/a/384380/3063191
-  return typeof HTMLElement === 'object'
+  const isNativeElementTypeDefined = typeof HTMLElement === 'object';
+
+  return isNativeElementTypeDefined
     ? value instanceof HTMLElement
     : value &&
         typeof value === 'object' &&
