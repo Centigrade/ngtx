@@ -8,7 +8,7 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 ## How?
 
-Helpers can be "injected" into your test-suites and then be used. The only requirements for that are:
+ngtx "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
 
 1.  wrap your test-suite callback in a `ngtx` call
 2.  import the helpers you want to use
