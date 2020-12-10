@@ -18,6 +18,8 @@
     "build": "npm run clean && tsc && shx cp package.json dist/package.json && shx cp README.md dist/README.md",
     "start": "npx http-server -o projects/showcase/index.html",
     "test": "jest",
+    "test:pattern": "jest --testPathPattern",
+    "test:clear-cache": "jest --clear-cache",
     "lint": "tslint -c tslint.json 'projects/**/*.ts'",
     "lint:format": "prettier --check \"projects/**/*.{ts,scss,html}\" ",
     "format": "prettier --write \"projects/**/*.{ts,scss,html}\""
