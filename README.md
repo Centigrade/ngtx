@@ -10,7 +10,7 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 Helpers can be "injected" into your test-suites and then be used. The only requirements for that are:
 
-1.  wrap your test-suite callback in a `withHelpers` call
+1.  wrap your test-suite callback in a `ngtx` call
 2.  import the helpers you want to use
 3.  call `useFixture(fixture)` in the `beforeEach` hook, after the fixture has been created:
 
