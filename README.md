@@ -17,7 +17,7 @@ Helpers can be "injected" into your test-suites and then be used. The only requi
 ---
 
 ```ts
-import { withHelpers } from 'angular-test-helpers';
+import { ngtx } from 'ngtx';
 
 describe(
   'MyTestSuite',
