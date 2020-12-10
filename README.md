@@ -455,3 +455,8 @@ describe(
 > Real screenshot:
 >
 > ![Console log output](./docs/media/debug-output.png)
+
+## Core Team
+
+- Julian Lang (GitHub: JulianLang)
+
