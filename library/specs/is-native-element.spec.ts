@@ -1,4 +1,4 @@
-import { isNativeElement } from './is-native-element';
+import { isNativeElement } from '../type-guards/is-native-element';
 
 describe('isNativeElement: Environments without HTMLElement type definition', () => {
   beforeEach(() => {

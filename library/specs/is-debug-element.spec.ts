@@ -1,5 +1,5 @@
 import { DebugElement } from '@angular/core';
-import { isDebugElement } from './is-debug-element';
+import { isDebugElement } from '../type-guards/is-debug-element';
 
 describe('isDebugElement', () => {
   it('should return true for values with queryAllNodes and triggerEventHandler functions', () => {
