@@ -14,5 +14,7 @@ jobs:
           check-latest: true
       - name: install dependencies
         run: npm install
-      - name: build and test project
+      - name: build project
+        run: npm run build
+      - name: run tests
         run: npm test
