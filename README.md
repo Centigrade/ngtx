@@ -1,5 +1,7 @@
 # ngtx
 
+![](https://github.com/Centigrade/ngtx/workflows/CI/badge.svg)
+
 `ngtx` stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of functions aiming to make your life easier when testing Angular components. It's supposed to make your tests lean while increasing the readability by boosting the semantics of each test case.
 
 ## Why?
