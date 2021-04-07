@@ -1,26 +1,8 @@
-import { DebugElement, SimpleChanges, Type } from '@angular/core';
+import { Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { hex } from 'chalk';
+import { Fn, LifeCycleHooks, QueryTarget, TypedDebugElement } from '.';
 
-export interface TypedDebugElement<Component, HTMLElement = HTMLUnknownElement>
-  extends DebugElement {
-  nativeElement: HTMLElement;
-  componentInstance: Component;
-}
-
-export type QueryTarget<Component, Html extends HTMLElement> =
-  | string
-  | TypedDebugElement<Component, Html>
-  | Type<Component>;
-export type Fn<In, Out> = (a: In) => Out;
-
-export interface LifeCycleHooks {
-  ngOnInit?: () => void;
-  ngOnChanges?: (changes?: SimpleChanges) => void;
-}
-
-export interface TestHelpers {
+export interface Ngtx {
   /**
    * **Prints out the html tree of the specified element.**
    *
@@ -43,7 +25,9 @@ export interface TestHelpers {
    * ---
    * @param root The root element to print the html from. Can be a Type, css-selector, DebugElement or NativeElement.
    */
-  debug<Component, Html extends HTMLElement>(root?: QueryTarget<Component, Html>): void;
+  debug<Component, Html extends HTMLElement>(
+    root?: QueryTarget<Component, Html>,
+  ): void;
   /**
    * **Provides the test helpers with the correct `fixture` instance on which they work.**
    *
@@ -126,7 +110,9 @@ export interface TestHelpers {
    * ---
    * @param cssSelector A css-selector describing your wanted element.
    */
-  find<Html extends HTMLElement>(cssSelector: string): TypedDebugElement<any, Html>;
+  find<Html extends HTMLElement>(
+    cssSelector: string,
+  ): TypedDebugElement<any, Html>;
   /**
    * **Finds an element by css-selector like a class-name, id, tag-name or even a mix of all.**
    *
@@ -207,7 +193,9 @@ export interface TestHelpers {
    * ---
    * @param cssSelector A css-selector describing your wanted elements.
    */
-  findAll<Html extends HTMLElement>(cssSelector: string): TypedDebugElement<any, Html>[];
+  findAll<Html extends HTMLElement>(
+    cssSelector: string,
+  ): TypedDebugElement<any, Html>[];
   /**
    * **Finds all elements matching your specified css-selector.**
    *
@@ -450,306 +438,4 @@ export interface TestHelpers {
     queryTarget: QueryTarget<Component, Html>,
     eventArgs?: any,
   ): void;
-}
-
-function asSelf(val: string) {
-  return val;
-}
-
-/**
- * Converts DebugElements into NativeElements.
- *
- * ~~~ts
- * const nativeElements = findAll(ButtonComponent, toNativeElements); // => HTMLElement[]
- * ~~~
- * @param debugElements The results of a `findAll` call.
- */
-export const toNativeElements = <Html extends HTMLElement, Component>(
-  debugElements: TypedDebugElement<Component, Html>[],
-) => debugElements.map(toNativeElement);
-
-/**
- * Converts a DebugElement into a NativeElement.
- *
- * ~~~ts
- * const nativeElement = find(ButtonComponent, toNativeElement); // => HTMLElement;
- * ~~~
- * @param debugElement The result of a `find` call.
- */
-export const toNativeElement = <Html extends HTMLElement, Component>(
-  debugElement: TypedDebugElement<Component, Html>,
-) => debugElement.nativeElement;
-
-/**
- * Maps each DebugElement to the expression returned by the mapper function.
- * @param mapperFn A function that does the mapping of the DebugElements.
- */
-export const mapResult = <Html extends HTMLElement, Component, Out>(
-  mapperFn: (arg: TypedDebugElement<Component, Html>) => Out,
-) => {
-  return (debugElements: TypedDebugElement<Component, Html>[]) => debugElements.map(mapperFn);
-};
-
-export function asNumber(val: string) {
-  return Number(val);
-}
-
-export function asBool(val: string) {
-  return val === 'true' ? true : false;
-}
-
-export function withHelpers(suite: (helpers: TestHelpers) => void) {
-  let fixture: ComponentFixture<any>;
-
-  function debug<Component, Html extends HTMLElement>(root?: QueryTarget<Component, Html>): void {
-    const rootElem = root ?? fixture.nativeElement;
-    const element = isNativeElement(rootElem) ? rootElem : resolveDebugElement(rootElem);
-    console.log(printHtml(element));
-  }
-
-  function detectChanges<T extends LifeCycleHooks>(component?: T): void {
-    component?.ngOnInit?.();
-    component?.ngOnChanges?.();
-
-    fixture.detectChanges();
-  }
-
-  function find<Html extends HTMLElement, Component, Out>(
-    query: QueryTarget<Component, Html>,
-    accessor?: Fn<TypedDebugElement<Component, Html>, Out>,
-  ): TypedDebugElement<Component, Html> | Out {
-    if (isDebugElement(query)) {
-      return accessor ? accessor(query) : query;
-    }
-
-    const value =
-      typeof query === 'string'
-        ? fixture.debugElement.query(By.css(query))
-        : fixture.debugElement.query(By.directive(query));
-
-    return accessor ? accessor(value) : value;
-  }
-
-  function findAll<Html extends HTMLElement, Component, Out>(
-    queryTarget: QueryTarget<Component, Html> | QueryTarget<Component, Html>[],
-    accessor?: Fn<TypedDebugElement<Component, Html>[], Out[]>,
-  ): TypedDebugElement<Component, Html>[] | Out[] {
-    const queriesAsArray = Array.isArray(queryTarget) ? queryTarget : [queryTarget];
-    const results: TypedDebugElement<Component, Html>[] = [];
-
-    for (const query of queriesAsArray) {
-      const resultList = queryAll(query);
-      results.push(...resultList);
-    }
-
-    return accessor ? accessor(results) : results;
-  }
-
-  function findWhere<Html extends HTMLElement, Component, Out>(
-    condition: Fn<TypedDebugElement<Component, Html>, boolean>,
-    queryTarget: QueryTarget<Component, Html> | QueryTarget<Component, Html>[],
-    converter?: Fn<TypedDebugElement<Component, Html>, Out>,
-  ): TypedDebugElement<Component, Html> | Out {
-    const results: TypedDebugElement<Component, Html>[] = findAll<Html, Component, never>(
-      queryTarget,
-    );
-    const item = results.find(condition);
-
-    return converter ? converter(item) : item;
-  }
-
-  function attr<Html extends HTMLElement, Component>(
-    name: string,
-    queryTarget: QueryTarget<Component, Html> | HTMLElement,
-  ): string;
-  function attr<Html extends HTMLElement, Component, Out>(
-    name: string,
-    queryTarget: QueryTarget<Component, Html> | HTMLElement,
-    convert: Fn<string, Out>,
-  ): Out;
-  function attr<Html extends HTMLElement, Component, Out>(
-    name: string,
-    queryTarget: QueryTarget<Component, Html> | HTMLElement,
-    converterFn?: Fn<string, Out>,
-  ): string | Out {
-    const nativeElement = isNativeElement(queryTarget)
-      ? queryTarget
-      : resolveDebugElement(queryTarget)?.nativeElement;
-
-    if (!nativeElement) {
-      return null;
-    }
-
-    const attrValue = nativeElement.getAttribute(name);
-    return convert(attrValue, converterFn);
-  }
-
-  function triggerEvent<Html extends HTMLElement, Component>(
-    eventName: string,
-    queryTarget: QueryTarget<Component, Html>,
-    eventNameArgs?: any,
-  ): void {
-    const debugElement = resolveDebugElement(queryTarget);
-    // no safe access here, to cause an error if no element matches the query.
-    debugElement.triggerEventHandler(eventName, eventNameArgs);
-  }
-
-  function textContent<Html extends HTMLElement, Component>(
-    queryTarget: QueryTarget<Component, Html> | HTMLElement,
-  ): string | null {
-    const nativeElement = isNativeElement(queryTarget)
-      ? queryTarget
-      : resolveDebugElement(queryTarget)?.nativeElement;
-
-    if (!nativeElement) {
-      return null;
-    }
-
-    return nativeElement.textContent;
-  }
-
-  function resolveDebugElement<Html extends HTMLElement, Component>(
-    queryTarget: QueryTarget<Component, Html>,
-  ) {
-    if (isDebugElement(queryTarget)) {
-      return queryTarget;
-    }
-
-    return find<Html, Component, never>(queryTarget);
-  }
-
-  function convert<T, R = any>(value: T, convertTo?: Fn<T, R>): R {
-    const converterFn = convertTo ?? asSelf;
-
-    return converterFn(value as any) as R;
-  }
-
-  function queryAll<Html extends HTMLElement, Component>(query: QueryTarget<Component, Html>) {
-    if (isDebugElement(query)) {
-      return [query];
-    }
-
-    return typeof query === 'string'
-      ? fixture.debugElement.queryAll(By.css(query))
-      : fixture.debugElement.queryAll(By.directive(query));
-  }
-
-  return () =>
-    suite({
-      useFixture: (newFixture) => {
-        fixture = newFixture;
-        fixture.detectChanges();
-      },
-      detectChanges,
-      find,
-      findAll,
-      findWhere,
-      attr,
-      triggerEvent,
-      textContent,
-      debug,
-    });
-}
-
-// TODO: langju: maybe find better way to distinguish
-function isDebugElement<Html, Component>(value: any): value is TypedDebugElement<Component, Html> {
-  return (
-    typeof value.queryAllNodes === 'function' && typeof value.triggerEventHandler === 'function'
-  );
-}
-
-function isNativeElement(value: any): value is HTMLElement {
-  // from: https://stackoverflow.com/a/384380/3063191
-  return typeof HTMLElement === 'object'
-    ? value instanceof HTMLElement
-    : value &&
-        typeof value === 'object' &&
-        value !== null &&
-        value.nodeType === 1 &&
-        typeof value.nodeName === 'string';
-}
-
-// TODO: langju: clean up printing!
-function printHtml(node: DebugElement | Node, indentation = ''): string {
-  const nativeElement = isDebugElement(node) ? node.nativeElement : node;
-  const elements = printNative(nativeElement, indentation);
-
-  return elements.filter((element) => !!element).join('\n');
-}
-
-function printNative(node: Node, indentation: string): string[] {
-  const children: string[] = [];
-
-  if (node.childNodes.length > 0) {
-    const printedChildren = Array.from(node.childNodes).map((child) =>
-      printHtml(child, indentation + '  '),
-    );
-
-    children.push(...printedChildren.reverse());
-  }
-
-  return printNode(node, children, indentation);
-}
-
-function printNode(node: Node, children: string[], indentation: string): string[] {
-  if (node.nodeName === '#text' || node.nodeName === '#comment') {
-    return [];
-  }
-
-  const { tagName, elementBeginString } = beginElement(node, indentation);
-
-  children.push(elementBeginString);
-  const reversed = children.reverse();
-
-  endElement(node, tagName, reversed, indentation);
-
-  return reversed;
-}
-
-function beginElement(node: Node, indentation: string) {
-  const tagName = hex('#569CD6')(node.nodeName.toLowerCase());
-  const attributes = getAttributes(node);
-  const elementBeginString = `${indentation}<${tagName}${attributes}>`;
-
-  return { tagName, elementBeginString };
-}
-
-function endElement(node: Node, tagName: string, childrenReversed: string[], indentation: string) {
-  const textChildren = Array.from(node.childNodes).filter((child) => child.nodeName === '#text');
-
-  if (textChildren.length > 0) {
-    const text = textChildren.map((child) => child.nodeValue).join(' ');
-    const content = `${indentation}  ${text}`;
-    childrenReversed.push(content);
-  } else if (node.childNodes.length === 0) {
-    if (tagName === 'input' || tagName === 'br') {
-      childrenReversed[0] = childrenReversed[0].replace('>', ' />');
-    } else {
-      childrenReversed[0] += `</${tagName}>`;
-    }
-
-    return;
-  }
-
-  const endTag = `${indentation}</${tagName}>`;
-  childrenReversed.push(endTag);
-}
-
-function getAttributes(node: Node) {
-  if (!isNativeElement(node)) {
-    return '';
-  }
-
-  const attributeNames = node.getAttributeNames();
-  const attributes = attributeNames.map((name) => printAttribute(name, node));
-
-  return attributes.length ? ' ' + attributes.join(' ') : '';
-}
-
-function printAttribute(name: string, node: Element): string {
-  const attrName = hex('#9CDCFE')(name);
-  const value = node.getAttribute(name);
-  const attrValue = hex('#CE9178')(`"${value}"`);
-
-  return `${attrName}=${attrValue}`;
 }
