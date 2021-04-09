@@ -1,14 +1,14 @@
-# ngtx
+🚀ngtx
 
 ![](https://github.com/Centigrade/ngtx/workflows/CI/badge.svg)
 
 `ngtx` stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of functions aiming to make your life easier when testing Angular components. It's supposed to make your tests lean while increasing the readability by boosting the semantics of each test case.
 
-## Why?
+# 🧐Why?
 
 All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really just are steps on our way to our test-goal. We think the Angular testing world should be a bit different.
 
-## How?
+# 🛠How?
 
 `ngtx` "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
 
@@ -40,7 +40,7 @@ describe(
 
 ---
 
-## Quick Examples
+# 🎯Quick Examples
 
 The following examples are just a random collection of tests, demonstrating how `ngtx` of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are acutally testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
 
@@ -138,7 +138,7 @@ describe(
 );
 ```
 
-# Detailed Documentation
+# 📑Detailed Documentation
 
 ## Quick and Easy Change Detection
 
@@ -458,7 +458,7 @@ describe(
 >
 > ![Console log output](./docs/media/debug-output.png)
 
-## Core Team
+# 👨‍👩‍👧‍👦Core Team
 
-- Julian Lang (GitHub: JulianLang, author of `ngtx`)
+- Julian Lang (GitHub: [JulianLang](https://github.com/JulianLang), author of `ngtx`)
 
