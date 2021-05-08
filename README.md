@@ -12,9 +12,10 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 `ngtx` "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
 
-1.  wrap your test-suite callback in a `ngtx` call
-2.  import the helpers you want to use
-3.  call `useFixture(fixture)` in the `beforeEach` hook, after the fixture has been created:
+1.  `$ npm install -D @centigrade/ngtx`
+2.  wrap your test-suite callback in a `ngtx` call
+3.  import the helpers you want to use
+4.  call `useFixture(fixture)` in the `beforeEach` hook, after the fixture has been created:
 
 ---
 
