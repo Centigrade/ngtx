@@ -1,14 +1,14 @@
-# 🚀ngtx
+# ngtx
 
 ![](https://github.com/Centigrade/ngtx/workflows/CI/badge.svg)
 
 `ngtx` stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of functions aiming to make your life easier when testing Angular components. It's supposed to make your tests lean while increasing the readability by boosting the semantics of each test case.
 
-# 🧐Why?
+# Why?
 
 All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really just are steps on our way to our test-goal. We think the Angular testing world should be a bit different.
 
-# 🛠How?
+# How?
 
 `ngtx` "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
 
@@ -19,7 +19,7 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 ---
 
 ```ts
-import { ngtx } from 'ngtx';
+import { ngtx } from '@centigrade/ngtx';
 
 describe(
   'MyTestSuite',
@@ -40,105 +40,115 @@ describe(
 
 ---
 
-# 🎯Quick Examples
+# Quick Examples
 
 The following examples are just a random collection of tests, demonstrating how `ngtx` of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are acutally testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
 
 ```ts
-import { ngtx, asBool, toNativeElement } from 'ngtx';
+import { ngtx, asBool, toNativeElement } from '@centigrade/ngtx';
 
 const DIALOG_CANCEL = 'Cancel';
 
 describe(
   'Some random tests as basic examples',
-  ngtx(({ useFixture, detectChanges, find, findWhere, triggerEvent, attr, textContent }) => {
-    let component: AnyComponent;
-    let fixture: ComponentFixture<AnyComponent>;
+  ngtx(
+    ({
+      useFixture,
+      detectChanges,
+      find,
+      findWhere,
+      triggerEvent,
+      attr,
+      textContent,
+    }) => {
+      let component: AnyComponent;
+      let fixture: ComponentFixture<AnyComponent>;
 
-    beforeEach(async(() => {
-      TestBed.configureTestingModule({
-        /* ... */
-      }).compileComponents();
-    }));
+      beforeEach(async(() => {
+        TestBed.configureTestingModule({
+          /* ... */
+        }).compileComponents();
+      }));
 
-    beforeEach(() => {
-      fixture = TestBed.createComponent(AnyComponent);
-      component = fixture.componentInstance;
-      useFixture(fixture);
-    });
+      beforeEach(() => {
+        fixture = TestBed.createComponent(AnyComponent);
+        component = fixture.componentInstance;
+        useFixture(fixture);
+      });
 
-    it('[Wizard] should emit the finish-event when clicking on cancel button', () => {
-      // arrange
-      spyOn(component.finish, 'emit');
+      it('[Wizard] should emit the finish-event when clicking on cancel button', () => {
+        // arrange
+        spyOn(component.finish, 'emit');
 
-      // act
-      const finishButton = findWhere(
-        (button) => textContent(button).includes(DIALOG_CANCEL),
-        ['.btn-footer-primary', '.btn-footer-secondary'],
-        toNativeElement,
-      );
+        // act
+        const finishButton = findWhere(
+          (button) => textContent(button).includes(DIALOG_CANCEL),
+          ['.btn-footer-primary', '.btn-footer-secondary'],
+          toNativeElement,
+        );
 
-      finishButton.click();
+        finishButton.click();
 
-      // assert
-      const userAction: WizardResult = 'canceled';
-      expect(component.finish.emit).toHaveBeenCalledTimes(1);
-      expect(component.finish.emit).toHaveBeenCalledWith(userAction);
-    });
+        // assert
+        const userAction: WizardResult = 'canceled';
+        expect(component.finish.emit).toHaveBeenCalledTimes(1);
+        expect(component.finish.emit).toHaveBeenCalledWith(userAction);
+      });
 
-    it('[TabsComponent] should set label translation to true', () => {
-      // arrange
-      const { componentInstance: wizard } = find(WizardComponent);
+      it('[TabsComponent] should set label translation to true', () => {
+        // arrange
+        const { componentInstance: wizard } = find(WizardComponent);
 
-      // act, assert
-      expect(wizard.translateTabs).toBe(true);
-    });
+        // act, assert
+        expect(wizard.translateTabs).toBe(true);
+      });
 
-    it('[Dialog] should emit closeDialog event on finish wizard', () => {
-      // arrange
-      spyOn(component.closeDialog, 'emit');
+      it('[Dialog] should emit closeDialog event on finish wizard', () => {
+        // arrange
+        spyOn(component.closeDialog, 'emit');
 
-      // act
-      triggerEvent('finishWizard', WizardComponent);
+        // act
+        triggerEvent('finishWizard', WizardComponent);
 
-      // asserrt
-      expect(component.closeDialog.emit).toHaveBeenCalledTimes(1);
-    });
+        // asserrt
+        expect(component.closeDialog.emit).toHaveBeenCalledTimes(1);
+      });
 
-    it('[Textfield] should pass the readonly attribute', () => {
-      // arrange
-      const expectedValue = true;
+      it('[Textfield] should pass the readonly attribute', () => {
+        // arrange
+        const expectedValue = true;
 
-      // pre-condition
-      expect(attr('readOnly', 'input', asBool)).not.toBe(expectedValue);
+        // pre-condition
+        expect(attr('readOnly', 'input', asBool)).not.toBe(expectedValue);
 
-      // act
-      component.readonly = expectedValue;
-      detectChanges();
+        // act
+        component.readonly = expectedValue;
+        detectChanges();
 
-      // assert
-      expect(attr('readOnly', 'input', asBool)).toBe(expectedValue);
-    });
+        // assert
+        expect(attr('readOnly', 'input', asBool)).toBe(expectedValue);
+      });
 
-    it('[SomeView] should show a drop down with the currently selected item', () => {
-      // arrange
-      const expectedValue = 'selected item';
-      component.selectedItem = expectedValue;
+      it('[SomeView] should show a drop down with the currently selected item', () => {
+        // arrange
+        const expectedValue = 'selected item';
+        component.selectedItem = expectedValue;
 
-      // act
-      // passing "component" to "detectChanges"
-      // additionally runs ngOnInit and ngOnChanges
-      // on component, if they are defined:
-      detectChanges(component);
+        // act
+        // passing "component" to "detectChanges"
+        // additionally runs ngOnInit and ngOnChanges
+        // on component, if they are defined:
+        detectChanges(component);
 
-      // assert
-      expect(textContent('.drop-down-label')).toEqual(expectedValue);
-    });
-  }),
+        // assert
+        expect(textContent('.drop-down-label')).toEqual(expectedValue);
+      });
+    },
+  ),
 );
 ```
 
-# 📑Detailed Documentation
+# Detailed Documentation
 
 ## Quick and Easy Change Detection
 
@@ -254,7 +264,7 @@ If you need them as `nativeElement`s, you can make use of the second parameter, 
 
 ```ts
 // import pre-built function
-import { toNativeElements } from 'ngtx';
+import { toNativeElements } from '@centigrade/ngtx';
 
 // or define it yourself:
 function toNativeElements(input: DebugElement[]): Element[] {
@@ -262,7 +272,10 @@ function toNativeElements(input: DebugElement[]): Element[] {
 }
 
 // allButtons is now of type Element[]:
-const allButtons = findAll(['.button-secondary', '.button-primary'], toNativeElements);
+const allButtons = findAll(
+  ['.button-secondary', '.button-primary'],
+  toNativeElements,
+);
 ```
 
 ---
@@ -317,7 +330,7 @@ describe(
   ngtx(({ useFixture, triggerEvent }) => {
     // ...
 
-    it('should find the button with text "OK"', () => {
+    it('should trigger events on desired elements directly', () => {
       // arrange
       spyOn(component.myEvent, 'emit');
 
@@ -356,7 +369,7 @@ describe(
     // ...
 
     // old-school:
-    it('should find the attribute "for" on a label', () => {
+    it('should set the correct input-id as label-for attribute', () => {
       // arrange
       const input = fixture.debugElement.query(By.css('input'));
       const label = fixture.debugElement.query(By.css('label'));
@@ -366,7 +379,7 @@ describe(
     });
 
     // becomes now:
-    it('should find the attribute "for" on a label', () => {
+    it('should set the correct input-id as label-for attribute', () => {
       // arrange, act, assert
       expect(attr('for', 'label')).toEqual(attr('id', 'input'));
     });
@@ -377,7 +390,7 @@ describe(
 In cases you want to work with the values of an attribute, you'll need to know that the result of `attr` is always a string per default. This way, a boolean value will be the string `"true"` as a result. If you want to cast or parse the attribute's value-string, you can make use of the optional, third parameter of `attr`, which accepts a conversion function:
 
 ```ts
-import { asBool, asNumber /* ... */ } from 'angular-test-helpers';
+import { asBool, asNumber /* ... */ } from '@centigrade/ngtx';
 
 expect(attr('disabled', 'button', asBool)).toBe(true);
 expect(attr('counter', 'button', asNumber)).toBe(42);
@@ -458,7 +471,6 @@ describe(
 >
 > ![Console log output](./docs/media/debug-output.png)
 
-# 👨‍👩‍👧‍👦Core Team
+# Core Team
 
 - Julian Lang (GitHub: [JulianLang](https://github.com/JulianLang), author of `ngtx`)
-
