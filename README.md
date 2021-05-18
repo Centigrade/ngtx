@@ -182,6 +182,22 @@ A small bonus: Sometimes you need to have your LifeCycleHooks being run before t
 detectChanges(component);
 ```
 
+You can also provide an object that should be passed into the `ngOnChanges` life-cycle hook:
+
+```ts
+// if your component looks like that:
+class MyComponent {
+  // @Inputs skipped ...
+  
+  ngOnChanges(changes: SimpleChanges) {
+    if(changes.label) { /* do something */ }
+  }
+}
+
+// you can trigger label-changes logic in your tests like that:
+detectChanges(component, { label: true });
+```
+
 ---
 
 ## Finding Relevant Elements Easier
@@ -343,7 +359,6 @@ describe(
       // works as well:
       const debugElem = find('button');
       triggerEvent('myEvent', debugElem);
-      triggerEvent('myEvent', debugElem.nativeElement);
 
       // assert
       expect(component.myEvent.emit).toHaveBeenCalledTimes(4);
@@ -456,7 +471,7 @@ describe(
           prints to console:
 
           <div class="input-container active">
-            <input class="my-input" value="some text" />
+            <input class="my-input" />
           </div>
 
           We now may realize that there is no textContent of course,
