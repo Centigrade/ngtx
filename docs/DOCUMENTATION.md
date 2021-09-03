@@ -463,7 +463,7 @@ describe(
           prints to console:
 
           <div class="input-container active">
-            <input class="my-input" />
+            <input class="my-input" value="expected-text"></input>
           </div>
 
           We now may realize that there is no textContent of course,
