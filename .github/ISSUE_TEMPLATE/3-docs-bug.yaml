@@ -1,0 +1,20 @@
+name: 'Docs Bug Report'
+description: Report an issue in ngtx's documentation
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+    validations:
+      required: true
+
+  - type: input
+    id: affected-url
+    attributes:
+      label: What is the affected URL?
+
+  - type: textarea
+    id: expected-vs-actual-behavior
+    attributes:
+      label: Please provide the expected behavior vs the actual behavior you encountered
