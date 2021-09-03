@@ -69,7 +69,7 @@ You can file new issues by selecting from our [new issue templates](https://gith
 
 Before you submit your Pull Request (PR) consider the following guidelines:
 
-1. Search [GitHub](https://github.com/ngtx/ngtx/pulls) for an open or closed PR that relates to your submission.
+1. Search [GitHub](https://github.com/Centigrade/ngtx/pulls) for an open or closed PR that relates to your submission.
    You don't want to duplicate existing efforts.
 
 2. Be sure that an issue describes the problem you're fixing, or documents the design for the feature you'd like to add.
@@ -79,7 +79,7 @@ Before you submit your Pull Request (PR) consider the following guidelines:
    We cannot accept code without a signed CLA.
    Make sure you author all contributed Git commits with email address associated with your CLA signature.
 
-4. [Fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) the ngtx/ngtx repo.
+4. [Fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) the Centigrade/ngtx repo.
 
 5. In your forked repository, make your changes in a new git branch:
 
@@ -112,7 +112,7 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 
 ### Reviewing a Pull Request
 
-The ngtx team reserves the right not to accept pull requests from community members who haven't been good citizens of the community. Such behavior includes not following the [ngtx code of conduct](https://github.com/ngtx/code-of-conduct) and applies within or outside of ngtx managed channels.
+The ngtx team reserves the right not to accept pull requests from community members who haven't been good citizens of the community. Such behavior includes not following the [ngtx code of conduct](https://github.com/Centigrade/ngtx/blob/main/CODE_OF_CONDUCT).
 
 #### Addressing review feedback
 
@@ -133,61 +133,6 @@ If we ask for changes via code reviews then:
 
 That's it! Thank you for your contribution!
 
-##### Updating the commit message
-
-A reviewer might often suggest changes to a commit message (for example, to add more context for a change or adhere to our [commit message guidelines](#commit)).
-In order to update the commit message of the last commit on your branch:
-
-1. Check out your branch:
-
-   ```shell
-   git checkout my-fix-branch
-   ```
-
-2. Amend the last commit and modify the commit message:
-
-   ```shell
-   git commit --amend
-   ```
-
-3. Push to your GitHub repository:
-
-   ```shell
-   git push --force-with-lease
-   ```
-
-> NOTE:<br />
-> If you need to update the commit message of an earlier commit, you can use `git rebase` in interactive mode.
-> See the [git docs](https://git-scm.com/docs/git-rebase#_interactive_mode) for more details.
-
-#### After your pull request is merged
-
-After your pull request is merged, you can safely delete your branch and pull the changes from the main (upstream) repository:
-
-- Delete the remote branch on GitHub either through the GitHub web UI or your local shell as follows:
-
-  ```shell
-  git push origin --delete my-fix-branch
-  ```
-
-- Check out the master branch:
-
-  ```shell
-  git checkout master -f
-  ```
-
-- Delete the local branch:
-
-  ```shell
-  git branch -D my-fix-branch
-  ```
-
-- Update your master with the latest upstream version:
-
-  ```shell
-  git pull --ff upstream master
-  ```
-
 ## <a name="rules"></a> Coding Rules
 
 To ensure consistency throughout the source code, keep these rules in mind as you are working:
@@ -200,11 +145,9 @@ To ensure consistency throughout the source code, keep these rules in mind as yo
 
 ## <a name="commit"></a> Commit Message Format
 
-_This specification is inspired by and supersedes the [ngtxJS commit message format][commit-message-format]._
+_This format is referring to the [AngularJS commit message format][commit-message-format]_
 
-We have very precise rules over how our Git commit messages must be formatted.
 This format leads to **easier to read commit history**.
-
 Each commit message consists of a **header**, a **body**, and a **footer**.
 
 ```
@@ -231,10 +174,7 @@ Any line of the commit message cannot be longer than 100 characters.
   │       │             │
   │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
   │       │
-  │       └─⫸ Commit Scope: animations|bazel|benchpress|common|compiler|compiler-cli|core|
-  │                          elements|forms|http|language-service|localize|platform-browser|
-  │                          platform-browser-dynamic|platform-server|router|service-worker|
-  │                          upgrade|zone.js|packaging|changelog|docs-infra|migrations|ngcc|ve
+  │       └─⫸ Commit Scope: Mostly the name of the feature being changed
   │
   └─⫸ Commit Type: build|ci|docs|feat|fix|perf|refactor|test
 ```
@@ -256,47 +196,7 @@ Must be one of the following:
 
 ##### Scope
 
-The scope should be the name of the npm package affected (as perceived by the person reading the changelog generated from commit messages).
-
-The following is the list of supported scopes:
-
-- `animations`
-- `bazel`
-- `benchpress`
-- `common`
-- `compiler`
-- `compiler-cli`
-- `core`
-- `elements`
-- `forms`
-- `http`
-- `language-service`
-- `localize`
-- `platform-browser`
-- `platform-browser-dynamic`
-- `platform-server`
-- `router`
-- `service-worker`
-- `upgrade`
-- `zone.js`
-
-There are currently a few exceptions to the "use package name" rule:
-
-- `packaging`: used for changes that change the npm package layout in all of our packages, e.g. public path changes, package.json changes done to all packages, d.ts file/format changes, changes to bundles, etc.
-
-- `changelog`: used for updating the release notes in CHANGELOG.md
-
-- `dev-infra`: used for dev-infra related changes within the directories /scripts and /tools
-
-- `docs-infra`: used for docs-app (ngtx.io) related changes within the /aio directory of the repo
-
-- `migrations`: used for changes to the `ng update` migrations.
-
-- `ngcc`: used for changes to the [ngtx Compatibility Compiler](./packages/compiler-cli/ngcc/README.md)
-
-- `ve`: used for changes specific to ViewEngine (legacy compiler/renderer).
-
-- none/empty string: useful for `test` and `refactor` changes that are done across all packages (e.g. `test: add missing unit tests`) and for docs changes that are not related to a specific package (e.g. `docs: fix typo in tutorial`).
+The scope should be the name of the feature affected by the changes.
 
 ##### Summary
 
@@ -315,7 +215,7 @@ You can include a comparison of the previous behavior with the new behavior in o
 
 #### <a name="commit-footer"></a>Commit Message Footer
 
-The footer can contain information about breaking changes and is also the place to reference GitHub issues, Jira tickets, and other PRs that this commit closes or is related to.
+The footer can contain information about breaking changes and is also the place to reference GitHub issues and other PRs that this commit closes or is related to.
 
 ```
 BREAKING CHANGE: <breaking change summary>
@@ -337,31 +237,10 @@ The content of the commit message body should contain:
 - information about the SHA of the commit being reverted in the following format: `This reverts commit <SHA>`,
 - a clear description of the reason for reverting the commit message.
 
-## <a name="cla"></a> Signing the CLA
-
-Please sign our Contributor License Agreement (CLA) before sending pull requests. For any code
-changes to be accepted, the CLA must be signed. It's a quick process, we promise!
-
-- For individuals, we have a [simple click-through form][individual-cla].
-- For corporations, we'll need you to
-  [print, sign and one of scan+email, fax or mail the form][corporate-cla].
-
-If you have more than one GitHub accounts, or multiple email addresses associated with a single GitHub account, you must sign the CLA using the primary email address of the GitHub account used to author Git commits and send pull requests.
-
-The following documents can help you sort out issues with GitHub accounts and multiple email addresses:
-
-- https://help.github.com/articles/setting-your-commit-email-address-in-git/
-- https://stackoverflow.com/questions/37245303/what-does-usera-committed-with-userb-13-days-ago-on-github-mean
-- https://help.github.com/articles/about-commit-email-addresses/
-- https://help.github.com/articles/blocking-command-line-pushes-that-expose-your-personal-email-address/
-
 [coc]: https://github.com/ngtx/code-of-conduct/blob/master/CODE_OF_CONDUCT.md
 [commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
-[corporate-cla]: https://cla.developers.google.com/about/google-corporate
-[dev-doc]: https://github.com/ngtx/ngtx/blob/master/docs/DEVELOPER.md
-[github]: https://github.com/ngtx/ngtx
-[discord]: https://discord.gg/ngtx
-[individual-cla]: https://cla.developers.google.com/about/google-individual
+[dev-doc]: https://github.com/Centigrade/ngtx/blob/master/docs/DEVELOPER.md
+[github]: https://github.com/Centigrade/ngtx
 [js-style-guide]: https://google.github.io/styleguide/jsguide.html
 [jsfiddle]: https://jsfiddle.net/
 [plunker]: https://plnkr.co/edit
