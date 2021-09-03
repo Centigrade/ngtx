@@ -237,9 +237,9 @@ The content of the commit message body should contain:
 - information about the SHA of the commit being reverted in the following format: `This reverts commit <SHA>`,
 - a clear description of the reason for reverting the commit message.
 
-[coc]: https://github.com/ngtx/code-of-conduct/blob/main/CODE_OF_CONDUCT.md
+[coc]: CODE_OF_CONDUCT.md
 [commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
-[dev-doc]: https://github.com/Centigrade/ngtx/blob/main/docs/DEVELOPER.md
+[dev-doc]: docs/DEVELOPER.md
 [github]: https://github.com/Centigrade/ngtx
 [js-style-guide]: https://google.github.io/styleguide/jsguide.html
 [jsfiddle]: https://jsfiddle.net/
