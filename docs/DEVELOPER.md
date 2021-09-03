@@ -9,10 +9,8 @@ This document describes how to set up your development environment to build and 
 - [Running Tests Locally](#running-tests-locally)
 - [Formatting your Source Code](#formatting-your-source-code)
 - [Linting/verifying your Source Code](#lintingverifying-your-source-code)
-- [Publishing Snapshot Builds](#publishing-snapshot-builds)
-- [Bazel Support](#bazel-support)
 
-See the [contribution guidelines](https://github.com/Centigrade/ngtx/blob/master/CONTRIBUTING.md)
+See the [contribution guidelines](https://github.com/Centigrade/ngtx/blob/main/CONTRIBUTING.md)
 if you'd like to contribute to ngtx.
 
 ## Prerequisite Software
