@@ -8,6 +8,10 @@ const chalkHexMock = () => {
 
 let hex: typeof chalkHex = chalkHexMock as any;
 
+/* 
+  hint: langju: chalk won't work in browser environments. To allow using ngtx in browser environments as well
+  we gracefully fail in these cases and replace the used features of chalk with a mocked version.
+*/
 export async function tryInitChalk(): Promise<typeof chalkHex> {
   import('chalk')
     .then(({ hex: chalkHex }) => {
@@ -15,7 +19,7 @@ export async function tryInitChalk(): Promise<typeof chalkHex> {
     })
     .catch(() => {
       console.log(
-        `Could not load hex in current environment. Debug() outputs might not be colored.`,
+        `Could not load dependency "chalk" in current environment. Ngtx will work, but debug() outputs might not be colored.`,
       );
     });
   return hex;
