@@ -11,12 +11,12 @@ class PackageJsonPreparer {
     delete packageJson['scripts'];
     delete packageJson['devDependencies'];
 
-    packageJson.main = PATHS.mjs + '/index.js';
-    packageJson.module = PATHS.cjs + '/index.js';
+    packageJson.main = PATHS.cjs + '/index.js';
+    packageJson.module = PATHS.mjs + '/index.js';
     packageJson.exports = {
       '.': {
-        import: `./${PATHS.mjs}/index.js`,
-        require: `./${PATHS.cjs}/index.js`,
+        import: `${PATHS.mjs}/index.js`,
+        require: `${PATHS.cjs}/index.js`,
       },
     };
 
