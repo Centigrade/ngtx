@@ -1,6 +1,25 @@
 import { DebugElement } from '@angular/core';
-import { hex } from 'chalk';
+import type { hex as chalkHex } from 'chalk';
 import { isDebugElement, isNativeElement } from '../type-guards';
+
+const chalkHexMock = () => {
+  return (value: string) => value;
+};
+
+let hex: typeof chalkHex = chalkHexMock as any;
+
+export async function tryInitChalk(): Promise<typeof chalkHex> {
+  import('chalk')
+    .then(({ hex: chalkHex }) => {
+      hex = chalkHex;
+    })
+    .catch(() => {
+      console.log(
+        `Could not load hex in current environment. Debug() outputs might not be colored.`,
+      );
+    });
+  return hex;
+}
 
 // TODO: langju: clean up printing!
 export function printHtml(node: DebugElement | Node, indentation = ''): string {
