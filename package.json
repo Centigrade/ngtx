@@ -2,21 +2,12 @@
   "name": "@centigrade/ngtx",
   "version": "1.0.2",
   "description": "The Angular Testing Extensions is a small set of functions, aiming to make your life easier, when testing Angular components.",
-  "homepage": "https://github.com/Centigrade/ngtx",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "files": [
-    "**/*"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Centigrade/ngtx.git"
-  },
-  "author": "Julian Lang <julian.lang@centigrade.de>",
-  "license": "MIT",
   "scripts": {
     "clean": "shx rm -rf dist",
-    "build": "npm run clean && tsc && shx cp package.json dist/package.json && shx cp README.md dist/README.md && node buildhelper/package-json-preparer.js package.json dist/package.json",
+    "prebuild": "npm run clean && npm run build:mjs && npm run build:umd",
+    "build:mjs": "tsc -p tsconfig-mjs.json",
+    "build:umd": "tsc -p tsconfig-cjs.json",
+    "build": "shx cp package.json dist/package.json && shx cp README.md dist/README.md && node buildhelper/package-json-preparer.js package.json dist/package.json",
     "start": "npx http-server -o projects/showcase/index.html",
     "test": "jest",
     "test:pattern": "jest --testPathPattern",
@@ -55,5 +46,15 @@
     "jest-preset-angular": "^8.3.2",
     "ts-node": "^9.1.1",
     "zone.js": "^0.11.3"
-  }
+  },
+  "homepage": "https://github.com/Centigrade/ngtx",
+  "files": [
+    "**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Centigrade/ngtx.git"
+  },
+  "author": "Julian Lang <julian.lang@centigrade.de>",
+  "license": "MIT"
 }

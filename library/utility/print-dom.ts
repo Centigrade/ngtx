@@ -1,5 +1,5 @@
 import { DebugElement } from '@angular/core';
-import { hex } from 'chalk';
+import type { hex as chalkHex } from 'chalk';
 import { isDebugElement, isNativeElement } from '../type-guards';
 
 // TODO: langju: clean up printing!
@@ -96,4 +96,31 @@ function printAttribute(name: string, node: Element): string {
   const attrValue = hex('#CE9178')(`"${value}"`);
 
   return `${attrName}=${attrValue}`;
+}
+
+// ---------------------------------------------
+// ----------- Module Internals ----------------
+// ---------------------------------------------
+
+/* 
+  hint: langju: chalk won't work in browser environments. To allow using ngtx in browser environments as well
+  we gracefully fail in these cases and replace the used features of chalk with a mocked version.
+*/
+
+const chalkHexMock = () => {
+  return (value: string) => value;
+};
+let hex: typeof chalkHex = chalkHexMock as any;
+
+export async function tryInitChalk(): Promise<typeof chalkHex> {
+  import('chalk')
+    .then(({ hex: chalkHex }) => {
+      hex = chalkHex;
+    })
+    .catch(() => {
+      console.log(
+        `Could not load dependency "chalk" in current environment. Ngtx will work, but debug() outputs might not be colored.`,
+      );
+    });
+  return hex;
 }
