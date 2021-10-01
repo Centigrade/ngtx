@@ -110,9 +110,9 @@ export interface Ngtx {
    * ---
    * @param cssSelector A css-selector describing your wanted element.
    */
-  find<Html extends HTMLElement>(
+  find<Html extends HTMLElement, Component = any>(
     cssSelector: string,
-  ): TypedDebugElement<any, Html>;
+  ): TypedDebugElement<Component, Html>;
   /**
    * **Finds an element by css-selector like a class-name, id, tag-name or even a mix of all.**
    *
