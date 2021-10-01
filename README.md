@@ -1,4 +1,4 @@
-![ngtx logo](./docs/media/logo.png)
+![ngtx logo](./docs/media/logo.svg)
 
 # @Centigrade/ngtx
 
