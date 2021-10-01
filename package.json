@@ -1,6 +1,6 @@
 {
   "name": "@centigrade/ngtx",
-  "version": "1.1.1-rc.2",
+  "version": "1.1.1-rc.3",
   "description": "The Angular Testing Extensions is a small set of functions, aiming to make your life easier, when testing Angular components.",
   "scripts": {
     "clean": "shx rm -rf dist",
@@ -14,7 +14,9 @@
     "test:clear-cache": "jest --clear-cache",
     "lint": "tslint -c tslint.json 'projects/**/*.ts'",
     "lint:format": "prettier --check \"projects/**/*.{ts,scss,html}\" ",
-    "format": "prettier --write \"projects/**/*.{ts,scss,html}\""
+    "format": "prettier --write \"projects/**/*.{ts,scss,html}\"",
+    "publish": "npm run build && cd dist && npm publish",
+    "publish:preview": "shx mkdir -p ./out && cd dist && npm pack && shx mv -f *.tgz ../out/"
   },
   "dependencies": {
     "chalk": "^4.1.2",
@@ -49,7 +51,7 @@
   },
   "homepage": "https://github.com/Centigrade/ngtx",
   "files": [
-    "./dist/**/*"
+    "**/*"
   ],
   "repository": {
     "type": "git",
