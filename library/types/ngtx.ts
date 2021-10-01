@@ -136,7 +136,7 @@ export interface Ngtx {
    * ~~~
    *
    * ---
-   * @param cssSelector A css-selector describing your wanted elemment.
+   * @param cssSelector A css-selector describing your wanted element.
    * @param convert A converter function that takes the `DebugElement` and converts it into anything other.
    */
   find<Html extends HTMLElement, Out>(
@@ -308,7 +308,7 @@ export interface Ngtx {
    * If the query-target is a Type or css-selector, `attr` will execute a query for that element
    * and then retrieves the attribute value from it.
    *
-   * Optionally accepts a converter function as third paramter, that converts the
+   * Optionally accepts a converter function as third parameter, that converts the
    * found attribute value into something else. This is useful if you want to parse
    * or cast your result into another type.
    *
@@ -344,7 +344,7 @@ export interface Ngtx {
    * If the query-target is a Type or css-selector, `attr` will execute a query for that element
    * and then retrieves the attribute value from it.
    *
-   * Optionally accepts a converter function as third paramter, that converts the
+   * Optionally accepts a converter function as third parameter, that converts the
    * found attribute value into something else. This is useful if you want to parse
    * or cast your result into another type.
    *
