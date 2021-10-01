@@ -21,7 +21,7 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 - Julian Lang (GitHub: [JulianLang](https://github.com/JulianLang), author of `ngtx`)
 
-[contributing]: CONTRIBUTING.md
-[codeofconduct]: CODE_OF_CONDUCT.md
-[documentation]: docs/DOCUMENTATION.md
+[contributing]: ./CONTRIBUTING.md
+[codeofconduct]: ./CODE_OF_CONDUCT.md
+[documentation]: ./docs/DOCUMENTATION.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
