@@ -1,6 +1,7 @@
 import { Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { Fn, LifeCycleHooks, QueryTarget, TypedDebugElement } from '.';
+import { TypeObjectMap } from './typed-object-map';
 
 export interface Ngtx {
   /**
@@ -85,7 +86,10 @@ export interface Ngtx {
    * ---
    * @param component (Optional) A component instance to call the `ngOnInit`- and `ngOnChanges`-life-cycles on.
    */
-  detectChanges<T extends LifeCycleHooks>(component: T): void;
+  detectChanges<T extends LifeCycleHooks>(
+    component: T,
+    changes?: TypeObjectMap<T>,
+  ): void;
 
   /**
    * **Finds an element by css-selector like a class-name, id, tag-name or even a mix of all.**
