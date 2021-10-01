@@ -49,7 +49,7 @@
   },
   "homepage": "https://github.com/Centigrade/ngtx",
   "files": [
-    "**/*"
+    "./dist/**/*"
   ],
   "repository": {
     "type": "git",
