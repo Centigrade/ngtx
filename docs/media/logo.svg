@@ -2,15 +2,14 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 708 323" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
     <style>
-        [data-dark-theme=dark] #ng, 
-        [data-dark-theme=dark] #tx {
-            fill: #eee;
+        [data-color-mode=light] #ng, 
+        [data-color-mode=light] #tx {
+            fill: #000;
         }
-        
-        @media(prefers-color-scheme: dark) {
-            #ng, #tx {
-                fill: #eee;
-            }
+
+        [data-color-mode=dark] #ng, 
+        [data-color-mode=dark] #tx {
+            fill: #eee;
         }
     </style>
     <path d="M308.054,50.153L14.801,50.153C6.627,50.153 0,56.78 0,64.955C-0,104.357 -0,211.478 -0,250.88C0,259.054 6.627,265.681 14.801,265.681L308.054,265.681L308.054,50.153Z" style="fill:url(#_Linear1);"/>
