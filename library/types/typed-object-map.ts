@@ -1,3 +1,5 @@
-export type TypeObjectMap<K> = {
-  [P in keyof Partial<K>]: any;
-};
+export type TypeObjectMap<K> = Partial<
+  {
+    [P in keyof Partial<K>]: any;
+  }
+>;
