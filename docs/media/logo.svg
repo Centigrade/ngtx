@@ -4,12 +4,7 @@
     <style>
         #ng, 
         #tx {
-            fill: #000;
-        }
-
-        [data-color-mode=dark] #ng, 
-        [data-color-mode=dark] #tx {
-            fill: #eee;
+            fill: var(--color-notifications-button-hover-text, #eee);
         }
     </style>
     <path d="M308.054,50.153L14.801,50.153C6.627,50.153 0,56.78 0,64.955C-0,104.357 -0,211.478 -0,250.88C0,259.054 6.627,265.681 14.801,265.681L308.054,265.681L308.054,50.153Z" style="fill:url(#_Linear1);"/>
