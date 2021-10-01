@@ -1,4 +1,6 @@
-# ngtx
+![ngtx logo](./docs/media/logo.png)
+
+# @Centigrade/ngtx
 
 ![](https://github.com/Centigrade/ngtx/workflows/CI/badge.svg)
 
