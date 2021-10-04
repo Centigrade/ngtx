@@ -110,7 +110,7 @@ function printAttribute(name: string, node: Element): string {
 const chalkHexMock = () => {
   return (value: string) => value;
 };
-let hex: typeof chalkHex = chalkHexMock as any;
+let hex: typeof chalkHex = chalkHexMock() as any;
 
 export async function tryInitChalk(): Promise<typeof chalkHex> {
   import('chalk')
