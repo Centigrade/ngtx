@@ -5,27 +5,29 @@
 `ngtx` "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
 
 1.  `$ npm install -D @centigrade/ngtx`
-2.  wrap your test-suite callback in a `ngtx` call
-3.  import the helpers you want to use
-4.  call `useFixture(fixture)` in the `beforeEach` hook, after the fixture has been created:
+2.  import ngtx into your test file
+3.  wrap your test-suite callback in a `ngtx` call
+4.  import `useFixture` and additional helpers you want to use as a destructured object parameter
+5.  call `useFixture(fixture)` in the `beforeEach` hook, after the fixture has been created:
 
 ---
 
 ```ts
-import { ngtx } from '@centigrade/ngtx';
+import { ngtx } from '@centigrade/ngtx'; // step 2
 
 describe(
   'MyTestSuite',
-  ngtx(({ useFixture }) => {
-    // other stuff ...
+  // step 3 & 4
+  ngtx(({ useFixture /* ... more helpers as you need */ }) => {
+    // ...
     beforeEach(() => {
       fixture = TestBed.createComponent(MyComponent);
       component = fixture.componentInstance;
-      useFixture(fixture);
+      useFixture(fixture); // step 5
     });
 
     it('should work like this', () => {
-      // ngtx helpers are initialized!
+      // the injected helpers are initialized and can be used now!
     });
   }),
 );
@@ -33,7 +35,7 @@ describe(
 
 # Quick Examples
 
-The following examples are just a random collection of tests, demonstrating how `ngtx` of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are acutally testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
+The following examples are just a random collection of tests, demonstrating how `ngtx` of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are actually testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
 
 ```ts
 import { ngtx, asBool, toNativeElement } from '@centigrade/ngtx';
@@ -101,7 +103,7 @@ describe(
         // act
         triggerEvent('finishWizard', WizardComponent);
 
-        // asserrt
+        // assert
         expect(component.closeDialog.emit).toHaveBeenCalledTimes(1);
       });
 
@@ -302,7 +304,7 @@ describe(
     it('should find the button with text "OK"', () => {
       // arrange, act
       const okButton = findWhere(
-        (candiate) => candiate.nativeElement.textContent === 'OK',
+        (candidate) => candidate.nativeElement.textContent === 'OK',
         '.dialog-button',
       );
 
@@ -444,7 +446,16 @@ describe(
 
 We all know it. Sometimes you're lost with a failing test case and don't even know what's happening there. In these cases it's often helpful to see the actual HTML, rendered by the test case. But there's no easy way to print out the HTML tree to the console.
 
-Now there is. With `debug` you can print the HTML-tree that your test case produces right into your console. Currently the nodes' `tagName`, `class`-attribute and `textContent` is supported for printing.
+Now there is. With `debug` you can print the HTML-tree that your test case produces right into your console. Please note, that you need to initialize syntax-highlighting in order to enable it in compatible consoles:
+
+```ts
+// file: "src/test.ts" or "setupJest.ts"
+import { initSyntaxHighlighting } from '@centigrade/ngtx';
+
+initSyntaxHighlighting();
+```
+
+Then use it inside your tests:
 
 ```ts
 describe(
