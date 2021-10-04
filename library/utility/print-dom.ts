@@ -2,6 +2,38 @@ import { DebugElement } from '@angular/core';
 import type { hex as chalkHex } from 'chalk';
 import { isDebugElement, isNativeElement } from '../type-guards';
 
+// ---------------------------------------------
+// ----------- Module Internals ----------------
+// ---------------------------------------------
+//#region Module Internals
+
+/* 
+  hint: langju: chalk won't work in browser environments. To allow using ngtx in browser environments as well
+  we gracefully fail in these cases and replace the used features of chalk with a mocked version.
+*/
+
+const chalkHexMock = () => {
+  return (value: string) => value;
+};
+let hex: typeof chalkHex = chalkHexMock as any;
+
+export async function tryInitChalk(): Promise<void> {
+  try {
+    const { hex: chalkHex } = await import('chalk');
+    hex = chalkHex;
+    console.log('[ngtx] Successfully initialized syntax-highlighting.');
+  } catch {
+    console.log(
+      `[ngtx] Could not load dependency "chalk" in current environment. Ngtx will work, but debug() outputs might not be colored.`,
+    );
+  }
+}
+//#endregion
+
+// ---------------------------------------------
+// ----------- Module Public API ---------------
+// ---------------------------------------------
+
 // TODO: langju: clean up printing!
 export function printHtml(node: DebugElement | Node, indentation = ''): string {
   const nativeElement = isDebugElement(node) ? node.nativeElement : node;
@@ -96,31 +128,4 @@ function printAttribute(name: string, node: Element): string {
   const attrValue = hex('#CE9178')(`"${value}"`);
 
   return `${attrName}=${attrValue}`;
-}
-
-// ---------------------------------------------
-// ----------- Module Internals ----------------
-// ---------------------------------------------
-
-/* 
-  hint: langju: chalk won't work in browser environments. To allow using ngtx in browser environments as well
-  we gracefully fail in these cases and replace the used features of chalk with a mocked version.
-*/
-
-const chalkHexMock = () => {
-  return (value: string) => value;
-};
-let hex: typeof chalkHex = chalkHexMock as any;
-
-export async function tryInitChalk(): Promise<typeof chalkHex> {
-  import('chalk')
-    .then(({ hex: chalkHex }) => {
-      hex = chalkHex;
-    })
-    .catch(() => {
-      console.log(
-        `Could not load dependency "chalk" in current environment. Ngtx will work, but debug() outputs might not be colored.`,
-      );
-    });
-  return hex;
 }
