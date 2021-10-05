@@ -446,16 +446,7 @@ describe(
 
 We all know it. Sometimes you're lost with a failing test case and don't even know what's happening there. In these cases it's often helpful to see the actual HTML, rendered by the test case. But there's no easy way to print out the HTML tree to the console.
 
-Now there is. With `debug` you can print the HTML-tree that your test case produces right into your console. Please note, that you need to initialize syntax-highlighting in order to enable it in compatible consoles:
-
-```ts
-// file: "src/test.ts" or "setupJest.ts"
-import { initSyntaxHighlighting } from '@centigrade/ngtx';
-
-initSyntaxHighlighting();
-```
-
-Then use it inside your tests:
+Now there is. With `debug` you can print the HTML-tree that your test case produces right into your console:
 
 ```ts
 describe(
@@ -484,6 +475,15 @@ describe(
     });
   }),
 );
+```
+
+Please note, that you may want to initialize syntax-highlighting in order to enable colored output in compatible consoles. To do that import and call the `initSyntaxHighlighting` function from `ngtx` in your test-environment setup file:
+
+```ts
+// file: "src/test.ts" or "setupJest.ts"
+import { initSyntaxHighlighting } from '@centigrade/ngtx';
+
+initSyntaxHighlighting();
 ```
 
 > Real screenshot:
