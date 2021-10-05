@@ -1,5 +1,5 @@
 import { DebugElement } from '@angular/core';
-import type { hex as chalkHex } from 'chalk';
+import type { hex } from 'chalk';
 import { isDebugElement, isNativeElement } from '../type-guards';
 
 // ---------------------------------------------
@@ -11,16 +11,17 @@ import { isDebugElement, isNativeElement } from '../type-guards';
   hint: langju: chalk won't work in browser environments. To allow using ngtx in browser environments as well
   we gracefully fail in these cases and replace the used features of chalk with a mocked version.
 */
-
 const chalkHexMock = () => {
   return (value: string) => value;
 };
-let hex: typeof chalkHex = chalkHexMock as any;
+
+let setColor: typeof hex = chalkHexMock as any;
 
 export async function tryInitChalk(): Promise<void> {
   try {
+    // import chalk if possible and set it as setColor function:
     const { default: chalk } = await import('chalk');
-    hex = chalk.hex.bind(chalk);
+    setColor = chalk.hex.bind(chalk);
   } catch (err) {
     console.log(
       `[ngtx] Could not load dependency "chalk" in current environment. Ngtx will work, but debug() outputs might not be colored.`,
@@ -76,7 +77,7 @@ function printNode(
 }
 
 function beginElement(node: Node, indentation: string) {
-  const tagName = hex('#569CD6')(node.nodeName.toLowerCase());
+  const tagName = setColor('#569CD6')(node.nodeName.toLowerCase());
   const attributes = getAttributes(node);
   const elementBeginString = `${indentation}<${tagName}${attributes}>`;
 
@@ -123,9 +124,9 @@ function getAttributes(node: Node) {
 }
 
 function printAttribute(name: string, node: Element): string {
-  const attrName = hex('#9CDCFE')(name);
+  const attrName = setColor('#9CDCFE')(name);
   const value = node.getAttribute(name);
-  const attrValue = hex('#CE9178')(`"${value}"`);
+  const attrValue = setColor('#CE9178')(`"${value}"`);
 
   return `${attrName}=${attrValue}`;
 }
