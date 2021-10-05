@@ -9,6 +9,7 @@ import { textContentImpl } from './features/text-content';
 import { triggerEventImpl } from './features/trigger-event';
 import { Fn, LifeCycleHooks, QueryTarget, TypedDebugElement } from './types';
 import { Ngtx } from './types/ngtx';
+import { TypeObjectMap } from './types/typed-object-map';
 
 /**
  * Injects ngtx test features into the given test suite.
@@ -40,8 +41,11 @@ export function ngtx(suite: (features: Ngtx) => void) {
     debugImpl(fixture, root);
   }
 
-  function detectChanges<T extends LifeCycleHooks>(component?: T): void {
-    return detectChangesImpl(fixture, component);
+  function detectChanges<T extends LifeCycleHooks>(
+    component?: T,
+    changes?: TypeObjectMap<T>,
+  ): void {
+    return detectChangesImpl(fixture, component, changes);
   }
 
   function find<Html extends HTMLElement, Component, Out>(
