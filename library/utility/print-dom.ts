@@ -19,13 +19,13 @@ let hex: typeof chalkHex = chalkHexMock as any;
 
 export async function tryInitChalk(): Promise<void> {
   try {
-    const { hex: chalkHex } = await import('chalk');
-    hex = chalkHex;
-    console.log('[ngtx] Successfully initialized syntax-highlighting.');
-  } catch {
+    const { default: chalk } = await import('chalk');
+    hex = chalk.hex.bind(chalk);
+  } catch (err) {
     console.log(
       `[ngtx] Could not load dependency "chalk" in current environment. Ngtx will work, but debug() outputs might not be colored.`,
     );
+    console.warn('Internal error:', err);
   }
 }
 //#endregion
