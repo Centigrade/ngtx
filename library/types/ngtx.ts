@@ -407,9 +407,11 @@ export interface Ngtx {
    * ~~~
    * ---
    * @param queryTarget A Type, css-selector, DebugElement or NativeElement to get the textContent from.
+   * @param autoTrim Whether the text content should be automatically trimmed. Defaults to `true`.
    */
   textContent<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component, Html> | HTMLElement,
+    autoTrim?: boolean,
   ): string | null;
 
   /**

@@ -6,6 +6,7 @@ import { resolveDebugElement } from '../utility';
 export function textContentImpl<Html extends HTMLElement, Component>(
   fixture: ComponentFixture<any>,
   queryTarget: QueryTarget<Component, Html> | HTMLElement,
+  autoTrim: boolean,
 ): string | null {
   const nativeElement = isNativeElement(queryTarget)
     ? queryTarget
@@ -15,5 +16,6 @@ export function textContentImpl<Html extends HTMLElement, Component>(
     return null;
   }
 
-  return nativeElement.textContent;
+  const text = nativeElement.textContent;
+  return autoTrim ? text.trim() : text;
 }

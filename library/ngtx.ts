@@ -102,8 +102,9 @@ export function ngtx(suite: (features: Ngtx) => void) {
 
   function textContent<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component, Html> | HTMLElement,
+    autoTrim = true,
   ): string | null {
-    return textContentImpl(fixture, queryTarget);
+    return textContentImpl(fixture, queryTarget, autoTrim);
   }
 
   return () =>
