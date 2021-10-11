@@ -21,7 +21,6 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 - Julian Lang (GitHub: [JulianLang](https://github.com/JulianLang), author)
 - Patrick-Andre Decker
-- Matthias Frauer
 
 [contributing]: ./CONTRIBUTING.md
 [codeofconduct]: ./CODE_OF_CONDUCT.md
