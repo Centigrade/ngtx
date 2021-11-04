@@ -2,6 +2,7 @@ import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { NgtxElement } from '../api';
 
 export type Fn<In, Out> = (a: In) => Out;
+export type ConverterFn<Out> = Fn<any, Out>;
 
 export interface LifeCycleHooks {
   ngOnInit?: () => void;
@@ -10,7 +11,6 @@ export interface LifeCycleHooks {
 
 export type QueryTarget<Html extends Element, Component> =
   | string
-  | TypedDebugElement<Html, Component>
   | Type<Component>;
 
 export interface TypedDebugElement<

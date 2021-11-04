@@ -1,17 +1,11 @@
-import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { isDebugElement } from '../type-guards';
-import { QueryTarget } from '../types';
+import { QueryTarget, TypedDebugElement } from '../types';
 
-export function queryAll<Html extends HTMLElement, Component>(
-  query: QueryTarget<Component, Html>,
-  fixture: ComponentFixture<any>,
-) {
-  if (isDebugElement(query)) {
-    return [query];
-  }
-
+export function queryAll<Html extends Element, Component>(
+  query: QueryTarget<Html, Component>,
+  debugElement: TypedDebugElement<any, any>,
+): TypedDebugElement<Html, Component>[] {
   return typeof query === 'string'
-    ? fixture.debugElement.queryAll(By.css(query))
-    : fixture.debugElement.queryAll(By.directive(query));
+    ? debugElement.queryAll(By.css(query))
+    : debugElement.queryAll(By.directive(query));
 }
