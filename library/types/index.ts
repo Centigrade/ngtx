@@ -1,4 +1,33 @@
-export * from './fn';
-export * from './life-cycle-hooks';
-export * from './query-target';
-export * from './typed-debug-element';
+import { DebugElement, SimpleChanges, Type } from '@angular/core';
+import { NgtxElement } from '../api';
+
+export type Fn<In, Out> = (a: In) => Out;
+
+export interface LifeCycleHooks {
+  ngOnInit?: () => void;
+  ngOnChanges?: (changes: SimpleChanges) => void;
+}
+
+export type QueryTarget<Html extends Element, Component> =
+  | string
+  | TypedDebugElement<Html, Component>
+  | Type<Component>;
+
+export interface TypedDebugElement<
+  Html extends Element = Element,
+  Component = any
+> extends DebugElement {
+  nativeElement: Html;
+  componentInstance: Component;
+}
+
+export type TypeObjectMap<K> = Partial<
+  {
+    [P in keyof Partial<K>]: any;
+  }
+>;
+
+export type Chainable<
+  Html extends Element = Element,
+  Component = any
+> = TypedDebugElement<Html, Component> & NgtxElement;

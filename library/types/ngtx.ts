@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { Fn, LifeCycleHooks, QueryTarget, TypedDebugElement } from '.';
-import { TypeObjectMap } from './typed-object-map';
+import { TypeObjectMap } from './index';
 
 export interface Ngtx {
   /**
@@ -27,7 +27,7 @@ export interface Ngtx {
    * @param root The root element to print the html from. Can be a Type, css-selector, DebugElement or NativeElement.
    */
   debug<Component, Html extends HTMLElement>(
-    root?: QueryTarget<Component, Html>,
+    root?: QueryTarget<Html, Component>,
   ): void;
   /**
    * **Provides the test helpers with the correct `fixture` instance on which they work.**
@@ -116,7 +116,7 @@ export interface Ngtx {
    */
   find<Html extends HTMLElement, Component = any>(
     cssSelector: string,
-  ): TypedDebugElement<Component, Html>;
+  ): TypedDebugElement<Html, Component>;
   /**
    * **Finds an element by css-selector like a class-name, id, tag-name or even a mix of all.**
    *
@@ -162,7 +162,7 @@ export interface Ngtx {
    */
   find<Html extends HTMLElement, Component>(
     component: Type<Component>,
-  ): TypedDebugElement<Component, Html>;
+  ): TypedDebugElement<Html, Component>;
   /**
    * **Finds the first element of the specified component class.**
    *
@@ -181,7 +181,7 @@ export interface Ngtx {
    */
   find<Html extends HTMLElement, Component, Out>(
     component: Type<Component>,
-    convert: (arg: TypedDebugElement<Component, Html>) => Out,
+    convert: (arg: TypedDebugElement<Html, Component>) => Out,
   ): Out;
 
   /**
@@ -234,8 +234,8 @@ export interface Ngtx {
    * @param convert A converter function that takes the `DebugElement` and converts it into anything other.
    */
   findAll<Html extends HTMLElement, Component>(
-    queryTarget: QueryTarget<Component, Html> | QueryTarget<Component, Html>[],
-  ): TypedDebugElement<Component, Html>[];
+    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
+  ): TypedDebugElement<Html, Component>[];
   /**
    * **Finds all elements matching your specified css-selector.**
    *
@@ -252,8 +252,8 @@ export interface Ngtx {
    * @param queryTarget A single Type or css-selector or an array of them to search for.
    */
   findAll<Html extends HTMLElement, Component, Out>(
-    queryTarget: QueryTarget<Component, Html> | QueryTarget<Component, Html>[],
-    convert: (arg: TypedDebugElement<Component, Html>[]) => Out,
+    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
+    convert: (arg: TypedDebugElement<Html, Component>[]) => Out,
   ): Out;
 
   /**
@@ -275,9 +275,9 @@ export interface Ngtx {
    * @param queryTarget A Type or css-selector describing elements to search in.
    */
   findWhere<Html extends HTMLElement, Component>(
-    condition: Fn<TypedDebugElement<Component, Html>, boolean>,
-    queryTarget: QueryTarget<Component, Html> | QueryTarget<Component, Html>[],
-  ): TypedDebugElement<Component, Html>;
+    condition: Fn<TypedDebugElement<Html, Component>, boolean>,
+    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
+  ): TypedDebugElement<Html, Component>;
   /**
    * **Finds an element based on a condition it must meet and a query-target.**
    *
@@ -301,9 +301,9 @@ export interface Ngtx {
    * @param converter A function converting the found element into something else.
    */
   findWhere<Html extends HTMLElement, Component, Out>(
-    condition: Fn<TypedDebugElement<Component, Html>, boolean>,
-    queryTarget: QueryTarget<Component, Html> | QueryTarget<Component, Html>[],
-    converter: Fn<TypedDebugElement<Component, Html>, Out>,
+    condition: Fn<TypedDebugElement<Html, Component>, boolean>,
+    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
+    converter: Fn<TypedDebugElement<Html, Component>, Out>,
   ): Out;
 
   /**
@@ -340,7 +340,7 @@ export interface Ngtx {
    */
   attr<Html extends HTMLElement, Component>(
     name: string,
-    queryTarget: QueryTarget<Component, Html> | HTMLElement,
+    queryTarget: QueryTarget<Html, Component> | HTMLElement,
   ): string;
   /**
    * **Gets the specified attribute from the given query-target.**
@@ -377,7 +377,7 @@ export interface Ngtx {
    */
   attr<Html extends HTMLElement, Component, Out>(
     name: string,
-    queryTarget: QueryTarget<Component, Html> | HTMLElement,
+    queryTarget: QueryTarget<Html, Component> | HTMLElement,
     convert: (arg: string) => Out,
   ): Out;
 
@@ -410,7 +410,7 @@ export interface Ngtx {
    * @param autoTrim Whether the text content should be automatically trimmed. Defaults to `true`.
    */
   textContent<Html extends HTMLElement, Component>(
-    queryTarget: QueryTarget<Component, Html> | HTMLElement,
+    queryTarget: QueryTarget<Html, Component> | HTMLElement,
     autoTrim?: boolean,
   ): string | null;
 
@@ -441,7 +441,7 @@ export interface Ngtx {
    */
   triggerEvent<Html extends HTMLElement, Component>(
     eventName: string,
-    queryTarget: QueryTarget<Component, Html>,
+    queryTarget: QueryTarget<Html, Component>,
     eventArgs?: any,
   ): void;
 }
