@@ -11,7 +11,13 @@ import { NgtxElement } from '../../api';
     <app-list>
       <app-list-item>Item 1</app-list-item>
       <app-list-item>Item 2</app-list-item>
-      <app-list-item>Item 3</app-list-item>
+      <app-list-item>
+        <span>Item 3.1</span>
+        <span>Item 3.2</span>
+        <span>Item 3.3</span>
+      </app-list-item>
+
+      <div class="item">Some other type of item</div>
     </app-list>
   `,
 })
@@ -87,15 +93,26 @@ describe(
       },
     );
 
-    // it.each(['.not-existing', NotExistingComponent])(
-    //   'should return null if nothing could be found',
-    //   (selector) => {
-    //     // arrange, act
-    //     const result = get(selector);
-    //     // assert
-    //     expect(result).toBeNull();
-    //   },
-    // );
+    it.each(['.not-existing', NotExistingComponent])(
+      'should return null if nothing could be found',
+      (selector) => {
+        // arrange, act
+        const result = get(selector as any);
+        // assert
+        expect(result).toBeNull();
+      },
+    );
+
+    it('should be chainable', () => {
+      // arrange, act
+      const divInsideList = get(ListComponent).get('.item');
+      const unreachable = divInsideList.get('app-list');
+      const reachable = get('app-list');
+      // assert
+      Expect.element(divInsideList).toBeHtmlElement(HTMLDivElement);
+      expect(unreachable).toBeNull();
+      Expect.element(reachable).toBeComponent(ListComponent);
+    });
   }),
 );
 
@@ -130,6 +147,20 @@ describe(
       const result = getAll('.not-existing');
       // assert
       expect(result).toBeNull();
+    });
+
+    it('should be chainable', () => {
+      // arrange, act
+      const spans = getAll(ListItemComponent).getAll('span');
+      const unreachableFromChild = getAll(ListComponent)
+        .getAll('span')
+        .getAll(ListComponent);
+      const reachableFromRoot = getAll(ListComponent); // can find it from root
+
+      // assert
+      expect(spans.length).toBe(3);
+      expect(unreachableFromChild).toBeNull();
+      Expect.element(reachableFromRoot.first()).toBeComponent(ListComponent);
     });
   }),
 );

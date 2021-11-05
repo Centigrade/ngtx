@@ -180,21 +180,14 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
+    queryTarget: QueryTarget<Html, Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
+    queryTarget: QueryTarget<Html, Component>,
   ): NgtxMultiElement<Html, Component> {
-    const queriesAsArray = Array.isArray(queryTarget)
-      ? queryTarget
-      : [queryTarget];
-
     const results: TypedDebugElement<Html, Component>[] = [];
-
-    for (const query of queriesAsArray) {
-      const resultList = queryAll(query, this.debugElement!);
-      results.push(...resultList);
-    }
+    const resultList = queryAll(queryTarget, this.debugElement!);
+    results.push(...resultList);
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();
@@ -266,14 +259,36 @@ export class NgtxMultiElement<Html extends Element, Component = any> {
             debugElem.query(By.directive(query)),
           );
 
-    return new NgtxMultiElement(debugElements);
+    const onlyDefined = debugElements.filter((element) => element != null);
+    return new NgtxMultiElement(onlyDefined);
+  }
+
+  public getAll<Html extends Element, Component = any>(
+    cssSelector: string,
+  ): NgtxMultiElement<Html, Component>;
+  public getAll<Html extends Element, Component>(
+    queryTarget: QueryTarget<Html, Component>,
+  ): NgtxMultiElement<Html, Component>;
+  public getAll<Html extends Element, Component>(
+    queryTarget: QueryTarget<Html, Component>,
+  ): NgtxMultiElement<Html, Component> {
+    const results: TypedDebugElement<Html, Component>[] = [];
+
+    this.debugElements.forEach((debugElement) => {
+      const resultList = queryAll(queryTarget, debugElement);
+      results.push(...resultList);
+    });
+
+    // only provide ngtx element if query could actually find something.
+    // this allows tests like: expect(Get.ListItems()).toBeNull();
+    return results.length > 0 ? new NgtxMultiElement(results) : null;
   }
 
   public forEach(
     handler: (element: NgtxElement<Html, Component>, index: number) => any,
   ): void {
     this.debugElements.forEach((element, i) => {
-      const ngtxElement = new NgtxElement(element);
+      const ngtxElement = element ? new NgtxElement(element) : null;
       handler(ngtxElement, i);
     });
   }
