@@ -1,1 +1,1 @@
-export * from './typed-debug-element';
+export * from './index';

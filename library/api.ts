@@ -1,6 +1,7 @@
-import { Type } from '@angular/core';
+import { DebugElement, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { isDebugElement, isNativeElement } from './type-guards';
 import {
   ConverterFn,
   LifeCycleHooks,
@@ -8,7 +9,7 @@ import {
   TypedDebugElement,
   TypeObjectMap,
 } from './types';
-import { queryAll } from './utility';
+import { printHtml, queryAll } from './utility';
 
 export class NgtxRootElement {
   private fixture?: ComponentFixture<any>;
@@ -38,9 +39,9 @@ export class NgtxRootElement {
    */
   public useFixture<T>(
     fixture: ComponentFixture<any>,
-  ): NgtxElement<Element, T> {
+  ): TypedDebugElement<Element, T> {
     this.fixture = fixture;
-    return new NgtxElement(fixture.debugElement);
+    return fixture.debugElement;
   }
 
   /**
@@ -60,7 +61,7 @@ export class NgtxRootElement {
    */
   public detectChanges<
     Html extends Element = Element,
-    Component = any
+    Component = any,
   >(): NgtxElement<Html, Component>;
   /**
    * **Shortcut for `fixture.detectChanges()`.**
@@ -81,11 +82,11 @@ export class NgtxRootElement {
    */
   public detectChanges<
     T extends LifeCycleHooks,
-    Html extends Element = Element
+    Html extends Element = Element,
   >(component: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T>;
   public detectChanges<
     T extends LifeCycleHooks,
-    Html extends Element = Element
+    Html extends Element = Element,
   >(component?: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T> {
     if (component) {
       component?.ngOnChanges(changes);
@@ -95,58 +96,74 @@ export class NgtxRootElement {
     this.fixture.detectChanges();
 
     // hint: we trust the user to pass in the correct component type here:
-    return (this as unknown) as NgtxElement<Html, T>;
+    return this as unknown as NgtxElement<Html, T>;
+  }
+
+  /**
+   * **Prints out the html tree of the specified element.**
+   *
+   * If no element is given, the fixture's root NativeElement is used as root.
+   *
+   * ---
+   *
+   * ~~~ts
+   * debug();
+   * debug('.my-button');
+   * debug(MyButton);
+   *
+   * const debugElement = find(MyButton);
+   * debug(debugElement);
+   *
+   * const { nativeElement } = find(MyButton);
+   * debug(nativeElement);
+   * ~~~
+   *
+   * ---
+   * @param root The root element to print the html from. Can be a Type, css-selector, DebugElement or NativeElement.
+   */
+  debug<Component, Html extends Element>(
+    root?: DebugElement | Element | QueryTarget<Html, Component>,
+  ): void {
+    const rootElem = root ?? this.fixture.nativeElement;
+    const element = isNativeElement(rootElem)
+      ? rootElem
+      : this.resolveDebugElement(rootElem);
+    console.log(printHtml(element));
+  }
+
+  private resolveDebugElement<Html extends Element, Component>(
+    queryTarget: DebugElement | QueryTarget<Html, Component>,
+  ) {
+    if (isDebugElement(queryTarget)) {
+      return queryTarget;
+    }
+
+    const ngtxElement = new NgtxElement(this.fixture.debugElement);
+    const queryResult = ngtxElement.get(queryTarget as any);
+    return queryResult.debugElement;
   }
 }
 
 export class NgtxElement<Html extends Element = Element, Component = any> {
-  constructor(
-    private readonly debugElement?: TypedDebugElement<Html, Component>,
-  ) {}
+  public debugElement: TypedDebugElement<Html, Component>;
+  public get nativeElement(): Html {
+    return this.debugElement.nativeElement;
+  }
+  public get component() {
+    return this.debugElement.componentInstance;
+  }
 
-  /**
-   * **Finds an element by css-selector like a class-name, id, tag-name or even a mix of all.**
-   *
-   * Accepts an optional converter function as second parameter.
-   * There is a built-in `toNativeElement`-function to use as converter function.
-   *
-   * ---
-   * ~~~ts
-   * const debugElement = find('button.active');
-   * ~~~
-   * ---
-   *
-   * **Please Note:** if you want to give the nativeElement another type than the
-   * default `HTMLElement`, you can specify the generic parameter of this function:
-   *
-   * ~~~ts
-   * // => make nativeElement of type HTMLButtonElement:
-   * const { nativeElement } = find<HTMLButtonElement>('button.active');
-   * ~~~
-   *
-   * ---
-   * @param cssSelector A css-selector describing your wanted element.
-   */
-  public find<Html extends Element, Component = any>(
+  constructor(_debugElement?: TypedDebugElement<Html, Component>) {
+    this.debugElement = _debugElement;
+  }
+
+  public get<Html extends Element, Component = any>(
     cssSelector: string,
   ): NgtxElement<Html, Component>;
-  /**
-   * **Finds the first element of the specified component class.**
-   *
-   * Accepts an optional converter function as second parameter.
-   * There is a built-in `toNativeElement`-function to use as converter function.
-   *
-   * ---
-   * ~~~ts
-   * const debugElement = find(MyComponent);
-   * ~~~
-   * ---
-   * @param component A component class to search for.
-   */
-  public find<Html extends Element, Component>(
+  public get<Html extends Element, Component>(
     component: Type<Component>,
   ): NgtxElement<Html, Component>;
-  public find<Html extends Element, Component>(
+  public get<Html extends Element, Component>(
     query: QueryTarget<Html, Component>,
   ): NgtxElement<Html, Component> {
     const debugElement: TypedDebugElement<Html, Component> =
@@ -154,45 +171,20 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
         ? this.debugElement.query(By.css(query))
         : this.debugElement.query(By.directive(query));
 
-    return new NgtxElement(debugElement);
+    // only provide an ngtx element if the query could be resolved.
+    // this allows tests like: expect(Get.Icon()).toBeNull();
+    return debugElement ? new NgtxElement(debugElement) : null;
   }
 
-  /**
-   * **Finds all elements matching your specified css-selector.**
-   *
-   * Accepts an optional converter function as second parameter.
-   * There is a built-in `toNativeElements`-function to use as converter function.
-   *
-   * ---
-   * ~~~ts
-   * const debugElements = findAll('button.active');
-   * ~~~
-   * ---
-   * @param cssSelector A css-selector describing your wanted elements.
-   */
-  public findAll<Html extends Element, Component = any>(
+  public getAll<Html extends Element, Component = any>(
     cssSelector: string,
-  ): NgtxElement<Html, Component>[];
-  /**
-   * **Finds all elements matching your specified css-selector.**
-   *
-   * Accepts an optional converter function as second parameter.
-   * There is a built-in `toNativeElements`-function to use as converter function.
-   *
-   * ---
-   * ~~~ts
-   * const debugElements = findAll(['button.active', 'button.disabled', TooltipComponent]);
-   * ~~~
-   * ---
-   * @param queryTarget A single Type or css-selector or an array of them to search for.
-   * @param convert A converter function that takes the `DebugElement` and converts it into anything other.
-   */
-  public findAll<Html extends Element, Component>(
+  ): NgtxMultiElement<Html, Component>;
+  public getAll<Html extends Element, Component>(
     queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
-  ): NgtxElement<Html, Component>[];
-  public findAll<Html extends Element, Component>(
+  ): NgtxMultiElement<Html, Component>;
+  public getAll<Html extends Element, Component>(
     queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
-  ): NgtxElement<Html, Component>[] {
+  ): NgtxMultiElement<Html, Component> {
     const queriesAsArray = Array.isArray(queryTarget)
       ? queryTarget
       : [queryTarget];
@@ -204,7 +196,9 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
       results.push(...resultList);
     }
 
-    return results.map((debugElement) => new NgtxElement(debugElement));
+    // only provide ngtx element if query could actually find something.
+    // this allows tests like: expect(Get.ListItems()).toBeNull();
+    return results.length > 0 ? new NgtxMultiElement(results) : null;
   }
 
   /**
@@ -235,5 +229,138 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
   public attr<Out>(name: string, convert?: ConverterFn<Out>): string | Out {
     const value = this.debugElement.nativeElement.getAttribute(name);
     return convert ? convert(value) : value;
+  }
+
+  public triggerEvent(name: string, eventArgs?: any): void {
+    this.debugElement.triggerEventHandler(name, eventArgs);
+  }
+
+  public textContent(trim = true): string {
+    const text = this.debugElement.nativeElement.textContent;
+    return trim ? text.trim() : text;
+  }
+}
+
+export class NgtxMultiElement<Html extends Element, Component = any> {
+  public get length(): number {
+    return this.debugElements.length;
+  }
+
+  constructor(
+    private readonly debugElements: TypedDebugElement<Html, Component>[],
+  ) {}
+
+  public get<Html extends Element, Component = any>(
+    cssSelector: string,
+  ): NgtxMultiElement<Html, Component>;
+  public get<Html extends Element, Component>(
+    component: Type<Component>,
+  ): NgtxMultiElement<Html, Component>;
+  public get<Html extends Element, Component>(
+    query: QueryTarget<Html, Component>,
+  ): NgtxMultiElement<Html, Component> {
+    const debugElements: TypedDebugElement<Html, Component>[] =
+      typeof query === 'string'
+        ? this.debugElements.map((debugElem) => debugElem.query(By.css(query)))
+        : this.debugElements.map((debugElem) =>
+            debugElem.query(By.directive(query)),
+          );
+
+    return new NgtxMultiElement(debugElements);
+  }
+
+  public forEach(
+    handler: (element: NgtxElement<Html, Component>, index: number) => any,
+  ): void {
+    this.debugElements.forEach((element, i) => {
+      const ngtxElement = new NgtxElement(element);
+      handler(ngtxElement, i);
+    });
+  }
+
+  public find(
+    handler: (element: NgtxElement<Html, Component>, index: number) => boolean,
+  ): NgtxElement<Html, Component> {
+    return this.debugElements
+      .map((element) => new NgtxElement(element))
+      .find((element, i) => {
+        return handler(element, i);
+      });
+  }
+
+  public filter(
+    handler: (element: NgtxElement<Html, Component>, index: number) => boolean,
+  ): NgtxMultiElement<Html, Component> {
+    return new NgtxMultiElement(
+      this.debugElements.filter((element, i) => {
+        return handler(new NgtxElement(element), i);
+      }),
+    );
+  }
+
+  public map<Out>(
+    handler: (element: NgtxElement<Html, Component>, index: number) => Out,
+  ): Out[] {
+    return this.debugElements.map((element, i) => {
+      return handler(new NgtxElement(element), i);
+    });
+  }
+
+  public first(): NgtxElement<Html, Component> {
+    return new NgtxElement(this.debugElements[0]);
+  }
+
+  public nth(position: number): NgtxElement<Html, Component> {
+    const debugElement = this.debugElements[position - 1];
+    return debugElement ? new NgtxElement(debugElement) : null;
+  }
+
+  public atIndex(index: number): NgtxElement<Html, Component> {
+    const debugElement = this.debugElements[index];
+    return debugElement ? new NgtxElement(debugElement) : null;
+  }
+
+  public last(): NgtxElement<Html, Component> {
+    const itemCount = this.debugElements.length;
+    return new NgtxElement(this.debugElements[itemCount - 1]);
+  }
+
+  /**
+   * Gets the attribute with the specified name on the current element.
+   *
+   * ---
+   * **Example:**
+   * ~~~ts
+   * const title = find('.submit-btn').attr('title');
+   * ~~~
+   * @param name The name of the attribute to get on the current element.
+   */
+  public attr(name: string): string[];
+  /**
+   * Gets the attribute with the specified name on the current element and converts
+   * it using the given conversion function.
+   * ---
+   * **Example:**
+   * ~~~ts
+   * // parses the stringified data in the dialogs data-result attribute
+   * // and returns the result:
+   * const dialogResult = find('.dialog').attr('data-result', JSON.parse);
+   * ~~~
+   * @param name The name of the attribute to get on the current element.
+   * @param convert A conversion function to apply before returning the value.
+   */
+  public attr<Out>(name: string, convert: ConverterFn<Out>): Out[];
+  public attr<Out>(name: string, convert?: ConverterFn<Out>): string[] | Out[] {
+    const values = this.debugElements.map((debugElement) =>
+      debugElement.nativeElement.getAttribute(name),
+    );
+
+    return convert ? values.map(convert) : values;
+  }
+
+  public textContents(trim = true): string[] {
+    return this.debugElements
+      .map((debugElement) => debugElement.nativeElement.textContent)
+      .map((text) => (trim ? text.trim() : text));
   }
 }

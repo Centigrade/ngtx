@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
-import { Fn, LifeCycleHooks, QueryTarget, TypedDebugElement } from '.';
+import { LifeCycleHooks, QueryTarget, TypedDebugElement } from '.';
 import { TypeObjectMap } from './index';
 
 export interface Ngtx {
@@ -224,56 +224,6 @@ export interface Ngtx {
   findAll<Html extends Element, Component, Out>(
     queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
     convert: (arg: TypedDebugElement<Html, Component>[]) => Out,
-  ): Out;
-
-  /**
-   * **Finds an element based on a condition it must meet and a query-target.**
-   *
-   * Accepts an optional converter function as third parameter.
-   * There is a built-in `toNativeElement`-function to use as converter function.
-   *
-   * ---
-   * ~~~ts
-   * const debugElement =
-   *            findWhere(
-   *                element => element.classes.active !== undefined,
-   *                ['button', '.item', TagComponent],
-   *             );
-   * ~~~
-   * ---
-   * @param condition The condition the wanted element must meet.
-   * @param queryTarget A Type or css-selector describing elements to search in.
-   */
-  findWhere<Html extends Element, Component>(
-    condition: Fn<TypedDebugElement<Html, Component>, boolean>,
-    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
-  ): TypedDebugElement<Html, Component>;
-  /**
-   * **Finds an element based on a condition it must meet and a query-target.**
-   *
-   * Accepts an optional converter function as third parameter.
-   * There is a built-in `toNativeElement`-function to use as converter function.
-   *
-   * ---
-   * ~~~ts
-   * import { toNativeElement } from '../helpers';
-   *
-   * const nativeElement =
-   *            findWhere(
-   *                element => element.classes.active !== undefined,
-   *                ['button', '.item', TagComponent],
-   *                toNativeElement,
-   *             );
-   * ~~~
-   * ---
-   * @param condition The condition the wanted element must meet.
-   * @param queryTarget A Type or css-selector describing elements to search in.
-   * @param converter A function converting the found element into something else.
-   */
-  findWhere<Html extends Element, Component, Out>(
-    condition: Fn<TypedDebugElement<Html, Component>, boolean>,
-    queryTarget: QueryTarget<Html, Component> | QueryTarget<Html, Component>[],
-    converter: Fn<TypedDebugElement<Html, Component>, Out>,
   ): Out;
 
   /**

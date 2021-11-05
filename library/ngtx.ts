@@ -1,6 +1,5 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxRootElement } from './api';
-import { Ngtx } from './types/ngtx';
 
 /**
  * Injects ngtx test features into the given test suite.
@@ -23,22 +22,21 @@ import { Ngtx } from './types/ngtx';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-export function ngtx(suite: (features: Ngtx) => void) {
+export function ngtx(suite: (features: NgtxRootElement & NgtxElement) => void) {
   const root = new NgtxRootElement();
-  let current: NgtxElement;
+  let current: NgtxElement = new NgtxElement();
 
   return () =>
     suite({
-      useFixture: <T>(fixture: ComponentFixture<T>) => {
-        current = root.useFixture(fixture);
-      },
+      useFixture: (<T>(fixture: ComponentFixture<T>) => {
+        current.debugElement = root.useFixture(fixture);
+      }) as any,
       detectChanges: root.detectChanges.bind(root),
-      find: current.find.bind(current),
-      findAll: current.findAll.bind(current),
+      debug: root.debug.bind(root),
+      get: current.get.bind(current),
+      getAll: current.getAll.bind(current),
       attr: current.attr.bind(current),
-      // TODO: langju: implement apis
-      triggerEvent: null!,
-      textContent: null!,
-      debug: null!,
-    });
+      triggerEvent: current.triggerEvent.bind(current),
+      textContent: current.textContent.bind(current),
+    } as NgtxRootElement & NgtxElement);
 }

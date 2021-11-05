@@ -1,12 +1,12 @@
-import { TypedDebugElement } from '../types';
+import { DebugElement } from '@angular/core';
 
 /**
  * Checks whether a given value is a `DebugElement`.
  * @param value The value to check if it is a `DebugElement`.
  */
-export function isDebugElement<Html, Component>(
+export function isDebugElement<Html extends Element, Component>(
   value: any,
-): value is TypedDebugElement<Component, Html> {
+): value is DebugElement {
   // TODO: langju: maybe find better way to distinguish
   return (
     typeof value.queryAllNodes === 'function' &&
