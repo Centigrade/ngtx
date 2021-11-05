@@ -1,5 +1,5 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
-import { NgtxElement } from '../api';
+import { NgtxElement } from '../library';
 
 export type Fn<In, Out> = (a: In) => Out;
 export type ConverterFn<Out> = Fn<any, Out>;

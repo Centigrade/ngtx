@@ -1,5 +1,5 @@
 import { ComponentFixture } from '@angular/core/testing';
-import { NgtxElement, NgtxRootElement } from './api';
+import { NgtxElement, NgtxRootElement } from './library';
 
 /**
  * Injects ngtx test features into the given test suite.
