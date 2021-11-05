@@ -157,6 +157,10 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     this.debugElement = _debugElement;
   }
 
+  public withApi<Api extends NgtxElement>(apiType: Type<Api>): Api {
+    return new apiType(this.debugElement);
+  }
+
   public get<Html extends Element, Component = any>(
     cssSelector: string,
   ): NgtxElement<Html, Component>;
@@ -234,7 +238,7 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
   }
 }
 
-export class NgtxMultiElement<Html extends Element, Component = any> {
+export class NgtxMultiElement<Html extends Element = Element, Component = any> {
   public get length(): number {
     return this.debugElements.length;
   }
@@ -377,5 +381,9 @@ export class NgtxMultiElement<Html extends Element, Component = any> {
     return this.debugElements
       .map((debugElement) => debugElement.nativeElement.textContent)
       .map((text) => (trim ? text.trim() : text));
+  }
+
+  public withApi<Api extends NgtxMultiElement>(apiType: Type<Api>): Api {
+    return new apiType(this.debugElements);
   }
 }
