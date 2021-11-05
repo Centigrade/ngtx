@@ -12,7 +12,7 @@ import {
 import { printHtml, queryAll } from './utility';
 
 export class NgtxRootElement {
-  private fixture?: ComponentFixture<any>;
+  constructor(private fixture?: ComponentFixture<any>) {}
 
   /**
    * **Provides the test helpers with the correct `fixture` instance on which they work.**
