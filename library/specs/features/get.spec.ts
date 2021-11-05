@@ -154,7 +154,7 @@ describe(
       const spans = getAll(ListItemComponent).getAll('span');
       const unreachableFromChild = getAll(ListComponent)
         .getAll('span')
-        .getAll(ListComponent);
+        .getAll(ListComponent); // cannot find from child
       const reachableFromRoot = getAll(ListComponent); // can find it from root
 
       // assert
