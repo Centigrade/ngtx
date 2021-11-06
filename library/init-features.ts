@@ -1,4 +1,4 @@
-import { tryInitChalk } from './print-dom';
+import { tryInitChalk } from './utility/print-dom';
 
 /**
  * Enables syntax highlighting of ngtx's `debug` feature in terminals that supports colors.
