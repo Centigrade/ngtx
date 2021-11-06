@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { hex } from 'chalk';
 import { initSyntaxHighlighting } from '..';
-import { NgtxRootElement } from '../library';
+import { NgtxElement } from '../library';
 
 @Component({
   template: '<div></div>',
@@ -30,14 +30,14 @@ describe('init-features: initSyntaxHighlighting', () => {
 
   it('should use a mock when syntax highlighting is not initialized', async () => {
     // arrange
-    const element = new NgtxRootElement(fixture);
+    const element = new NgtxElement(fixture.debugElement);
     // act, assert
     expect(() => element.debug()).not.toThrow();
   });
 
   it('should use chalk for syntax highlighting, when initialized', async () => {
     // arrange
-    const element = new NgtxRootElement(fixture);
+    const element = new NgtxElement(fixture.debugElement);
     await initSyntaxHighlighting();
 
     // act, assert

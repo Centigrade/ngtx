@@ -1,5 +1,5 @@
 import { ComponentFixture } from '@angular/core/testing';
-import { NgtxElement, NgtxRootElement } from './library';
+import { NgtxElement, NgtxFixture } from './library';
 
 /**
  * Injects ngtx test features into the given test suite.
@@ -22,21 +22,21 @@ import { NgtxElement, NgtxRootElement } from './library';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-export function ngtx(suite: (features: NgtxRootElement & NgtxElement) => void) {
-  const root = new NgtxRootElement();
-  let current: NgtxElement = new NgtxElement();
+export function ngtx(suite: (features: NgtxFixture & NgtxElement) => void) {
+  const ngtxFixture = new NgtxFixture();
+  const root: NgtxElement = new NgtxElement();
 
   return () =>
     suite({
       useFixture: (<T>(fixture: ComponentFixture<T>) => {
-        current.debugElement = root.useFixture(fixture);
+        root.debugElement = ngtxFixture.useFixture(fixture);
       }) as any,
-      detectChanges: root.detectChanges.bind(root),
-      debug: root.debug.bind(root),
-      get: current.get.bind(current),
-      getAll: current.getAll.bind(current),
-      attr: current.attr.bind(current),
-      triggerEvent: current.triggerEvent.bind(current),
-      textContent: current.textContent.bind(current),
-    } as NgtxRootElement & NgtxElement);
+      detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
+      debug: root.debug.bind(ngtxFixture),
+      get: root.get.bind(root),
+      getAll: root.getAll.bind(root),
+      attr: root.attr.bind(root),
+      triggerEvent: root.triggerEvent.bind(root),
+      textContent: root.textContent.bind(root),
+    } as NgtxFixture & NgtxElement);
 }

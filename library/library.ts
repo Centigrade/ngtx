@@ -11,7 +11,7 @@ import {
 } from './types';
 import { printHtml, queryAll } from './utility';
 
-export class NgtxRootElement {
+export class NgtxFixture {
   constructor(private fixture?: ComponentFixture<any>) {}
 
   /**
