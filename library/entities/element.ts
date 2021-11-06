@@ -7,14 +7,21 @@ import { NgtxMultiElement } from './multi-element';
 
 export class NgtxElement<Html extends Element = Element, Component = any> {
   public debugElement: TypedDebugElement<Html, Component>;
+
   public get nativeElement(): Html {
-    return this.debugElement.nativeElement;
+    // although marked as non-nullable, truth is that the debugElement is not defined unless the user calls useFixture.
+    // so safe access it here, as decorators (e.g. @NgtxApi()) will activate the getters leading to exceptions otherwise.
+    return this.debugElement?.nativeElement;
   }
   public get component() {
-    return this.debugElement.componentInstance;
+    // although marked as non-nullable, truth is that the debugElement is not defined unless the user calls useFixture.
+    // so safe access it here, as decorators (e.g. @NgtxApi()) will activate the getters leading to exceptions otherwise.
+    return this.debugElement?.componentInstance;
   }
   public get injector() {
-    return this.debugElement.injector;
+    // although marked as non-nullable, truth is that the debugElement is not defined unless the user calls useFixture.
+    // so safe access it here, as decorators (e.g. @NgtxApi()) will activate the getters leading to exceptions otherwise.
+    return this.debugElement?.injector;
   }
 
   constructor(_debugElement: TypedDebugElement<Html, Component>) {

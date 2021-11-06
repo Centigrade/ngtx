@@ -7,7 +7,9 @@ import { NgtxElement } from './element';
 
 export class NgtxMultiElement<Html extends Element = Element, Component = any> {
   public get length(): number {
-    return this.debugElements.length;
+    // although marked as non-nullable, truth is that the debugElements are not defined unless the user calls useFixture.
+    // so safe access it here, as decorators (e.g. @NgtxApi()) will activate the getters leading to exceptions otherwise.
+    return this.debugElements?.length;
   }
 
   constructor(

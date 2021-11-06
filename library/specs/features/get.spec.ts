@@ -1,7 +1,7 @@
-import { Component, Type } from '@angular/core';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
 import { ngtx } from '../..';
-import { NgtxElement } from '../../entities';
+import { Expect } from '../shared/expect';
+import { configureTestModule } from '../shared/util';
 
 @Component({
   template: `
@@ -40,37 +40,11 @@ class ListItemComponent {}
 })
 class NotExistingComponent {}
 
-class Expect {
-  static element(ngtxElement: NgtxElement) {
-    return class {
-      static toBeHtmlElement(type: typeof HTMLElement): void {
-        expect(ngtxElement).toBeDefined();
-        expect(ngtxElement).toBeInstanceOf(NgtxElement);
-        expect(ngtxElement.nativeElement).toBeInstanceOf(type);
-      }
-      static toBeComponent(type: Type<any>): void {
-        expect(ngtxElement).toBeDefined();
-        expect(ngtxElement).toBeInstanceOf(NgtxElement);
-        expect(ngtxElement.component).toBeInstanceOf(type);
-      }
-    };
-  }
-}
-
 describe(
   'Feature: NgtxElement.get',
   ngtx(({ useFixture, get }) => {
-    let fixture: ComponentFixture<GetTestComponent>;
-
-    beforeEach(async(() => {
-      TestBed.configureTestingModule({
-        declarations: [GetTestComponent, ListComponent, ListItemComponent],
-      }).compileComponents();
-    }));
-
-    beforeEach(() => {
-      fixture = TestBed.createComponent(GetTestComponent);
-      useFixture(fixture);
+    configureTestModule(GetTestComponent, useFixture, {
+      declarations: [ListComponent, ListItemComponent],
     });
 
     it.each(['h1', '.headline'])(
@@ -119,17 +93,8 @@ describe(
 describe(
   'Feature: NgtxElement.getAll',
   ngtx(({ useFixture, getAll }) => {
-    let fixture: ComponentFixture<GetTestComponent>;
-
-    beforeEach(async(() => {
-      TestBed.configureTestingModule({
-        declarations: [GetTestComponent, ListComponent, ListItemComponent],
-      }).compileComponents();
-    }));
-
-    beforeEach(() => {
-      fixture = TestBed.createComponent(GetTestComponent);
-      useFixture(fixture);
+    configureTestModule(GetTestComponent, useFixture, {
+      declarations: [ListComponent, ListItemComponent],
     });
 
     it('should get all elements by css selector ".headline"', () => {
