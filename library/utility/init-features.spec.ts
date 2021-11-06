@@ -5,8 +5,8 @@ jest.mock('chalk', () => {
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { hex } from 'chalk';
-import { initSyntaxHighlighting } from '..';
 import { NgtxElement } from '../entities';
+import { initSyntaxHighlighting } from '../init-features';
 
 @Component({
   template: '<div></div>',

@@ -24,7 +24,7 @@ import { NgtxElement, NgtxFixture } from './entities';
  */
 export function ngtx(suite: (features: NgtxFixture & NgtxElement) => void) {
   const ngtxFixture = new NgtxFixture();
-  const root: NgtxElement = new NgtxElement();
+  const root: NgtxElement = new NgtxElement(null!);
 
   return () =>
     suite({
