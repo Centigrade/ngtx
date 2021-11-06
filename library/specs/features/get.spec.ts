@@ -1,7 +1,7 @@
 import { Component, Type } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ngtx } from '../..';
-import { NgtxElement } from '../../library';
+import { NgtxElement } from '../../entities';
 
 @Component({
   template: `
