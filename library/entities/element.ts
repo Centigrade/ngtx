@@ -2,7 +2,7 @@ import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
-import { isNgtxQuerySelector, printHtml, queryAll } from '../utility/utils';
+import { isNgtxQuerySelector, printHtml, queryAll } from '../utility/utility';
 import { NgtxMultiElement } from './multi-element';
 
 export class NgtxElement<Html extends Element = Element, Component = any> {
