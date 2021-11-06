@@ -46,7 +46,6 @@ function autoName(methods: string[], target: any) {
   methods.forEach((fnName) => {
     const fn = (target as any)[fnName];
     const newName = fn.name;
-
     fn.toString = () => newName;
   });
 }
@@ -62,7 +61,31 @@ function getPublicInstanceMethodNames(classType: any) {
     .sort()
     .filter((property) => !ignoreInstanceProperties.includes(property))
     .filter((property) => !property.startsWith('_'))
-    .filter((e, i, arr) => {
-      if (e != arr[i + 1] && typeof classType[e] == 'function') return true;
+    .filter(withoutGettersAndSetters(classType))
+    .filter((property, i, arr) => {
+      if (property != arr[i + 1] && typeof classType[property] == 'function')
+        return true;
     });
+}
+
+/** Removes getter- and setter-properties from the given class type */
+const withoutGettersAndSetters = (classType: any) => {
+  return (property: string) => {
+    const descriptor = getPropertyDescriptor(classType, property);
+    // do not manipulate any getters or setters
+    return descriptor?.get == null && descriptor?.set == null;
+  };
+};
+
+function getPropertyDescriptor(
+  classType: any,
+  property: string,
+): PropertyDescriptor | null {
+  let descriptor: PropertyDescriptor | null = null;
+  let obj = classType;
+  do {
+    descriptor = Object.getOwnPropertyDescriptor(obj, property);
+  } while (descriptor == null && (obj = Object.getPrototypeOf(obj)));
+
+  return descriptor;
 }
