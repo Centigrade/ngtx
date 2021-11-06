@@ -85,13 +85,11 @@ export class NgtxFixture {
     Html extends Element = Element,
   >(component: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T>;
   public detectChanges<
-    T extends LifeCycleHooks,
+    T extends Partial<LifeCycleHooks>,
     Html extends Element = Element,
   >(component?: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T> {
-    if (component) {
-      component?.ngOnChanges(changes);
-      component?.ngOnInit();
-    }
+    component?.ngOnChanges?.(changes);
+    component?.ngOnInit?.();
 
     this.fixture.detectChanges();
 
