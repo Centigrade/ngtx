@@ -3,6 +3,7 @@
     "rootDir": "library",
     "moduleResolution": "node",
     "lib": ["es2018", "dom"],
+    "target": "ES2018",
     "allowSyntheticDefaultImports": true,
     "suppressImplicitAnyIndexErrors": true,
     "forceConsistentCasingInFileNames": true,
