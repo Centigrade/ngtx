@@ -24,6 +24,7 @@ import { NgtxElement, NgtxFixture } from './entities';
  */
 export function ngtx(suite: (features: NgtxFixture & NgtxElement) => void) {
   const ngtxFixture = new NgtxFixture();
+  // hint: debugElement will be set when user calls "useFixture", so initialize it with null for now:
   const root: NgtxElement = new NgtxElement(null!);
 
   return () =>
