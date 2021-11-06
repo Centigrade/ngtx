@@ -2,7 +2,7 @@
  * Checks whether a given value is a `NativeElement`.
  * @param value The value to check if it is a `NativeElement`.
  */
-export function isNativeElement(value: any): value is HTMLElement {
+export function isNativeElement(value: any): value is Element {
   // from: https://stackoverflow.com/a/384380/3063191
   const isNativeElementTypeDefined = typeof HTMLElement === 'object';
 

@@ -1,7 +1,7 @@
 import { DebugElement, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { isDebugElement, isNativeElement } from './type-guards';
+import { isDebugElement } from './type-guards';
 import {
   ConverterFn,
   LifeCycleHooks,
@@ -98,50 +98,6 @@ export class NgtxRootElement {
     // hint: we trust the user to pass in the correct component type here:
     return this as unknown as NgtxElement<Html, T>;
   }
-
-  /**
-   * **Prints out the html tree of the specified element.**
-   *
-   * If no element is given, the fixture's root NativeElement is used as root.
-   *
-   * ---
-   *
-   * ~~~ts
-   * debug();
-   * debug('.my-button');
-   * debug(MyButton);
-   *
-   * const debugElement = find(MyButton);
-   * debug(debugElement);
-   *
-   * const { nativeElement } = find(MyButton);
-   * debug(nativeElement);
-   * ~~~
-   *
-   * ---
-   * @param root The root element to print the html from. Can be a Type, css-selector, DebugElement or NativeElement.
-   */
-  debug<Component, Html extends Element>(
-    root?: DebugElement | Element | QueryTarget<Html, Component>,
-  ): void {
-    const rootElem = root ?? this.fixture.nativeElement;
-    const element = isNativeElement(rootElem)
-      ? rootElem
-      : this.resolveDebugElement(rootElem);
-    console.log(printHtml(element));
-  }
-
-  private resolveDebugElement<Html extends Element, Component>(
-    queryTarget: DebugElement | QueryTarget<Html, Component>,
-  ) {
-    if (isDebugElement(queryTarget)) {
-      return queryTarget;
-    }
-
-    const ngtxElement = new NgtxElement(this.fixture.debugElement);
-    const queryResult = ngtxElement.get(queryTarget as any);
-    return queryResult.debugElement;
-  }
 }
 
 export class NgtxElement<Html extends Element = Element, Component = any> {
@@ -152,7 +108,6 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
   public get component() {
     return this.debugElement.componentInstance;
   }
-
   public get injector() {
     return this.debugElement.injector;
   }
@@ -239,6 +194,44 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
   public textContent(trim = true): string {
     const text = this.debugElement.nativeElement.textContent;
     return trim ? text.trim() : text;
+  }
+
+  /**
+   * **Prints out the html tree of the specified element.**
+   *
+   * If no element is given, the fixture's root NativeElement is used as root.
+   *
+   * ---
+   *
+   * ~~~ts
+   * debug();
+   * debug('.my-button');
+   * debug(MyButton);
+   *
+   * const debugElement = find(MyButton);
+   * debug(debugElement);
+   *
+   * const { nativeElement } = find(MyButton);
+   * debug(nativeElement);
+   * ~~~
+   *
+   * ---
+   * @param root The root element to print the html from. Can be a Type, css-selector, DebugElement or NativeElement.
+   */
+  debug<Component, Html extends Element>(): void {
+    console.log(printHtml(this.debugElement.nativeElement));
+  }
+
+  private resolveDebugElement<Html extends Element, Component>(
+    queryTarget: DebugElement | QueryTarget<Html, Component>,
+  ) {
+    if (isDebugElement(queryTarget)) {
+      return queryTarget;
+    }
+
+    const ngtxElement = new NgtxElement(this.debugElement);
+    const queryResult = ngtxElement.get(queryTarget as any);
+    return queryResult.debugElement;
   }
 }
 
