@@ -1,6 +1,14 @@
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { TypedDebugElement } from '../types';
+import { QueryTarget, TypedDebugElement } from '../types';
+
+export function isNgtxQuerySelector(selector: QueryTarget<any, any>): boolean {
+  if (typeof selector !== 'string') {
+    return false;
+  }
+
+  return selector.startsWith('ngtx_');
+}
 
 export function queryNgtxMarker<Html extends Element, Component>(
   query: string,
