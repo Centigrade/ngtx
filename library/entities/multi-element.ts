@@ -1,7 +1,8 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
-import { queryAll } from '../utility';
+import { isNgtxQuerySelector, queryAll } from '../utility';
+import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxElement } from './element';
 
 export class NgtxMultiElement<Html extends Element = Element, Component = any> {
@@ -23,7 +24,11 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
     query: QueryTarget<Html, Component>,
   ): NgtxMultiElement<Html, Component> {
     const debugElements: TypedDebugElement<Html, Component>[] =
-      typeof query === 'string'
+      isNgtxQuerySelector(query)
+        ? this.debugElements.map((debugElem) =>
+            queryNgtxMarker(query as string, debugElem),
+          )
+        : typeof query === 'string'
         ? this.debugElements.map((debugElem) => debugElem.query(By.css(query)))
         : this.debugElements.map((debugElem) =>
             debugElem.query(By.directive(query)),

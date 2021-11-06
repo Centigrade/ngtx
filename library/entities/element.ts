@@ -1,8 +1,8 @@
-import { DebugElement, Type } from '@angular/core';
+import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { isDebugElement } from '../type-guards';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
-import { printHtml, queryAll } from '../utility';
+import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
+import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
 
 export class NgtxElement<Html extends Element = Element, Component = any> {
@@ -35,7 +35,9 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     query: QueryTarget<Html, Component>,
   ): NgtxElement<Html, Component> {
     const debugElement: TypedDebugElement<Html, Component> =
-      typeof query === 'string'
+      isNgtxQuerySelector(query)
+        ? queryNgtxMarker(query as string, this.debugElement)
+        : typeof query === 'string'
         ? this.debugElement.query(By.css(query))
         : this.debugElement.query(By.directive(query));
 
@@ -125,17 +127,5 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
    */
   debug<Component, Html extends Element>(): void {
     console.log(printHtml(this.debugElement.nativeElement));
-  }
-
-  private resolveDebugElement<Html extends Element, Component>(
-    queryTarget: DebugElement | QueryTarget<Html, Component>,
-  ) {
-    if (isDebugElement(queryTarget)) {
-      return queryTarget;
-    }
-
-    const ngtxElement = new NgtxElement(this.debugElement);
-    const queryResult = ngtxElement.get(queryTarget as any);
-    return queryResult.debugElement;
   }
 }

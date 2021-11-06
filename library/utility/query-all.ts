@@ -1,11 +1,15 @@
 import { By } from '@angular/platform-browser';
 import { QueryTarget, TypedDebugElement } from '../types';
+import { isNgtxQuerySelector } from './is-ngtx-query';
+import { queryAllNgtxMarker } from './query-ngtx-marker';
 
 export function queryAll<Html extends Element, Component>(
   query: QueryTarget<Html, Component>,
   debugElement: TypedDebugElement<any, any>,
 ): TypedDebugElement<Html, Component>[] {
-  return typeof query === 'string'
+  return isNgtxQuerySelector(query)
+    ? queryAllNgtxMarker(query as string, debugElement)
+    : typeof query === 'string'
     ? debugElement.queryAll(By.css(query))
     : debugElement.queryAll(By.directive(query));
 }
