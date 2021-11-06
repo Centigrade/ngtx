@@ -21,6 +21,20 @@ import { configureTestModule } from '../shared/util';
 })
 class TestComponent {}
 
+@NgtxApi()
+class SingleRowApi extends NgtxElement {
+  Cell() {
+    return this.get('th');
+  }
+}
+
+@NgtxApi()
+class MultiRowApi extends NgtxMultiElement {
+  Cell() {
+    return this.get('td');
+  }
+}
+
 describe(
   'NgtxElement: withApi',
   ngtx(({ useFixture, get }) => {
@@ -29,14 +43,7 @@ describe(
     @NgtxApi()
     class Get {
       static Header() {
-        return get('ngtx_header-row').withApi(RowApi);
-      }
-    }
-
-    @NgtxApi()
-    class RowApi extends NgtxElement {
-      Cell() {
-        return this.get('th');
+        return get('ngtx_header-row').withApi(SingleRowApi);
       }
     }
 
@@ -57,14 +64,7 @@ describe(
     @NgtxApi()
     class Get {
       static DataRows() {
-        return getAll('ngtx_header-row').withApi(RowApi);
-      }
-    }
-
-    @NgtxApi()
-    class RowApi extends NgtxMultiElement {
-      Cell() {
-        return this.get('td');
+        return getAll('ngtx_header-row').withApi(MultiRowApi);
       }
     }
 
