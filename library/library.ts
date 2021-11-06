@@ -153,6 +153,10 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     return this.debugElement.componentInstance;
   }
 
+  public get injector() {
+    return this.debugElement.injector;
+  }
+
   constructor(_debugElement?: TypedDebugElement<Html, Component>) {
     this.debugElement = _debugElement;
   }
