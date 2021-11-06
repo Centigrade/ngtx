@@ -1,7 +1,6 @@
 import { By } from '@angular/platform-browser';
 import { QueryTarget, TypedDebugElement } from '../types';
-import { isNgtxQuerySelector } from './is-ngtx-query';
-import { queryAllNgtxMarker } from './query-ngtx-marker';
+import { isNgtxQuerySelector, queryAllNgtxMarker } from './query-ngtx-marker';
 
 export function queryAll<Html extends Element, Component>(
   query: QueryTarget<Html, Component>,
