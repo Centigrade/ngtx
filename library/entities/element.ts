@@ -6,8 +6,6 @@ import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
 
 export class NgtxElement<Html extends Element = Element, Component = any> {
-  public debugElement: TypedDebugElement<Html, Component>;
-
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
@@ -18,9 +16,9 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     return this.debugElement.injector;
   }
 
-  constructor(_debugElement: TypedDebugElement<Html, Component>) {
-    this.debugElement = _debugElement;
-  }
+  constructor(
+    public readonly debugElement: TypedDebugElement<Html, Component>,
+  ) {}
 
   public withApi<Api extends NgtxElement>(apiType: Type<Api>): Api {
     return new apiType(this.debugElement);
@@ -56,9 +54,10 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
   public getAll<Html extends Element, Component>(
     queryTarget: QueryTarget<Html, Component>,
   ): NgtxMultiElement<Html, Component> {
-    const results: TypedDebugElement<Html, Component>[] = [];
+    const results: NgtxElement<Html, Component>[] = [];
     const resultList = queryAll(queryTarget, this.debugElement!);
-    results.push(...resultList);
+    const elements = resultList.map((r) => new NgtxElement(r));
+    results.push(...elements);
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();

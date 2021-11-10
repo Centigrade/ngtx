@@ -1,6 +1,10 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { NgtxElement } from '../entities';
 
+export type Assignable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
+
 export type Fn<In, Out> = (a: In) => Out;
 export type ConverterFn<Out> = Fn<any, Out>;
 
