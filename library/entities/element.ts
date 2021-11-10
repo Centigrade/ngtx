@@ -1,11 +1,14 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
+import { SingularApi } from '../types/singular-api';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
 
-export class NgtxElement<Html extends Element = Element, Component = any> {
+export class NgtxElement<Html extends Element = Element, Component = any>
+  implements SingularApi<Html, Component>
+{
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
@@ -20,8 +23,11 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     public readonly debugElement: TypedDebugElement<Html, Component>,
   ) {}
 
-  public withApi<Api extends NgtxElement>(apiType: Type<Api>): Api {
-    return new apiType(this.debugElement);
+  public withApi<Api>(apiType: Type<Api>): Api & NgtxElement<Html, Component> {
+    return Object.assign(
+      new NgtxElement(this.debugElement),
+      new apiType(this.debugElement),
+    );
   }
 
   public get<Html extends Element, Component = any>(
@@ -103,29 +109,7 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     return trim ? text.trim() : text;
   }
 
-  /**
-   * **Prints out the html tree of the specified element.**
-   *
-   * If no element is given, the fixture's root NativeElement is used as root.
-   *
-   * ---
-   *
-   * ~~~ts
-   * debug();
-   * debug('.my-button');
-   * debug(MyButton);
-   *
-   * const debugElement = find(MyButton);
-   * debug(debugElement);
-   *
-   * const { nativeElement } = find(MyButton);
-   * debug(nativeElement);
-   * ~~~
-   *
-   * ---
-   * @param root The root element to print the html from. Can be a Type, css-selector, DebugElement or NativeElement.
-   */
-  debug<Component, Html extends Element>(): void {
+  debug(): void {
     console.log(printHtml(this.debugElement.nativeElement));
   }
 }

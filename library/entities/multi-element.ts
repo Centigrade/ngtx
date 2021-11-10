@@ -1,8 +1,11 @@
 import { Type } from '@angular/core';
 import { ConverterFn, QueryTarget } from '../types';
+import { PluralApi } from '../types/plural-api';
 import { NgtxElement } from './element';
 
-export class NgtxMultiElement<Html extends Element = Element, Component = any> {
+export class NgtxMultiElement<Html extends Element = Element, Component = any>
+  implements PluralApi<Html, Component>
+{
   public get length(): number {
     return this.elements.length;
   }
@@ -134,7 +137,12 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
       .map((text) => (trim ? text.trim() : text));
   }
 
-  public withApi<Api extends NgtxMultiElement>(apiType: Type<Api>): Api {
-    return new apiType(this.elements);
+  public withApi<Api>(
+    apiType: Type<Api>,
+  ): Api & NgtxMultiElement<Html, Component> {
+    return Object.assign(
+      new NgtxMultiElement(this.elements),
+      new apiType(this.elements),
+    );
   }
 }
