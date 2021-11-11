@@ -1,13 +1,8 @@
-import { Injector, Type } from '@angular/core';
-import { ConverterFn, QueryTarget, TypedDebugElement } from './index';
+import { Type } from '@angular/core';
+import { ConverterFn, QueryTarget } from './index';
 import type { PluralApi } from './plural-api';
 
 export interface SingularApi<Html extends Element, Component> {
-  readonly nativeElement: Html;
-  readonly component: Component;
-  readonly injector: Injector;
-  readonly debugElement: TypedDebugElement<Html, Component>;
-
   withApi<
     Html extends Element,
     Component,

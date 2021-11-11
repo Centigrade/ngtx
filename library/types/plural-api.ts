@@ -3,8 +3,6 @@ import { ConverterFn, QueryTarget } from './index';
 import type { SingularApi } from './singular-api';
 
 export interface PluralApi<Html extends Element = Element, Component = any> {
-  readonly length: number;
-
   get<Html extends Element, Component = any>(
     cssSelector: string,
   ): PluralApi<Html, Component>;
