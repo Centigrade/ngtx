@@ -43,11 +43,19 @@ function renameInstanceMethods(target: any): void {
 }
 
 function autoName(methods: string[], target: any) {
-  methods.forEach((fnName) => {
-    const fn = (target as any)[fnName];
-    const newName = fn.name;
-    fn.toString = () => newName;
-  });
+  methods
+    // filter out setters and getters
+    .filter((fnName) => {
+      const descriptor = getPropertyDescriptor(target, fnName);
+      return descriptor?.get == null && descriptor?.set == null;
+    })
+    // filter out non-method properties
+    .filter((fnName) => typeof target[fnName] === 'function')
+    .forEach((fnName) => {
+      const fn = target[fnName];
+      const newName = fn.name;
+      fn.toString = () => newName;
+    });
 }
 
 function getPublicInstanceMethodNames(classType: any) {
