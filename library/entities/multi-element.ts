@@ -43,7 +43,8 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any>
 
     this.elements.forEach((element) => {
       const resultList = element.getAll(queryTarget).elements;
-      results.push(...resultList);
+      const onlyDefined = resultList.filter((element) => element != null);
+      results.push(...onlyDefined);
     });
 
     // only provide ngtx element if query could actually find something.
