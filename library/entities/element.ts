@@ -23,11 +23,8 @@ export class NgtxElement<Html extends Element = Element, Component = any>
     public readonly debugElement: TypedDebugElement<Html, Component>,
   ) {}
 
-  public withApi<Api>(apiType: Type<Api>): Api & NgtxElement<Html, Component> {
-    return Object.assign(
-      new NgtxElement(this.debugElement),
-      new apiType(this.debugElement),
-    );
+  public withApi<Api>(apiType: Type<Api>): Api {
+    return new apiType(this.debugElement);
   }
 
   public get<Html extends Element, Component = any>(

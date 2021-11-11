@@ -2,7 +2,7 @@ import { Type } from '@angular/core';
 import { ConverterFn, QueryTarget } from './index';
 import type { SingularApi } from './singular-api';
 
-export interface PluralApi<Html extends Element, Component> {
+export interface PluralApi<Html extends Element = Element, Component = any> {
   readonly length: number;
 
   get<Html extends Element, Component = any>(
@@ -31,7 +31,13 @@ export interface PluralApi<Html extends Element, Component> {
 
   textContents(trim?: boolean): string[];
 
-  withApi<Api>(apiType: Type<Api>): Api & PluralApi<Html, Component>;
+  withApi<
+    Html extends Element,
+    Component,
+    Api extends PluralApi<Html, Component> = PluralApi<Html, Component>,
+  >(
+    apiType: Type<Api>,
+  ): PluralApi<Html, Component>;
 
   forEach(
     handler: (element: SingularApi<Html, Component>, index: number) => any,

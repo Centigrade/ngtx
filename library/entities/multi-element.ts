@@ -138,12 +138,7 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any>
       .map((text) => (trim ? text.trim() : text));
   }
 
-  public withApi<Api>(
-    apiType: Type<Api>,
-  ): Api & NgtxMultiElement<Html, Component> {
-    return Object.assign(
-      new NgtxMultiElement(this.elements),
-      new apiType(this.elements),
-    );
+  public withApi<Api extends PluralApi<any, any>>(apiType: Type<Api>): Api {
+    return new apiType(this.elements);
   }
 }

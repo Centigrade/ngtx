@@ -8,7 +8,13 @@ export interface SingularApi<Html extends Element, Component> {
   readonly injector: Injector;
   readonly debugElement: TypedDebugElement<Html, Component>;
 
-  withApi<Api>(apiType: Type<Api>): SingularApi<Html, Component> & Api;
+  withApi<
+    Html extends Element,
+    Component,
+    Api extends SingularApi<Html, Component> = SingularApi<Html, Component>,
+  >(
+    apiType: Type<Api>,
+  ): Api;
 
   get<Html extends Element, Component = any>(
     cssSelector: string,
