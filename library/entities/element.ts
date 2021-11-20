@@ -1,14 +1,11 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
-import { SingularApi } from '../types/singular-api';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
 
-export class NgtxElement<Html extends Element = Element, Component = any>
-  implements SingularApi<Html, Component>
-{
+export class NgtxElement<Html extends Element = Element, Component = any> {
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
