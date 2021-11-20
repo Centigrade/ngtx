@@ -1,12 +1,21 @@
 # Documentation
 
+| 🚧 ngtx Version 1 vs. 2 |
+| ----------------------- |
+
+| ngtx is currently being redesigned to be more flexible and even more useful in some cases. The current version 2 of ngtx is already having an experimental API that semantically differs from what is documented on this page. To use ngtx as documented here, **please install version 1 of the package:** `npm i -D @centigrade/ngtx@1`.
+
+## ngtx v1
+
+This document is explaining how to use ngtx when installed in version `1.X.X`. To find explanations to the new, yet experimental API of ngtx in version `2.X.X`, you can [refer here][documentation_2].
+
 ## Architecture Overview
 
-`ngtx` "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
+ngtx "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
 
 1.  `$ npm install -D @centigrade/ngtx`
 2.  import ngtx into your test file
-3.  wrap your test-suite callback in a `ngtx` call
+3.  wrap your test-suite callback in a ngtx call
 4.  import `useFixture` and additional helpers you want to use as a destructured object parameter
 5.  call `useFixture(fixture)` in the `beforeEach` hook, after the fixture has been created:
 
@@ -35,7 +44,7 @@ describe(
 
 # Quick Examples
 
-The following examples are just a random collection of tests, demonstrating how `ngtx` of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are actually testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
+The following examples are just a random collection of tests, demonstrating how ngtx of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are actually testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
 
 ```ts
 import { ngtx, asBool, toNativeElement } from '@centigrade/ngtx';
@@ -477,7 +486,7 @@ describe(
 );
 ```
 
-Please note, that you may want to initialize syntax-highlighting in order to enable colored output in compatible consoles. To do that import and call the `initSyntaxHighlighting` function from `ngtx` in your test-environment setup file:
+Please note, that you may want to initialize syntax-highlighting in order to enable colored output in compatible consoles. To do that import and call the `initSyntaxHighlighting` function from ngtx in your test-environment setup file:
 
 ```ts
 // file: "src/test.ts" or "setupJest.ts"
@@ -489,3 +498,5 @@ initSyntaxHighlighting();
 > Real screenshot:
 >
 > ![Console log output](./media/debug-output.png)
+
+[documentation_2]: ./DOCS_2.md

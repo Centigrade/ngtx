@@ -20,7 +20,7 @@ Please read and follow our [Code of Conduct][coc].
 ## <a name="question"></a> Got a Question or Problem?
 
 Do not open issues for general support questions as we want to keep GitHub issues for bug reports and feature requests.
-Instead, we recommend using [Stack Overflow](https://stackoverflow.com/questions/tagged/ngtx) to ask support-related questions. When creating a new question on Stack Overflow, make sure to add the `ngtx` tag.
+Instead, we recommend using [Stack Overflow](https://stackoverflow.com/questions/tagged/ngtx) to ask support-related questions. When creating a new question on Stack Overflow, make sure to add the ngtx tag.
 
 Stack Overflow is a much better place to ask questions since:
 

@@ -24,7 +24,7 @@ export async function tryInitChalk(): Promise<void> {
     setColor = chalk.hex.bind(chalk);
   } catch (err) {
     console.log(
-      `[ngtx] Could not load dependency "chalk" in current environment. Ngtx will work, but debug() outputs might not be colored.`,
+      `[ngtx] Could not load dependency "chalk" in current environment. ngtx will work, but debug() outputs might not be colored.`,
     );
     console.warn('Internal error:', err);
   }
