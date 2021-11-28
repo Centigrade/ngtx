@@ -36,9 +36,14 @@ export class NgtxFixture {
    */
   public useFixture<Html extends Element, T>(
     fixture: ComponentFixture<T>,
+    skipInitialChangeDetection = false,
   ): void {
     this.fixture = fixture;
     this.root = new NgtxElement<Html, T>(this.fixture.debugElement);
+
+    if (!skipInitialChangeDetection) {
+      fixture.detectChanges();
+    }
   }
 
   /**
