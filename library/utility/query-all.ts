@@ -3,7 +3,7 @@ import { QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, queryAllNgtxMarker } from './query-ngtx-marker';
 
 export function queryAll<Html extends Element, Component>(
-  query: QueryTarget<Html, Component>,
+  query: QueryTarget<Component>,
   debugElement: TypedDebugElement<any, any>,
 ): TypedDebugElement<Html, Component>[] {
   return isNgtxQuerySelector(query)

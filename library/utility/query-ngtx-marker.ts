@@ -2,7 +2,7 @@ import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { QueryTarget, TypedDebugElement } from '../types';
 
-export function isNgtxQuerySelector(selector: QueryTarget<any, any>): boolean {
+export function isNgtxQuerySelector(selector: QueryTarget<any>): boolean {
   if (typeof selector !== 'string') {
     return false;
   }

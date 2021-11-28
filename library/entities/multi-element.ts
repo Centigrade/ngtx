@@ -16,7 +16,7 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
     component: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
   public get<Html extends Element, Component>(
-    query: QueryTarget<Html, Component>,
+    query: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component> {
     const findings = this.elements
       .map((element) => element.get(query as any))
@@ -31,15 +31,15 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Html, Component>,
+    queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Html, Component>,
+    queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];
 
     this.elements.forEach((element) => {
-      const findings = element.getAll(queryTarget);
+      const findings = element.getAll<Html, Component>(queryTarget);
       const resultList = findings?.elements ?? [];
       results.push(...resultList);
     });

@@ -1,13 +1,15 @@
+import { Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
-import {
-  LifeCycleHooks,
-  TypedDebugElement,
-  TypeObjectMap,
-} from '../types/index';
+import { NgtxMultiElement } from '.';
+import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
 import { NgtxElement } from './element';
 
 export class NgtxFixture {
-  constructor(private fixture?: ComponentFixture<any>) {}
+  private root: NgtxElement;
+
+  constructor(private fixture?: ComponentFixture<any>) {
+    this.root = new NgtxElement(fixture?.debugElement);
+  }
 
   /**
    * **Provides the test helpers with the correct `fixture` instance on which they work.**
@@ -32,11 +34,11 @@ export class NgtxFixture {
    * ~~~
    * @param fixture The test's `fixture` instance.
    */
-  public useFixture<T>(
-    fixture: ComponentFixture<any>,
-  ): TypedDebugElement<Element, T> {
+  public useFixture<Html extends Element, T>(
+    fixture: ComponentFixture<T>,
+  ): void {
     this.fixture = fixture;
-    return fixture.debugElement;
+    this.root = new NgtxElement<Html, T>(this.fixture.debugElement);
   }
 
   /**
@@ -56,7 +58,7 @@ export class NgtxFixture {
    */
   public detectChanges<
     Html extends Element = Element,
-    Component = any,
+    Component = any
   >(): NgtxElement<Html, Component>;
   /**
    * **Shortcut for `fixture.detectChanges()`.**
@@ -77,11 +79,11 @@ export class NgtxFixture {
    */
   public detectChanges<
     T extends LifeCycleHooks,
-    Html extends Element = Element,
+    Html extends Element = Element
   >(component: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T>;
   public detectChanges<
     T extends Partial<LifeCycleHooks>,
-    Html extends Element = Element,
+    Html extends Element = Element
   >(component?: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T> {
     component?.ngOnChanges?.(changes);
     component?.ngOnInit?.();
@@ -89,6 +91,30 @@ export class NgtxFixture {
     this.fixture.detectChanges();
 
     // hint: we trust the user to pass in the correct component type here:
-    return this as unknown as NgtxElement<Html, T>;
+    return (this as unknown) as NgtxElement<Html, T>;
+  }
+
+  public get<Html extends Element, Component = any>(
+    cssSelector: string,
+  ): NgtxElement<Html, Component>;
+  get<Html extends Element, Component>(
+    component: Type<Component>,
+  ): NgtxElement<Html, Component>;
+  get<Html extends Element, Component>(
+    query: QueryTarget<Component>,
+  ): NgtxElement<Html, Component> {
+    return this.root.get(query as any);
+  }
+
+  getAll<Html extends Element, Component = any>(
+    cssSelector: string,
+  ): NgtxMultiElement<Html, Component>;
+  getAll<Html extends Element, Component>(
+    queryTarget: Type<Component>,
+  ): NgtxMultiElement<Html, Component>;
+  getAll<Html extends Element, Component>(
+    queryTarget: QueryTarget<Component>,
+  ): NgtxMultiElement<Html, Component> {
+    return this.root.getAll(queryTarget);
   }
 }

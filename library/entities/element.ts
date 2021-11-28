@@ -31,14 +31,16 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     component: Type<Component>,
   ): NgtxElement<Html, Component>;
   public get<Html extends Element, Component>(
-    query: QueryTarget<Html, Component>,
+    query: QueryTarget<Component>,
   ): NgtxElement<Html, Component> {
-    const debugElement: TypedDebugElement<Html, Component> =
-      isNgtxQuerySelector(query)
-        ? queryNgtxMarker(query as string, this.debugElement)
-        : typeof query === 'string'
-        ? this.debugElement.query(By.css(query))
-        : this.debugElement.query(By.directive(query));
+    const debugElement: TypedDebugElement<
+      Html,
+      Component
+    > = isNgtxQuerySelector(query)
+      ? queryNgtxMarker(query as string, this.debugElement)
+      : typeof query === 'string'
+      ? this.debugElement.query(By.css(query))
+      : this.debugElement.query(By.directive(query));
 
     // only provide an ngtx element if the query could be resolved.
     // this allows tests like: expect(Get.Icon()).toBeNull();
@@ -49,13 +51,16 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Html, Component>,
+    queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Html, Component>,
+    queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];
-    const resultList = queryAll(queryTarget, this.debugElement!);
+    const resultList = queryAll<Html, Component>(
+      queryTarget,
+      this.debugElement,
+    );
     const elements = resultList.map((r) => new NgtxElement(r));
     results.push(...elements);
 

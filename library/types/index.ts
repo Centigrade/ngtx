@@ -13,23 +13,23 @@ export interface LifeCycleHooks {
   ngOnChanges?: (changes: SimpleChanges) => void;
 }
 
-export type QueryTarget<Html extends Element, Component> =
-  | string
-  | Type<Component>;
+export type QueryTarget<Component> = string | Type<Component>;
 
 export interface TypedDebugElement<
   Html extends Element = Element,
-  Component = any,
+  Component = any
 > extends DebugElement {
   nativeElement: Html;
   componentInstance: Component;
 }
 
-export type TypeObjectMap<K> = Partial<{
-  [P in keyof Partial<K>]: any;
-}>;
+export type TypeObjectMap<K> = Partial<
+  {
+    [P in keyof Partial<K>]: any;
+  }
+>;
 
 export type Chainable<
   Html extends Element = Element,
-  Component = any,
+  Component = any
 > = TypedDebugElement<Html, Component> & NgtxElement;

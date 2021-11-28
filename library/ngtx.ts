@@ -1,6 +1,5 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from './entities';
-import { Assignable } from './types';
 
 /**
  * Injects ngtx test features into the given test suite.
@@ -25,21 +24,14 @@ import { Assignable } from './types';
  */
 export function ngtx(suite: (features: NgtxFixture & NgtxElement) => void) {
   const ngtxFixture = new NgtxFixture();
-  // hint: debugElement will be set when user calls "useFixture", so initialize it with null for now:
-  const root: NgtxElement = new NgtxElement(null!);
 
   return () =>
     suite({
       useFixture: (<T>(fixture: ComponentFixture<T>) => {
-        (root as Assignable<NgtxElement>).debugElement =
-          ngtxFixture.useFixture(fixture);
+        ngtxFixture.useFixture(fixture);
       }) as any,
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
-      debug: root.debug.bind(ngtxFixture),
-      get: root.get.bind(root),
-      getAll: root.getAll.bind(root),
-      attr: root.attr.bind(root),
-      triggerEvent: root.triggerEvent.bind(root),
-      textContent: root.textContent.bind(root),
+      get: ngtxFixture.get.bind(ngtxFixture),
+      getAll: ngtxFixture.getAll.bind(ngtxFixture),
     } as NgtxFixture & NgtxElement);
 }
