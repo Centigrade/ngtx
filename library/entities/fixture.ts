@@ -20,7 +20,7 @@ export class NgtxFixture {
    * Use it like that:
    *
    * ~~~ts
-   * describe('MyTests', withHelpers({ useFixture, ... }) => {
+   * describe('MyTests', ngtx({ useFixture, ... }) => {
    *    // ...
    *
    *    beforeEach(() => {
