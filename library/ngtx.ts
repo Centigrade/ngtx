@@ -1,5 +1,6 @@
 import { ComponentFixture } from '@angular/core/testing';
-import { NgtxElement, NgtxFixture } from './entities';
+import { NgtxFixture } from './entities';
+import { NgtxSuite } from './types';
 
 /**
  * Injects ngtx test features into the given test suite.
@@ -22,7 +23,7 @@ import { NgtxElement, NgtxFixture } from './entities';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-export function ngtx(suite: (features: NgtxFixture & NgtxElement) => void) {
+export function ngtx(suite: (ngtx: NgtxSuite) => void) {
   const ngtxFixture = new NgtxFixture();
 
   return () =>
@@ -33,5 +34,5 @@ export function ngtx(suite: (features: NgtxFixture & NgtxElement) => void) {
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),
       getAll: ngtxFixture.getAll.bind(ngtxFixture),
-    } as NgtxFixture & NgtxElement);
+    });
 }

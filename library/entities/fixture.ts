@@ -61,10 +61,7 @@ export class NgtxFixture {
    * ---
    * @param component (Optional) A component instance to call the `ngOnInit`- and `ngOnChanges`-life-cycles on.
    */
-  public detectChanges<
-    Html extends Element = Element,
-    Component = any,
-  >(): NgtxElement<Html, Component>;
+  public detectChanges<Html extends Element = Element, Component = any>(): void;
   /**
    * **Shortcut for `fixture.detectChanges()`.**
    *
@@ -83,41 +80,38 @@ export class NgtxFixture {
    * @param component (Optional) A component instance to call the `ngOnInit`- and `ngOnChanges`-life-cycles on.
    */
   public detectChanges<
-    T extends LifeCycleHooks,
-    Html extends Element = Element,
-  >(component: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T>;
-  public detectChanges<
     T extends Partial<LifeCycleHooks>,
     Html extends Element = Element,
-  >(component?: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T> {
+  >(component: T, changes?: TypeObjectMap<T>): void;
+  public detectChanges<T extends Partial<LifeCycleHooks>>(
+    component?: T,
+    changes?: TypeObjectMap<T>,
+  ): void {
     component?.ngOnChanges?.(changes);
     component?.ngOnInit?.();
 
     this.fixture.detectChanges();
-
-    // hint: we trust the user to pass in the correct component type here:
-    return this as unknown as NgtxElement<Html, T>;
   }
 
   public get<Html extends Element, Component = any>(
     cssSelector: string,
   ): NgtxElement<Html, Component>;
-  get<Html extends Element, Component>(
+  public get<Html extends Element, Component>(
     component: Type<Component>,
   ): NgtxElement<Html, Component>;
-  get<Html extends Element, Component>(
+  public get<Html extends Element, Component>(
     query: QueryTarget<Component>,
   ): NgtxElement<Html, Component> {
     return this.root.get(query as any);
   }
 
-  getAll<Html extends Element, Component = any>(
+  public getAll<Html extends Element, Component = any>(
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
-  getAll<Html extends Element, Component>(
+  public getAll<Html extends Element, Component>(
     queryTarget: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
-  getAll<Html extends Element, Component>(
+  public getAll<Html extends Element, Component>(
     queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component> {
     return this.root.getAll(queryTarget);
