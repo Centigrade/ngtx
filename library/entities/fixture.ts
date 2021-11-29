@@ -116,4 +116,8 @@ export class NgtxFixture {
   ): NgtxMultiElement<Html, Component> {
     return this.root.getAll(queryTarget);
   }
+
+  public triggerEvent(name: string, eventArgs?: any): void {
+    return this.root.triggerEvent(name, eventArgs);
+  }
 }

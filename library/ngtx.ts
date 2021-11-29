@@ -1,6 +1,9 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxFixture } from './entities';
-import { NgtxSuite } from './types';
+
+type NgtxSuite = Omit<NgtxFixture, 'root'> & {
+  useFixture<T>(fixture: ComponentFixture<T>): void;
+};
 
 /**
  * Injects ngtx test features into the given test suite.
@@ -28,11 +31,12 @@ export function ngtx(suite: (ngtx: NgtxSuite) => void) {
 
   return () =>
     suite({
-      useFixture: (<T>(fixture: ComponentFixture<T>) => {
+      useFixture: <T>(fixture: ComponentFixture<T>) => {
         ngtxFixture.useFixture(fixture);
-      }) as any,
+      },
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),
       getAll: ngtxFixture.getAll.bind(ngtxFixture),
+      triggerEvent: ngtxFixture.triggerEvent.bind(ngtxFixture),
     });
 }
