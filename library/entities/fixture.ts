@@ -7,10 +7,6 @@ import { NgtxElement } from './element';
 export class NgtxFixture {
   private root: NgtxElement;
 
-  public get rootElement() {
-    return this.root;
-  }
-
   constructor(private fixture?: ComponentFixture<any>) {
     this.root = new NgtxElement(fixture?.debugElement);
   }

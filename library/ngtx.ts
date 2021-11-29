@@ -33,8 +33,5 @@ export function ngtx(suite: (features: NgtxFixture & NgtxElement) => void) {
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),
       getAll: ngtxFixture.getAll.bind(ngtxFixture),
-      triggerEvent: ngtxFixture.rootElement.triggerEvent.bind(
-        ngtxFixture.rootElement,
-      ),
     } as NgtxFixture & NgtxElement);
 }
