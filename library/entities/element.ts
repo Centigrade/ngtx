@@ -9,7 +9,7 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
-  public get component() {
+  public get componentInstance() {
     return this.debugElement.componentInstance;
   }
   public get injector() {
@@ -33,14 +33,12 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
   public get<Html extends Element, Component>(
     query: QueryTarget<Component>,
   ): NgtxElement<Html, Component> {
-    const debugElement: TypedDebugElement<
-      Html,
-      Component
-    > = isNgtxQuerySelector(query)
-      ? queryNgtxMarker(query as string, this.debugElement)
-      : typeof query === 'string'
-      ? this.debugElement.query(By.css(query))
-      : this.debugElement.query(By.directive(query));
+    const debugElement: TypedDebugElement<Html, Component> =
+      isNgtxQuerySelector(query)
+        ? queryNgtxMarker(query as string, this.debugElement)
+        : typeof query === 'string'
+        ? this.debugElement.query(By.css(query))
+        : this.debugElement.query(By.directive(query));
 
     // only provide an ngtx element if the query could be resolved.
     // this allows tests like: expect(Get.Icon()).toBeNull();
