@@ -85,7 +85,7 @@ export class NgtxFixture {
   >(component: T, changes?: TypeObjectMap<T>): void;
   public detectChanges<T extends Partial<LifeCycleHooks>>(
     component?: T,
-    changes?: TypeObjectMap<T>,
+    changes: TypeObjectMap<T> = {},
   ): void {
     component?.ngOnChanges?.(changes);
     component?.ngOnInit?.();
