@@ -140,4 +140,10 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
   ): Api {
     return new apiType(this.elements);
   }
+
+  public triggerEvent(name: string, eventArgs?: any): void {
+    this.elements.map((debugElement) =>
+      debugElement.triggerEvent(name, eventArgs),
+    );
+  }
 }
