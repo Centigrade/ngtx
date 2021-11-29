@@ -7,6 +7,10 @@ import { NgtxElement } from './element';
 export class NgtxFixture {
   private root: NgtxElement;
 
+  public get rootElement() {
+    return this.root;
+  }
+
   constructor(private fixture?: ComponentFixture<any>) {
     this.root = new NgtxElement(fixture?.debugElement);
   }
@@ -63,7 +67,7 @@ export class NgtxFixture {
    */
   public detectChanges<
     Html extends Element = Element,
-    Component = any
+    Component = any,
   >(): NgtxElement<Html, Component>;
   /**
    * **Shortcut for `fixture.detectChanges()`.**
@@ -84,11 +88,11 @@ export class NgtxFixture {
    */
   public detectChanges<
     T extends LifeCycleHooks,
-    Html extends Element = Element
+    Html extends Element = Element,
   >(component: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T>;
   public detectChanges<
     T extends Partial<LifeCycleHooks>,
-    Html extends Element = Element
+    Html extends Element = Element,
   >(component?: T, changes?: TypeObjectMap<T>): NgtxElement<Html, T> {
     component?.ngOnChanges?.(changes);
     component?.ngOnInit?.();
@@ -96,7 +100,7 @@ export class NgtxFixture {
     this.fixture.detectChanges();
 
     // hint: we trust the user to pass in the correct component type here:
-    return (this as unknown) as NgtxElement<Html, T>;
+    return this as unknown as NgtxElement<Html, T>;
   }
 
   public get<Html extends Element, Component = any>(
