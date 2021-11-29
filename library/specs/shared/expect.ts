@@ -12,7 +12,7 @@ export class Expect {
       static toBeComponent(type: Type<any>): void {
         expect(ngtxElement).toBeDefined();
         expect(ngtxElement).toBeInstanceOf(NgtxElement);
-        expect(ngtxElement.component).toBeInstanceOf(type);
+        expect(ngtxElement.componentInstance).toBeInstanceOf(type);
       }
     };
   }
