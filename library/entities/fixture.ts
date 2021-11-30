@@ -112,9 +112,12 @@ export class NgtxFixture {
     queryTarget: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Component>,
+    queryTarget: Type<Component>[],
+  ): NgtxMultiElement<Html, Component>;
+  public getAll<Html extends Element, Component>(
+    queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
-    return this.root.getAll(queryTarget);
+    return this.root.getAll(queryTarget as any);
   }
 
   public triggerEvent(name: string, eventArgs?: any): void {
