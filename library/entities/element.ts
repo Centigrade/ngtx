@@ -52,15 +52,19 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Component>,
+    queryTarget: QueryTarget<Component>[],
+  ): NgtxMultiElement<Html, Component>;
+  public getAll<Html extends Element, Component>(
+    queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];
-    const resultList = queryAll<Html, Component>(
-      queryTarget,
-      this.debugElement,
-    );
-    const elements = resultList.map((r) => new NgtxElement(r));
-    results.push(...elements);
+    const queries = Array.isArray(queryTarget) ? queryTarget : [queryTarget];
+
+    queries.forEach((query) => {
+      const resultList = queryAll<Html, Component>(query, this.debugElement);
+      const elements = resultList.map((r) => new NgtxElement(r));
+      results.push(...elements);
+    });
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();

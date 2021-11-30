@@ -34,12 +34,15 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
     queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Component>,
+    queryTarget: QueryTarget<Component>[],
+  ): NgtxMultiElement<Html, Component>;
+  public getAll<Html extends Element, Component>(
+    queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];
 
     this.elements.forEach((element) => {
-      const findings = element.getAll<Html, Component>(queryTarget);
+      const findings = element.getAll<Html, Component>(queryTarget as any);
       const resultList = findings?.elements ?? [];
       results.push(...resultList);
     });
