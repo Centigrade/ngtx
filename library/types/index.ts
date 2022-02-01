@@ -1,8 +1,13 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
-import { NgtxElement } from '../entities';
+import { ComponentFixture } from '@angular/core/testing';
+import { NgtxElement, NgtxFixture } from '../entities';
 
 export type Assignable<T> = {
   -readonly [P in keyof T]: T[P];
+};
+
+export type NgtxSuite = Omit<NgtxFixture, 'root'> & {
+  useFixture<T>(fixture: ComponentFixture<T>): void;
 };
 
 export type Fn<In, Out> = (a: In) => Out;

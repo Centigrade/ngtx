@@ -1,9 +1,6 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxFixture } from './entities';
-
-type NgtxSuite = Omit<NgtxFixture, 'root'> & {
-  useFixture<T>(fixture: ComponentFixture<T>): void;
-};
+import { NgtxSuite } from './types';
 
 /**
  * Injects ngtx test features into the given test suite.
