@@ -149,4 +149,9 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
       debugElement.triggerEvent(name, eventArgs),
     );
   }
+
+  /** Returns the inner array of ngtx elements. */
+  public unwrap() {
+    return [...this.elements];
+  }
 }
