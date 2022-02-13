@@ -1,248 +1,71 @@
-# Contributing to ngtx
+> This document explains all important bits of developing ngtx. If you are interested in contributing, please read this article before-hand.
 
-We would love for you to contribute to ngtx and help make it even better than it is today!
-As a contributor, here are the guidelines we would like you to follow:
+# Contributing to [ngtx][github]
 
-- [Code of Conduct](#coc)
-- [Question or Problem?](#question)
-- [Issues and Bugs](#issue)
-- [Feature Requests](#feature)
-- [Submission Guidelines](#submit)
-- [Coding Rules](#rules)
-- [Commit Message Guidelines](#commit)
-- [Signing the CLA](#cla)
+First of all, it is important to us that everyone in this community is treated with respect and in a friendly inclusive manner regardless of sex, race, origin, sexual preference, religion, ... you get it. Please be nice and treat each other the same way you wanted to be treated.
 
-## <a name="coc"></a> Code of Conduct
+> For more details please see our [Code of Conduct][coc].
 
-Help us keep ngtx open and inclusive.
-Please read and follow our [Code of Conduct][coc].
+Since ngtx is still a small product, we try to keep things as simple as possible. We think it shouldn't be hard to start contributing to ngtx, so we do not want to over-engineer processes only for the sake of it. However, if you do know how to improve the workflow, please let us know by creating an issue with the `workflow` label!
 
-## <a name="question"></a> Got a Question or Problem?
+You can use whatever IDE you like, however for documentation purposes we target [Visual Studio Code (aka "vscode")][vscode] as IDE.
 
-Do not open issues for general support questions as we want to keep GitHub issues for bug reports and feature requests.
-Instead, we recommend using [Stack Overflow](https://stackoverflow.com/questions/tagged/ngtx) to ask support-related questions. When creating a new question on Stack Overflow, make sure to add the ngtx tag.
+> For more details on developing ngtx see the [Developer's Guide][dev-doc].
 
-Stack Overflow is a much better place to ask questions since:
+### <a id="overview"></a> Required Tooling and Conventions
 
-- there are thousands of people willing to help on Stack Overflow
-- questions and answers stay available for public viewing so your question/answer might help someone else
-- Stack Overflow's voting system assures that the best answers are prominently visible.
+The following tooling is **required** when contributing to ngtx and is added to the recommendations list for vscode (it will prompt you to install the extensions once you opened the cloned repository the first time):
 
-To save your and our time, we will systematically close all issues that are requests for general support and redirect people to Stack Overflow.
+- Linting: [Eslint][vscode.ext.eslint],
+- Code Formatter: [Prettier][vscode.ext.prettier],
+- Spell Checking: [Code Spell Checker][vscode.ext.code-spell-checker]
+- Commit Message Convention: [Conventional Commits v1][commit-message-convention]
 
-## <a name="issue"></a> Found a Bug?
+---
 
-If you find a bug in the source code, you can help us by [submitting an issue](#submit-issue) to our [GitHub Repository][github].
-Even better, you can [submit a Pull Request](#submit-pr) with a fix.
+## Submitting a Pull Request ("PR")
 
-## <a name="feature"></a> Missing a Feature?
+Before you submit your Pull Request ("PR") consider the following guidelines:
 
-You can _request_ a new feature by [submitting an issue](#submit-issue) to our GitHub Repository.
-If you would like to _implement_ a new feature, please consider the size of the change in order to determine the right steps to proceed:
+1. Search GitHub for an open or closed PR that relates to your submission. You don't want to duplicate existing efforts.
+2. Be sure that an issue describes the problem you're fixing, or documents the design for the feature you'd like to add. Discussing the design upfront helps to ensure that we're ready to accept your work.
+3. Fork the `Centigrade/ngtx` repo.
+4. In your forked repository, make your changes in a new git branch:
+   `git checkout -b my-fix-branch main`.
+5. Create your patch, including appropriate test cases. Follow our [Coding Rules](#overview).
+6. Run the full ngtx test suite, as described in the [developer documentation][dev-doc], and ensure that all tests pass.
+7. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit-message-format).
+8. Push your branch to GitHub:
+   - `git push origin my-fix-branch`
+   - In GitHub, send a pull request to `ngtx:main`.
 
-- For a **Major Feature**, first open an issue and outline your proposal so that it can be discussed.
-  This process allows us to better coordinate our efforts, prevent duplication of work, and help you to craft the change so that it is successfully accepted into the project.
+## <a id="code-style-and-formatting"></a> Code Style and Formatting
 
-- **Small Features** can be crafted and directly [submitted as a Pull Request](#submit-pr).
+> All needed [Visual Studio Code][vscode] (aka "vscode") extensions are added as recommendations to the repository. Once you cloned and opened it in vscode, a dialog will ask you whether you want to install the recommended extensions. Please select "yes" in such case.
 
-## <a name="submit"></a> Submission Guidelines
+### Linting
 
-### <a name="submit-issue"></a> Submitting an Issue
+We use [Eslint][vscode.ext.eslint] as code linter for this project. Linting is supposed to ensure a base line of code quality and features best practices while complaining about code that is known to be problematic. While linting is not the answer to all code problems and bad habits, it often helps a lot with basic issues, that can be prevented before it comes to a review.
 
-Before you submit an issue, please search the issue tracker, maybe an issue for your problem already exists and the discussion might inform you of workarounds readily available.
+### Formatting
 
-We want to fix all the issues, but before fixing a bug we need to reproduce and confirm it.
-In order to reproduce bugs, we require that you provide a minimal reproduction.
-Having a minimal reproducible scenario gives us a wealth of important information without going back and forth to you with additional questions.
+In order to keep the code visually organized we use [Prettier][vscode.ext.prettier] as our code formatter. Prettier is configured by the `.prettierrc` file that is checked into our repository to ensure the same configurations across all contributors. This will not only help us writing code that can be easily scanned, but also mitigates the risk of merge conflicts coming from code-format only.
 
-A minimal reproduction allows us to quickly confirm a bug (or point out a coding problem) as well as confirm that we are fixing the right problem.
+### Miscellaneous
 
-We require a minimal reproduction to save maintainers' time and ultimately be able to fix more bugs.
-Often, developers find coding problems themselves while preparing a minimal reproduction.
-We understand that sometimes it might be hard to extract essential bits of code from a larger codebase but we really need to isolate the problem before we can fix it.
+We spell check our code and docs with [Code Spell Checker][vscode.ext.code-spell-checker]. This extension is really helpful in cases you mistype something, while being completely unobtrusive in all other cases.
 
-Unfortunately, we are not able to investigate / fix bugs without a minimal reproduction, so if we don't hear back from you, we are going to close an issue that doesn't have enough info to be reproduced.
+## <a id="commit-message-format"></a> Commit Messages
 
-You can file new issues by selecting from our [new issue templates](https://github.com/Centigrade/ngtx/issues/new/choose) and filling out the issue template.
-
-### <a name="submit-pr"></a> Submitting a Pull Request (PR)
-
-Before you submit your Pull Request (PR) consider the following guidelines:
-
-1. Search [GitHub](https://github.com/Centigrade/ngtx/pulls) for an open or closed PR that relates to your submission.
-   You don't want to duplicate existing efforts.
-
-2. Be sure that an issue describes the problem you're fixing, or documents the design for the feature you'd like to add.
-   Discussing the design upfront helps to ensure that we're ready to accept your work.
-
-3. Please sign our [Contributor License Agreement (CLA)](#cla) before sending PRs.
-   We cannot accept code without a signed CLA.
-   Make sure you author all contributed Git commits with email address associated with your CLA signature.
-
-4. [Fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) the Centigrade/ngtx repo.
-
-5. In your forked repository, make your changes in a new git branch:
-
-   ```shell
-   git checkout -b my-fix-branch master
-   ```
-
-6. Create your patch, **including appropriate test cases**.
-
-7. Follow our [Coding Rules](#rules).
-
-8. Run the full ngtx test suite, as described in the [developer documentation][dev-doc], and ensure that all tests pass.
-
-9. Commit your changes using a descriptive commit message that follows our [commit message conventions](#commit).
-   Adherence to these conventions is necessary because release notes are automatically generated from these messages.
-
-   ```shell
-   git commit --all
-   ```
-
-   Note: the optional commit `-a` command line option will automatically "add" and "rm" edited files.
-
-10. Push your branch to GitHub:
-
-    ```shell
-    git push origin my-fix-branch
-    ```
-
-11. In GitHub, send a pull request to `ngtx:master`.
-
-### Reviewing a Pull Request
-
-The ngtx team reserves the right not to accept pull requests from community members who haven't been good citizens of the community. Such behavior includes not following the [ngtx code of conduct](https://github.com/Centigrade/ngtx/blob/main/CODE_OF_CONDUCT).
-
-#### Addressing review feedback
-
-If we ask for changes via code reviews then:
-
-1. Make the required updates to the code.
-
-2. Re-run the ngtx test suites to ensure tests are still passing.
-
-3. Create a fixup commit and push to your GitHub repository (this will update your Pull Request):
-
-   ```shell
-   git commit --all --fixup HEAD
-   git push
-   ```
-
-   For more info on working with fixup commits see [here](docs/FIXUP_COMMITS.md).
-
-That's it! Thank you for your contribution!
-
-## <a name="rules"></a> Coding Rules
-
-To ensure consistency throughout the source code, keep these rules in mind as you are working:
-
-- All features or bug fixes **must be tested** by one or more specs (unit-tests).
-- All public API methods **must be documented**.
-- We follow [Google's JavaScript Style Guide][js-style-guide], but wrap all code at **100 characters**.
-
-  An automated formatter is available, see [DEVELOPER.md](docs/DEVELOPER.md#clang-format).
-
-## <a name="commit"></a> Commit Message Format
-
-_This format is referring to the [AngularJS commit message format][commit-message-format]_
-
-This format leads to **easier to read commit history**.
-Each commit message consists of a **header**, a **body**, and a **footer**.
-
-```
-<header>
-<BLANK LINE>
-<body>
-<BLANK LINE>
-<footer>
-```
-
-The `header` is mandatory and must conform to the [Commit Message Header](#commit-header) format.
-
-The `body` is mandatory for all commits except for those of type "docs".
-When the body is present it must be at least 20 characters long and must conform to the [Commit Message Body](#commit-body) format.
-
-The `footer` is optional. The [Commit Message Footer](#commit-footer) format describes what the footer is used for and the structure it must have.
-
-Any line of the commit message cannot be longer than 100 characters.
-
-#### <a name="commit-header"></a>Commit Message Header
-
-```
-<type>(<scope>): <short summary>
-  │       │             │
-  │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
-  │       │
-  │       └─⫸ Commit Scope: (Optional) the name of the feature being changed
-  │
-  └─⫸ Commit Type: build|ci|docs|feat|fix|perf|refactor|test
-```
-
-The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is optional.
-
-##### Type
-
-Must be one of the following:
-
-- **build**: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-- **ci**: Changes to our CI configuration files and scripts (example scopes: Circle, BrowserStack, SauceLabs)
-- **docs**: Documentation only changes
-- **feat**: A new feature
-- **fix**: A bug fix
-- **perf**: A code change that improves performance
-- **refactor**: A code change that neither fixes a bug nor adds a feature
-- **test**: Adding missing tests or correcting existing tests
-
-##### Scope
-
-The scope should be the name of the feature affected by the changes.
-
-##### Summary
-
-Use the summary field to provide a succinct description of the change:
-
-- use the imperative, present tense: "change" not "changed" nor "changes"
-- don't capitalize the first letter
-- no dot (.) at the end
-
-#### <a name="commit-body"></a>Commit Message Body
-
-Just as in the summary, use the imperative, present tense: "fix" not "fixed" nor "fixes".
-
-Explain the motivation for the change in the commit message body. This commit message should explain _why_ you are making the change.
-You can include a comparison of the previous behavior with the new behavior in order to illustrate the impact of the change.
-
-#### <a name="commit-footer"></a>Commit Message Footer
-
-The footer can contain information about breaking changes and is also the place to reference GitHub issues and other PRs that this commit closes or is related to.
-
-```
-BREAKING CHANGE: <breaking change summary>
-<BLANK LINE>
-<breaking change description + migration instructions>
-<BLANK LINE>
-<BLANK LINE>
-Fixes #<issue number>
-```
-
-Breaking Change section should start with the phrase "BREAKING CHANGE: " followed by a summary of the breaking change, a blank line, and a detailed description of the breaking change that also includes migration instructions.
-
-### Revert commits
-
-If the commit reverts a previous commit, it should begin with `revert: `, followed by the header of the reverted commit.
-
-The content of the commit message body should contain:
-
-- information about the SHA of the commit being reverted in the following format: `This reverts commit <SHA>`,
-- a clear description of the reason for reverting the commit message.
+We want to commit changes in a way that makes it easy understand what a commit changed and (if applicable) why this change was necessary. This ensures a simple process when it comes to creating a change-log from it. To achieve that, we use the [Conventional Commit Message Format][commit-message-convention] to have a consistent history log.
 
 [coc]: CODE_OF_CONDUCT.md
 [commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
 [dev-doc]: docs/DEVELOPER.md
 [github]: https://github.com/Centigrade/ngtx
-[js-style-guide]: https://google.github.io/styleguide/jsguide.html
-[jsfiddle]: https://jsfiddle.net/
-[plunker]: https://plnkr.co/edit
-[runnable]: https://runnable.com/
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
+[vscode]: https://code.visualstudio.com
+[vscode.ext.eslint]: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+[vscode.ext.prettier]: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
+[vscode.ext.code-spell-checker]: https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker
+[commit-message-convention]: https://www.conventionalcommits.org/en/v1.0.0/
