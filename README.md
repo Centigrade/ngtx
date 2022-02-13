@@ -1,12 +1,6 @@
 ![ngtx logo](./docs/media/logo.svg)
 
-| 🚧 Ngtx Version 1 vs. Version 2 |
-| ------------------------------- |
-| We're currently redesigning the API of ngtx to improve it for more complex test szenarios. This api is experimental and not considered stable yet. When installing ngtx, **please make sure you're installing version 1** (`npm install -D @centigrade/ngtx@1`).
-
-| 📝 Ngtx 2 Docs |
-| -------------- |
-| If you like to use ngtx version 2 today, you can refer to this [documentation][docs2] and install ngtx in version 2 (`npm install -D @centigrade/ngtx@2`).
+> ngtx is in early stage. If you have ideas how to further improve it feel free to raise an issue and/or contribute.
 
 # @Centigrade/ngtx
 
@@ -16,22 +10,34 @@ ngtx stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of f
 
 # Why?
 
-All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really just are steps on our way to our test-goal. We think the Angular testing world should be a bit different.
+All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really just are steps on our way to our test-goal. Furthermore, while we care about production code to be clean and easy to understand, our testing code is left WET instead of DRY and hard to understand on the first glance. We can do better, and we think the should. ngtx is meant to help you with that.
 
 # Getting Started
 
-- [Documentation][documentation]
+New to ngtx? Let's get you started with these links:
+
+- [First Steps][firststeps]
+- [Api Documentation][documentation]
+
+Having questions or issues using ngtx? You may want to have a look on these links:
+
+- [StackOverflow][stackoverflow]
+
+# Contributing
+
+If you know and like ngtx we would love for you to contribute by either giving us feedback on issues or missing features or even by helping us implement already [existing issues](https://github.com/Centigrade/ngtx/issues). If you have ideas how to improve our workflow you're also welcome to share it with us.
+
 - [Contributing][contributing]
 - [Code of Conduct][codeofconduct]
-- [StackOverflow][stackoverflow]
 
 # Team
 
 - Julian Lang ([GitHub: JulianLang](https://github.com/JulianLang), author)
 - Patrick-Andre Decker
 
+[api]: ./docs/API.md
 [contributing]: ./CONTRIBUTING.md
 [codeofconduct]: ./CODE_OF_CONDUCT.md
 [documentation]: ./docs/DOCUMENTATION.md
-[docs2]: ./docs/DOCS_2.md
+[firststeps]: ./docs/FIRST_STEPS.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
