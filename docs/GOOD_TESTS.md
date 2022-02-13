@@ -64,7 +64,7 @@ Also the css query selectors are everything but semantic. If you read the test c
 All this might not be a big deal for a small number of test-cases, but for medium- to large-sized application this quickly becomes a huge mess being impossible to maintain. But of course we can do better:
 
 ```ts
-// GOOD: Do it that way:
+// BETTER: Do it that way:
 @NgtxApi()
 class Get {
   static Row() {
