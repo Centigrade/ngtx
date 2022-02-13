@@ -87,6 +87,25 @@ describe(
       expect(unreachable).toBeNull();
       Expect.element(reachable).toBeComponent(ListComponent);
     });
+
+    it('should return the first match of an array-query', () => {
+      // arrange, act
+      const result1 = get(['.item', ListItemComponent]);
+      const result2 = get([ListItemComponent, '.item']);
+      const result3 = get([NotExistingComponent, '.item']);
+      const result4 = get(['.non-existing', ListItemComponent]);
+
+      // assert
+      Expect.element(result1).toBeHtmlElement(HTMLDivElement);
+      Expect.element(result2).toBeComponent(ListItemComponent);
+      Expect.element(result3).toBeHtmlElement(HTMLDivElement);
+      Expect.element(result4).toBeComponent(ListItemComponent);
+    });
+
+    it('should return null if nothing matches', () => {
+      // arrange, act, assert
+      expect(get(['.not-existing', NotExistingComponent])).toBeNull();
+    });
   }),
 );
 
@@ -126,6 +145,48 @@ describe(
       expect(spans.length).toBe(3);
       expect(unreachableFromChild).toBeNull();
       Expect.element(reachableFromRoot.first()).toBeComponent(ListComponent);
+    });
+
+    it('should return all matches of an array-query', () => {
+      // arrange, act
+      const result1 = getAll(['.item', ListItemComponent]);
+      const result2 = getAll([ListItemComponent, '.item']);
+      const result3 = getAll([NotExistingComponent, '.item']);
+      const result4 = getAll(['.non-existing', ListItemComponent]);
+
+      // assert
+      expect(result1.length).toBe(4);
+      Expect.element(result1.first()).toBeHtmlElement(HTMLDivElement);
+      Expect.element(result1.last()).toBeComponent(ListItemComponent);
+
+      expect(result2.length).toBe(4);
+      Expect.element(result2.first()).toBeComponent(ListItemComponent);
+      Expect.element(result2.last()).toBeHtmlElement(HTMLDivElement);
+
+      expect(result3.length).toBe(1);
+      Expect.element(result3.first()).toBeHtmlElement(HTMLDivElement);
+
+      expect(result4.length).toBe(3);
+      result4.forEach((result) =>
+        Expect.element(result).toBeComponent(ListItemComponent),
+      );
+    });
+
+    it('should return only unique queries of an array-query', () => {
+      // arrange, act
+      const result1 = getAll(['app-list-item', ListItemComponent]);
+      const result2 = getAll(['app-list-item']);
+      const result3 = getAll([ListItemComponent]);
+
+      // assert
+      expect(result1.length).toBe(3);
+      expect(result2.length).toBe(result1.length);
+      expect(result3.length).toBe(result1.length);
+    });
+
+    it('should return null if nothing matches', () => {
+      // arrange, act, assert
+      expect(getAll(['.not-existing', NotExistingComponent])).toBeNull();
     });
   }),
 );

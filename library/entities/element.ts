@@ -2,6 +2,7 @@ import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
+import { removeDuplicates } from '../utility/filter.utilities';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
 
@@ -31,18 +32,32 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     component: Type<Component>,
   ): NgtxElement<Html, Component>;
   public get<Html extends Element, Component>(
-    query: QueryTarget<Component>,
+    queries: QueryTarget<Component>[],
+  ): NgtxElement<Html, Component>;
+  public get<Html extends Element, Component>(
+    queryOrQueries: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxElement<Html, Component> {
-    const debugElement: TypedDebugElement<Html, Component> =
-      isNgtxQuerySelector(query)
-        ? queryNgtxMarker(query as string, this.debugElement)
-        : typeof query === 'string'
-        ? this.debugElement.query(By.css(query))
-        : this.debugElement.query(By.directive(query));
+    const results: NgtxElement<Html, Component>[] = [];
+    const queries = Array.isArray(queryOrQueries)
+      ? queryOrQueries
+      : [queryOrQueries];
+
+    queries.forEach((query) => {
+      const debugElement: TypedDebugElement<Html, Component> =
+        isNgtxQuerySelector(query)
+          ? queryNgtxMarker(query as string, this.debugElement)
+          : typeof query === 'string'
+          ? this.debugElement.query(By.css(query))
+          : this.debugElement.query(By.directive(query));
+
+      if (debugElement) {
+        results.push(new NgtxElement(debugElement));
+      }
+    });
 
     // only provide an ngtx element if the query could be resolved.
     // this allows tests like: expect(Get.Icon()).toBeNull();
-    return debugElement ? new NgtxElement(debugElement) : null;
+    return results.length > 0 ? results[0] : null;
   }
 
   public getAll<Html extends Element, Component = any>(
@@ -68,7 +83,9 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();
-    return results.length > 0 ? new NgtxMultiElement(results) : null;
+    return results.length > 0
+      ? new NgtxMultiElement(removeDuplicates(results))
+      : null;
   }
 
   /**
