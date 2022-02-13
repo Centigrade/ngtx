@@ -14,7 +14,7 @@
  * asBool(notDefined); // => false
  * ~~~
  * ---
- * @param value The string value to be converted into a boolaen.
+ * @param value The string value to be converted into a boolean.
  */
 export function asBool(value: string) {
   return value === 'true' ? true : false;
