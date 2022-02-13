@@ -217,7 +217,7 @@ describe('AppComponent', ngtx(({ useFixture }) => {
 }));
 ```
 
-Ah! Much better. With this in place, we can finally start using the first ngtx helper functionality in order to improve the default tests and become even more readable.
+Ah - much better. With this in place, we can finally start using the first ngtx helper in order to improve the default tests and become even more readable.
 
 ## Improving the Test Cases with the `get`-Helper
 
