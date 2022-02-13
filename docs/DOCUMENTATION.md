@@ -1,149 +1,12 @@
-# Documentation
+# API Documentation
 
-## Architecture Overview
+ngtx contains a set of small helper functions enabling you to write your tests with ease while becoming precise and readable throughout your test-cases. This documentation iterates through all helpers currently available in ngtx and explains when and how to use them.
 
-ngtx "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
+> **Please Note:** Most of the examples use JavaScript's [object destructuring][mdn.destructuring] syntax. If you are not familiar with it, we encourage you to quickly look it up for a better understanding of the given code examples.
 
-1.  `$ npm install -D @centigrade/ngtx`
-2.  import ngtx into your test file
-3.  wrap your test-suite callback in a ngtx call
-4.  import `useFixture` and additional helpers you want to use as a destructured object parameter
-5.  call `useFixture(fixture)` in the `beforeEach` hook, after the fixture has been created:
+## `detectChanges` Helper
 
----
-
-```ts
-import { ngtx } from '@centigrade/ngtx'; // step 2
-
-describe(
-  'MyTestSuite',
-  // step 3 & 4
-  ngtx(({ useFixture /* ... more helpers as you need */ }) => {
-    // ...
-    beforeEach(() => {
-      fixture = TestBed.createComponent(MyComponent);
-      component = fixture.componentInstance;
-      useFixture(fixture); // step 5
-    });
-
-    it('should work like this', () => {
-      // the injected helpers are initialized and can be used now!
-    });
-  }),
-);
-```
-
-# Quick Examples
-
-The following examples are just a random collection of tests, demonstrating how ngtx of this package might help you in common test-scenarios. Please keep in mind that the following test-cases are actually testing different components and come from multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
-
-```ts
-import { ngtx, asBool, toNativeElement } from '@centigrade/ngtx';
-
-const DIALOG_CANCEL = 'Cancel';
-
-describe(
-  'Some random tests as basic examples',
-  ngtx(
-    ({
-      useFixture,
-      detectChanges,
-      find,
-      findWhere,
-      triggerEvent,
-      attr,
-      textContent,
-    }) => {
-      let component: AnyComponent;
-      let fixture: ComponentFixture<AnyComponent>;
-
-      beforeEach(async(() => {
-        TestBed.configureTestingModule({
-          /* ... */
-        }).compileComponents();
-      }));
-
-      beforeEach(() => {
-        fixture = TestBed.createComponent(AnyComponent);
-        component = fixture.componentInstance;
-        useFixture(fixture);
-      });
-
-      it('[Wizard] should emit the finish-event when clicking on cancel button', () => {
-        // arrange
-        spyOn(component.finish, 'emit');
-
-        // act
-        const finishButton = findWhere(
-          (button) => textContent(button).includes(DIALOG_CANCEL),
-          ['.btn-footer-primary', '.btn-footer-secondary'],
-          toNativeElement,
-        );
-
-        finishButton.click();
-
-        // assert
-        const userAction: WizardResult = 'canceled';
-        expect(component.finish.emit).toHaveBeenCalledTimes(1);
-        expect(component.finish.emit).toHaveBeenCalledWith(userAction);
-      });
-
-      it('[TabsComponent] should set label translation to true', () => {
-        // arrange
-        const { componentInstance: wizard } = find(WizardComponent);
-
-        // act, assert
-        expect(wizard.translateTabs).toBe(true);
-      });
-
-      it('[Dialog] should emit closeDialog event on finish wizard', () => {
-        // arrange
-        spyOn(component.closeDialog, 'emit');
-
-        // act
-        triggerEvent('finishWizard', WizardComponent);
-
-        // assert
-        expect(component.closeDialog.emit).toHaveBeenCalledTimes(1);
-      });
-
-      it('[Textfield] should pass the readonly attribute', () => {
-        // arrange
-        const expectedValue = true;
-
-        // pre-condition
-        expect(attr('readOnly', 'input', asBool)).not.toBe(expectedValue);
-
-        // act
-        component.readonly = expectedValue;
-        detectChanges();
-
-        // assert
-        expect(attr('readOnly', 'input', asBool)).toBe(expectedValue);
-      });
-
-      it('[SomeView] should show a drop down with the currently selected item', () => {
-        // arrange
-        const expectedValue = 'selected item';
-        component.selectedItem = expectedValue;
-
-        // act
-        // passing "component" to "detectChanges"
-        // additionally runs ngOnInit and ngOnChanges
-        // on component, if they are defined:
-        detectChanges(component);
-
-        // assert
-        expect(textContent('.drop-down-label')).toEqual(expectedValue);
-      });
-    },
-  ),
-);
-```
-
-# Detailed Documentation
-
-## Quick and Easy Change Detection
+> This helper provides quick and easy change detection
 
 Save the `fixture.`-prefix and simply write what you want to say:
 
@@ -167,7 +30,7 @@ describe(
 );
 ```
 
-A small bonus: Sometimes you need to have your LifeCycleHooks being run before the change-detection is done. In that case simply pass your component as an argument:
+As a small bonus: Sometimes you need to have your life-cycle-hooks being run before the change-detection is done. In that case simply pass your component as an argument:
 
 ```ts
 // runs ngOnChanges and ngOnInit life-cycle-hooks (if defined) on component and then detectChanges:
@@ -188,25 +51,19 @@ class MyComponent {
   }
 }
 
-// you can trigger label-changes logic in your tests like that:
-detectChanges(component, { label: true });
+// you can trigger the label-changed-logic in your tests like that:
+detectChanges(component, {
+  // you can pass a simple boolean or any other truthy value;
+  // of course you can also pass a real SimpleChange object
+  label: true,
+});
 ```
 
----
+## `get` Helper
 
-## Finding Relevant Elements Easier
+Searches an element either by CSS or a ComponentType and returns the first match as a `NgtxElement`. This type provides some extra APIs, that help you with common tasks and scenarios when it comes to testing.
 
-Often in Angular tests we need to find elements, we want to inspect further. With Angular this is quite verbose, as there are two major search strategies, that needs to be imported first (`By.css` and `By.directive` from `@angular/platform-browser`).
-
-Also, the returned `DebugElement`'s types are impractical for most use cases, as both, its `componentInstance` and `nativeElement` is of type `any`.
-
-With this package you simply write down your query, and get your types for free, since all these helpers return a `TypedDebugElement`, which is an improved version of Angular's untyped `DebugElement`:
-
-### 1. **Find**-Helper
-
-Searches an element either by CSS or a ComponentType and returns the first match.
-
-> The `debugElement.query(...)`-equivalent.
+> It's like `debugElement.query(...)` in super useful.
 
 ```ts
 describe(
@@ -240,253 +97,424 @@ describe(
 
 ---
 
-### 2. **FindAll**-Helper
+## `NgtxElement` API
 
-Searches elements by either CSS or ComponentType and returns all matching elements.
+The `NgtxElement` wraps Angular's `DebugElement` and provides a simple API for common testing tasks and scenarios. It gets returned whenever there is a result for a given query.
 
-> The `debugElement.queryAll`-equivalent.
+### `NgtxElement.nativeElement`
+
+Returns the `nativeElement` of the inner, wrapped `debugElement`. This is useful whenever you need to access native features and APIs of the `NgtxElement`.
 
 ```ts
-describe(
-  'MyTestSuite',
-  ngtx(({ useFixture, findAll }) => {
-    // ...
-
-    it('should find my elements easily by css and directive', () => {
-      // arrange, act
-      const debugElements1 = findAll('button.active');
-      const debugElements2 = findAll(MyComponent);
-
-      // assert
-      expect(Array.isArray(debugElements1)).toBe(true);
-      expect(Array.isArray(debugElements2)).toBe(true);
-    });
-  }),
-);
+const inputText = get<HTMLInputElement>('input').nativeElement.value;
 ```
 
-Sometimes it's necessary to execute multiple queries to get all relevant elements for your current test. In these cases you can use `findAll` with multiple queries:
+### `NgtxElement.nativeElement`
+
+Returns the `nativeElement` of the inner `debugElement`. This is useful whenever you need to access native features and APIs of the `NgtxElement`.
 
 ```ts
-const allButtons = findAll(['.button-secondary', '.button-primary']);
+const inputText = get<HTMLInputElement>('input').nativeElement.value;
 ```
 
-If you need them as `nativeElement`s, you can make use of the second parameter, which accepts a conversion function:
+### `NgtxElement.componentInstance`
+
+Returns the `componentInstance` of the inner `debugElement`. This is useful whenever you need to access the component instance of a `NgtxElement`.
 
 ```ts
-// import pre-built function
-import { toNativeElements } from '@centigrade/ngtx';
-
-// or define it yourself:
-function toNativeElements(input: DebugElement[]): Element[] {
-  return input.map((debugElem) => debugElem.nativeElement);
-}
-
-// allButtons is now of type Element[]:
-const allButtons = findAll(
-  ['.button-secondary', '.button-primary'],
-  toNativeElements,
-);
+const text = get(TextFieldComponent).component.text;
 ```
 
----
+### `NgtxElement.injector`
 
-### 3. **FindWhere**-Helper
+Returns the `injector` instance of the inner `debugElement`. This is useful whenever you need to inject something from a given `NgtxElement`.
 
-`FindWhere` helps you with finding a specific element among a list of relevant elements. It returns the first matching element.
-
-```ts
-describe(
-  'MyTestSuite',
-  ngtx(({ useFixture, findWhere }) => {
-    // ...
-
-    it('should find the button with text "OK"', () => {
-      // arrange, act
-      const okButton = findWhere(
-        (candidate) => candidate.nativeElement.textContent === 'OK',
-        '.dialog-button',
-      );
-
-      // assert
-      expect(okButton.nativeElement.textContent).toEqual('OK');
-    });
-  }),
-);
+```html
+<my-component myDirective></my-component>
 ```
 
----
-
-## Easier Triggering of Events
-
-Triggering an event in Angular is quite easy. But there are a few points that could be improved. The first thing is, that you need to pass an event-args argument, even if no one is needed:
-
-`debugElement.triggerEventHandler('click', undefined);`
-
-It's not a big deal, but doing it over and over again makes you feel like "this should be fixed". Another (also really small) point is that, the name could be a bit shorter. Renaming it to `triggerEvent` would not change the semantics of the method too much, and any developer would still understand what this function is doing.
-
-The last, a bit more major, thing about event triggering in Angular is, that in order to do that, you need to gather the `debugElement` of the element your want to trigger the event. Wouldn't it be nice to leave out the query and just say:
-
-> **"Hey Angular, trigger event XY on component Z, please!"**
->
-> or:
->
-> **"Hey Angular, find an element matching >css-selector< and trigger the event XY on it."**
-
-With this package, you finally can:
-
 ```ts
-describe(
-  'MyTestSuite',
-  ngtx(({ useFixture, triggerEvent }) => {
-    // ...
-
-    it('should trigger events on desired elements directly', () => {
-      // arrange
-      spyOn(component.myEvent, 'emit');
-
-      // without event args:
-      triggerEvent('myEvent', MyComponent);
-      // with event args 42:
-      triggerEvent('myEvent', '.some-css-selector', 42);
-
-      // works as well:
-      const debugElem = find('button');
-      triggerEvent('myEvent', debugElem);
-
-      // assert
-      expect(component.myEvent.emit).toHaveBeenCalledTimes(4);
-      expect(component.myEvent.emit).toHaveBeenCalledWith(42);
-    });
-  }),
-);
+const directiveInstance = get(MyComponent).injector.get(MyDirective);
 ```
 
-When passing in a `ComponentType` or a CSS-selector, `triggerEvent` will run a query and trigger the event on the first, matching element.
+### `NgtxElement.withApi(apiTemplate)`
 
----
+> **Please Note:** This feature is designed to be useful for component harnesses that are described [in our guide for writing good tests][good-tests]. If you do not use component harnesses in your tests, you probably don't find this feature particularly useful.
 
-## Easy Attribute Retrieval
+Attaches the API of the passed class to the current element. This is useful when you need to attach functionality to your `NgtxElement` in a quick and easy way.
 
-In Angular it can easily become confusing when you are about to test the existence or values of attributes on elements. E.g. Angular distinguishes between `attributes` and `properties`. Also sometimes you'll need to prefix your attribute's name with `"html"`, in order to get the desired result.
-
-To make things easier for you, this package introduce a new `attr`-helper function, which uses the native `getAttribute()` function under the hood. This helps keeping consistent and predictable results for intuitive inputs.
+This feature makes it easy to build reusable component-harness APIs throughout your component tests. Also it provides additional ways to improve the readability of your test cases, since you can attach your own APIs with names that perfectly state what they do.
 
 ```ts
-describe(
-  'MyTestSuite',
-  ngtx(({ useFixture, attr }) => {
-    // ...
+describe('TodoList', ngtx(({ get }) => {
+  // skipped boilerplate testing code ...
 
-    // old-school:
-    it('should set the correct input-id as label-for attribute', () => {
-      // arrange
-      const input = fixture.debugElement.query(By.css('input'));
-      const label = fixture.debugElement.query(By.css('label'));
+  class Get {
+    static TitleBar() {
+      return get(TagComponent).withApi(TitleBarApi);
+    }
+  }
 
-      // act, assert
-      expect(label.properties.htmlFor).toEqual(input.properties.id);
-    });
+  class TitleBarApi extends NgtxElement {
+    Label() {
+      return this.get(".label");
+    }
+    Icon() {
+      return this.get(IconComponent);
+    }
+  }
 
-    // becomes now:
-    it('should set the correct input-id as label-for attribute', () => {
-      // arrange, act, assert
-      expect(attr('for', 'label')).toEqual(attr('id', 'input'));
-    });
-  }),
-);
+  it('should show the correct title and icon', () => {
+    // arrange
+    component.title = 'Shopping List';
+    component.iconKey = 'cart';
+    // act
+    detectChanges();
+    // assert
+    const label = Get.TitleBar().Label();
+    expect(label.textContent()).toEqual(component.title);
+    const icon = Get.TitleBar().Icon();
+    expect(icon.componentInstance.key).toEqual(component.iconKey);
+  });
+});
 ```
 
-In cases you want to work with the values of an attribute, you'll need to know that the result of `attr` is always a string per default. This way, a boolean value will be the string `"true"` as a result. If you want to cast or parse the attribute's value-string, you can make use of the optional, third parameter of `attr`, which accepts a conversion function:
+### `NgtxElement.get(query)`
+
+Queries for the given target selector and returns the first match as result. This is useful when you need to query for a semantical part on a particular `NgtxElement`.
 
 ```ts
-import { asBool, asNumber /* ... */ } from '@centigrade/ngtx';
-
-expect(attr('disabled', 'button', asBool)).toBe(true);
-expect(attr('counter', 'button', asNumber)).toBe(42);
-
-// it can also be useful for parsing the value-string:
-const obj = attr('data-json-string', '.my-item', JSON.parse);
+const dialogButtonLabel = get(ButtonComponent).get('.label');
+expect(dialogButtonLabel.textContent()).toEqual('OK');
 ```
 
----
+### `NgtxElement.getAll(query)`
 
-## Easier Access to Element's Text Content
-
-In order to get the text content of an element, you'll need to gather its `debugElement` first, to have then access to the `debugElement.nativeElement` in order to finally read the `nativeElement.textContent` property. To shortcut this, you can use `textContent`-helper function:
+Queries for the given target selector and returns all matches as array. This is useful when you need to find all instances of your query on a `NgtxElement`.
 
 ```ts
-describe(
-  'MyTestSuite',
-  ngtx(({ useFixture, textContent }) => {
-    // ...
+const tags = get(TagListComponent).getAll('.tag');
+expect(tags.textContents()).toEqual(['Food', 'Healthy', 'Fruits']);
+```
 
-    it('should return the text content of an element', () => {
-      // arrange
-      const content1 = textContent('button.active');
-      const content2 = textContent(TabItem);
+### `NgtxElement.attr(name, mapFn?)`
 
-      const debugElem = find(TabHeaderItem);
-      const content3 = textContent(debugElem);
-      const content4 = textContent(debugElem.nativeElement);
+Returns the value of the specified attribute of the inner result. (Optionally) converts the value using the given mapFn.
 
-      // act, assert
-      expect(content1).toEqual('text of button.active');
-      expect(content2).toEqual('text of TabItem');
-      expect(content3).toEqual('text of TabHeaderItem');
-      expect(content4).toEqual('text of TabHeaderItem');
-    });
-  }),
-);
+```ts
+import { get, asNumber /* ... */ } from '@Centigrade/ngtx';
+
+const age = get('.age-input').attr('value', asNumber);
+```
+
+### `NgtxElement.triggerEvent(name, eventArgs?)`
+
+Triggers the specified event with the given `eventArgs` on the inner `debugElement`. The `eventArgs` argument can be left out; it defaults to `undefined` then.
+
+```ts
+get(TextFieldComponent).triggerEvent('textChange', 'new value');
+```
+
+### `NgtxElement.textContent(trim? = true)`
+
+Returns the `textContent` property of the inner `debugElement.nativeElement`. Optionally takes an argument whether the text content should be automatically trimmed. If left out, this argument defaults to `true` (auto trimming enabled).
+
+```html
+<!-- component template -->
+<my-label> label 1 </my-label>
+```
+
+```ts
+const label = get(LabelComponent);
+const text = label.textContent();
+const withoutTrimming = label.textContent(false);
+
+expect(text).toEqual('label 1');
+expect(withoutTrimming).toEqual(' label 1 ');
+```
+
+### `NgtxElement.debug()`
+
+Returns the `textContent` property of the inner `debugElement.nativeElement`.
+
+```html
+<!-- component template -->
+<my-view>
+  <my-expander [opened]="true">
+    <div>This is the expander content</div>
+  </my-expander>
+</my-view>
+```
+
+```ts
+// wild card css selector matches any first element, which in this
+// case will be the root element of the test case:
+get('*').debug();
+/*
+  prints the whole DOM of the test case to the console:
+
+  <my-view>
+    <my-expander ng-reflect-opened="true">
+      <div>This is the expander content</div>
+    </my-expander>
+  </my-view>
+*/
+```
+
+```ts
+get(ExpanderComponent).debug();
+/*
+  prints only the DOM of the expander component incl. its children:
+
+  <my-expander ng-reflect-opened="true">
+    <div>This is the expander content</div>
+  </my-expander>
+*/
 ```
 
 ---
 
-## HTML Output Debugging
+## `NgtxMultiElement` API
 
-We all know it. Sometimes you're lost with a failing test case and don't even know what's happening there. In these cases it's often helpful to see the actual HTML, rendered by the test case. But there's no easy way to print out the HTML tree to the console.
+The `NgtxMultiElement` wraps the results of a query that returns multiple matches. A classic example is the `getAll` helper, that returns all matches for a given query. The `NgtxMultiElement` has some convenience APIs, that shortcut the access to the inner elements (e.g. `attr` or `textContents`), while still providing basic array-like APIs such as `find` or `map`.
 
-Now there is. With `debug` you can print the HTML-tree that your test case produces right into your console:
+### `NgtxMultiElement.length`
+
+Returns the number of inner results that the particular `NgtxMultiElement` instance holds.
+
+### `NgtxMultiElement.get(query)`
+
+Starts a query on each element that the `NgtxMultiElement` keeps wrapped inside itself and returns a concatenated list of results. This is useful when you need to query the same semantical part on similar or equal targets.
 
 ```ts
-describe(
-  'MyTestSuite',
-  ngtx(({ useFixture, debug }) => {
-    // ...
+const dialogButtonLabels = getAll(ButtonComponent).get('.label');
+expect(dialogButtonLabels.textContents()).toEqual(['Cancel', 'Retry']);
+```
 
-    it('should help you find the bugs in your tests', () => {
-      // arrange, act, assert, doesn't work:
-      expect(textContent('input.my-input')).toEqual(component.text);
+### `NgtxMultiElement.getAll(query)`
 
-      // debug to the help:
-      debug('.input-container');
+Similar to `NgtxMultiElement.get` but doesn't stop at the first match per wrapped element, but takes all matches into account. This is useful when you need all results for a semantical part on similar or equal elements.
 
-      /*
-          prints to console:
+```ts
+// arrange
+shoppingList.readOnly = true;
+// act
+detectChanges();
+// assert
+const allItemsActions = getAll(ShoppingListItemComponent).getAll([
+  '.edit-btn',
+  '.delete-btn',
+]);
+allItemsActions
+  .attr('disabled')
+  .forEach((disabled) => expect(disabled).toBeTruthy());
+```
 
-          <div class="input-container active">
-            <input class="my-input" value="expected-text"></input>
-          </div>
+### `NgtxMultiElement.forEach(handler)`
 
-          We now may realize that there is no textContent of course,
-          as our targeted element is an input, which rather has a
-          value property, we need to query.
-      */
-    });
-  }),
+> Provides the same behavior as the built-in javascript array method.
+
+Allows you to iterate through the inner results in order to do something with them. Often useful to check every item for particular conditions.
+
+```ts
+it('[TextFields] should be initially empty', () => {
+  // arrange, act, assert
+  getAll(TextFieldComponent).forEach((field) =>
+    expect(field.textContent()).toBe(''),
+  );
+});
+```
+
+### `NgtxMultiElement.find(findFn)`
+
+> Provides the same behavior as the built-in javascript array method.
+
+Allows you to iterate through the inner results and return the first item that matches your given condition.
+
+```ts
+const okButton = getAll(ButtonComponent).find(
+  (button) => button.textContent() === 'OK',
 );
 ```
 
-Please note, that you may want to initialize syntax-highlighting in order to enable colored output in compatible consoles. To do that import and call the `initSyntaxHighlighting` function from ngtx in your test-environment setup file:
+### `NgtxMultiElement.filter(filterFn)`
+
+> Provides the same behavior as the built-in javascript array method.
+
+Allows you to filter all inner results based on a given condition.
 
 ```ts
-// file: "src/test.ts" or "setupJest.ts"
-import { initSyntaxHighlighting } from '@centigrade/ngtx';
-
-initSyntaxHighlighting();
+const disabledButtons = getAll(ButtonComponent).filter(
+  (button) => button.attr('disabled') != null,
+);
 ```
 
-> Real screenshot:
->
-> ![Console log output](./media/debug-output.png)
+### `NgtxMultiElement.map(mapFn)`
 
+> Provides the same behavior as the built-in javascript array method.
+
+Allows you to map each item to something other based on a conversion function.
+
+```ts
+const nativeElements = getAll(ButtonComponent).map(
+  (button) => button.nativeElement,
+);
+```
+
+### `NgtxMultiElement.first()`
+
+Returns the first result or `null` if nothing was found.
+
+```ts
+const buttons = getAll(ButtonComponent);
+expect(buttons.first().textContent()).toEqual('Cancel');
+```
+
+### `NgtxMultiElement.nth(count)`
+
+Returns the nth result (_not index based!_) or `null` if the result list is empty.
+
+```ts
+const buttons = getAll(ButtonComponent);
+expect(buttons.nth(1).textContent()).toEqual('First button');
+expect(buttons.nth(3).textContent()).toEqual('Third button');
+```
+
+### `NgtxMultiElement.atIndex(index)`
+
+Returns the result at the specified index or `null` if the result list is empty.
+
+```ts
+const buttons = getAll(ButtonComponent);
+expect(buttons.atIndex(0).textContent()).toEqual('First button');
+expect(buttons.atIndex(2).textContent()).toEqual('Third button');
+```
+
+### `NgtxMultiElement.last()`
+
+Returns the last result or `null` if the result list is empty.
+
+```ts
+const buttons = getAll(ButtonComponent);
+expect(buttons.last().textContent()).toEqual('OK');
+```
+
+### `NgtxMultiElement.attr(name, mapFn?)`
+
+Returns the value of the specified attribute on each inner result. (Optionally) converts the values using the given mapFn.
+
+```html
+<!-- component template -->
+<my-button [disabled]="true">Button 1</my-button>
+<my-button>Button 2</my-button>
+<my-button>Button 3</my-button>
+```
+
+```ts
+it('should only disable the first button', () => {
+  // arrange, act, assert
+  const buttons = getAll(ButtonComponent);
+  const disabledAttributes = buttons.attr('disabled', (value) =>
+    Boolean(value),
+  );
+  expect(disabledAttributes[0]).toEqual(true);
+  expect(disabledAttributes[1]).toEqual(false);
+  expect(disabledAttributes[2]).toEqual(false);
+});
+```
+
+### `NgtxMultiElement.textContents(trim? = true)`
+
+Returns the `textContent` property of each inner result. Accepts an argument that allows you to opt-out from auto-trimming the text value. Trimming defaults to `true` when the argument is left out.
+
+```html
+<!-- component template -->
+<my-label>label 1</my-label>
+<my-label> label 2 </my-label>
+```
+
+```ts
+it('should show the correct labels', () => {
+  // arrange, act, assert
+  const labels = getAll(LabelComponents);
+  const texts = labels.textContents();
+  const withoutTrimming = labels.textContents(false);
+
+  expect(texts).toEqual(['label 1', 'label 2']);
+  expect(withoutTrimming).toEqual(['label 1', ' label 2 ']);
+});
+```
+
+### `NgtxMultiElement.withApi(apiTemplate)`
+
+> **Please Note:** This feature is designed to be useful for component harnesses that are described [in our guide for writing good tests][good-tests]. If you do not use component harnesses in your tests, you probably don't find this feature particularly useful.
+
+Attaches the API of the passed class to the current element. This is useful when you need to attach functionality to your `NgtxMultiElement` in a quick and easy way.
+
+This feature makes it easy to build reusable component-harness APIs throughout your component tests. Also it provides additional ways to improve the readability of your test cases, since you can attach your own APIs with names that perfectly state what they do.
+
+```ts
+describe('TodoList', ngtx(({ getAll }) => {
+  // skipped boilerplate testing code ...
+
+  class Get {
+    static AllTags() {
+      return getAll(TagComponent).withApi(TagListApi);
+    }
+    static AddCurrentTagButton() {
+      return get('.add-tag-button');
+    }
+  }
+
+  class TagListApi extends NgtxMultiElement {
+    Text() {
+      return this.get(".label").textContent();
+    }
+  }
+
+  it('should add the given tag to the tag list', () => {
+    // arrange
+    const expectedTagToBeAdded = "iOS";
+    component.currentTag = expectedTagToBeAdded;
+    detectChanges();
+    // act
+    Get.AddCurrentTagButton().triggerEvent('click');
+    // assert
+    // the "contains" method is the attached API
+    // that comes from TagListApi class:
+    const tagTexts = Get.AllTags().Text(); // -> ["iOS"]
+    expect(tagTexts).toContain(expectedTagToBeAdded);
+  });
+});
+```
+
+### `NgtxMultiElement.triggerEvent(name, eventArgs?)`
+
+Triggers the specified event with the given `eventArgs` on each inner result. The `eventArgs` argument can be left out; it defaults to `undefined` then.
+
+```ts
+// arrange
+spyOn(component.valueChange, 'emit');
+component.disable = true;
+detectChanges();
+// act: emit the "executeAction" event on all actions
+getAll(ActionComponent).triggerEvent('executeAction', { name: 'dummy-action' });
+// assert
+expect(component.valueChange.emit).not.toHaveBeenCalled();
+```
+
+### `NgtxMultiElement.unwrap()`
+
+Returns the inner results list.
+
+```ts
+const actions = getAll(ActionComponent);
+const innerArray = actions.unwrap();
+// assert
+expect(innerArray.length).toEqual(actions.length);
+expect(Array.isArray(actions)).toBe(false);
+expect(Array.isArray(innerArray)).toBe(true);
+```
+
+[mdn.destructuring]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#object_destructuring
+[good-tests]: ./GOOD_TESTS.md

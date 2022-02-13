@@ -18,6 +18,7 @@ We can do better and we think we should. ngtx is meant to help you with that by 
 
 New to ngtx? Let's get you started with these links:
 
+- [Feature Overview][features]
 - [Getting Started / First Steps][firststeps]
 - [Api Documentation][documentation]
 
@@ -43,5 +44,6 @@ If you know and like ngtx we would love for you to contribute by either giving u
 [codeofconduct]: ./CODE_OF_CONDUCT.md
 [documentation]: ./docs/DOCUMENTATION.md
 [examples]: ./docs/EXAMPLES.md
+[features]: ./docs/FEATURES.md
 [firststeps]: ./docs/FIRST_STEPS.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
