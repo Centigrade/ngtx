@@ -102,7 +102,10 @@ export class NgtxFixture {
     component: Type<Component>,
   ): NgtxElement<Html, Component>;
   public get<Html extends Element, Component>(
-    query: QueryTarget<Component>,
+    queries: QueryTarget<Component>[],
+  ): NgtxElement<Html, Component>;
+  public get<Html extends Element, Component>(
+    query: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxElement<Html, Component> {
     this.checkFixture();
 
@@ -116,7 +119,7 @@ export class NgtxFixture {
     queryTarget: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: Type<Component>[],
+    queryTarget: QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
     queryTarget: QueryTarget<Component> | QueryTarget<Component>[],

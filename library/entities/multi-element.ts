@@ -16,7 +16,10 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
     component: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
   public get<Html extends Element, Component>(
-    query: QueryTarget<Component>,
+    queries: QueryTarget<Component>[],
+  ): NgtxMultiElement<Html, Component>;
+  public get<Html extends Element, Component>(
+    query: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
     const findings = this.elements
       .map((element) => element.get(query as any))

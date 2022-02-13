@@ -49,7 +49,7 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
-    queryTarget: QueryTarget<Component>,
+    queryTarget: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends Element, Component>(
     queryTarget: QueryTarget<Component>[],
