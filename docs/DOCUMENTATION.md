@@ -1,14 +1,5 @@
 # Documentation
 
-| 🚧 ngtx Version 1 vs. 2 |
-| ----------------------- |
-
-| ngtx is currently being redesigned to be more flexible and even more useful in some cases. The current version 2 of ngtx is already having an experimental API that semantically differs from what is documented on this page. To use ngtx as documented here, **please install version 1 of the package:** `npm i -D @centigrade/ngtx@1`.
-
-## ngtx v1
-
-This document is explaining how to use ngtx when installed in version `1.X.X`. To find explanations to the new, yet experimental API of ngtx in version `2.X.X`, you can [refer here][documentation_2].
-
 ## Architecture Overview
 
 ngtx "injects" helper functionality into your test-suites that can then be used. To enable them you need to:
@@ -499,4 +490,3 @@ initSyntaxHighlighting();
 >
 > ![Console log output](./media/debug-output.png)
 
-[documentation_2]: ./DOCS_2.md
