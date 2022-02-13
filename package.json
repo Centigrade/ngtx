@@ -9,6 +9,7 @@
     "build:umd": "tsc -p tsconfig-cjs.json",
     "build": "shx cp package.json dist/package.json && shx cp README.md dist/README.md && node buildhelper/package-json-preparer.js package.json dist/package.json",
     "start": "npx http-server -o projects/showcase/index.html",
+    "pretest": "npm run build",
     "test": "jest",
     "test:pattern": "jest --testPathPattern",
     "test:clear-cache": "jest --clear-cache",
