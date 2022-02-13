@@ -94,7 +94,7 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
    * ---
    * **Example:**
    * ~~~ts
-   * const title = find('.submit-btn').attr('title');
+   * const title = get('.submit-btn').attr('title');
    * ~~~
    * @param name The name of the attribute to get on the current element.
    */
@@ -107,7 +107,7 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
    * ~~~ts
    * // parses the stringified data in the dialogs data-result attribute
    * // and returns the result:
-   * const dialogResult = find('.dialog').attr('data-result', JSON.parse);
+   * const dialogResult = get('.dialog').attr('data-result', JSON.parse);
    * ~~~
    * @param name The name of the attribute to get on the current element.
    * @param convert A conversion function to apply before returning the value.
