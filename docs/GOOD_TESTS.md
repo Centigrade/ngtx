@@ -1,6 +1,17 @@
 # Writing Good Tests
 
-## Use Component Test-APIs
+This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be many situations where another approach is also perfectly fine, or even better.
+
+> ### Any Ideas?
+>
+> We would love to hear how you are doing Angular testing! We can use this knowledge to further improve ngtx and make it (even) more useful to you.
+>
+> - What common problems / challenges do you have?
+> - How do you currently handle these problems?
+> - What do you think could ngtx improve in your tests?
+> - Where does ngtx needs to be improved to suit your needs?
+
+## Use Component Test-APIs (aka "Component Harnesses")
 
 Although being "DRY" is something absolutely normal in production code, this is often not true in testing code. But fact is, the same reasons behind us writing DRY code in production, should urge us to maintaining DRY in testing code as well.
 
