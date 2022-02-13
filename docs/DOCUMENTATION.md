@@ -68,28 +68,28 @@ Searches an element either by CSS or a ComponentType and returns the first match
 ```ts
 describe(
   'MyTestSuite',
-  ngtx(({ useFixture, find }) => {
+  ngtx(({ useFixture, get }) => {
     // ...
 
     it('should find my elements easily by css and directive', () => {
       // arrange, act
-      const debugElement1 = find('button.active');
-      const debugElement2 = find(MyComponent);
+      const button = get('button.active');
+      const myComponent = get(MyComponent);
 
       // assert
-      expect(debugElement1).toBeDefined();
-      expect(debugElement2).toBeDefined();
+      expect(button).toBeDefined();
+      expect(myComponent).toBeDefined();
     });
 
     it('should get practical types', () => {
       // nativeElement is now of type HTMLElement per default:
-      const { nativeElement } = find('button.active');
+      const { nativeElement } = get('button.active');
 
       // nativeElement is of type HTMLInputElement here:
-      const { nativeElement } = find<HTMLInputElement>('.my-input');
+      const { nativeElement } = get<HTMLInputElement>('.my-input');
 
       // componentInstance is now of type MyComponent
-      const { componentInstance } = find(MyComponent);
+      const { componentInstance } = get(MyComponent);
     });
   }),
 );

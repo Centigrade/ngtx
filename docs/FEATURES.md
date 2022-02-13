@@ -81,12 +81,12 @@ describe(
 
     it('should find my elements easily by css and directive', () => {
       // arrange, act
-      const debugElement1 = get('button.active');
-      const debugElement2 = get(MyComponent);
+      const button = get('button.active');
+      const myComponent = get(MyComponent);
 
       // assert
-      expect(debugElement1).toBeDefined();
-      expect(debugElement2).toBeDefined();
+      expect(button).toBeDefined();
+      expect(myComponent).toBeDefined();
     });
 
     it('should get practical types', () => {
@@ -124,12 +124,12 @@ describe(
 
     it('should find my elements easily by css and directive', () => {
       // arrange, act
-      const debugElements1 = getAll('button.active');
-      const debugElements2 = getAll(MyComponent);
+      const buttons = getAll('button.active');
+      const myComponents = getAll(MyComponent);
 
       // assert
-      expect(Array.isArray(debugElements1)).toBe(true);
-      expect(Array.isArray(debugElements2)).toBe(true);
+      expect(Array.isArray(buttons)).toBe(true);
+      expect(Array.isArray(myComponents)).toBe(true);
     });
   }),
 );
