@@ -83,23 +83,23 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
   }
 
   public first(): NgtxElement<Html, Component> {
-    return this.elements[0];
+    return this.elements[0] ?? null;
   }
 
   public nth(position: number): NgtxElement<Html, Component> {
     const index = position - 1;
     const debugElement = this.elements[index];
-    return debugElement ? debugElement : null;
+    return debugElement ?? null;
   }
 
   public atIndex(index: number): NgtxElement<Html, Component> {
     const debugElement = this.elements[index];
-    return debugElement ? debugElement : null;
+    return debugElement ?? null;
   }
 
   public last(): NgtxElement<Html, Component> {
     const itemCount = this.elements.length;
-    return this.elements[itemCount - 1];
+    return this.elements[itemCount - 1] ?? null;
   }
 
   /**
@@ -148,7 +148,7 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
   }
 
   public triggerEvent(name: string, eventArgs?: any): void {
-    this.elements.map((debugElement) =>
+    this.elements.forEach((debugElement) =>
       debugElement.triggerEvent(name, eventArgs),
     );
   }
