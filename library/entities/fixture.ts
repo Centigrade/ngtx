@@ -87,6 +87,8 @@ export class NgtxFixture {
     component?: T,
     changes: TypeObjectMap<T> = {},
   ): void {
+    this.checkFixture();
+
     component?.ngOnChanges?.(changes);
     component?.ngOnInit?.();
 
@@ -102,6 +104,8 @@ export class NgtxFixture {
   public get<Html extends Element, Component>(
     query: QueryTarget<Component>,
   ): NgtxElement<Html, Component> {
+    this.checkFixture();
+
     return this.root.get(query as any);
   }
 
@@ -117,10 +121,22 @@ export class NgtxFixture {
   public getAll<Html extends Element, Component>(
     queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
+    this.checkFixture();
+
     return this.root.getAll(queryTarget as any);
   }
 
   public triggerEvent(name: string, eventArgs?: any): void {
+    this.checkFixture();
+
     return this.root.triggerEvent(name, eventArgs);
+  }
+
+  private checkFixture() {
+    if (this.fixture == null) {
+      throw new Error(
+        '[ngtx] No fixture was passed via "useFixture" helper, or the test-fixture failed to build.',
+      );
+    }
   }
 }
