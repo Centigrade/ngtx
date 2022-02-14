@@ -239,9 +239,6 @@ import { asBool, asNumber /* ... */ } from '@centigrade/ngtx';
 
 expect(get('button').attr('disabled', asBool)).toBe(true);
 expect(get('button').attr('counter', asNumber)).toBe(42);
-
-// it can also be useful for parsing the value-string:
-const obj = get('.my-item').attr('data-json-string', JSON.parse);
 ```
 
 ---
