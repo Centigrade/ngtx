@@ -160,11 +160,11 @@ const allButtons = getAll(['.button-secondary', '.button-primary']);
 
 ## Easier Triggering of Events
 
-Triggering an event in Angular is quite easy. But there are a few points that could be improved. The first thing is, that you need to pass an event-args argument, even if no one is needed:
+Triggering an event in Angular is quite easy. But there are a few points that could be improved. The first thing is, that you need to pass an event-args argument, even if no one is needed and another point is that the name could be a bit shorter.
 
-`debugElement.triggerEventHandler('click', undefined);`
+Angular: `debugElement.triggerEventHandler('click', undefined);`
 
-It's not a big deal, but doing it over and over again makes you feel like "this should be fixed". Another (also really small) point is that, the name could be a bit shorter. Renaming it to `triggerEvent` would not change the semantics of the method too much, and any developer would still understand what this function is doing. So we decided to improve these points by introducing the `triggerEvent` helper function:
+ngtx: `get('button').triggerEvent('click');`
 
 ```ts
 describe(
