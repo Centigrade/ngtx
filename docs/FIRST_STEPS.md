@@ -13,9 +13,7 @@ Don't worry, it might look confusing the first time you see it, but once you hav
 >
 > If you feel like this article is too basic for you, feel free to skip sections in order to move along quicker. Alternatively refer to the [API documentation][api] and/or the [ngtx examples page][examples]. The given examples should be quite self-explaining for developers that already have experience with writing Angular tests.
 >
-> ### Want to go 🏠 ?
->
-> Back to [GitHub: Centigrade/ngtx][home]
+> Or navigate back [home][home].
 
 ---
 

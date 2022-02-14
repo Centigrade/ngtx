@@ -13,9 +13,7 @@ This article gives a quick overview on the main features of ngtx.
 >
 > You may want to visit our [API documentation][api].
 >
-> ### Want to go 🏠 ?
->
-> Back to [GitHub: Centigrade/ngtx][home]
+> Or navigate back [home][home].
 
 ---
 

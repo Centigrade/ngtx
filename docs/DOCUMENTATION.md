@@ -2,6 +2,23 @@
 
 ngtx contains a set of small helper functions enabling you to write your tests with ease while becoming precise and readable throughout your test-cases. This documentation iterates through all helpers currently available in ngtx and explains when and how to use them.
 
+<details>
+  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
+
+> ### Don't know where to start?
+>
+> For those who are new to Angular application testing with ngtx, we recommend to start with the [first steps article][firststeps]. After this article you should be good to go with the examples in this article. This article primarily targets developers that already know ngtx or at least have experience with writing Angular tests.
+>
+> ### Need examples?
+>
+> You find a bunch of examples in [this article][examples].
+>
+> Or navigate back [home][home].
+
+---
+
+</details>
+
 > **Please Note:** Most of the examples use JavaScript's [object destructuring][mdn.destructuring] syntax. If you are not familiar with it, we encourage you to quickly look it up for a better understanding of the given code examples.
 
 ## `detectChanges` Helper
@@ -521,4 +538,7 @@ expect(Array.isArray(innerArray)).toBe(true);
 ```
 
 [mdn.destructuring]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#object_destructuring
+[examples]: ./EXAMPLES.md
+[firststeps]: ./FIRST_STEPS.md
 [good-tests]: ./GOOD_TESTS.md
+[home]: ../README.md

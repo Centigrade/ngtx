@@ -2,6 +2,23 @@
 
 This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be many situations where another approach is also perfectly fine, or even better.
 
+<details>
+  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
+
+> ### Trying to get started with ngtx?
+>
+> You may want to visit our [first steps page][firststeps].
+>
+> ### Want to read about the whole API?
+>
+> You may want to visit our [API documentation][api].
+>
+> Or navigate back [home][home].
+
+---
+
+</details>
+
 > ### Any Ideas?
 >
 > We would love to hear how you are doing Angular testing! We can learn from it to further improve ngtx and make it (even) more useful to you.
@@ -120,3 +137,7 @@ it('should show correct details of a person', () => {
 This way we only need to adjust very few lines of code whenever we reorder columns. Also other structural or semantical changes to the component can be handled better since we have a clear overview about the needed APIs for our tests.
 
 It may seem to be overhead to some, but it is really worth it. Of course you need to spend some time in writing the test API, but it saves you far more time when it comes to component changes. Thus our strong recommendation is to follow this pattern, even for smaller components being tested.
+
+[api]: ./DOCUMENTATION.md
+[firststeps]: ./FIRST_STEPS.md
+[home]: ../README.md
