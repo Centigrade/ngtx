@@ -82,7 +82,7 @@ describe(
     });
 
     it('should get practical types', () => {
-      // nativeElement is now of type HTMLElement per default:
+      // nativeElement is now of type Element per default:
       const { nativeElement } = get('button.active');
 
       // nativeElement is of type HTMLInputElement here:
