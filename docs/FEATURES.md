@@ -164,17 +164,7 @@ Triggering an event in Angular is quite easy. But there are a few points that co
 
 `debugElement.triggerEventHandler('click', undefined);`
 
-It's not a big deal, but doing it over and over again makes you feel like "this should be fixed". Another (also really small) point is that, the name could be a bit shorter. Renaming it to `triggerEvent` would not change the semantics of the method too much, and any developer would still understand what this function is doing.
-
-The last, a bit more major, thing about event triggering in Angular is, that in order to do that, you need to gather the `debugElement` of the element your want to trigger the event. Wouldn't it be nice to leave out the query and just say:
-
-> **"Hey Angular, trigger event XY on component Z, please!"**
->
-> or:
->
-> **"Hey Angular, find an element matching >css-selector< and trigger the event XY on it."**
-
-With this package, you finally can:
+It's not a big deal, but doing it over and over again makes you feel like "this should be fixed". Another (also really small) point is that, the name could be a bit shorter. Renaming it to `triggerEvent` would not change the semantics of the method too much, and any developer would still understand what this function is doing. So we decided to improve these points by introducing the `triggerEvent` helper function:
 
 ```ts
 describe(
