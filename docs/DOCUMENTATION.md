@@ -63,7 +63,7 @@ detectChanges(component, {
 
 Searches an element either by CSS or a ComponentType and returns the first match as a `NgtxElement`. This type provides some extra APIs, that help you with common tasks and scenarios when it comes to testing.
 
-> It's like `debugElement.query(...)` in super useful.
+> It's like `debugElement.query(...)` but more useful.
 
 ```ts
 describe(
@@ -71,7 +71,7 @@ describe(
   ngtx(({ useFixture, get }) => {
     // ...
 
-    it('should find my elements easily by css and directive', () => {
+    it('should easily find my elements by css and directive', () => {
       // arrange, act
       const button = get('button.active');
       const myComponent = get(MyComponent);
