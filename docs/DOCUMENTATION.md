@@ -75,10 +75,14 @@ describe(
       // arrange, act
       const button = get('button.active');
       const myComponent = get(MyComponent);
+      // to get the instance of a directive, we need to use
+      // the dependency injection to get the correct reference:
+      const myDirective = get(MyDirective).injector.get(MyDirective);
 
       // assert
       expect(button).toBeDefined();
       expect(myComponent).toBeDefined();
+      expect(myDirective).toBeDefined();
     });
 
     it('should get practical types', () => {
