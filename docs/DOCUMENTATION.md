@@ -130,14 +130,6 @@ Returns the `nativeElement` of the inner, wrapped `debugElement`. This is useful
 const inputText = get<HTMLInputElement>('input').nativeElement.value;
 ```
 
-### `NgtxElement.nativeElement`
-
-Returns the `nativeElement` of the inner `debugElement`. This is useful whenever you need to access native features and APIs of the `NgtxElement`.
-
-```ts
-const inputText = get<HTMLInputElement>('input').nativeElement.value;
-```
-
 ### `NgtxElement.componentInstance`
 
 Returns the `componentInstance` of the inner `debugElement`. This is useful whenever you need to access the component instance of a `NgtxElement`.
