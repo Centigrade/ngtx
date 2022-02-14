@@ -156,8 +156,6 @@ Sometimes it's necessary to execute multiple queries to get all relevant element
 const allButtons = getAll(['.button-secondary', '.button-primary']);
 ```
 
-`getAll` returns an instance of a `NgtxMultiElement` which provides you additional possibilities to work with the found matches. For example it allows you to further filter the elements by exposing an array-like API that you might know from built-in javascript arrays.
-
 ---
 
 ## Easier Triggering of Events
@@ -200,8 +198,6 @@ describe(
   }),
 );
 ```
-
-When passing in a `ComponentType` or a CSS-selector, `triggerEvent` will run a query and trigger the event on the first, matching element.
 
 ---
 
