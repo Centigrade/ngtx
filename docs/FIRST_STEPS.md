@@ -176,7 +176,7 @@ import { ngtx } from '@Centigrade/ngtx';
 
 ## Moving on: Improving the Tests by Getting DRY
 
-Before having a look on how we could improve the test-cases using ngtx, we will first do a bit of refactoring, in order to become more **[DRY](wiki.dry)**.
+Before having a look on how we could improve the test-cases using ngtx, we will first do a bit of refactoring, in order to become more **[DRY][wiki.dry]**.
 
 You might have noticed it as well: We are recreating the app fixture and app constant in each test-case over and over again (`const fixture = TestBed.createComponent(...); ...`). This isn't very elegant nor readable. It's just noise distracting from what really happens in that test. So let's get rid of it:
 
