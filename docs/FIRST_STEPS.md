@@ -6,9 +6,16 @@ However readers of this article **are expected to have some experience with test
 
 Don't worry, it might look confusing the first time you see it, but once you have done these steps a few times you will very quickly get used to it, so bear with us.
 
+<details>
+  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
+
 > ### Not a beginner?
 >
-> If you feel like this article is too basic for you, feel free to skip sections in order to move along quicker. Alternatively refer to the [API documentation][api] and/or the [ngtx examples page][examples]. The given examples should be pretty self-explaining for developers that already have experience with writing Angular tests.
+> If you feel like this article is too basic for you, feel free to skip sections in order to move along quicker. Alternatively refer to the [API documentation][api] and/or the [ngtx examples page][examples]. The given examples should be quite self-explaining for developers that already have experience with writing Angular tests.
+
+---
+
+</details>
 
 ## 1. Create a new Angular Project
 

@@ -18,8 +18,8 @@ We can do better and we think we should. ngtx is meant to help you with that by 
 
 New to ngtx? Let's get you started with these links:
 
-- [Feature Overview][features]
 - [Getting Started / First Steps][firststeps]
+- [Feature Overview][features]
 - [Api Documentation][documentation]
 
 Having questions or issues using ngtx? You may want to have a look on these links:

@@ -1,12 +1,25 @@
 # Feature Overview
 
-This article gives a quick overview on the main features of ngtx. For more details, please refer to the [API documentation][api].
+This article gives a quick overview on the main features of ngtx.
 
-## `detectChanges` Helper
+<details>
+  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
 
-> This helper provides quick and easy change detection
+> ### Trying to get started with ngtx?
+>
+> You may want to visit our [first steps page][firststeps].
+>
+> ### Want to read about the whole API?
+>
+> You may want to visit our [API documentation][api].
 
-Save the `fixture.`-prefix and simply write what you want to say:
+---
+
+</details>
+
+## Simpler Change Detection
+
+Save the `fixture.`-prefix and simply write what you want to do:
 
 ```ts
 describe(
@@ -67,7 +80,7 @@ Also, the returned `DebugElement`'s types are impractical for most use cases, as
 
 With ngtx' `get` helper you simply write down your query and get your types for free, since all helpers return an improved version of the debug element, simply called `TypedDebugElement`:
 
-### `get` Helper
+### Using the `get` Helper
 
 Searches an element either by CSS or a ComponentType and returns the first match.
 
@@ -110,7 +123,7 @@ const firstFormField = get<HTMLElement>(['input', MarkDownEditorComponent]);
 firstFormField.nativeElement.focus();
 ```
 
-### `getAll` Helper
+### Using the `getAll` Helper
 
 Searches elements by either CSS or ComponentType and returns all matching elements.
 
@@ -309,4 +322,5 @@ initSyntaxHighlighting();
 > ![Console log output](./media/debug-output.png)
 
 [api]: ./DOCUMENTATION.md
+[firststeps]: ./FIRST_STEPS.md
 [good-tests]: ./GOOD_TESTS.md
