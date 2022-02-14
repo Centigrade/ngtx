@@ -14,7 +14,7 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 We can do better and we think we should. ngtx is meant to help you with that by "injecting" small "helpers" into your tests improving both, productivity and readability.
 
-## Ready When You Are!
+## Getting Started
 
 New to ngtx? Let's get you started with these links:
 
@@ -26,6 +26,29 @@ Having questions or issues using ngtx? You may want to have a look on these link
 
 - [Examples][examples]
 - [StackOverflow][stackoverflow]
+
+### Quick Start
+
+`$ npm install @Centigrade/ngtx --save-dev`
+
+```ts
+import { ngtx } from '@Centigrade/ngtx';
+
+describe(
+  'MyComponent',
+  ngtx(({ useFixture, get /*, other ngtx helpers... */ }) => {
+    // skipping Angular test boilerplate code...
+    beforeEach(() => {
+      const fixture = TestBed.createComponent(MyComponent);
+      useFixture(fixture);
+    });
+
+    it('should have a title', () => {
+      expect(get('.title')).toBeDefined();
+    });
+  }),
+);
+```
 
 ## Contributing
 
