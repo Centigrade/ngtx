@@ -1,23 +1,23 @@
-# Writing Good Tests
-
-This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be many situations where another approach is also perfectly fine, or even better.
+## [🏠][home] &nbsp; → &nbsp; [Documentation][api] &nbsp; → &nbsp; **Writing Good Tests**
 
 <details>
-  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
+  <summary>🧭 &nbsp;<b>Related topics</b></summary>
 
-> ### Trying to get started with ngtx?
+> ### First Steps
 >
 > You may want to visit our [first steps page][firststeps].
 >
-> ### Want to read about the whole API?
+> ### API Documentation
 >
 > You may want to visit our [API documentation][api].
->
-> Or navigate back [home][home].
 
 ---
 
 </details>
+
+&nbsp;
+
+This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be many situations where another approach is also perfectly fine, or even better.
 
 > ### Any Ideas?
 >

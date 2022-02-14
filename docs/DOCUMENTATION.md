@@ -1,23 +1,23 @@
-# API Documentation
-
-ngtx contains a set of small helper functions enabling you to write your tests with ease while becoming precise and readable throughout your test-cases. This documentation iterates through all helpers currently available in ngtx and explains when and how to use them.
+## [🏠][home] &nbsp; → &nbsp; **Documentation**
 
 <details>
-  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
+  <summary>🧭 &nbsp;<b>Related topics</b></summary>
 
-> ### Don't know where to start?
+> ### First Steps
 >
 > For those who are new to Angular application testing with ngtx, we recommend to start with the [first steps article][firststeps]. After this article you should be good to go with the examples in this article. This article primarily targets developers that already know ngtx or at least have experience with writing Angular tests.
 >
-> ### Need examples?
+> ### ngtx Examples
 >
 > You find a bunch of examples in [this article][examples].
->
-> Or navigate back [home][home].
 
 ---
 
 </details>
+
+&nbsp;
+
+ngtx contains a set of small helper functions enabling you to write your tests with ease while becoming precise and readable throughout your test-cases. This documentation iterates through all helpers currently available in ngtx and explains when and how to use them.
 
 > **Please Note:** Most of the examples use JavaScript's [object destructuring][mdn.destructuring] syntax. If you are not familiar with it, we encourage you to quickly look it up for a better understanding of the given code examples.
 

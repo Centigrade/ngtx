@@ -1,3 +1,22 @@
+## [🏠][home] &nbsp; → &nbsp; **Contributing**
+
+<details>
+  <summary>🧭 &nbsp;<b>Related topics</b></summary>
+
+> ### Code of Conduct
+>
+> Please have a look on our [code of conduct][coc].
+>
+> ### Building and Testing ngtx
+>
+> For more information about how to develop ngtx on your machine, have a look on our [developer's guide][dev-doc].
+
+---
+
+</details>
+
+&nbsp;
+
 > This document explains all important bits of developing ngtx. If you are interested in contributing, please read this article before-hand.
 
 # Contributing to [ngtx][github]
@@ -60,9 +79,9 @@ We spell check our code and docs with [Code Spell Checker][vscode.ext.code-spell
 We want to commit changes in a way that makes it easy understand what a commit changed and (if applicable) why this change was necessary. This ensures a simple process when it comes to creating a change-log from it. To achieve that, we use the [Conventional Commit Message Format][commit-message-convention] to have a consistent history log.
 
 [coc]: CODE_OF_CONDUCT.md
-[commit-message-format]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#
 [dev-doc]: docs/DEVELOPER.md
 [github]: https://github.com/Centigrade/ngtx
+[home]: ./README.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
 [vscode]: https://code.visualstudio.com
 [vscode.ext.eslint]: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint

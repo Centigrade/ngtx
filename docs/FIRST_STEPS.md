@@ -1,23 +1,27 @@
-# First Steps with ngtx
+## [🏠][home] &nbsp; → &nbsp; [Documentation][api] &nbsp; → &nbsp; **First Steps**
+
+<details>
+  <summary>🧭 &nbsp;<b>Related topics</b></summary>
+
+> ### ngtx Examples
+>
+> If you feel like this article is too basic for you, feel free to skip sections in order to move along quicker. Alternatively refer to the [API documentation][api] and/or the [ngtx examples page][examples]. The given examples should be quite self-explaining for developers that already have experience with writing Angular tests.
+>
+> ### Feature Overview
+>
+> You may want to visit our [feature overview page][features] to quickly explore what ngtx can do for you.
+
+---
+
+</details>
+
+&nbsp;
 
 This article will guide you through the steps needed to write your test cases with ngtx. **It is meant to also serve beginners** which is why we will make one step at a time, avoiding to rush.
 
 However readers of this article **are expected to have some experience with testing frameworks like [Jasmine][jasmine] or [Jest][jest].** If you lack this knowledge we strongly recommend you to get this knowledge first, before continuing.
 
 Don't worry, it might look confusing the first time you see it, but once you have done these steps a few times you will very quickly get used to it, so bear with us.
-
-<details>
-  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
-
-> ### Not a beginner?
->
-> If you feel like this article is too basic for you, feel free to skip sections in order to move along quicker. Alternatively refer to the [API documentation][api] and/or the [ngtx examples page][examples]. The given examples should be quite self-explaining for developers that already have experience with writing Angular tests.
->
-> Or navigate back [home][home].
-
----
-
-</details>
 
 ## 1. Create a new Angular Project
 

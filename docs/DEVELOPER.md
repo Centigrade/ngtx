@@ -1,4 +1,4 @@
-# Building and Testing ngtx
+## [🏠][home] &nbsp; → &nbsp; [Contributing][contributing] &nbsp; → &nbsp; **Building and Testing ngtx**
 
 This document describes how to set up your development environment to build and test ngtx.
 
@@ -99,3 +99,6 @@ You can check that your code is properly formatted and adheres to coding style b
 ```shell
 $ npm run lint
 ```
+
+[contributing]: ../CONTRIBUTING.md
+[home]: ../README.md

@@ -1,29 +1,27 @@
-# ngtx Examples
+## [🏠][home] &nbsp; → &nbsp; [Documentation][api] &nbsp; → &nbsp; **ngtx Examples**
+
+<details>
+  <summary>🧭 &nbsp;<b>Related topics</b></summary>
+
+> ### First Steps
+>
+> For those who are new to Angular application testing with ngtx, we recommend to start with the [first steps article][firststeps]. After this article you should be good to go with the examples in this article. This article primarily targets developers that already know ngtx or at least have experience with writing Angular tests.
+>
+> ### Feature Overview
+>
+> You may want to visit our [feature overview page][features] to quickly explore what ngtx can do for you.
+
+---
+
+</details>
+
+&nbsp;
 
 This article gives a basic overview on a _range_ of ngtx helpers.
 
 The following examples are taken from real world applications and show in what way ngtx can help writing tests that are easier to read and maintain. Please note that the following test-cases are actually coming from _different_ components, i.e. multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
 
 This article will only show examples where ngtx is used in a "standalone" way, without additional constructs around it; but in our experience the best way of using ngtx is along with component harnesses, which is explained [in this article][good-tests].
-
-<details>
-  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
-
-> ### New to testing with ngtx?
->
-> For those who are new to Angular application testing with ngtx, we recommend to start with the [first steps article][firststeps]. After this article you should be good to go with the examples in this article. This article primarily targets developers that already know ngtx or at least have experience with writing Angular tests.
->
-> ### Want to read about the whole API?
->
-> You may want to visit our [API documentation][api].
->
-> ### Want to go 🏠 ?
->
-> Back to [GitHub: Centigrade/ngtx][home]
-
----
-
-</details>
 
 > ### Ever heard of Component Harnesses?
 >
@@ -125,6 +123,7 @@ describe(
 ```
 
 [api]: ./DOCUMENTATION.md
+[features]: ./FEATURES.md
 [firststeps]: ./FIRST_STEPS.md
 [good-tests]: ./GOOD_TESTS.md
 [home]: ../README.md

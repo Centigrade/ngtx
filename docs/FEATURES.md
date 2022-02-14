@@ -1,23 +1,23 @@
-# Feature Overview
-
-This article gives a quick overview on the main features of ngtx.
+## [🏠][home] &nbsp; → &nbsp; **Feature Overview**
 
 <details>
-  <summary>🧭 &nbsp;<b>Not what you are looking for?</b></summary>
+  <summary>🧭 &nbsp;<b>Related topics</b></summary>
 
-> ### Trying to get started with ngtx?
+> ### First Steps
 >
 > You may want to visit our [first steps page][firststeps].
 >
-> ### Want to read about the whole API?
+> ### API Documentation
 >
 > You may want to visit our [API documentation][api].
->
-> Or navigate back [home][home].
 
 ---
 
 </details>
+
+&nbsp;
+
+This article gives a quick overview on the main features of ngtx.
 
 ## Simpler Change Detection
 
