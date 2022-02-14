@@ -12,6 +12,10 @@ Don't worry, it might look confusing the first time you see it, but once you hav
 > ### Not a beginner?
 >
 > If you feel like this article is too basic for you, feel free to skip sections in order to move along quicker. Alternatively refer to the [API documentation][api] and/or the [ngtx examples page][examples]. The given examples should be quite self-explaining for developers that already have experience with writing Angular tests.
+>
+> ### Want to go 🏠 ?
+>
+> Back to [GitHub: Centigrade/ngtx][home]
 
 ---
 
@@ -282,6 +286,7 @@ This example was chosen, because it is a good starting point to give you a very 
 [api]: ./DOCUMENTATION.md
 [examples]: ./EXAMPLES.md
 [good-tests]: ./GOOD_TESTS.md
+[home]: ../README.md
 [jasmine]: https://jasmine.github.io/
 [jest]: https://jestjs.io/
 [wiki.dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself

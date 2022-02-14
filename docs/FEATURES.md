@@ -12,6 +12,10 @@ This article gives a quick overview on the main features of ngtx.
 > ### Want to read about the whole API?
 >
 > You may want to visit our [API documentation][api].
+>
+> ### Want to go 🏠 ?
+>
+> Back to [GitHub: Centigrade/ngtx][home]
 
 ---
 
@@ -324,3 +328,4 @@ initSyntaxHighlighting();
 [api]: ./DOCUMENTATION.md
 [firststeps]: ./FIRST_STEPS.md
 [good-tests]: ./GOOD_TESTS.md
+[home]: ../README.md

@@ -16,6 +16,10 @@ This article will only show examples where ngtx is used in a "standalone" way, w
 > ### Want to read about the whole API?
 >
 > You may want to visit our [API documentation][api].
+>
+> ### Want to go 🏠 ?
+>
+> Back to [GitHub: Centigrade/ngtx][home]
 
 ---
 
@@ -121,5 +125,6 @@ describe(
 ```
 
 [api]: ./DOCUMENTATION.md
-[good-tests]: ./GOOD_TESTS.md
 [firststeps]: ./FIRST_STEPS.md
+[good-tests]: ./GOOD_TESTS.md
+[home]: ../README.md
