@@ -222,7 +222,7 @@ describe(
 );
 ```
 
-In cases you want to work with the values of an attribute, you'll need to know that the result of `attr` is always a string per default. This way, a boolean value will be the string `"true"` as a result. If you want to cast or parse the attribute's value-string, you can make use of the optional, third parameter of `attr`, which accepts a conversion function:
+In cases you want to work with the values of an attribute, you'll need to know that the result of `attr` is always a string per default. This way, a boolean value will be the string `"true"` as a result. If you want to cast or parse the attribute's value-string, you can make use of the optional, second parameter which accepts a conversion function:
 
 ```ts
 import { asBool, asNumber /* ... */ } from '@centigrade/ngtx';
