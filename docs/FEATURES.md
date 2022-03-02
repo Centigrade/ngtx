@@ -156,6 +156,90 @@ Sometimes it's necessary to execute multiple queries to get all relevant element
 const allButtons = getAll(['.button-secondary', '.button-primary']);
 ```
 
+### Semantical Parts
+
+With ngtx you can add a special `data-ngtx="<semantic-name>"` HTML-attribute on important parts in your component-template. Together with [component testing harnesses][good-tests] this will further increase the semantics and robustness of your test cases, as it prevents more breaking changes when restructuring the component under test.
+
+Using the `get` and `getAll` helpers you can find these template-parts easily by using queries formatted like this: `ngtx_<sematic-name>` (the `ngtx_` prefix tells ngtx to query for semantical parts).
+
+**Example**
+
+Let's imagine we are creating a user-item component showing the profile picture, name and email of a given user. The component-template could look something like this:
+
+```html
+<!-- user-item-component template -->
+<section class="rounded-avatar">
+  <!-- 
+    the next element is something we want to test; so we give it
+    a semantical name via the data-ngtx attribute:
+  -->
+  <img [src]="user.profilePic" data-ngtx="user-item:avatar" />
+</section>
+<section>
+  <span data-ngtx="user-item:name">{{ user.name }}</span>
+  <span data-ngtx="user-item:email">{{ user.email }}</span>
+</section>
+```
+
+Now we want to test this component and use the semantical parts specified via the `data-ngtx` attribute. The tests can query these parts like that:
+
+```ts
+it('should show the correct profile picture in the avatar img', () => {
+  // arrange
+  component.user = {
+    name: 'Ann',
+    email: 'annie@something.com',
+    imgUrl: './some-picture.jpg',
+  };
+  // act
+  detectChanges();
+  // assert
+  // here we're using the semantical part query:
+  expect(get('ngtx_user-item:avatar').attr('src')).toEqual(
+    component.user.imgUrl,
+  );
+});
+
+// you can even parametrize tests, that are otherwise structurally
+// the same. In jest, you would use the it.each feature for this:
+[
+  ['ngtx_user-item:name', 'name'],
+  ['ngtx_user-item:email', 'email'],
+].forEach(([semanticPart, propertyName]) => {
+  it(`should show the correct ${propertyName}`, () => {
+    // arrange
+    component.user = {
+      name: 'Ann',
+      email: 'annie@something.com',
+      imgUrl: './some-picture.jpg',
+    };
+    // act
+    detectChanges();
+    // assert
+    // here we're using the semantical part query:
+    const textOfSemanticPart = get(semanticPart).textContent();
+    expect(textOfSemanticPart).toEqual(component.user[propertyName]);
+  });
+});
+```
+
+Whenever the HTML structure of the user-item component would change, you can easily move the `data-ngtx` semantical part attribute to the new element with the respective role. This way none of the existing tests needs to be touched - they still work as expected.
+
+> ### Please Note
+>
+> Of course the new element that replaces the old one must be compatible with the old element's API. If that is not the case, the tests might break at these incompatible APIs.
+
+> ### Prefixing Semantical Parts is a Best Practice
+>
+> It is considered best practice to prefix your semantical part names with the component name, e.g.:
+>
+> ```html
+> <!-- user-item-component template -->
+> <span data-ngtx="user-item:name">{{ user.name }}</span>
+> ```
+>
+> This will prevent name-collisions in components, that uses other components also containing the same semantical-part names.
+
 ---
 
 ## Easier Triggering of Events
