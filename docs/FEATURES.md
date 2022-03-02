@@ -19,7 +19,12 @@
 
 This article gives a quick overview on the main features of ngtx.
 
-## Simpler Change Detection
+> Click the features listed below to show their details.
+
+<details>
+  <summary>Simpler Change Detection</summary>
+
+## `detectChanges`-helper
 
 Save the `fixture.`-prefix and simply write what you want to do:
 
@@ -74,7 +79,12 @@ detectChanges(component, {
 
 ---
 
-## Finding Relevant Elements Easier
+</details>
+
+<details>
+  <summary> Finding Relevant Elements Easier </summary>
+
+## Shortcut Element Queries
 
 Often in Angular tests we need to get hold of elements, we want to inspect further. With Angular this is quite verbose, as there are two major search strategies, that needs to be imported first (`By.css` and `By.directive` from `@angular/platform-browser`).
 
@@ -242,6 +252,11 @@ Whenever the HTML structure of the user-item component would change, you can eas
 
 ---
 
+</details>
+
+<details>
+  <summary> More Practical Event Emitting </summary>
+
 ## Easier Triggering of Events
 
 Triggering an event in Angular is quite easy. But there are a few points that could be improved. The first thing is, that you need to pass an event-args argument, even if no one is needed and another point is that the name could be a bit shorter.
@@ -275,7 +290,12 @@ describe(
 
 ---
 
-## Easy Attribute Retrieval
+</details>
+
+<details>
+  <summary> Easy Attribute-Value Retrieval </summary>
+
+## Making Attribute-Value Retrieval More Understandable
 
 In Angular it can easily become confusing when you are about to test the existence or values of attributes on elements. E.g. Angular distinguishes between `attributes` and `properties`. Also sometimes you'll need to prefix your attribute's name with `"html"`, in order to get the desired result.
 
@@ -317,7 +337,12 @@ expect(get('button').attr('counter', asNumber)).toBe(42);
 
 ---
 
-## Easier Access to Element's Text Content
+</details>
+
+<details>
+  <summary> Easier Access to Element's Text Content </summary>
+
+## `.textContent()`
 
 In order to get the text content of an element, you'll need to gather its `debugElement` first, to have then access to the `debugElement.nativeElement` in order to finally read the `nativeElement.textContent` property. To shortcut this, you can use `textContent`-helper function:
 
@@ -342,7 +367,12 @@ describe(
 
 ---
 
-## HTML Output Debugging
+</details>
+
+<details>
+  <summary> HTML-Output Debugging </summary>
+
+## `.debug()`
 
 We all know it. Sometimes you're lost with a failing test case and don't even know what's happening there. In these cases it's often helpful to see the actual HTML, rendered by the test case. But there's no easy way to print out the HTML tree to the console.
 
@@ -389,6 +419,8 @@ initSyntaxHighlighting();
 > Real screenshot:
 >
 > ![Console log output](./media/debug-output.png)
+
+</details>
 
 [api]: ./DOCUMENTATION.md
 [firststeps]: ./FIRST_STEPS.md
