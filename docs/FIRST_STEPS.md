@@ -287,6 +287,7 @@ This example was chosen, because it is a good starting point to give you a very 
 
 [api]: ./DOCUMENTATION.md
 [examples]: ./EXAMPLES.md
+[features]: ./FEATURES.md
 [good-tests]: ./GOOD_TESTS.md
 [home]: ../README.md
 [jasmine]: https://jasmine.github.io/
