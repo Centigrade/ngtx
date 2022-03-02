@@ -183,7 +183,7 @@ Let's imagine we are creating a user-item component showing the profile picture,
     the next element is something we want to test; so we give it
     a semantical name via the data-ngtx attribute:
   -->
-  <img [src]="user.profilePic" data-ngtx="user-item:avatar" />
+  <img [src]="user.imgUrl" data-ngtx="user-item:avatar" />
 </section>
 <section>
   <span data-ngtx="user-item:name">{{ user.name }}</span>
