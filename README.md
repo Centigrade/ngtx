@@ -2,7 +2,7 @@
 
 > ngtx is in early stage. If you have ideas how to further improve it feel free to raise an issue and/or contribute.
 
-# @Centigrade/ngtx
+# @centigrade/ngtx
 
 ![](https://github.com/Centigrade/ngtx/workflows/CI/badge.svg)
 
@@ -29,10 +29,10 @@ Having questions or issues using ngtx? You may want to have a look on these link
 
 ### Quick Start
 
-`$ npm install @Centigrade/ngtx --save-dev`
+`$ npm install @centigrade/ngtx --save-dev`
 
 ```ts
-import { ngtx } from '@Centigrade/ngtx';
+import { ngtx } from '@centigrade/ngtx';
 
 describe(
   'MyComponent',

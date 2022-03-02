@@ -215,7 +215,7 @@ expect(tags.textContents()).toEqual(['Food', 'Healthy', 'Fruits']);
 Returns the value of the specified attribute of the inner result. (Optionally) converts the value using the given mapFn.
 
 ```ts
-import { get, asNumber /* ... */ } from '@Centigrade/ngtx';
+import { get, asNumber /* ... */ } from '@centigrade/ngtx';
 
 const age = get('.age-input').attr('value', asNumber);
 ```

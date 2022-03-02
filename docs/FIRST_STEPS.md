@@ -39,16 +39,16 @@ instead of `<app-name>` of course use an app name you like, e.g. `my-angular-app
 
 ## 2. Adding ngtx to your Angular Project
 
-The first step is to add `@Centigrade/ngtx` to your dev-dependencies. To do this open a terminal in the root directory of your angular workspace and enter:
+The first step is to add `@centigrade/ngtx` to your dev-dependencies. To do this open a terminal in the root directory of your angular workspace and enter:
 
 ```sh
-npm install @Centigrade/ngtx --save-dev
+npm install @centigrade/ngtx --save-dev
 ```
 
 or using yarn:
 
 ```sh
-yarn add @Centigrade/ngtx --dev
+yarn add @centigrade/ngtx --dev
 ```
 
 ## 3. Open a Component Test File
@@ -104,7 +104,7 @@ To use ngtx you will need to do four simple things:
 
 ```diff
 // step 1: add the ngtx import
-+ import { ngtx } from '@Centigrade/ngtx';
++ import { ngtx } from '@centigrade/ngtx';
 
 // step 2: Wrap the test suite with a function call
 - describe('AppComponent', () => {
@@ -126,7 +126,7 @@ To use ngtx you will need to do four simple things:
 At this stage we are nearly finished. By passing the test-suite (the function) to ngtx (see step 2), ngtx is able to "inject" its functionality into your test-suite as a parameter. In order to use it, just add a parameter to your test-suite function, which will then automatically be provided by ngtx. This parameter contains all helper-functionality that ngtx offers:
 
 ```diff
-import { ngtx } from '@Centigrade/ngtx';
+import { ngtx } from '@centigrade/ngtx';
 
 // step 3: Add the ngtx helpers as parameter to your test-suite
 - describe('AppComponent', ngtx(() => {
@@ -188,7 +188,7 @@ You might have noticed it as well: We are recreating the app fixture and app con
 - import { TestBed } from '@angular/core/testing';
 + import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import { ngtx } from '@Centigrade/ngtx';
+import { ngtx } from '@centigrade/ngtx';
 
 describe('AppComponent', ngtx(({ useFixture }) => {
 + let fixture: ComponentFixture<AppComponent>;
@@ -267,8 +267,8 @@ Congratulations, you successfully set up ngtx and used its `get` helper function
 
 In order to add ngtx to your Angular project, you need to do following steps:
 
-1. install ngtx via `npm install @Centigrade/ngtx --save-dev`
-2. import ngtx to your test file `import { ngtx } from '@Centigrade/ngtx'`
+1. install ngtx via `npm install @centigrade/ngtx --save-dev`
+2. import ngtx to your test file `import { ngtx } from '@centigrade/ngtx'`
 3. wrap your test-suite inside a `ngtx(...)` wrapper-call
 4. declare the ngtx helpers you want to use in your tests
 5. pass your test `fixture` to via `useFixture(fixture)` in a `beforeEach` hook
