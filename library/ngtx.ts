@@ -31,6 +31,10 @@ export function ngtx(suite: (ngtx: NgtxSuite) => void) {
       useFixture: <T>(fixture: ComponentFixture<T>) => {
         ngtxFixture.useFixture(fixture);
       },
+      componentInstance: ngtxFixture.componentInstance,
+      nativeElement: ngtxFixture.nativeElement,
+      createEffectTestingApi:
+        ngtxFixture.createEffectTestingApi.bind(ngtxFixture),
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),
       getAll: ngtxFixture.getAll.bind(ngtxFixture),

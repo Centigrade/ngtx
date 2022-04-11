@@ -2,10 +2,19 @@ import { Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxMultiElement } from '.';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
+import { EffectApi, When } from './effect-testing';
 import { NgtxElement } from './element';
 
 export class NgtxFixture {
   private root: NgtxElement;
+
+  public get componentInstance() {
+    return this.fixture?.componentInstance;
+  }
+
+  public get nativeElement() {
+    return this.fixture?.nativeElement;
+  }
 
   constructor(private fixture?: ComponentFixture<any>) {
     this.root = new NgtxElement(fixture?.debugElement);
@@ -44,6 +53,10 @@ export class NgtxFixture {
     if (!skipInitialChangeDetection) {
       fixture.detectChanges();
     }
+  }
+
+  public createEffectTestingApi(spyFactory: () => any): EffectApi {
+    return When(this, spyFactory);
   }
 
   /**
