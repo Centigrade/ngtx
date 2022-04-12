@@ -1,7 +1,7 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from '../entities';
-import { EffectApi } from '../entities/effect-testing';
+import { EffectTestingApi } from '../entities/effect-testing';
 
 export type Assignable<T> = {
   -readonly [P in keyof T]: T[P];
@@ -12,7 +12,7 @@ export type NgtxSuite = Omit<NgtxFixture<any>, 'root'> & {
   createEffectTestingApi<Component>(
     fixture: NgtxFixture<Component>,
     spyFactory: () => any,
-  ): EffectApi<Component>;
+  ): EffectTestingApi<Component>;
 };
 
 export type Fn<In, Out> = (a: In) => Out;

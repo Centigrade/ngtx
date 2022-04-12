@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { EffectApi } from '../../entities/effect-testing';
+import { EffectTestingApi } from '../../entities/effect-testing';
 import { ngtx } from '../../ngtx';
 
 @Component({
@@ -24,7 +24,7 @@ const fail = () => expect(false).toBe(true);
 describe(
   'When',
   ngtx(({ useFixture, createEffectTestingApi, get }) => {
-    let When: EffectApi<EffectTestComponent>;
+    let When: EffectTestingApi<EffectTestComponent>;
 
     beforeEach(async () => {
       await TestBed.configureTestingModule({

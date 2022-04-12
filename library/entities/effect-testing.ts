@@ -65,7 +65,7 @@ export function WhenInit<Host>(fx: NgtxFixture<Host>, spyFt: () => any) {
 // Module types
 // ---------------------------------------
 
-export type EffectApi<T> = ReturnType<Wrapper<T>['wrapped']>;
+export type EffectTestingApi<T> = ReturnType<Wrapper<T>['wrapped']>;
 
 // workaround, see: https://stackoverflow.com/a/64919133/3063191
 class Wrapper<T> {

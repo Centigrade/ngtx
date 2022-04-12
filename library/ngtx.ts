@@ -1,6 +1,6 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxFixture } from './entities';
-import { EffectApi, WhenInit } from './entities/effect-testing';
+import { EffectTestingApi, WhenInit } from './entities/effect-testing';
 import { NgtxSuite } from './types';
 
 /**
@@ -37,7 +37,7 @@ export function ngtx(suite: (ngtx: NgtxSuite) => void) {
       createEffectTestingApi<Component>(
         fixture: NgtxFixture<Component>,
         spyFactory: () => any,
-      ): EffectApi<Component> {
+      ): EffectTestingApi<Component> {
         return WhenInit(fixture, spyFactory);
       },
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
