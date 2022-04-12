@@ -24,7 +24,7 @@ const fail = () => expect(false).toBe(true);
 describe(
   'When',
   ngtx(({ useFixture, createEffectTestingApi, get }) => {
-    let When: EffectApi;
+    let When: EffectApi<EffectTestComponent>;
 
     beforeEach(async () => {
       await TestBed.configureTestingModule({
@@ -34,43 +34,42 @@ describe(
 
     beforeEach(() => {
       const fixture = TestBed.createComponent(EffectTestComponent);
-      useFixture(fixture);
-      When = createEffectTestingApi(() => jest.fn());
+      When = createEffectTestingApi(useFixture(fixture), () => jest.fn());
     });
 
     class Get {
       static Input() {
-        return get('input');
+        return get<HTMLInputElement>('input');
       }
       static Button() {
-        return get('button');
+        return get<HTMLButtonElement>('button');
       }
     }
 
     it('when -> triggersEvent -> expectHostProperty -> toChangeToValue', () => {
       When(Get.Input)
-        .triggersEvent('change', { target: { value: 'some-text' } })
+        .emitsEvent('change', { target: { value: 'some-text' } })
         .expectHostProperty('text')
         .toChangeToValue('some-text');
     });
 
     it('when -> triggersEvent -> expectHostProperty -> toChangeToEventValue', () => {
       When(Get.Button)
-        .triggersEvent('click', 'some text')
+        .emitsEvent('click', 'some text')
         .expectHostProperty('text')
         .toChangeToEventValue();
     });
 
     it('when -> triggersEvent -> expectHostToEmit', () => {
       When(Get.Button)
-        .triggersEvent('click', 'some text')
+        .emitsEvent('click', 'some text')
         .expectHostToEmit('textChange');
     });
 
     it('when -> triggersEvent -> expectHostToEmit -> fail', () => {
       try {
         When(Get.Button)
-          .triggersEvent('unknown-event', 'some text')
+          .emitsEvent('unknown-event' as any, 'some text')
           .expectHostToEmit('textChange');
 
         fail();
@@ -79,7 +78,7 @@ describe(
 
     it('when -> triggersEvent -> expectHostToEmit -> times', () => {
       When(Get.Button)
-        .triggersEvent('click', 'some text')
+        .emitsEvent('click', 'some text')
         .expectHostToEmit('textChange')
         .times(1);
     });
@@ -87,7 +86,7 @@ describe(
     it('when -> triggersEvent -> expectHostToEmit -> times -> fail', () => {
       try {
         When(Get.Button)
-          .triggersEvent('click', 'some text')
+          .emitsEvent('click', 'some text')
           .expectHostToEmit('textChange')
           .times(2);
 
@@ -97,7 +96,7 @@ describe(
 
     it('when -> triggersEvent -> expectHostToEmit -> withArgs', () => {
       When(Get.Button)
-        .triggersEvent('click', 'some text')
+        .emitsEvent('click', 'some text')
         .expectHostToEmit('textChange')
         .withArgs('some text');
     });
@@ -105,7 +104,7 @@ describe(
     it('when -> triggersEvent -> expectHostToEmit -> withArgs -> fail', () => {
       try {
         When(Get.Button)
-          .triggersEvent('click', 'some text')
+          .emitsEvent('click', 'some text')
           .expectHostToEmit('textChange')
           .withArgs('some other text than before');
 

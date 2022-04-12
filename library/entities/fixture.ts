@@ -2,17 +2,16 @@ import { Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxMultiElement } from '.';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
-import { EffectApi, When } from './effect-testing';
 import { NgtxElement } from './element';
 
-export class NgtxFixture {
+export class NgtxFixture<Component> {
   private root: NgtxElement;
 
-  public get componentInstance() {
+  public get componentInstance(): Component {
     return this.fixture?.componentInstance;
   }
 
-  public get nativeElement() {
+  public get nativeElement(): Element {
     return this.fixture?.nativeElement;
   }
 
@@ -43,20 +42,18 @@ export class NgtxFixture {
    * ~~~
    * @param fixture The test's `fixture` instance.
    */
-  public useFixture<Html extends Element, T>(
-    fixture: ComponentFixture<T>,
+  public useFixture<Html extends Element, Host>(
+    fixture: ComponentFixture<Host>,
     skipInitialChangeDetection = false,
-  ): void {
+  ): NgtxFixture<Host> {
     this.fixture = fixture;
-    this.root = new NgtxElement<Html, T>(this.fixture.debugElement);
+    this.root = new NgtxElement<Html, Component>(this.fixture.debugElement);
 
     if (!skipInitialChangeDetection) {
       fixture.detectChanges();
     }
-  }
 
-  public createEffectTestingApi(spyFactory: () => any): EffectApi {
-    return When(this, spyFactory);
+    return this as unknown as NgtxFixture<Host>;
   }
 
   /**
