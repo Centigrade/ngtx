@@ -46,27 +46,27 @@ describe(
       }
     }
 
-    it('when -> triggersEvent -> expectHostProperty -> toChangeToValue', () => {
+    it('when -> emitsEvent -> expectHostProperty -> toChangeToValue', () => {
       When(Get.Input)
         .emitsEvent('change', { target: { value: 'some-text' } })
         .expectHostProperty('text')
         .toChangeToValue('some-text');
     });
 
-    it('when -> triggersEvent -> expectHostProperty -> toChangeToEventValue', () => {
+    it('when -> emitsEvent -> expectHostProperty -> toChangeToEventValue', () => {
       When(Get.Button)
         .emitsEvent('click', 'some text')
         .expectHostProperty('text')
         .toChangeToEventValue();
     });
 
-    it('when -> triggersEvent -> expectHostToEmit', () => {
+    it('when -> emitsEvent -> expectHostToEmit', () => {
       When(Get.Button)
         .emitsEvent('click', 'some text')
         .expectHostToEmit('textChange');
     });
 
-    it('when -> triggersEvent -> expectHostToEmit -> fail', () => {
+    it('when -> emitsEvent -> expectHostToEmit -> fail', () => {
       try {
         When(Get.Button)
           .emitsEvent('unknown-event' as any, 'some text')
@@ -76,14 +76,14 @@ describe(
       } catch {}
     });
 
-    it('when -> triggersEvent -> expectHostToEmit -> times', () => {
+    it('when -> emitsEvent -> expectHostToEmit -> times', () => {
       When(Get.Button)
         .emitsEvent('click', 'some text')
         .expectHostToEmit('textChange')
         .times(1);
     });
 
-    it('when -> triggersEvent -> expectHostToEmit -> times -> fail', () => {
+    it('when -> emitsEvent -> expectHostToEmit -> times -> fail', () => {
       try {
         When(Get.Button)
           .emitsEvent('click', 'some text')
@@ -94,14 +94,14 @@ describe(
       } catch {}
     });
 
-    it('when -> triggersEvent -> expectHostToEmit -> withArgs', () => {
+    it('when -> emitsEvent -> expectHostToEmit -> withArgs', () => {
       When(Get.Button)
         .emitsEvent('click', 'some text')
         .expectHostToEmit('textChange')
         .withArgs('some text');
     });
 
-    it('when -> triggersEvent -> expectHostToEmit -> withArgs -> fail', () => {
+    it('when -> emitsEvent -> expectHostToEmit -> withArgs -> fail', () => {
       try {
         When(Get.Button)
           .emitsEvent('click', 'some text')
