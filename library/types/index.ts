@@ -1,7 +1,7 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from '../entities';
-import { EffectTestingApi } from '../entities/effect-testing';
+import { DeclarativeTestingApi } from '../features/declarative-testing';
 
 export type Assignable<T> = {
   -readonly [P in keyof T]: T[P];
@@ -12,7 +12,7 @@ export type NgtxSuite<T> = Omit<
   'rootElement' | 'useFixture'
 > & {
   useFixture(fixture: ComponentFixture<T>, opts?: UseFixtureOptions): void;
-  When: EffectTestingApi<T>;
+  When: DeclarativeTestingApi<T>;
   host(): NgtxElement<any, T>;
 };
 

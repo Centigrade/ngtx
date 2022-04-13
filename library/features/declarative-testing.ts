@@ -1,16 +1,16 @@
 import { EventEmitter } from '@angular/core';
-import { NgtxElement } from './element';
-import { NgtxFixture } from './fixture';
+import { NgtxElement } from '../entities/element';
+import { NgtxFixture } from '../entities/fixture';
 
 export let $event: any = undefined;
 
-export function createEffectTestingApi<
+export function createDeclarativeTestingApi<
   Host,
   HostHtml extends Element = Element,
 >(fx: NgtxFixture<HostHtml, Host>) {
   let spyFactory = () => ({} as any);
 
-  const effectTestingApi = <Html extends Element, Component>(
+  const testingApi = <Html extends Element, Component>(
     subjectRef: PartRef<Html, Component>,
   ) => {
     let state: State = {};
@@ -96,7 +96,7 @@ export function createEffectTestingApi<
     };
   };
 
-  return Object.assign(effectTestingApi, {
+  return Object.assign(testingApi, {
     setSpyFactory: (spyFt: () => any) => {
       spyFactory = spyFt;
     },
@@ -116,10 +116,10 @@ export interface EmissionOptions {
   times?: number;
 }
 
-export type EffectTestingApi<
-  T,
+export type DeclarativeTestingApi<
+  Component,
   Html extends Element = HTMLElement,
-> = ReturnType<Wrapper<Html, T>['wrapped']> & {
+> = ReturnType<Wrapper<Html, Component>['wrapped']> & {
   setSpyFactory(spyFt: () => any): void;
 };
 
@@ -128,7 +128,7 @@ export type PartRef<Html extends Element, Type> = () => NgtxElement<Html, Type>;
 // workaround, see: https://stackoverflow.com/a/64919133/3063191
 class Wrapper<Html extends Element, T> {
   wrapped(e: NgtxFixture<Html, T>) {
-    return createEffectTestingApi<T>(e);
+    return createDeclarativeTestingApi<T>(e);
   }
 }
 

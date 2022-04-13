@@ -1,6 +1,6 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxFixture } from './entities';
-import { createEffectTestingApi } from './entities/effect-testing';
+import { createDeclarativeTestingApi } from './features/declarative-testing';
 import { NgtxSuite, UseFixtureOptions } from './types';
 
 /**
@@ -26,7 +26,7 @@ import { NgtxSuite, UseFixtureOptions } from './types';
  */
 export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   const ngtxFixture = new NgtxFixture();
-  const When = createEffectTestingApi(ngtxFixture);
+  const When = createDeclarativeTestingApi(ngtxFixture);
 
   return () =>
     suite({
