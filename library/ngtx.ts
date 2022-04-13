@@ -32,7 +32,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
     suite({
       useFixture: <Html extends Element = Element, T = any>(
         fixture: ComponentFixture<T>,
-        opts?: UseFixtureOptions,
+        opts: UseFixtureOptions = {},
       ): NgtxFixture<Html, T> => {
         if (opts.spyFactory) {
           When.setSpyFactory(opts.spyFactory);
