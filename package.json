@@ -69,5 +69,6 @@
     "url": "https://github.com/Centigrade/ngtx.git"
   },
   "author": "Julian Lang <julian.lang@centigrade.de>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {}
 }

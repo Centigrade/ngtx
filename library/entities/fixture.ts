@@ -4,15 +4,11 @@ import { NgtxMultiElement } from '.';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
 import { NgtxElement } from './element';
 
-export class NgtxFixture<Component> {
-  private root: NgtxElement;
+export class NgtxFixture<HostHtml extends Element, HostComponent> {
+  private root: NgtxElement<HostHtml, HostComponent>;
 
-  public get componentInstance(): Component {
-    return this.fixture?.componentInstance;
-  }
-
-  public get nativeElement(): Element {
-    return this.fixture?.nativeElement;
+  public get rootElement() {
+    return this.root;
   }
 
   constructor(private fixture?: ComponentFixture<any>) {
@@ -42,18 +38,21 @@ export class NgtxFixture<Component> {
    * ~~~
    * @param fixture The test's `fixture` instance.
    */
-  public useFixture<Html extends Element, Host>(
-    fixture: ComponentFixture<Host>,
+  public useFixture<Html extends Element, Component>(
+    fixture: ComponentFixture<Component>,
     skipInitialChangeDetection = false,
-  ): NgtxFixture<Host> {
+  ): NgtxFixture<Html, Component> {
     this.fixture = fixture;
-    this.root = new NgtxElement<Html, Component>(this.fixture.debugElement);
+
+    this.root = new NgtxElement<Html, Component>(
+      this.fixture.debugElement,
+    ) as any;
 
     if (!skipInitialChangeDetection) {
       fixture.detectChanges();
     }
 
-    return this as unknown as NgtxFixture<Host>;
+    return this as unknown as NgtxFixture<Html, Component>;
   }
 
   /**

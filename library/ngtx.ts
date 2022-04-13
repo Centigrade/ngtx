@@ -1,6 +1,6 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxFixture } from './entities';
-import { EffectTestingApi, WhenInit } from './entities/effect-testing';
+import { EffectTestingApi, When } from './entities/effect-testing';
 import { NgtxSuite } from './types';
 
 /**
@@ -29,16 +29,16 @@ export function ngtx(suite: (ngtx: NgtxSuite) => void) {
 
   return () =>
     suite({
-      useFixture: <T>(fixture: ComponentFixture<T>): NgtxFixture<T> => {
-        return ngtxFixture.useFixture(fixture) as NgtxFixture<T>;
+      useFixture: <Html extends Element = Element, T = any>(
+        fixture: ComponentFixture<T>,
+      ): NgtxFixture<Html, T> => {
+        return ngtxFixture.useFixture(fixture) as NgtxFixture<Html, T>;
       },
-      componentInstance: ngtxFixture.componentInstance,
-      nativeElement: ngtxFixture.nativeElement,
-      createEffectTestingApi<Component>(
-        fixture: NgtxFixture<Component>,
+      createEffectTestingApi<Html extends Element, Component>(
+        fixture: NgtxFixture<Html, Component>,
         spyFactory: () => any,
       ): EffectTestingApi<Component> {
-        return WhenInit(fixture, spyFactory);
+        return When(fixture, spyFactory);
       },
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),

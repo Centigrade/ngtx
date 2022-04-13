@@ -7,10 +7,10 @@ export type Assignable<T> = {
   -readonly [P in keyof T]: T[P];
 };
 
-export type NgtxSuite = Omit<NgtxFixture<any>, 'root'> & {
+export type NgtxSuite = Omit<NgtxFixture<any, any>, 'rootElement'> & {
   useFixture<T>(fixture: ComponentFixture<T>): void;
-  createEffectTestingApi<Component>(
-    fixture: NgtxFixture<Component>,
+  createEffectTestingApi<Html extends Element, Component>(
+    fixture: NgtxFixture<Html, Component>,
     spyFactory: () => any,
   ): EffectTestingApi<Component>;
 };
