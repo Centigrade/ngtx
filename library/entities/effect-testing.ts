@@ -1,10 +1,11 @@
+import { EventEmitter } from '@angular/core';
 import { NgtxElement } from './element';
 import { NgtxFixture } from './fixture';
 
-export let $event: () => any = () => undefined;
+export let $event: any = undefined;
 
-export function When<Host, Html extends Element = Element>(
-  fx: NgtxFixture<Html, Host>,
+export function When<Host, HostHtml extends Element = Element>(
+  fx: NgtxFixture<HostHtml, Host>,
   spyFt: () => any,
 ) {
   return <Html extends Element, Component>(
@@ -17,7 +18,7 @@ export function When<Host, Html extends Element = Element>(
       state.predicate();
       state.assertion();
       // clean up possible event args
-      $event = () => undefined;
+      $event = undefined;
     };
 
     const expectApi = {
@@ -32,12 +33,41 @@ export function When<Host, Html extends Element = Element>(
               assertion: () => {
                 const target = resolve(objectRef as any, fx);
                 Object.entries(map).forEach(([key, value]) => {
-                  const targetValue =
-                    typeof value === 'function' ? value() : value;
+                  const targetValue = resolveFnValue(value);
                   const property = target.componentInstance[key];
 
                   expect(property).toEqual(targetValue);
                 });
+              },
+            };
+
+            executeTest();
+          },
+          // TODO: improve type here! and remove generic workaround: keyof ObjectType should work but is "never".
+          toEmit<T = any>(eventName: keyof T, opts: EmissionOptions = {}) {
+            const target = resolve(state.object as any, fx) as NgtxElement;
+            const emitter = target.componentInstance[
+              eventName
+            ] as EventEmitter<any>;
+
+            const originalPredicate = state.predicate;
+
+            state = {
+              ...state,
+              predicate: () => {
+                emitter.emit = spyFt();
+                originalPredicate();
+              },
+              assertion: () => {
+                expect(emitter.emit).toHaveBeenCalled();
+
+                if (opts.args) {
+                  const value = resolveFnValue(opts.args);
+                  expect(emitter.emit).toHaveBeenCalledWith(value);
+                }
+                if (opts.times != null) {
+                  expect(emitter.emit).toHaveBeenCalledTimes(opts.times);
+                }
               },
             };
 
@@ -53,7 +83,7 @@ export function When<Host, Html extends Element = Element>(
           ...state,
           predicate: () => {
             // caution: module scope pollution. needs to be cleared after test execution
-            $event = () => args;
+            $event = args;
             const target = resolve(subjectRef as any, fx);
             target.triggerEvent(eventName as string, args);
             fx.detectChanges();
@@ -102,6 +132,10 @@ export function When<Host, Html extends Element = Element>(
   };
 }
 
+function resolveFnValue(value: unknown) {
+  return typeof value === 'function' ? value() : value;
+}
+
 function resolve<
   Html extends Element,
   Type,
@@ -139,6 +173,11 @@ function resolve<
 // ---------------------------------------
 // Module types
 // ---------------------------------------
+
+export interface EmissionOptions {
+  args?: any;
+  times?: number;
+}
 
 export type EffectTestingApi<
   T,

@@ -34,8 +34,7 @@ describe(
 
     beforeEach(() => {
       const fixture = TestBed.createComponent(EffectTestComponent);
-      const ngtxFixture = useFixture(fixture);
-      When = createEffectTestingApi(ngtxFixture, () => jest.fn());
+      When = createEffectTestingApi(useFixture(fixture), () => jest.fn());
     });
 
     class Get {
@@ -47,62 +46,71 @@ describe(
       }
     }
 
-    it('when -> emitsEvent -> expectHostProperty -> toChangeToValue', () => {
+    it('when -> emits -> expect -> toHaveState { "value" }', () => {
       When(Get.Input)
         .emits('change', { target: { value: 'some-text' } })
         .expect('host')
-        .toHaveState({ text: () => $event().target.value });
+        .toHaveState({ text: 'some-text' });
     });
 
-    //   it('when -> emitsEvent -> expectHostProperty -> toChangeToEventValue', () => {
-    //     When(Get.Button)
-    //       .emits('click', 'some text')
-    //       .expectHostProperty('text')
-    //       .toChangeToEventValue();
-    //   });
+    it('when -> emits -> expect -> toHaveState { $event }', () => {
+      When(Get.Button)
+        .emits('click', 'some text')
+        .expect('host')
+        .toHaveState({ text: () => $event });
+    });
 
-    //   it('when -> emitsEvent -> expectHostToEmit', () => {
-    //     When(Get.Button)
-    //       .emits('click', 'some text')
-    //       .expectHostToEmit('textChange');
-    //   });
+    it('when -> emits -> expect -> toEmit', () => {
+      When(Get.Button)
+        .emits('click', 'some text')
+        .expect('host')
+        .toEmit<EffectTestComponent>('textChange');
+    });
 
-    //   it('when -> emitsEvent -> expectHostToEmit -> fail', () => {
-    //     try {
-    //       When(Get.Button)
-    //         .emits('unknown-event' as any, 'some text')
-    //         .expectHostToEmit('textChange');
+    it('when -> emits -> expect -> toEmit -> fail', () => {
+      try {
+        When(Get.Button)
+          .emits('unknown-event' as any, 'some text')
+          .expect('host')
+          .toEmit<EffectTestComponent>('textChange');
 
-    //       fail();
-    //     } catch {}
-    //   });
+        fail();
+      } catch {}
+    });
 
-    //   it('when -> emitsEvent -> expectHostToEmit -> times', () => {
-    //     When(Get.Button)
-    //       .emits('click', 'some text')
-    //       .expectHostToEmit('textChange')
-    //       .times(1);
-    //   });
+    it('when -> emits -> expect -> toEmit { times }', () => {
+      When(Get.Button)
+        .emits('click', 'some text')
+        .expect('host')
+        .toEmit('textChange', { times: 1 });
+    });
 
-    //   it('when -> emitsEvent -> expectHostToEmit -> times -> fail', () => {
-    //     try {
-    //       When(Get.Button)
-    //         .emits('click', 'some text')
-    //         .expectHostToEmit('textChange')
-    //         .times(2);
+    it('when -> emits -> expect -> toEmit { times } -> fail', () => {
+      try {
+        When(Get.Button)
+          .emits('click', 'some text')
+          .expect('host')
+          .toEmit('textChange', { times: 2 });
 
-    //       fail();
-    //     } catch {}
-    //   });
+        fail();
+      } catch {}
+    });
 
-    //   it('when -> emitsEvent -> expectHostToEmit -> withArgs', () => {
-    //     When(Get.Button)
-    //       .emits('click', 'some text')
-    //       .expectHostToEmit('textChange')
-    //       .withArgs('some text');
-    //   });
+    it('when -> emits -> expect -> toEmit { args }', () => {
+      When(Get.Button)
+        .emits('click', 'some text')
+        .expect('host')
+        .toEmit('textChange', { args: 'some text' });
+    });
 
-    //   it('when -> emitsEvent -> expectHostToEmit -> withArgs -> fail', () => {
+    it('when -> emits -> expect -> toEmit { args: $event }', () => {
+      When(Get.Button)
+        .emits('click', 'some text')
+        .expect('host')
+        .toEmit('textChange', { args: () => $event });
+    });
+
+    //   it('when -> emits -> expectHostToEmit -> withArgs -> fail', () => {
     //     try {
     //       When(Get.Button)
     //         .emits('click', 'some text')
