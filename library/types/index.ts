@@ -7,13 +7,19 @@ export type Assignable<T> = {
   -readonly [P in keyof T]: T[P];
 };
 
-export type NgtxSuite = Omit<NgtxFixture<any, any>, 'rootElement'> & {
-  useFixture<T>(fixture: ComponentFixture<T>): void;
-  createEffectTestingApi<Html extends Element, Component>(
-    fixture: NgtxFixture<Html, Component>,
-    spyFactory: () => any,
-  ): EffectTestingApi<Component>;
+export type NgtxSuite<T> = Omit<
+  NgtxFixture<any, any>,
+  'rootElement' | 'useFixture'
+> & {
+  useFixture(fixture: ComponentFixture<T>, opts?: UseFixtureOptions): void;
+  When: EffectTestingApi<T>;
+  host(): NgtxElement<any, T>;
 };
+
+export interface UseFixtureOptions {
+  skipInitialChangeDetection?: boolean;
+  spyFactory?: () => any;
+}
 
 export type Fn<In, Out> = (a: In) => Out;
 export type ConverterFn<Out> = Fn<any, Out>;

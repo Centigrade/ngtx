@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { $event, EffectTestingApi } from '../../entities/effect-testing';
+import { $event } from '../../entities/effect-testing';
 import { ngtx } from '../../ngtx';
 
 @Component({
@@ -23,9 +23,7 @@ const fail = () => expect(false).toBe(true);
 
 describe(
   'When',
-  ngtx(({ useFixture, createEffectTestingApi, get }) => {
-    let When: EffectTestingApi<EffectTestComponent>;
-
+  ngtx<EffectTestComponent>(({ useFixture, When, host, get }) => {
     beforeEach(async () => {
       await TestBed.configureTestingModule({
         declarations: [EffectTestComponent],
@@ -34,7 +32,7 @@ describe(
 
     beforeEach(() => {
       const fixture = TestBed.createComponent(EffectTestComponent);
-      When = createEffectTestingApi(useFixture(fixture), () => jest.fn());
+      useFixture(fixture, { spyFactory: () => jest.fn() });
     });
 
     class Get {
@@ -49,30 +47,30 @@ describe(
     it('when -> emits -> expect -> toHaveState { "value" }', () => {
       When(Get.Input)
         .emits('change', { target: { value: 'some-text' } })
-        .expect('host')
+        .expect(host())
         .toHaveState({ text: 'some-text' });
     });
 
     it('when -> emits -> expect -> toHaveState { $event }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect('host')
+        .expect(host())
         .toHaveState({ text: () => $event });
     });
 
     it('when -> emits -> expect -> toEmit', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect('host')
-        .toEmit<EffectTestComponent>('textChange');
+        .expect(host())
+        .toEmit('textChange');
     });
 
     it('when -> emits -> expect -> toEmit -> fail', () => {
       try {
         When(Get.Button)
           .emits('unknown-event' as any, 'some text')
-          .expect('host')
-          .toEmit<EffectTestComponent>('textChange');
+          .expect(host())
+          .toEmit('textChange');
 
         fail();
       } catch {}
@@ -81,7 +79,7 @@ describe(
     it('when -> emits -> expect -> toEmit { times }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect('host')
+        .expect(host())
         .toEmit('textChange', { times: 1 });
     });
 
@@ -89,36 +87,36 @@ describe(
       try {
         When(Get.Button)
           .emits('click', 'some text')
-          .expect('host')
+          .expect(host())
           .toEmit('textChange', { times: 2 });
 
         fail();
       } catch {}
     });
 
-    it('when -> emits -> expect -> toEmit { args }', () => {
+    it('when -> emits -> expect -> toEmit { args: "value" }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect('host')
+        .expect(host())
         .toEmit('textChange', { args: 'some text' });
     });
 
     it('when -> emits -> expect -> toEmit { args: $event }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect('host')
+        .expect(host())
         .toEmit('textChange', { args: () => $event });
     });
 
-    //   it('when -> emits -> expectHostToEmit -> withArgs -> fail', () => {
-    //     try {
-    //       When(Get.Button)
-    //         .emits('click', 'some text')
-    //         .expectHostToEmit('textChange')
-    //         .withArgs('some other text than before');
+    it('when -> emits -> expect -> toEmit { args: "value" } -> fail', () => {
+      try {
+        When(Get.Button)
+          .emits('click', 'some text')
+          .expect(host())
+          .toEmit('textChange', { args: 'some other text than emitted' });
 
-    //       fail();
-    //     } catch {}
-    //   });
+        fail();
+      } catch {}
+    });
   }),
 );

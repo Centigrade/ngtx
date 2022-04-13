@@ -1,7 +1,7 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxFixture } from './entities';
-import { EffectTestingApi, When } from './entities/effect-testing';
-import { NgtxSuite } from './types';
+import { createEffectTestingApi } from './entities/effect-testing';
+import { NgtxSuite, UseFixtureOptions } from './types';
 
 /**
  * Injects ngtx test features into the given test suite.
@@ -24,22 +24,27 @@ import { NgtxSuite } from './types';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-export function ngtx(suite: (ngtx: NgtxSuite) => void) {
+export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   const ngtxFixture = new NgtxFixture();
+  const When = createEffectTestingApi(ngtxFixture);
 
   return () =>
     suite({
       useFixture: <Html extends Element = Element, T = any>(
         fixture: ComponentFixture<T>,
+        opts?: UseFixtureOptions,
       ): NgtxFixture<Html, T> => {
-        return ngtxFixture.useFixture(fixture) as NgtxFixture<Html, T>;
+        if (opts.spyFactory) {
+          When.setSpyFactory(opts.spyFactory);
+        }
+
+        return ngtxFixture.useFixture(
+          fixture,
+          opts.skipInitialChangeDetection,
+        ) as NgtxFixture<Html, T>;
       },
-      createEffectTestingApi<Html extends Element, Component>(
-        fixture: NgtxFixture<Html, Component>,
-        spyFactory: () => any,
-      ): EffectTestingApi<Component> {
-        return When(fixture, spyFactory);
-      },
+      When,
+      host: () => ngtxFixture.rootElement as any,
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),
       getAll: ngtxFixture.getAll.bind(ngtxFixture),

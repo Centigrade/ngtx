@@ -4,11 +4,13 @@ import { NgtxFixture } from './fixture';
 
 export let $event: any = undefined;
 
-export function When<Host, HostHtml extends Element = Element>(
-  fx: NgtxFixture<HostHtml, Host>,
-  spyFt: () => any,
-) {
-  return <Html extends Element, Component>(
+export function createEffectTestingApi<
+  Host,
+  HostHtml extends Element = Element,
+>(fx: NgtxFixture<HostHtml, Host>) {
+  let spyFactory = () => ({} as any);
+
+  const effectTestingApi = <Html extends Element, Component>(
     subjectRef: PartRef<Html, Component>,
   ) => {
     let state: State = {};
@@ -27,11 +29,11 @@ export function When<Host, HostHtml extends Element = Element>(
       ) {
         state = { ...state, object: objectRef };
         return {
-          toHaveState(map: Record<keyof ObjectType, any>) {
+          toHaveState(map: Partial<Record<keyof ObjectType, any>>) {
             state = {
               ...state,
               assertion: () => {
-                const target = resolve(objectRef as any, fx);
+                const target = resolve(objectRef);
                 Object.entries(map).forEach(([key, value]) => {
                   const targetValue = resolveFnValue(value);
                   const property = target.componentInstance[key];
@@ -43,9 +45,8 @@ export function When<Host, HostHtml extends Element = Element>(
 
             executeTest();
           },
-          // TODO: improve type here! and remove generic workaround: keyof ObjectType should work but is "never".
-          toEmit<T = any>(eventName: keyof T, opts: EmissionOptions = {}) {
-            const target = resolve(state.object as any, fx) as NgtxElement;
+          toEmit(eventName: keyof ObjectType, opts: EmissionOptions = {}) {
+            const target = resolve(state.object) as NgtxElement;
             const emitter = target.componentInstance[
               eventName
             ] as EventEmitter<any>;
@@ -55,7 +56,7 @@ export function When<Host, HostHtml extends Element = Element>(
             state = {
               ...state,
               predicate: () => {
-                emitter.emit = spyFt();
+                emitter.emit = spyFactory();
                 originalPredicate();
               },
               assertion: () => {
@@ -84,7 +85,7 @@ export function When<Host, HostHtml extends Element = Element>(
           predicate: () => {
             // caution: module scope pollution. needs to be cleared after test execution
             $event = args;
-            const target = resolve(subjectRef as any, fx);
+            const target = resolve(subjectRef);
             target.triggerEvent(eventName as string, args);
             fx.detectChanges();
           },
@@ -92,82 +93,28 @@ export function When<Host, HostHtml extends Element = Element>(
 
         return expectApi;
       },
-
-      // expectHostProperty(propertyName: keyof Host) {
-      //   const value = fx.componentInstance[propertyName];
-
-      //   return {
-      //     toChangeToEventValue() {
-      //       expect(value).toBe(args);
-      //     },
-      //     toChangeToValue(expectedValue: any) {
-      //       expect(value).toBe(expectedValue);
-      //     },
-      //   };
-      // },
-      // expectHostToEmit(eventName: keyof Host) {
-      //   const eventSpy = fx.componentInstance[
-      //     eventName
-      //   ] as unknown as EventEmitter<any>;
-      //   eventSpy.emit = spyFt();
-      //   // need to trigger again for spy to detect calls
-      //   trigger();
-
-      //   expect(eventSpy.emit).toHaveBeenCalled();
-
-      //   const api = {
-      //     withArgs(eventArgs: any) {
-      //       expect(eventSpy.emit).toHaveBeenCalledWith(eventArgs);
-      //       return api;
-      //     },
-      //     times(times: number) {
-      //       expect(eventSpy.emit).toHaveBeenCalledTimes(times);
-      //       return api;
-      //     },
-      //   };
-
-      //   return api;
-      // },
     };
   };
+
+  return Object.assign(effectTestingApi, {
+    setSpyFactory: (spyFt: () => any) => {
+      spyFactory = spyFt;
+    },
+  });
 }
 
 function resolveFnValue(value: unknown) {
   return typeof value === 'function' ? value() : value;
 }
 
-function resolve<
-  Html extends Element,
-  Type,
-  HostHtml extends Element,
-  HostType,
->(
-  ref: () => NgtxElement<Html, Type>,
-  fx: NgtxFixture<Html, HostType>,
-): NgtxElement<Html, Type>;
-function resolve<
-  Html extends Element,
-  Type,
-  HostHtml extends Element,
-  HostType,
->(
-  ref: 'host',
-  fx: NgtxFixture<Html, HostType>,
-): NgtxElement<HostHtml, HostType>;
-function resolve<
-  Html extends Element,
-  Type,
-  HostHtml extends Element,
-  HostType,
->(
+function resolve<Html extends Element, Type>(
   ref: PartRef<Html, Type>,
-  fx: NgtxFixture<HostHtml, HostType>,
-): NgtxElement<Html, Type> | NgtxElement<HostHtml, HostType> {
-  if (ref === 'host') {
-    return fx.rootElement;
+): NgtxElement<Html, Type> {
+  if (typeof ref === 'function') {
+    return ref();
   }
 
-  return ref();
+  return ref;
 }
 
 // ---------------------------------------
@@ -182,16 +129,18 @@ export interface EmissionOptions {
 export type EffectTestingApi<
   T,
   Html extends Element = HTMLElement,
-> = ReturnType<Wrapper<Html, T>['wrapped']>;
+> = ReturnType<Wrapper<Html, T>['wrapped']> & {
+  setSpyFactory(spyFt: () => any): void;
+};
 
 export type PartRef<Html extends Element, Type> =
   | (() => NgtxElement<Html, Type>)
-  | 'host';
+  | NgtxElement<Html, Type>;
 
 // workaround, see: https://stackoverflow.com/a/64919133/3063191
 class Wrapper<Html extends Element, T> {
   wrapped(e: NgtxFixture<Html, T>) {
-    return When<T>(e, () => {});
+    return createEffectTestingApi<T>(e);
   }
 }
 
