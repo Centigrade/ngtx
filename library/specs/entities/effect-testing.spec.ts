@@ -50,7 +50,7 @@ describe(
     it('when -> emitsEvent -> expectHostProperty -> toChangeToValue', () => {
       When(Get.Input)
         .emits('change', { target: { value: 'some-text' } })
-        .expect(Get.Button)
+        .expect('host')
         .toHaveState({ text: () => $event().target.value });
     });
 
