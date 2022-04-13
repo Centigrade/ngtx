@@ -33,7 +33,8 @@ export function createEffectTestingApi<
             state = {
               ...state,
               assertion: () => {
-                const target = resolve(objectRef);
+                const target = objectRef();
+
                 Object.entries(map).forEach(([key, value]) => {
                   const targetValue = resolveFnValue(value);
                   const property = target.componentInstance[key];
@@ -46,7 +47,7 @@ export function createEffectTestingApi<
             executeTest();
           },
           toEmit(eventName: keyof ObjectType, opts: EmissionOptions = {}) {
-            const target = resolve(state.object) as NgtxElement;
+            const target = state.object();
             const emitter = target.componentInstance[
               eventName
             ] as EventEmitter<any>;
@@ -85,8 +86,7 @@ export function createEffectTestingApi<
           predicate: () => {
             // caution: module scope pollution. needs to be cleared after test execution
             $event = args;
-            const target = resolve(subjectRef);
-            target.triggerEvent(eventName as string, args);
+            subjectRef().triggerEvent(eventName as string, args);
             fx.detectChanges();
           },
         };
@@ -107,16 +107,6 @@ function resolveFnValue(value: unknown) {
   return typeof value === 'function' ? value() : value;
 }
 
-function resolve<Html extends Element, Type>(
-  ref: PartRef<Html, Type>,
-): NgtxElement<Html, Type> {
-  if (typeof ref === 'function') {
-    return ref();
-  }
-
-  return ref;
-}
-
 // ---------------------------------------
 // Module types
 // ---------------------------------------
@@ -133,9 +123,7 @@ export type EffectTestingApi<
   setSpyFactory(spyFt: () => any): void;
 };
 
-export type PartRef<Html extends Element, Type> =
-  | (() => NgtxElement<Html, Type>)
-  | NgtxElement<Html, Type>;
+export type PartRef<Html extends Element, Type> = () => NgtxElement<Html, Type>;
 
 // workaround, see: https://stackoverflow.com/a/64919133/3063191
 class Wrapper<Html extends Element, T> {

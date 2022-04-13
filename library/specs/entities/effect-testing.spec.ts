@@ -47,21 +47,21 @@ describe(
     it('when -> emits -> expect -> toHaveState { "value" }', () => {
       When(Get.Input)
         .emits('change', { target: { value: 'some-text' } })
-        .expect(host())
+        .expect(host)
         .toHaveState({ text: 'some-text' });
     });
 
     it('when -> emits -> expect -> toHaveState { $event }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect(host())
+        .expect(host)
         .toHaveState({ text: () => $event });
     });
 
     it('when -> emits -> expect -> toEmit', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect(host())
+        .expect(host)
         .toEmit('textChange');
     });
 
@@ -69,7 +69,7 @@ describe(
       try {
         When(Get.Button)
           .emits('unknown-event' as any, 'some text')
-          .expect(host())
+          .expect(host)
           .toEmit('textChange');
 
         fail();
@@ -79,7 +79,7 @@ describe(
     it('when -> emits -> expect -> toEmit { times }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect(host())
+        .expect(host)
         .toEmit('textChange', { times: 1 });
     });
 
@@ -87,7 +87,7 @@ describe(
       try {
         When(Get.Button)
           .emits('click', 'some text')
-          .expect(host())
+          .expect(host)
           .toEmit('textChange', { times: 2 });
 
         fail();
@@ -97,14 +97,14 @@ describe(
     it('when -> emits -> expect -> toEmit { args: "value" }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect(host())
+        .expect(host)
         .toEmit('textChange', { args: 'some text' });
     });
 
     it('when -> emits -> expect -> toEmit { args: $event }', () => {
       When(Get.Button)
         .emits('click', 'some text')
-        .expect(host())
+        .expect(host)
         .toEmit('textChange', { args: () => $event });
     });
 
@@ -112,7 +112,7 @@ describe(
       try {
         When(Get.Button)
           .emits('click', 'some text')
-          .expect(host())
+          .expect(host)
           .toEmit('textChange', { args: 'some other text than emitted' });
 
         fail();
