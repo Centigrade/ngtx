@@ -3,6 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { callsLifeCycleHooks, tap } from '../../features/declarative-testing';
 import { ngtx } from '../../ngtx';
 
+class SomeService {
+  someMethod(anyNumber: number) {}
+}
+
 @Component({
   template: `
     <input [value]="text" (change)="onChange($event.target.value)" />
@@ -15,9 +19,12 @@ class DeclarativeTestComponent {
   public text = '';
   public showText = false;
 
+  constructor(public readonly token: SomeService) {}
+
   public onChange(value: string) {
     this.text = value;
     this.textChange.emit(value);
+    this.token.someMethod(42);
   }
 
   ngOnInit() {}
@@ -33,6 +40,7 @@ describe(
     beforeEach(async () => {
       await TestBed.configureTestingModule({
         declarations: [DeclarativeTestComponent],
+        providers: [SomeService],
       }).compileComponents();
     });
 
@@ -43,10 +51,10 @@ describe(
 
     class Components {
       static Input() {
-        return get<HTMLInputElement>('input');
+        return get<HTMLInputElement, unknown>('input');
       }
       static Button() {
-        return get<HTMLButtonElement>('button');
+        return get<HTMLButtonElement, unknown>('button');
       }
       static Text() {
         return get('p');
@@ -231,6 +239,60 @@ describe(
         .and(tap(() => expect(host().componentInstance.text).toBe('abc')))
         .expect(host)
         .toBePresent();
+    });
+
+    it('toHaveCalled', () => {
+      When(Components.Button)
+        .emits('click')
+        .expect(host)
+        .toHaveCalled(SomeService, 'someMethod');
+    });
+
+    it('toHaveCalled -> fail', () => {
+      try {
+        When(Components.Button)
+          .emits('abort')
+          .expect(host)
+          .toHaveCalled(SomeService, 'someMethod');
+
+        fail();
+      } catch {}
+    });
+
+    it('toHaveCalled { times }', () => {
+      When(Components.Button)
+        .emits('click')
+        .expect(host)
+        .toHaveCalled(SomeService, 'someMethod', { times: 1 });
+    });
+
+    it('toHaveCalled { times } -> fail', () => {
+      try {
+        When(Components.Button)
+          .emits('click')
+          .expect(host)
+          .toHaveCalled(SomeService, 'someMethod', { times: 2 });
+
+        fail();
+      } catch {}
+    });
+
+    it('toHaveCalled { args }', () => {
+      When(Components.Button)
+        .emits('click')
+        .expect(host)
+        .toHaveCalled(SomeService, 'someMethod', { args: 42 });
+    });
+
+    it('toHaveCalled { args } -> fail', () => {
+      try {
+        When(Components.Button)
+          .emits('click')
+          .expect(host)
+          .toHaveCalled(SomeService, 'someMethod', { args: null });
+
+        fail();
+      } catch {}
     });
   }),
 );

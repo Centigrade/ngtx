@@ -1,4 +1,4 @@
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, Type } from '@angular/core';
 import { NgtxElement } from '../entities/element';
 import { NgtxFixture } from '../entities/fixture';
 import { LifeCycleHooks } from '../types';
@@ -30,6 +30,29 @@ export function createDeclarativeTestingApi<
       ) {
         state = { ...state, object: objectRef };
         return {
+          toHaveCalled<T>(
+            injectionToken: Type<T>,
+            methodName: keyof T,
+            opts: EmissionOptions = {},
+          ) {
+            const originalPredicate = state.predicate;
+            const spy = spyFactory();
+
+            state = {
+              ...state,
+              predicate: () => {
+                const instance = objectRef().injector.get(injectionToken);
+                instance[methodName] = spy;
+
+                originalPredicate?.();
+              },
+              assertion: () => {
+                assertEmission(spy, opts);
+              },
+            };
+
+            executeTest();
+          },
           toBePresent() {
             state = {
               ...state,
@@ -77,10 +100,9 @@ export function createDeclarativeTestingApi<
                 const target = objectRef();
 
                 Object.entries(map).forEach(([key, value]) => {
-                  const targetValue = resolveFnValue(value);
                   const property = target.componentInstance[key];
 
-                  expect(property).toEqual(targetValue);
+                  expect(property).toEqual(value);
                 });
               },
             };
@@ -117,15 +139,7 @@ export function createDeclarativeTestingApi<
                 originalPredicate();
               },
               assertion: () => {
-                expect(emitter.emit).toHaveBeenCalled();
-
-                if (opts.args) {
-                  const value = resolveFnValue(opts.args);
-                  expect(emitter.emit).toHaveBeenCalledWith(value);
-                }
-                if (opts.times != null) {
-                  expect(emitter.emit).toHaveBeenCalledTimes(opts.times);
-                }
+                assertEmission(emitter.emit, opts);
               },
             };
 
@@ -193,10 +207,6 @@ export function createDeclarativeTestingApi<
       spyFactory = spyFt;
     },
   });
-}
-
-function resolveFnValue(value: unknown) {
-  return typeof value === 'function' ? value() : value;
 }
 
 // ---------------------------------------
@@ -308,5 +318,17 @@ export type DeclarativeTestExtension<Html extends HTMLElement, Component> = (
 class Wrapper<Html extends HTMLElement, T> {
   wrapped(e: NgtxFixture<Html, T>) {
     return createDeclarativeTestingApi<T>(e);
+  }
+}
+
+function assertEmission(spy: any, opts: EmissionOptions) {
+  expect(spy).toHaveBeenCalled();
+
+  if (opts.args) {
+    const value = opts.args;
+    expect(spy).toHaveBeenCalledWith(value);
+  }
+  if (opts.times != null) {
+    expect(spy).toHaveBeenCalledTimes(opts.times);
   }
 }
