@@ -212,5 +212,9 @@ describe(
         fail();
       } catch {}
     });
+
+    it('rendered', () => {
+      When(host).rendered().expect(host).toHaveState({});
+    });
   }),
 );

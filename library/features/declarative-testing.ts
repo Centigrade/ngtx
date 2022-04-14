@@ -20,7 +20,7 @@ export function createDeclarativeTestingApi<
     state = { subject: subjectRef };
 
     const executeTest = () => {
-      state.predicate();
+      state.predicate?.();
       state.assertion();
     };
 
@@ -152,7 +152,12 @@ export function createDeclarativeTestingApi<
       },
     };
 
+    const afterActionApi = Object.assign({}, extensionApi, expectApi);
+
     return {
+      rendered() {
+        return afterActionApi;
+      },
       emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
         state = {
           ...state,
@@ -162,7 +167,7 @@ export function createDeclarativeTestingApi<
           },
         };
 
-        return Object.assign({}, extensionApi, expectApi);
+        return afterActionApi;
       },
       hasState(map: Partial<Record<keyof Component, any>>) {
         state = {
@@ -178,7 +183,7 @@ export function createDeclarativeTestingApi<
           },
         };
 
-        return Object.assign({}, extensionApi, expectApi);
+        return afterActionApi;
       },
     };
   };
