@@ -26,6 +26,46 @@ export function createDeclarativeTestingApi<
       ) {
         state = { ...state, object: objectRef };
         return {
+          toBePresent() {
+            state = {
+              ...state,
+              assertion: () => {
+                expect(objectRef()).toBeTruthy();
+              },
+            };
+
+            executeTest();
+          },
+          toBeMissing() {
+            state = {
+              ...state,
+              assertion: () => {
+                expect(objectRef()).toBeFalsy();
+              },
+            };
+
+            executeTest();
+          },
+          toContainText(text: string) {
+            state = {
+              ...state,
+              assertion: () => {
+                expect(objectRef().textContent()).toContain(text);
+              },
+            };
+
+            executeTest();
+          },
+          toHaveText(text: string) {
+            state = {
+              ...state,
+              assertion: () => {
+                expect(objectRef().textContent()).toEqual(text);
+              },
+            };
+
+            executeTest();
+          },
           toHaveState(map: Partial<Record<keyof ObjectType, any>>) {
             state = {
               ...state,

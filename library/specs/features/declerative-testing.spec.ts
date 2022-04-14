@@ -7,11 +7,13 @@ import { ngtx } from '../../ngtx';
   template: `
     <input [value]="text" (change)="onChange($event.target.value)" />
     <button (click)="onChange($event)">Click to set text</button>
+    <p *ngIf="showText">{{ text }}</p>
   `,
 })
 class DeclarativeTestComponent {
   @Output() textChange = new EventEmitter<string>();
   public text = '';
+  public showText = false;
 
   public onChange(value: string) {
     this.text = value;
@@ -45,6 +47,9 @@ describe(
       }
       static Button() {
         return get<HTMLButtonElement>('button');
+      }
+      static Text() {
+        return get('p');
       }
     }
 
@@ -134,6 +139,78 @@ describe(
       expect(host().componentInstance.ngOnChanges).toHaveBeenCalledWith({
         test: 42,
       });
+    });
+
+    it('toBeMissing', () => {
+      When(host)
+        .hasState({ showText: false })
+        .expect(Components.Text)
+        .toBeMissing();
+    });
+
+    it('toBeMissing -> fail', () => {
+      try {
+        When(host)
+          .hasState({ showText: true })
+          .expect(Components.Text)
+          .toBeMissing();
+
+        fail();
+      } catch {}
+    });
+
+    it('toBePresent', () => {
+      When(host)
+        .hasState({ showText: true })
+        .expect(Components.Text)
+        .toBePresent();
+    });
+
+    it('toBePresent -> fail', () => {
+      try {
+        When(host)
+          .hasState({ showText: false })
+          .expect(Components.Text)
+          .toBePresent();
+
+        fail();
+      } catch {}
+    });
+
+    it('toHaveText', () => {
+      When(host)
+        .hasState({ showText: true, text: 'some text' })
+        .expect(Components.Text)
+        .toHaveText('some text');
+    });
+
+    it('toHaveText -> fail', () => {
+      try {
+        When(host)
+          .hasState({ showText: true, text: 'some text' })
+          .expect(Components.Text)
+          .toHaveText('some other text');
+
+        fail();
+      } catch {}
+    });
+
+    it('toContainText', () => {
+      When(host)
+        .hasState({ showText: true, text: 'some text' })
+        .expect(Components.Text)
+        .toContainText('some');
+    });
+
+    it('toContainText -> fail', () => {
+      try {
+        When(host)
+          .hasState({ showText: true, text: 'some text' })
+          .expect(Components.Text)
+          .toContainText('other');
+
+        fail();
+      } catch {}
     });
   }),
 );
