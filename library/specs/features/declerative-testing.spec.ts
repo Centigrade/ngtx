@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { callsLifeCycleHooks } from '../../features/declarative-testing';
+import { callsLifeCycleHooks, tap } from '../../features/declarative-testing';
 import { ngtx } from '../../ngtx';
 
 @Component({
@@ -215,6 +215,22 @@ describe(
 
     it('rendered', () => {
       When(host).rendered().expect(host).toHaveState({});
+    });
+
+    it('extension: tap before', () => {
+      When(host)
+        .hasState({ text: 'abc' })
+        .and(tap(() => expect(host().componentInstance.text).toBe(''), true))
+        .expect(host)
+        .toBePresent();
+    });
+
+    it('extension: tap after', () => {
+      When(host)
+        .hasState({ text: 'abc' })
+        .and(tap(() => expect(host().componentInstance.text).toBe('abc')))
+        .expect(host)
+        .toBePresent();
     });
   }),
 );

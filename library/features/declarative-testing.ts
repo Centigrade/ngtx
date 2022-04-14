@@ -244,6 +244,30 @@ export const part = <T>(subject: PartRef<any, T>) => {
   };
 };
 
+export const tap: (
+  action?: (state: DeclarativeTestState) => any,
+  before?: boolean,
+) => DeclarativeTestExtension<any, any> =
+  (action: (state: DeclarativeTestState) => any, before = false) =>
+  (state) => {
+    const originalPredicate = state.predicate;
+    const after = !before;
+
+    return {
+      predicate: () => {
+        if (before) {
+          action?.(state);
+        }
+
+        originalPredicate?.();
+
+        if (after) {
+          action?.(state);
+        }
+      },
+    };
+  };
+
 // ---------------------------------------
 // Module types
 // ---------------------------------------
