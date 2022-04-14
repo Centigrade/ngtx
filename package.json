@@ -1,6 +1,6 @@
 {
   "name": "@centigrade/ngtx",
-  "version": "2.0.4",
+  "version": "2.1.4-alpha.1",
   "description": "The Angular Testing Extensions is a small set of functions, aiming to make your life easier, when testing Angular components.",
   "scripts": {
     "clean": "shx rm -rf dist",
@@ -17,7 +17,7 @@
     "lint:format": "prettier --check \"projects/**/*.{ts,scss,html}\" ",
     "format": "prettier --write \"projects/**/*.{ts,scss,html}\"",
     "publish": "npm run test && npm run build && cd dist && npm publish",
-    "publish:alpha": "npm run build && cd dist && npm publish --tag alpha",
+    "publish:alpha": "npm run test && npm run build && cd dist && npm publish --tag alpha",
     "publish:preview": "shx mkdir -p ./out && cd dist && npm pack && shx mv -f *.tgz ../out/"
   },
   "contributors": [

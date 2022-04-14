@@ -1,8 +1,7 @@
 import { EventEmitter } from '@angular/core';
 import { NgtxElement } from '../entities/element';
 import { NgtxFixture } from '../entities/fixture';
-
-export let $event: any = undefined;
+import { LifeCycleHooks } from '../types';
 
 export function createDeclarativeTestingApi<
   Host,
@@ -13,14 +12,12 @@ export function createDeclarativeTestingApi<
   const testingApi = <Html extends Element, Component>(
     subjectRef: PartRef<Html, Component>,
   ) => {
-    let state: State = {};
+    let state: DeclarativeTestState = {};
     state = { subject: subjectRef };
 
     const executeTest = () => {
       state.predicate();
       state.assertion();
-      // clean up possible event args
-      $event = undefined;
     };
 
     const expectApi = {
@@ -40,6 +37,21 @@ export function createDeclarativeTestingApi<
                   const property = target.componentInstance[key];
 
                   expect(property).toEqual(targetValue);
+                });
+              },
+            };
+
+            executeTest();
+          },
+          toHaveAttributes(map: Partial<Record<keyof ObjectHtml, any>>) {
+            state = {
+              ...state,
+              assertion: () => {
+                const target = objectRef();
+
+                Object.entries(map).forEach(([key, value]) => {
+                  const property = target.nativeElement[key];
+                  expect(property).toEqual(value);
                 });
               },
             };
@@ -79,19 +91,50 @@ export function createDeclarativeTestingApi<
       },
     };
 
+    const extensionApi = {
+      and(...extensions: DeclarativeTestExtension<HostHtml, Host>[]) {
+        let newState = state;
+
+        extensions.forEach((extension) => {
+          newState = extension(newState, fx);
+        });
+
+        state = {
+          ...state,
+          ...newState,
+        };
+
+        return expectApi;
+      },
+    };
+
     return {
       emits(eventName: keyof Component & EventsOf<keyof Html>, args?: any) {
         state = {
           ...state,
           predicate: () => {
-            // caution: module scope pollution. needs to be cleared after test execution
-            $event = args;
             subjectRef().triggerEvent(eventName as string, args);
             fx.detectChanges();
           },
         };
 
-        return expectApi;
+        return Object.assign({}, extensionApi, expectApi);
+      },
+      hasState<T extends Partial<Record<keyof Component, any>>>(map: T) {
+        state = {
+          ...state,
+          predicate: () => {
+            const target = state.subject();
+
+            Object.entries(map).forEach(([key, value]) => {
+              target.componentInstance[key] = value;
+            });
+
+            fx.detectChanges();
+          },
+        };
+
+        return Object.assign({}, extensionApi, expectApi);
       },
     };
   };
@@ -106,6 +149,33 @@ export function createDeclarativeTestingApi<
 function resolveFnValue(value: unknown) {
   return typeof value === 'function' ? value() : value;
 }
+
+// ---------------------------------------
+// Built-in extensions
+// ---------------------------------------
+
+export const callLifeCycleHooks = (
+  hooks: Record<keyof LifeCycleHooks, any>,
+): DeclarativeTestExtension<Element, LifeCycleHooks> => {
+  return (state, fixture) => {
+    const original = state.predicate;
+    return {
+      predicate: () => {
+        original?.();
+
+        const component = fixture.rootElement.componentInstance;
+
+        if (hooks.ngOnInit) {
+          component.ngOnInit();
+        }
+        if (hooks.ngOnChanges) {
+          const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
+          component.ngOnChanges(args);
+        }
+      },
+    };
+  };
+};
 
 // ---------------------------------------
 // Module types
@@ -125,19 +195,24 @@ export type DeclarativeTestingApi<
 
 export type PartRef<Html extends Element, Type> = () => NgtxElement<Html, Type>;
 
+export type EventsOf<T extends string | number | Symbol> =
+  T extends `on${infer Suffix}` ? Suffix : never;
+
+export interface DeclarativeTestState {
+  subject?: PartRef<any, any>;
+  predicate?: () => void;
+  object?: PartRef<any, any>;
+  assertion?: () => void;
+}
+
+export type DeclarativeTestExtension<Html extends Element, Component> = (
+  input: DeclarativeTestState,
+  fixture: NgtxFixture<Html, Component>,
+) => DeclarativeTestState;
+
 // workaround, see: https://stackoverflow.com/a/64919133/3063191
 class Wrapper<Html extends Element, T> {
   wrapped(e: NgtxFixture<Html, T>) {
     return createDeclarativeTestingApi<T>(e);
   }
-}
-
-export type EventsOf<T extends string | number | Symbol> =
-  T extends `on${infer Suffix}` ? Suffix : never;
-
-interface State {
-  subject?: PartRef<any, any>;
-  predicate?: () => void;
-  object?: PartRef<any, any>;
-  assertion?: () => void;
 }

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { $event } from '../../features/declarative-testing';
+import { callLifeCycleHooks } from '../../features/declarative-testing';
 import { ngtx } from '../../ngtx';
 
 @Component({
@@ -17,6 +17,10 @@ class DeclarativeTestComponent {
     this.text = value;
     this.textChange.emit(value);
   }
+
+  ngOnInit() {}
+
+  ngOnChanges(e: any) {}
 }
 
 const fail = () => expect(false).toBe(true);
@@ -49,20 +53,6 @@ describe(
         .emits('change', { target: { value: 'some-text' } })
         .expect(host)
         .toHaveState({ text: 'some-text' });
-    });
-
-    it('when -> emits -> expect -> toHaveState { $event }', () => {
-      When(Components.Button)
-        .emits('click', 'some text')
-        .expect(host)
-        .toHaveState({ text: () => $event });
-    });
-
-    it('when -> emits -> expect -> toHaveState { $event.path }', () => {
-      When(Components.Input)
-        .emits('change', { target: { value: 'some-text' } })
-        .expect(host)
-        .toHaveState({ text: () => $event.target.value });
     });
 
     it('when -> emits -> expect -> toEmit', () => {
@@ -108,13 +98,6 @@ describe(
         .toEmit('textChange', { args: 'some text' });
     });
 
-    it('when -> emits -> expect -> toEmit { args: $event }', () => {
-      When(Components.Button)
-        .emits('click', 'some text')
-        .expect(host)
-        .toEmit('textChange', { args: () => $event });
-    });
-
     it('when -> emits -> expect -> toEmit { args: "value" } -> fail', () => {
       try {
         When(Components.Button)
@@ -124,6 +107,33 @@ describe(
 
         fail();
       } catch {}
+    });
+
+    it('when -> hasState -> expect -> toHaveAttributes { "value" }', () => {
+      When(host)
+        .hasState({ text: 'some text' })
+        .expect(Components.Input)
+        .toHaveAttributes({ value: 'some text' });
+    });
+
+    it('when -> hasState -> and -> expect -> toHaveAttributes', () => {
+      When(host)
+        .hasState({ ngOnInit: jest.fn(), ngOnChanges: jest.fn() })
+        .and(
+          callLifeCycleHooks({
+            ngOnInit: true,
+            ngOnChanges: { test: 42 },
+          }),
+        )
+        .expect(host)
+        .toHaveState({});
+
+      expect(host().componentInstance.ngOnInit).toHaveBeenCalledTimes(1);
+      expect(host().componentInstance.ngOnInit).toHaveBeenCalledWith();
+      expect(host().componentInstance.ngOnChanges).toHaveBeenCalledTimes(1);
+      expect(host().componentInstance.ngOnChanges).toHaveBeenCalledWith({
+        test: 42,
+      });
     });
   }),
 );

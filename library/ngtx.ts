@@ -1,6 +1,9 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxFixture } from './entities';
-import { createDeclarativeTestingApi } from './features/declarative-testing';
+import {
+  createDeclarativeTestingApi,
+  DeclarativeTestingApi,
+} from './features/declarative-testing';
 import { NgtxSuite, UseFixtureOptions } from './types';
 
 /**
@@ -43,7 +46,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
           opts.skipInitialChangeDetection,
         ) as NgtxFixture<Html, T>;
       },
-      When,
+      When: When as DeclarativeTestingApi<T>,
       host: () => ngtxFixture.rootElement as any,
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),
