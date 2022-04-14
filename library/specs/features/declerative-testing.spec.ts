@@ -298,11 +298,13 @@ describe(
       } catch {}
     });
 
-    it('toHaveCalled { returnValue }', () => {
+    it('toHaveCalled { whichReturns }', () => {
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalled(SomeService, 'someMethod', { returnValue: 'some value' });
+        .toHaveCalled(SomeService, 'someMethod', {
+          whichReturns: 'some value',
+        });
 
       expect(host().componentInstance.returnValue).toEqual('some value');
     });

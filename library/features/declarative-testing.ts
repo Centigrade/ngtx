@@ -36,7 +36,7 @@ export function createDeclarativeTestingApi<
             opts: EmissionOptions = {},
           ) {
             const originalPredicate = state.predicate;
-            const spy = spyFactory(opts.returnValue);
+            const spy = spyFactory(opts.whichReturns);
 
             state = {
               ...state,
@@ -126,7 +126,7 @@ export function createDeclarativeTestingApi<
           },
           toEmit(
             eventName: keyof ObjectType,
-            opts: Omit<EmissionOptions, 'returnValue'> = {},
+            opts: Omit<EmissionOptions, 'whichReturns'> = {},
           ) {
             const target = state.object();
             const emitter = target.componentInstance[
@@ -288,7 +288,7 @@ export const tap: (
 export interface EmissionOptions {
   args?: any;
   times?: number;
-  returnValue?: any;
+  whichReturns?: any;
 }
 
 export type DeclarativeTestingApi<
