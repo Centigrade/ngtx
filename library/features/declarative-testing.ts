@@ -109,7 +109,7 @@ export function createDeclarativeTestingApi<
     };
 
     return {
-      emits(eventName: keyof Component & EventsOf<keyof Html>, args?: any) {
+      emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
         state = {
           ...state,
           predicate: () => {
