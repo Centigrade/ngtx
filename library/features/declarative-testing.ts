@@ -26,29 +26,27 @@ export function createDeclarativeTestingApi<
 
     const executeTest = () => {
       states.forEach((state) => {
-        state.predicate();
-        state.assertion?.();
+        states.splice(0, 1);
+
+        state.predicate(state);
+        state.assertion?.(state);
       });
+
+      states = [];
     };
 
     const expectApi = {
       expect<ObjectHtml extends Element, ObjectType>(
         objectRef: PartRef<ObjectHtml, ObjectType>,
       ) {
-        const state = currentState();
-        const currentPredicate = state.predicate;
-        const currentAssertion = state.assertion;
-
-        updateCurrentState({ ...state, object: objectRef });
+        updateCurrentState({ ...currentState(), object: objectRef });
 
         return {
           toHaveState(map: Partial<Record<keyof ObjectType, any>>) {
             updateCurrentState({
-              ...state,
-              assertion: () => {
-                currentAssertion?.();
-
-                const target = objectRef();
+              ...currentState(),
+              assertion: (state) => {
+                const target = state.object();
 
                 Object.entries(map).forEach(([key, value]) => {
                   const targetValue = resolveFnValue(value);
@@ -62,13 +60,10 @@ export function createDeclarativeTestingApi<
             executeTest();
           },
           toHaveAttributes(map: Partial<Record<keyof ObjectHtml, any>>) {
-            const state = currentState();
             updateCurrentState({
-              ...state,
-              assertion: () => {
-                currentAssertion?.();
-
-                const target = objectRef();
+              ...currentState(),
+              assertion: (state) => {
+                const target = state.object();
 
                 Object.entries(map).forEach(([key, value]) => {
                   const property = target.nativeElement[key];
@@ -90,15 +85,11 @@ export function createDeclarativeTestingApi<
 
             updateCurrentState({
               ...state,
-              predicate: () => {
-                currentPredicate?.();
-
+              predicate: (state) => {
                 emitter.emit = spyFactory();
-                originalPredicate();
+                originalPredicate(state);
               },
-              assertion: () => {
-                currentAssertion?.();
-
+              assertion: (state) => {
                 expect(emitter.emit).toHaveBeenCalled();
 
                 if (opts.args) {
@@ -112,6 +103,7 @@ export function createDeclarativeTestingApi<
             });
 
             executeTest();
+            states = [];
           },
         };
       },
@@ -134,18 +126,25 @@ export function createDeclarativeTestingApi<
       },
     };
 
+    const allApis = Object.assign(
+      {},
+      { alongWith: testingApi },
+      extensionApi,
+      expectApi,
+    );
+
     return {
       emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
         const state = currentState();
         updateCurrentState({
           ...state,
           predicate: () => {
-            subjectRef().triggerEvent(eventName as string, args);
+            state.subject().triggerEvent(eventName as string, args);
             fx.detectChanges();
           },
         });
 
-        return Object.assign({}, extensionApi, expectApi);
+        return allApis;
       },
       hasState(map: Partial<Record<keyof Component, any>>) {
         const state = currentState();
@@ -162,12 +161,7 @@ export function createDeclarativeTestingApi<
           },
         });
 
-        return Object.assign(
-          {},
-          { alongWith: testingApi },
-          extensionApi,
-          expectApi,
-        );
+        return allApis;
       },
     };
   };
@@ -194,7 +188,7 @@ export const callsLifeCycleHooks = (
     const original = state.predicate;
     return {
       predicate: () => {
-        original?.();
+        original?.(state);
 
         const component = fixture.rootElement.componentInstance;
 
@@ -233,9 +227,9 @@ export type EventsOf<T extends string | number | Symbol> =
 
 export interface DeclarativeTestState {
   subject?: PartRef<any, any>;
-  predicate?: () => void;
+  predicate?: (state: DeclarativeTestState) => void;
   object?: PartRef<any, any>;
-  assertion?: () => void;
+  assertion?: (state: DeclarativeTestState) => void;
 }
 
 export type DeclarativeTestExtension<Html extends Element, Component> = (

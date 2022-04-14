@@ -141,13 +141,26 @@ describe(
       });
     });
 
-    fit('should', () => {
+    it('alongWith', () => {
       When(host)
         .hasState({ number: 10 })
         .alongWith(Components.IncreaseButton)
         .emits('click')
         .expect(host)
         .toHaveState({ number: 11 });
+    });
+
+    it('alongWith -> fail', () => {
+      try {
+        When(host)
+          .hasState({ number: 10 })
+          .alongWith(Components.IncreaseButton)
+          .emits('click')
+          .expect(host)
+          .toHaveState({ number: 10 });
+
+        fail();
+      } catch {}
     });
   }),
 );
