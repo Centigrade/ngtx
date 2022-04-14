@@ -120,7 +120,7 @@ export function createDeclarativeTestingApi<
 
         return Object.assign({}, extensionApi, expectApi);
       },
-      hasState<T extends Partial<Record<keyof Component, any>>>(map: T) {
+      hasState(map: Partial<Record<keyof Component, any>>) {
         state = {
           ...state,
           predicate: () => {
