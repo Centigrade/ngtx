@@ -8,28 +8,46 @@ export function createDeclarativeTestingApi<
   HostHtml extends Element = Element,
 >(fx: NgtxFixture<HostHtml, Host>) {
   let spyFactory = () => ({} as any);
+  let states: DeclarativeTestState[] = [];
 
   const testingApi = <Html extends Element, Component>(
     subjectRef: PartRef<Html, Component>,
   ) => {
-    let state: DeclarativeTestState = {};
-    state = { subject: subjectRef };
+    states.push({ subject: subjectRef });
+
+    const currentState = () => {
+      return states[states.length - 1];
+    };
+    const updateCurrentState = (newState: DeclarativeTestState) => {
+      const state = currentState();
+      const index = states.indexOf(state);
+      states[index] = newState;
+    };
 
     const executeTest = () => {
-      state.predicate();
-      state.assertion();
+      states.forEach((state) => {
+        state.predicate();
+        state.assertion?.();
+      });
     };
 
     const expectApi = {
       expect<ObjectHtml extends Element, ObjectType>(
         objectRef: PartRef<ObjectHtml, ObjectType>,
       ) {
-        state = { ...state, object: objectRef };
+        const state = currentState();
+        const currentPredicate = state.predicate;
+        const currentAssertion = state.assertion;
+
+        updateCurrentState({ ...state, object: objectRef });
+
         return {
           toHaveState(map: Partial<Record<keyof ObjectType, any>>) {
-            state = {
+            updateCurrentState({
               ...state,
               assertion: () => {
+                currentAssertion?.();
+
                 const target = objectRef();
 
                 Object.entries(map).forEach(([key, value]) => {
@@ -39,14 +57,17 @@ export function createDeclarativeTestingApi<
                   expect(property).toEqual(targetValue);
                 });
               },
-            };
+            });
 
             executeTest();
           },
           toHaveAttributes(map: Partial<Record<keyof ObjectHtml, any>>) {
-            state = {
+            const state = currentState();
+            updateCurrentState({
               ...state,
               assertion: () => {
+                currentAssertion?.();
+
                 const target = objectRef();
 
                 Object.entries(map).forEach(([key, value]) => {
@@ -54,11 +75,12 @@ export function createDeclarativeTestingApi<
                   expect(property).toEqual(value);
                 });
               },
-            };
+            });
 
             executeTest();
           },
           toEmit(eventName: keyof ObjectType, opts: EmissionOptions = {}) {
+            const state = currentState();
             const target = state.object();
             const emitter = target.componentInstance[
               eventName
@@ -66,13 +88,17 @@ export function createDeclarativeTestingApi<
 
             const originalPredicate = state.predicate;
 
-            state = {
+            updateCurrentState({
               ...state,
               predicate: () => {
+                currentPredicate?.();
+
                 emitter.emit = spyFactory();
                 originalPredicate();
               },
               assertion: () => {
+                currentAssertion?.();
+
                 expect(emitter.emit).toHaveBeenCalled();
 
                 if (opts.args) {
@@ -83,7 +109,7 @@ export function createDeclarativeTestingApi<
                   expect(emitter.emit).toHaveBeenCalledTimes(opts.times);
                 }
               },
-            };
+            });
 
             executeTest();
           },
@@ -93,16 +119,16 @@ export function createDeclarativeTestingApi<
 
     const extensionApi = {
       and(...extensions: DeclarativeTestExtension<HostHtml, Host>[]) {
-        let newState = state;
+        let newState = currentState();
 
         extensions.forEach((extension) => {
           newState = extension(newState, fx);
         });
 
-        state = {
-          ...state,
+        updateCurrentState({
+          ...currentState(),
           ...newState,
-        };
+        });
 
         return expectApi;
       },
@@ -110,18 +136,20 @@ export function createDeclarativeTestingApi<
 
     return {
       emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
-        state = {
+        const state = currentState();
+        updateCurrentState({
           ...state,
           predicate: () => {
             subjectRef().triggerEvent(eventName as string, args);
             fx.detectChanges();
           },
-        };
+        });
 
         return Object.assign({}, extensionApi, expectApi);
       },
       hasState(map: Partial<Record<keyof Component, any>>) {
-        state = {
+        const state = currentState();
+        updateCurrentState({
           ...state,
           predicate: () => {
             const target = state.subject();
@@ -132,9 +160,14 @@ export function createDeclarativeTestingApi<
 
             fx.detectChanges();
           },
-        };
+        });
 
-        return Object.assign({}, extensionApi, expectApi);
+        return Object.assign(
+          {},
+          { alongWith: testingApi },
+          extensionApi,
+          expectApi,
+        );
       },
     };
   };
