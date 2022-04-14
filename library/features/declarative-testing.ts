@@ -7,7 +7,7 @@ export function createDeclarativeTestingApi<
   Host,
   HostHtml extends HTMLElement = HTMLElement,
 >(fx: NgtxFixture<HostHtml, Host>) {
-  let spyFactory = (): any => {
+  let spyFactory = (returnValue?: any): any => {
     throw new Error(
       `No spy-factory passed to ngtx. Please call useFixture(fixture, { spyFactory: () => <spyInstance> })`,
     );
@@ -36,7 +36,7 @@ export function createDeclarativeTestingApi<
             opts: EmissionOptions = {},
           ) {
             const originalPredicate = state.predicate;
-            const spy = spyFactory();
+            const spy = spyFactory(opts.returnValue);
 
             state = {
               ...state,
@@ -124,7 +124,10 @@ export function createDeclarativeTestingApi<
 
             executeTest();
           },
-          toEmit(eventName: keyof ObjectType, opts: EmissionOptions = {}) {
+          toEmit(
+            eventName: keyof ObjectType,
+            opts: Omit<EmissionOptions, 'returnValue'> = {},
+          ) {
             const target = state.object();
             const emitter = target.componentInstance[
               eventName
@@ -285,13 +288,14 @@ export const tap: (
 export interface EmissionOptions {
   args?: any;
   times?: number;
+  returnValue?: any;
 }
 
 export type DeclarativeTestingApi<
   Component,
   Html extends HTMLElement = HTMLElement,
 > = ReturnType<Wrapper<Html, Component>['wrapped']> & {
-  setSpyFactory(spyFt: () => any): void;
+  setSpyFactory(spyFactory: (returnValue?: any) => any): void;
 };
 
 export type PartRef<Html extends HTMLElement, Type> = () => NgtxElement<

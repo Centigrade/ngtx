@@ -18,7 +18,7 @@ export type NgtxSuite<T> = Omit<
 
 export interface UseFixtureOptions {
   skipInitialChangeDetection?: boolean;
-  spyFactory?: () => any;
+  spyFactory?: (returnValue?: any) => any;
 }
 
 export type Fn<In, Out> = (a: In) => Out;

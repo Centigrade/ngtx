@@ -18,13 +18,14 @@ class DeclarativeTestComponent {
   @Output() textChange = new EventEmitter<string>();
   public text = '';
   public showText = false;
+  public returnValue: any;
 
   constructor(public readonly token: SomeService) {}
 
   public onChange(value: string) {
     this.text = value;
     this.textChange.emit(value);
-    this.token.someMethod(42);
+    this.returnValue = this.token.someMethod(42);
   }
 
   ngOnInit() {}
@@ -46,7 +47,9 @@ describe(
 
     beforeEach(() => {
       const fixture = TestBed.createComponent(DeclarativeTestComponent);
-      useFixture(fixture, { spyFactory: () => jest.fn() });
+      useFixture(fixture, {
+        spyFactory: (returnValue) => jest.fn(() => returnValue),
+      });
     });
 
     class Components {
@@ -293,6 +296,15 @@ describe(
 
         fail();
       } catch {}
+    });
+
+    it('toHaveCalled { returnValue }', () => {
+      When(Components.Button)
+        .emits('click')
+        .expect(host)
+        .toHaveCalled(SomeService, 'someMethod', { returnValue: 'some value' });
+
+      expect(host().componentInstance.returnValue).toEqual('some value');
     });
   }),
 );
