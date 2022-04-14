@@ -5,11 +5,11 @@ import { LifeCycleHooks } from '../types';
 
 export function createDeclarativeTestingApi<
   Host,
-  HostHtml extends Element = Element,
+  HostHtml extends HTMLElement = HTMLElement,
 >(fx: NgtxFixture<HostHtml, Host>) {
   let spyFactory = () => ({} as any);
 
-  const testingApi = <Html extends Element, Component>(
+  const testingApi = <Html extends HTMLElement = HTMLElement, Component = any>(
     subjectRef: PartRef<Html, Component>,
   ) => {
     let state: DeclarativeTestState = {};
@@ -21,7 +21,7 @@ export function createDeclarativeTestingApi<
     };
 
     const expectApi = {
-      expect<ObjectHtml extends Element, ObjectType>(
+      expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
         objectRef: PartRef<ObjectHtml, ObjectType>,
       ) {
         state = { ...state, object: objectRef };
@@ -196,7 +196,7 @@ function resolveFnValue(value: unknown) {
 
 export const callsLifeCycleHooks = (
   hooks: Record<keyof LifeCycleHooks, any>,
-): DeclarativeTestExtension<Element, LifeCycleHooks> => {
+): DeclarativeTestExtension<HTMLElement, LifeCycleHooks> => {
   return (state, fixture) => {
     const original = state.predicate;
     return {
@@ -246,12 +246,15 @@ export interface EmissionOptions {
 
 export type DeclarativeTestingApi<
   Component,
-  Html extends Element = HTMLElement,
+  Html extends HTMLElement = HTMLElement,
 > = ReturnType<Wrapper<Html, Component>['wrapped']> & {
   setSpyFactory(spyFt: () => any): void;
 };
 
-export type PartRef<Html extends Element, Type> = () => NgtxElement<Html, Type>;
+export type PartRef<Html extends HTMLElement, Type> = () => NgtxElement<
+  Html,
+  Type
+>;
 
 export type EventsOf<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
@@ -263,13 +266,13 @@ export interface DeclarativeTestState {
   assertion?: () => void;
 }
 
-export type DeclarativeTestExtension<Html extends Element, Component> = (
+export type DeclarativeTestExtension<Html extends HTMLElement, Component> = (
   input: DeclarativeTestState,
   fixture: NgtxFixture<Html, Component>,
 ) => DeclarativeTestState;
 
 // workaround, see: https://stackoverflow.com/a/64919133/3063191
-class Wrapper<Html extends Element, T> {
+class Wrapper<Html extends HTMLElement, T> {
   wrapped(e: NgtxFixture<Html, T>) {
     return createDeclarativeTestingApi<T>(e);
   }

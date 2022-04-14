@@ -2,23 +2,26 @@ import { Type } from '@angular/core';
 import { ConverterFn, QueryTarget } from '../types';
 import { NgtxElement } from './element';
 
-export class NgtxMultiElement<Html extends Element = Element, Component = any> {
+export class NgtxMultiElement<
+  Html extends HTMLElement = HTMLElement,
+  Component = any,
+> {
   public get length(): number {
     return this.elements.length;
   }
 
   constructor(private readonly elements: NgtxElement<Html, Component>[]) {}
 
-  public get<Html extends Element, Component = any>(
+  public get<Html extends HTMLElement, Component = any>(
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     component: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     queries: QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     query: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
     const findings = this.elements
@@ -30,16 +33,16 @@ export class NgtxMultiElement<Html extends Element = Element, Component = any> {
     return new NgtxMultiElement(findings);
   }
 
-  public getAll<Html extends Element, Component = any>(
+  public getAll<Html extends HTMLElement, Component = any>(
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component>,
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];

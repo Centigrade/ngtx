@@ -32,7 +32,7 @@ export interface LifeCycleHooks {
 export type QueryTarget<Component> = string | Type<Component>;
 
 export interface TypedDebugElement<
-  Html extends Element = Element,
+  Html extends HTMLElement = HTMLElement,
   Component = any,
 > extends DebugElement {
   nativeElement: Html;
@@ -44,6 +44,6 @@ export type TypeObjectMap<K> = Partial<{
 }>;
 
 export type Chainable<
-  Html extends Element = Element,
+  Html extends HTMLElement = HTMLElement,
   Component = any,
 > = TypedDebugElement<Html, Component> & NgtxElement;

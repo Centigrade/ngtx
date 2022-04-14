@@ -2,7 +2,7 @@ import { By } from '@angular/platform-browser';
 import { QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, queryAllNgtxMarker } from './query-ngtx-marker';
 
-export function queryAll<Html extends Element, Component>(
+export function queryAll<Html extends HTMLElement, Component>(
   query: QueryTarget<Component>,
   debugElement: TypedDebugElement<any, any>,
 ): TypedDebugElement<Html, Component>[] {

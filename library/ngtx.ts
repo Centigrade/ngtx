@@ -33,7 +33,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
 
   return () =>
     suite({
-      useFixture: <Html extends Element = Element, T = any>(
+      useFixture: <Html extends HTMLElement = HTMLElement, T = any>(
         fixture: ComponentFixture<T>,
         opts: UseFixtureOptions = {},
       ): NgtxFixture<Html, T> => {

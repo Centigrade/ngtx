@@ -6,7 +6,10 @@ import { removeDuplicates } from '../utility/filter.utilities';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
 
-export class NgtxElement<Html extends Element = Element, Component = any> {
+export class NgtxElement<
+  Html extends HTMLElement = HTMLElement,
+  Component = any,
+> {
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
@@ -25,16 +28,16 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     return new apiType(this.debugElement);
   }
 
-  public get<Html extends Element, Component = any>(
+  public get<Html extends HTMLElement, Component = any>(
     cssSelector: string,
   ): NgtxElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     component: Type<Component>,
   ): NgtxElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     queries: QueryTarget<Component>[],
   ): NgtxElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     queryOrQueries: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];
@@ -60,16 +63,16 @@ export class NgtxElement<Html extends Element = Element, Component = any> {
     return results.length > 0 ? results[0] : null;
   }
 
-  public getAll<Html extends Element, Component = any>(
+  public getAll<Html extends HTMLElement, Component = any>(
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];

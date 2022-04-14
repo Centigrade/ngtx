@@ -4,7 +4,7 @@ import { NgtxMultiElement } from '.';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
 import { NgtxElement } from './element';
 
-export class NgtxFixture<HostHtml extends Element, HostComponent> {
+export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
   private root: NgtxElement<HostHtml, HostComponent>;
 
   public get rootElement() {
@@ -38,7 +38,7 @@ export class NgtxFixture<HostHtml extends Element, HostComponent> {
    * ~~~
    * @param fixture The test's `fixture` instance.
    */
-  public useFixture<Html extends Element, Component>(
+  public useFixture<Html extends HTMLElement, Component>(
     fixture: ComponentFixture<Component>,
     skipInitialChangeDetection = false,
   ): NgtxFixture<Html, Component> {
@@ -70,7 +70,10 @@ export class NgtxFixture<HostHtml extends Element, HostComponent> {
    * ---
    * @param component (Optional) A component instance to call the `ngOnInit`- and `ngOnChanges`-life-cycles on.
    */
-  public detectChanges<Html extends Element = Element, Component = any>(): void;
+  public detectChanges<
+    Html extends HTMLElement = HTMLElement,
+    Component = any,
+  >(): void;
   /**
    * **Shortcut for `fixture.detectChanges()`.**
    *
@@ -90,7 +93,7 @@ export class NgtxFixture<HostHtml extends Element, HostComponent> {
    */
   public detectChanges<
     T extends Partial<LifeCycleHooks>,
-    Html extends Element = Element,
+    Html extends HTMLElement = HTMLElement,
   >(component: T, changes?: TypeObjectMap<T>): void;
   public detectChanges<T extends Partial<LifeCycleHooks>>(
     component?: T,
@@ -104,16 +107,16 @@ export class NgtxFixture<HostHtml extends Element, HostComponent> {
     this.fixture.detectChanges();
   }
 
-  public get<Html extends Element, Component = any>(
+  public get<Html extends HTMLElement, Component = any>(
     cssSelector: string,
   ): NgtxElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     component: Type<Component>,
   ): NgtxElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     queries: QueryTarget<Component>[],
   ): NgtxElement<Html, Component>;
-  public get<Html extends Element, Component>(
+  public get<Html extends HTMLElement, Component>(
     query: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxElement<Html, Component> {
     this.checkFixture();
@@ -121,16 +124,16 @@ export class NgtxFixture<HostHtml extends Element, HostComponent> {
     return this.root.get(query as any);
   }
 
-  public getAll<Html extends Element, Component = any>(
+  public getAll<Html extends HTMLElement, Component = any>(
     cssSelector: string,
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: Type<Component>,
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component>;
-  public getAll<Html extends Element, Component>(
+  public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
   ): NgtxMultiElement<Html, Component> {
     this.checkFixture();
