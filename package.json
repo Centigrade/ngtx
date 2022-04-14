@@ -16,8 +16,8 @@
     "lint": "tslint -c tslint.json 'projects/**/*.ts'",
     "lint:format": "prettier --check \"projects/**/*.{ts,scss,html}\" ",
     "format": "prettier --write \"projects/**/*.{ts,scss,html}\"",
-    "publish": "npm run test && npm run build && cd dist && npm publish",
-    "publish:alpha": "npm run test && npm run build && cd dist && npm publish --tag alpha",
+    "publish": "npm run test && cd dist && npm publish",
+    "publish:alpha": "npm run test && cd dist && npm publish --tag alpha",
     "publish:preview": "shx mkdir -p ./out && cd dist && npm pack && shx mv -f *.tgz ../out/"
   },
   "contributors": [
