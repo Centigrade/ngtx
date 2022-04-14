@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { callLifeCycleHooks } from '../../features/declarative-testing';
+import { callsLifeCycleHooks } from '../../features/declarative-testing';
 import { ngtx } from '../../ngtx';
 
 @Component({
@@ -120,7 +120,7 @@ describe(
       When(host)
         .hasState({ ngOnInit: jest.fn(), ngOnChanges: jest.fn() })
         .and(
-          callLifeCycleHooks({
+          callsLifeCycleHooks({
             ngOnInit: true,
             ngOnChanges: { test: 42 },
           }),

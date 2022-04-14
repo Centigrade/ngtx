@@ -154,7 +154,7 @@ function resolveFnValue(value: unknown) {
 // Built-in extensions
 // ---------------------------------------
 
-export const callLifeCycleHooks = (
+export const callsLifeCycleHooks = (
   hooks: Record<keyof LifeCycleHooks, any>,
 ): DeclarativeTestExtension<Element, LifeCycleHooks> => {
   return (state, fixture) => {
