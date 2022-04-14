@@ -7,11 +7,13 @@ import { ngtx } from '../../ngtx';
   template: `
     <input [value]="text" (change)="onChange($event.target.value)" />
     <button (click)="onChange($event)">Click to set text</button>
+    <button (click)="number = number + 1">Increase number</button>
   `,
 })
 class DeclarativeTestComponent {
   @Output() textChange = new EventEmitter<string>();
   public text = '';
+  public number = 1;
 
   public onChange(value: string) {
     this.text = value;
@@ -45,6 +47,9 @@ describe(
       }
       static Button() {
         return get<HTMLButtonElement>('button');
+      }
+      static IncreaseButton() {
+        return get<HTMLButtonElement>('button:nth-of-type(2)');
       }
     }
 
@@ -134,6 +139,28 @@ describe(
       expect(host().componentInstance.ngOnChanges).toHaveBeenCalledWith({
         test: 42,
       });
+    });
+
+    it('alongWith', () => {
+      When(host)
+        .hasState({ number: 10 })
+        .alongWith(Components.IncreaseButton)
+        .emits('click')
+        .expect(host)
+        .toHaveState({ number: 11 });
+    });
+
+    it('alongWith -> fail', () => {
+      try {
+        When(host)
+          .hasState({ number: 10 })
+          .alongWith(Components.IncreaseButton)
+          .emits('click')
+          .expect(host)
+          .toHaveState({ number: 10 });
+
+        fail();
+      } catch {}
     });
   }),
 );

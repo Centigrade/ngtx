@@ -17,6 +17,7 @@ export function createDeclarativeTestingApi<
 
     const executeTest = () => {
       state.predicate();
+      state.predicate2?.();
       state.assertion();
     };
 
@@ -108,35 +109,71 @@ export function createDeclarativeTestingApi<
       },
     };
 
-    return {
-      emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
+    const secondPredicateApi = {
+      alongWith: <Html extends Element, Component>(
+        subject2Ref: PartRef<Html, Component>,
+      ) => {
         state = {
           ...state,
-          predicate: () => {
-            subjectRef().triggerEvent(eventName as string, args);
-            fx.detectChanges();
-          },
+          subject2: subject2Ref,
         };
 
-        return Object.assign({}, extensionApi, expectApi);
+        return actionApi(subject2Ref, 'subject2');
       },
-      hasState(map: Partial<Record<keyof Component, any>>) {
+    };
+
+    const afterActionApis = Object.assign(
+      {},
+      secondPredicateApi,
+      extensionApi,
+      expectApi,
+    );
+
+    const actionApi = <SubjectHtml extends Element, SubjectType>(
+      subjectRef: PartRef<SubjectHtml, SubjectType>,
+      subjectType: 'subject1' | 'subject2',
+    ) => {
+      const updatePredicate = (action: () => any) => {
+        const predicate: DeclarativeTestState =
+          subjectType === 'subject1'
+            ? { predicate: action }
+            : { predicate2: action };
+
         state = {
           ...state,
-          predicate: () => {
-            const target = state.subject();
+          ...predicate,
+        };
+      };
+
+      return {
+        emits(
+          eventName: keyof SubjectType | EventsOf<keyof SubjectHtml>,
+          args?: any,
+        ) {
+          updatePredicate(() => {
+            subjectRef().triggerEvent(eventName as string, args);
+            fx.detectChanges();
+          });
+
+          return afterActionApis;
+        },
+        hasState(map: Partial<Record<keyof Component, any>>) {
+          updatePredicate(() => {
+            const target = subjectRef();
 
             Object.entries(map).forEach(([key, value]) => {
               target.componentInstance[key] = value;
             });
 
             fx.detectChanges();
-          },
-        };
+          });
 
-        return Object.assign({}, extensionApi, expectApi);
-      },
+          return afterActionApis;
+        },
+      };
     };
+
+    return actionApi(subjectRef, 'subject1');
   };
 
   return Object.assign(testingApi, {
@@ -201,6 +238,8 @@ export type EventsOf<T extends string | number | Symbol> =
 export interface DeclarativeTestState {
   subject?: PartRef<any, any>;
   predicate?: () => void;
+  subject2?: PartRef<any, any>;
+  predicate2?: () => void;
   object?: PartRef<any, any>;
   assertion?: () => void;
 }
