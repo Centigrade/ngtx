@@ -1,6 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { callsLifeCycleHooks, tap } from '../../features/declarative-testing';
+import {
+  callsLifeCycleHooks,
+  DeclarativeTestExtension,
+  tap,
+} from '../../features/declarative-testing';
 import { ngtx } from '../../ngtx';
 
 class SomeService {
@@ -9,8 +13,8 @@ class SomeService {
 
 @Component({
   template: `
-    <input [value]="text" (change)="onChange($event.target.value)" />
-    <button (click)="onChange($event)">Click to set text</button>
+    <input #txt [value]="text" (change)="onChange($event.target.value)" />
+    <button (click)="onChange($event); txt.focus()">Click to set text</button>
     <p *ngIf="showText">{{ text }}</p>
   `,
 })
@@ -308,5 +312,34 @@ describe(
 
       expect(host().componentInstance.returnValue).toEqual('some value');
     });
+
+    it('to() extension', () => {
+      When(Components.Button)
+        .emits('click')
+        .expect(Components.Input)
+        .to(haveFocus());
+    });
+
+    it('to() extension -> fail', () => {
+      try {
+        When(Components.Button)
+          .emits('click')
+          .expect(Components.Text)
+          .to(haveFocus());
+
+        fail();
+      } catch {}
+    });
   }),
 );
+
+const haveFocus: () => DeclarativeTestExtension<any, any> =
+  () =>
+  ({ assertion, object }) => {
+    return {
+      assertion: () => {
+        assertion?.();
+        expect(document.activeElement).toBe(object().nativeElement);
+      },
+    };
+  };

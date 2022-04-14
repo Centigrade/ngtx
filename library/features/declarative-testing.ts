@@ -30,6 +30,14 @@ export function createDeclarativeTestingApi<
       ) {
         state = { ...state, object: objectRef };
         return {
+          to(assertion: DeclarativeTestExtension<HostHtml, Host>) {
+            state = {
+              ...state,
+              ...assertion(state, fx),
+            };
+
+            executeTest();
+          },
           toHaveCalled<T>(
             injectionToken: Type<T>,
             methodName: keyof T,
