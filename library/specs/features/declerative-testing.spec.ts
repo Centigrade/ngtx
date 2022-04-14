@@ -317,7 +317,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(Components.Input)
-        .to(haveFocus());
+        .to(haveFocus);
     });
 
     it('to() extension -> fail', () => {
@@ -325,7 +325,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(Components.Text)
-          .to(haveFocus());
+          .to(haveFocus);
 
         fail();
       } catch {}
@@ -333,13 +333,14 @@ describe(
   }),
 );
 
-const haveFocus: () => DeclarativeTestExtension<any, any> =
-  () =>
-  ({ assertion, object }) => {
-    return {
-      assertion: () => {
-        assertion?.();
-        expect(document.activeElement).toBe(object().nativeElement);
-      },
-    };
+const haveFocus: DeclarativeTestExtension<any, any> = ({
+  assertion,
+  object,
+}) => {
+  return {
+    assertion: () => {
+      assertion?.();
+      expect(document.activeElement).toBe(object().nativeElement);
+    },
   };
+};

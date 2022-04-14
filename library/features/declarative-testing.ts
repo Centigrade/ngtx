@@ -247,9 +247,11 @@ export const callsLifeCycleHooks = (
   };
 };
 
-export const part = <T>(subject: PartRef<any, T>) => {
+export const then = <Html extends HTMLElement, Component>(
+  subject: PartRef<Html, Component>,
+) => {
   return {
-    emits(eventName: keyof T, args?: any) {
+    emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
       return (state: DeclarativeTestState, fixture: NgtxFixture<any, any>) => {
         const original = state.predicate;
 
