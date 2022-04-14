@@ -7,7 +7,11 @@ export function createDeclarativeTestingApi<
   Host,
   HostHtml extends HTMLElement = HTMLElement,
 >(fx: NgtxFixture<HostHtml, Host>) {
-  let spyFactory = () => ({} as any);
+  let spyFactory = (): any => {
+    throw new Error(
+      `No spy-factory passed to ngtx. Please call useFixture(fixture, { spyFactory: () => <spyInstance> })`,
+    );
+  };
 
   const testingApi = <Html extends HTMLElement = HTMLElement, Component = any>(
     subjectRef: PartRef<Html, Component>,
