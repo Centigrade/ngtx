@@ -177,6 +177,24 @@ export const callsLifeCycleHooks = (
   };
 };
 
+export const part = <T>(subject: PartRef<any, T>) => {
+  return {
+    emits(eventName: keyof T, args?: any) {
+      return (state: DeclarativeTestState, fixture: NgtxFixture<any, any>) => {
+        const original = state.predicate;
+
+        return {
+          predicate: () => {
+            original?.();
+            subject().triggerEvent(eventName as string, args);
+            fixture.detectChanges();
+          },
+        } as DeclarativeTestState;
+      };
+    },
+  };
+};
+
 // ---------------------------------------
 // Module types
 // ---------------------------------------
