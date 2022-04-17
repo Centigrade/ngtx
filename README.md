@@ -10,7 +10,7 @@ ngtx stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of f
 
 ## Why?
 
-All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really just are steps on our way to our test-goal. Furthermore, while we care about production code to be clean and easy to understand, our testing code is left WET instead of DRY and hard to understand on the first glance.
+All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really are just steps on our way to our test-goal. Furthermore, while we care about production code to be clean and easy to understand, our testing code is left WET instead of DRY and hard to understand on the first glance.
 
 We can do better and we think we should. ngtx is meant to help you with that by "injecting" small "helpers" into your tests improving both, productivity and readability.
 
@@ -22,7 +22,7 @@ New to ngtx? Let's get you started with these links:
 - [Feature Overview][features]
 - [Api Documentation][documentation]
 
-Having questions or issues using ngtx? You may want to have a look on these links:
+Having questions or issues using ngtx? You may want to take a look at this:
 
 - [Examples][examples]
 - [StackOverflow][stackoverflow]
