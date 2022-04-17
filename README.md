@@ -1,6 +1,6 @@
 ![ngtx logo](./docs/media/logo.svg)
 
-> ngtx is in early stage. If you have ideas how to further improve it feel free to raise an issue and/or contribute.
+> If you have ideas how to further improve ngtx feel free to raise an issue and/or contribute.
 
 # @centigrade/ngtx
 
