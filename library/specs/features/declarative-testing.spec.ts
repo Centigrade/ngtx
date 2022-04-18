@@ -163,6 +163,17 @@ describe(
         .toHaveAttributes({ disabled: true });
     });
 
+    it('hasAttributes -> fail', () => {
+      try {
+        When(Components.Button)
+          .hasAttributes({ disabled: true })
+          .expect(Components.Button)
+          .toHaveAttributes({ disabled: false });
+
+        fail();
+      } catch {}
+    });
+
     it('toBeMissing', () => {
       When(host)
         .hasState({ showText: false })
