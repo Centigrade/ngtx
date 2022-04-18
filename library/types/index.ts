@@ -13,7 +13,7 @@ export type NgtxSuite<T> = Omit<
 > & {
   useFixture(fixture: ComponentFixture<T>, opts?: UseFixtureOptions): void;
   When: DeclarativeTestingApi<T>;
-  host(): NgtxElement<any, T>;
+  host(): NgtxElement<HTMLElement, T>;
 };
 
 export interface UseFixtureOptions {
@@ -21,7 +21,7 @@ export interface UseFixtureOptions {
   spyFactory?: (returnValue?: any) => any;
 }
 
-export type Fn<In, Out> = (a: In) => Out;
+export type Fn<In extends any[] = any[], Out = any> = (a: In) => Out;
 export type ConverterFn<Out> = Fn<any, Out>;
 
 export interface LifeCycleHooks {

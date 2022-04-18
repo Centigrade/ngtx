@@ -1,5 +1,5 @@
 import { ComponentFixture } from '@angular/core/testing';
-import { NgtxFixture } from './entities';
+import { NgtxElement, NgtxFixture } from './entities';
 import {
   createDeclarativeTestingApi,
   DeclarativeTestingApi,
@@ -47,7 +47,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
         ) as NgtxFixture<Html, T>;
       },
       When: When as DeclarativeTestingApi<T>,
-      host: () => ngtxFixture.rootElement as any,
+      host: () => ngtxFixture.rootElement as NgtxElement<HTMLElement, T>,
       detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
       get: ngtxFixture.get.bind(ngtxFixture),
       getAll: ngtxFixture.getAll.bind(ngtxFixture),
