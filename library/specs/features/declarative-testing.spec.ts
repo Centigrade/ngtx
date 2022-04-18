@@ -156,6 +156,13 @@ describe(
       });
     });
 
+    it('hasAttributes', () => {
+      When(Components.Button)
+        .hasAttributes({ disabled: true })
+        .expect(Components.Button)
+        .toHaveAttributes({ disabled: true });
+    });
+
     it('toBeMissing', () => {
       When(host)
         .hasState({ showText: false })
@@ -329,6 +336,37 @@ describe(
 
         fail();
       } catch {}
+    });
+
+    it('does/has/is() extension', () => {
+      const emitTimes: <T>(
+        event: Exclude<keyof T, Symbol | number>,
+        times: number,
+      ) => DeclarativeTestExtension<any, any, T> =
+        (event: string, times: number) => (_, fx) => {
+          return {
+            predicate: () => {
+              for (let i = 0; i < times; i++) {
+                fx.rootElement.componentInstance[event].emit();
+              }
+            },
+          };
+        };
+
+      When(host)
+        .does(emitTimes('textChange', 2))
+        .expect(host)
+        .toEmit('textChange', { times: 2 });
+
+      When(host)
+        .has(emitTimes('textChange', 2))
+        .expect(host)
+        .toEmit('textChange', { times: 2 });
+
+      When(host)
+        .is(emitTimes('textChange', 2))
+        .expect(host)
+        .toEmit('textChange', { times: 2 });
     });
   }),
 );
