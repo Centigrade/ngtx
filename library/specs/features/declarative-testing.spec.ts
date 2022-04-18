@@ -3,11 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import {
   assertEmission,
   callsLifeCycleHooks,
-  DeclarativeTestExtension,
-  EmissionOptions,
   tap,
   then,
 } from '../../features/declarative-testing';
+import {
+  DeclarativeTestExtension,
+  EmissionOptions,
+} from '../../features/types';
 import { ngtx } from '../../ngtx';
 
 class SomeService {

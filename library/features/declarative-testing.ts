@@ -1,7 +1,13 @@
 import { EventEmitter, Type } from '@angular/core';
-import { NgtxElement } from '../entities/element';
 import { NgtxFixture } from '../entities/fixture';
 import { Fn, LifeCycleHooks } from '../types';
+import {
+  DeclarativeTestExtension,
+  DeclarativeTestState,
+  EmissionOptions,
+  EventsOf,
+  PartRef,
+} from './types';
 
 export function createDeclarativeTestingApi<
   Host,
@@ -385,55 +391,6 @@ export const tap: (
     };
   };
 
-// ---------------------------------------
-// Module types
-// ---------------------------------------
-
-export interface EmissionOptions {
-  args?: any;
-  times?: number;
-  whichReturns?: any;
-}
-
-export type DeclarativeTestingApi<
-  Component,
-  Html extends HTMLElement = HTMLElement,
-> = ReturnType<Wrapper<Html, Component>['wrapped']> & {
-  setSpyFactory(spyFactory: (returnValue?: any) => any): void;
-};
-
-export type PartRef<Html extends HTMLElement, Type> = () => NgtxElement<
-  Html,
-  Type
->;
-
-export type EventsOf<T extends string | number | Symbol> =
-  T extends `on${infer Suffix}` ? Suffix : never;
-
-export interface DeclarativeTestState<Subject = any, Object = any> {
-  subject?: PartRef<any, Subject>;
-  predicate?: () => void;
-  object?: PartRef<any, Object>;
-  assertion?: () => void;
-}
-
-export type DeclarativeTestExtension<
-  Html extends HTMLElement,
-  Component,
-  Subject = any,
-  Object = any,
-> = (
-  input: DeclarativeTestState<Subject, Object>,
-  fixture: NgtxFixture<Html, Component>,
-) => DeclarativeTestState;
-
-// workaround, see: https://stackoverflow.com/a/64919133/3063191
-class Wrapper<Html extends HTMLElement, T> {
-  wrapped(e: NgtxFixture<Html, T>) {
-    return createDeclarativeTestingApi<T>(e);
-  }
-}
-
 export function assertEmission(spy: any, opts: EmissionOptions) {
   expect(spy).toHaveBeenCalled();
 
@@ -443,5 +400,23 @@ export function assertEmission(spy: any, opts: EmissionOptions) {
   }
   if (opts.times != null) {
     expect(spy).toHaveBeenCalledTimes(opts.times);
+  }
+}
+
+export type DeclarativeTestingApi<
+  Component,
+  Html extends HTMLElement = HTMLElement,
+> = ReturnType<Wrapper<Html, Component>['wrapped']> & {
+  setSpyFactory(spyFactory: (returnValue?: any) => any): void;
+};
+
+// ---------------------------------------
+// Module types
+// ---------------------------------------
+
+// workaround, see: https://stackoverflow.com/a/64919133/3063191
+class Wrapper<Html extends HTMLElement, T> {
+  wrapped(e: NgtxFixture<Html, T>) {
+    return createDeclarativeTestingApi<T>(e);
   }
 }
