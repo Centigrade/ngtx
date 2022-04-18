@@ -1,9 +1,12 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
+  assertEmission,
   callsLifeCycleHooks,
   DeclarativeTestExtension,
+  EmissionOptions,
   tap,
+  then,
 } from '../../features/declarative-testing';
 import { ngtx } from '../../ngtx';
 
@@ -266,11 +269,11 @@ describe(
         .toBePresent();
     });
 
-    it('toHaveCalled', () => {
+    it('toHaveCalledService', () => {
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalled(SomeService, 'someMethod');
+        .toHaveCalledService(SomeService, 'someMethod');
     });
 
     it('toHaveCalled -> fail', () => {
@@ -278,7 +281,7 @@ describe(
         When(Components.Button)
           .emits('abort')
           .expect(host)
-          .toHaveCalled(SomeService, 'someMethod');
+          .toHaveCalledService(SomeService, 'someMethod');
 
         fail();
       } catch {}
@@ -288,7 +291,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalled(SomeService, 'someMethod', { times: 1 });
+        .toHaveCalledService(SomeService, 'someMethod', { times: 1 });
     });
 
     it('toHaveCalled { times } -> fail', () => {
@@ -296,7 +299,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(host)
-          .toHaveCalled(SomeService, 'someMethod', { times: 2 });
+          .toHaveCalledService(SomeService, 'someMethod', { times: 2 });
 
         fail();
       } catch {}
@@ -306,7 +309,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalled(SomeService, 'someMethod', { args: 42 });
+        .toHaveCalledService(SomeService, 'someMethod', { args: 42 });
     });
 
     it('toHaveCalled { args } -> fail', () => {
@@ -314,7 +317,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(host)
-          .toHaveCalled(SomeService, 'someMethod', { args: null });
+          .toHaveCalledService(SomeService, 'someMethod', { args: null });
 
         fail();
       } catch {}
@@ -324,7 +327,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalled(SomeService, 'someMethod', {
+        .toHaveCalledService(SomeService, 'someMethod', {
           whichReturns: 'some value',
         });
 
@@ -378,6 +381,36 @@ describe(
         .is(emitTimes('textChange', 2))
         .expect(host)
         .toEmit('textChange', { times: 2 });
+    });
+
+    it('calls', () => {
+      const haveCalled: (
+        method: string,
+        opts?: Omit<EmissionOptions, 'whichReturns'>,
+      ) => DeclarativeTestExtension<any, any> =
+        (method: string, opts: EmissionOptions = {}) =>
+        ({ object, predicate }) => {
+          return {
+            predicate: () => {
+              object().componentInstance[method] = jest.fn();
+              predicate();
+            },
+            assertion: () => {
+              assertEmission(object().componentInstance[method], opts);
+            },
+          };
+        };
+
+      When(host)
+        .calls('onChange', 42)
+        .expect(host)
+        .to(haveCalled('onChange', { args: 42, times: 1 }));
+
+      When(host)
+        .rendered()
+        .and(then(host).calls('onChange', 42))
+        .expect(host)
+        .to(haveCalled('onChange', { args: 42, times: 1 }));
     });
   }),
 );

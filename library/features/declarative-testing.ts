@@ -38,7 +38,7 @@ export function createDeclarativeTestingApi<
 
             executeTest();
           },
-          toHaveCalled<T>(
+          toHaveCalledService<T>(
             injectionToken: Type<T>,
             methodName: keyof T,
             opts: EmissionOptions = {},
@@ -199,7 +199,7 @@ export function createDeclarativeTestingApi<
       has: does,
       /** alias for "does" */
       is: does,
-      calls(method: keyof Component | keyof Html, args: any[] = []) {
+      calls(method: keyof Component | keyof Html, ...args: any[]) {
         const original = state.predicate;
 
         state = {
@@ -316,7 +316,7 @@ export const then = <Html extends HTMLElement, Component>(
   subject: PartRef<Html, Component>,
 ) => {
   return {
-    calls(method: keyof Component | keyof Html, args: any[] = []) {
+    calls(method: keyof Component | keyof Html, ...args: any[]) {
       return (state: DeclarativeTestState, fixture: NgtxFixture<any, any>) => {
         const original = state.predicate;
 
@@ -434,7 +434,7 @@ class Wrapper<Html extends HTMLElement, T> {
   }
 }
 
-function assertEmission(spy: any, opts: EmissionOptions) {
+export function assertEmission(spy: any, opts: EmissionOptions) {
   expect(spy).toHaveBeenCalled();
 
   if (opts.args) {
