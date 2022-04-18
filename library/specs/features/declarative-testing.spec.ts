@@ -275,7 +275,13 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledService(SomeService, 'someMethod');
+        .toHaveCalledService(SomeService, 'someMethod', {
+          times: 1,
+          args: undefined,
+          whichReturns: 7911,
+        });
+
+      expect(host().componentInstance.returnValue).toBe(7911);
     });
 
     it('toHaveCalled -> fail', () => {
