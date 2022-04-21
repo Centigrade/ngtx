@@ -295,25 +295,28 @@ export function createDeclarativeTestingApi<
 // ---------------------------------------
 // Built-in extensions
 // ---------------------------------------
-export const overrideProviderState =
-  <T>(
-    token: Type<T>,
-    map: Partial<Record<keyof T, any>>,
-  ): DeclarativeTestExtension<any, any, T, unknown> =>
-  ({ subject, predicate }, fixture) => {
-    return {
-      predicate: () => {
-        const instance = subject().injector.get(token);
+export const provider = <T>(token: Type<T>) => {
+  return {
+    hasState(
+      map: Partial<Record<keyof T, any>>,
+    ): DeclarativeTestExtension<any, any, T, unknown> {
+      return ({ subject, predicate }, fixture) => {
+        return {
+          predicate: () => {
+            const instance = subject().injector.get(token);
 
-        Object.entries(map).forEach(([key, value]) => {
-          instance[key] = value;
-        });
+            Object.entries(map).forEach(([key, value]) => {
+              instance[key] = value;
+            });
 
-        fixture.detectChanges();
-        predicate?.();
-      },
-    };
+            fixture.detectChanges();
+            predicate?.();
+          },
+        };
+      };
+    },
   };
+};
 
 export const waitFakeAsync =
   (

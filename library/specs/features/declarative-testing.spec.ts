@@ -3,7 +3,7 @@ import { fakeAsync, TestBed } from '@angular/core/testing';
 import {
   assertEmission,
   callsLifeCycleHooks,
-  overrideProviderState,
+  provider,
   tap,
   then,
   waitFakeAsync,
@@ -474,19 +474,19 @@ describe(
       } catch {}
     }));
 
-    it('overrideProviderState', fakeAsync(() => {
+    it('provider().hasState()', fakeAsync(() => {
       When(host)
         .rendered()
-        .and(overrideProviderState(SomeService, { id: 42 }))
+        .and(provider(SomeService).hasState({ id: 42 }))
         .expect(host)
         .toHaveState({ token: expect.objectContaining({ id: 42 }) });
     }));
 
-    it('overrideProviderState -> fail', fakeAsync(() => {
+    it('provider().hasState() -> fail', fakeAsync(() => {
       try {
         When(host)
           .rendered()
-          .and(overrideProviderState(SomeService, { id: 42 }))
+          .and(provider(SomeService).hasState({ id: 42 }))
           .expect(host)
           .toHaveState({ token: expect.objectContaining({ id: 0 }) });
 
