@@ -420,6 +420,30 @@ describe(
         .expect(host)
         .to(haveCalled('onChange', { args: 42, times: 1 }));
     });
+
+    it('should provide a spyFactory function in extensions', () => {
+      const assertSpyFactory: DeclarativeTestExtension<any, any> = (
+        { assertion },
+        _,
+        factory,
+      ) => {
+        return {
+          assertion: () => {
+            assertion?.();
+
+            expect(factory).toBeInstanceOf(Function);
+            expect(factory()).toBeTruthy();
+            expect(factory(42)()).toBe(42);
+          },
+        };
+      };
+
+      When(host)
+        .does(assertSpyFactory)
+        .and(assertSpyFactory)
+        .expect(host)
+        .to(assertSpyFactory);
+    });
   }),
 );
 

@@ -18,8 +18,10 @@ export type NgtxSuite<T> = Omit<
 
 export interface UseFixtureOptions {
   skipInitialChangeDetection?: boolean;
-  spyFactory?: (returnValue?: any) => any;
+  spyFactory?: SpyFactoryFn;
 }
+
+export type SpyFactoryFn = (returnValue?: any) => any;
 
 export type Fn<In extends any[] = any[], Out = any> = (a: In) => Out;
 export type ConverterFn<Out> = Fn<any, Out>;

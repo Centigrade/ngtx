@@ -39,7 +39,7 @@ export function createDeclarativeTestingApi<
           to(assertion: DeclarativeTestExtension<HostHtml, Host>) {
             state = {
               ...state,
-              ...assertion(state, fx),
+              ...assertion(state, fx, spyFactory),
             };
 
             executeTest();
@@ -171,7 +171,7 @@ export function createDeclarativeTestingApi<
         let newState = state;
 
         extensions.forEach((extension) => {
-          newState = extension(newState, fx);
+          newState = extension(newState, fx, spyFactory);
         });
 
         state = {
@@ -189,7 +189,7 @@ export function createDeclarativeTestingApi<
     ) => {
       state = {
         ...state,
-        ...action(state, fx),
+        ...action(state, fx, spyFactory),
       };
 
       return afterActionApi;

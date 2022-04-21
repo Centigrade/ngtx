@@ -1,4 +1,5 @@
 import { NgtxElement, NgtxFixture } from '../entities';
+import { SpyFactoryFn } from '../types';
 
 export interface EmissionOptions {
   args?: any;
@@ -29,4 +30,5 @@ export type DeclarativeTestExtension<
 > = (
   input: DeclarativeTestState<Subject, Object>,
   fixture: NgtxFixture<Html, Component>,
-) => DeclarativeTestState;
+  spyFactory: SpyFactoryFn,
+) => DeclarativeTestState<Subject, Object>;
