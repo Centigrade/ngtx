@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed } from '@angular/core/testing';
 import {
   assertEmission,
   callsLifeCycleHooks,
+  overrideProviderState,
   tap,
   then,
+  waitFakeAsync,
 } from '../../features/declarative-testing';
 import {
   DeclarativeTestExtension,
@@ -13,6 +15,7 @@ import {
 import { ngtx } from '../../ngtx';
 
 class SomeService {
+  id = 0;
   someMethod(anyNumber: number) {}
 }
 
@@ -40,6 +43,12 @@ class DeclarativeTestComponent {
   ngOnInit() {}
 
   ngOnChanges(e: any) {}
+
+  asyncOperation() {
+    requestAnimationFrame(() => {
+      this.token.someMethod(42);
+    });
+  }
 }
 
 const fail = () => expect(false).toBe(true);
@@ -444,6 +453,46 @@ describe(
         .expect(host)
         .to(assertSpyFactory);
     });
+
+    it('waitFakeAsync', fakeAsync(() => {
+      When(host)
+        .calls('asyncOperation')
+        .and(waitFakeAsync('animationFrame'))
+        .expect(host)
+        .toHaveCalledService(SomeService, 'someMethod');
+    }));
+
+    it('waitFakeAsync -> fail', fakeAsync(() => {
+      try {
+        When(host)
+          .calls('asyncOperation')
+          .and(waitFakeAsync(0))
+          .expect(host)
+          .toHaveCalledService(SomeService, 'someMethod');
+
+        fail();
+      } catch {}
+    }));
+
+    it('overrideProviderState', fakeAsync(() => {
+      When(host)
+        .rendered()
+        .and(overrideProviderState(SomeService, { id: 42 }))
+        .expect(host)
+        .toHaveState({ token: expect.objectContaining({ id: 42 }) });
+    }));
+
+    it('overrideProviderState -> fail', fakeAsync(() => {
+      try {
+        When(host)
+          .rendered()
+          .and(overrideProviderState(SomeService, { id: 42 }))
+          .expect(host)
+          .toHaveState({ token: expect.objectContaining({ id: 0 }) });
+
+        fail();
+      } catch {}
+    }));
   }),
 );
 

@@ -1,4 +1,5 @@
 import { EventEmitter, Type } from '@angular/core';
+import { tick } from '@angular/core/testing';
 import { NgtxFixture } from '../entities/fixture';
 import { Fn, LifeCycleHooks } from '../types';
 import {
@@ -222,11 +223,11 @@ export function createDeclarativeTestingApi<
                 componentMethod
               ] as unknown as Fn;
 
-              fn.apply(undefined, args);
+              fn.apply(target.componentInstance, args);
             } else {
               const nativeMethod = method as keyof Html;
               const fn = target.nativeElement[nativeMethod] as unknown as Fn;
-              fn.apply(undefined, args);
+              fn.apply(target.nativeElement, args);
             }
 
             fx.detectChanges();
@@ -294,6 +295,40 @@ export function createDeclarativeTestingApi<
 // ---------------------------------------
 // Built-in extensions
 // ---------------------------------------
+export const overrideProviderState =
+  <T>(
+    token: Type<T>,
+    map: Partial<Record<keyof T, any>>,
+  ): DeclarativeTestExtension<any, any, T, unknown> =>
+  ({ subject, predicate }, fixture) => {
+    return {
+      predicate: () => {
+        const instance = subject().injector.get(token);
+
+        Object.entries(map).forEach(([key, value]) => {
+          instance[key] = value;
+        });
+
+        fixture.detectChanges();
+        predicate?.();
+      },
+    };
+  };
+
+export const waitFakeAsync =
+  (
+    waitDuration?: number | 'animationFrame',
+  ): DeclarativeTestExtension<any, any> =>
+  ({ predicate }) => {
+    return {
+      predicate: () => {
+        predicate?.();
+
+        const duration = waitDuration === 'animationFrame' ? 16 : waitDuration;
+        tick(duration);
+      },
+    };
+  };
 
 export const callsLifeCycleHooks = (
   hooks: Record<keyof LifeCycleHooks, any>,
