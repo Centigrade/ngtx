@@ -21,9 +21,11 @@ class SomeService {
 
 @Component({
   template: `
-    <input #txt [value]="text" (change)="onChange($event.target.value)" />
-    <button (click)="onChange($event); txt.focus()">Click to set text</button>
-    <p *ngIf="showText">{{ text }}</p>
+    <div [class.text-shown]="showText">
+      <input #txt [value]="text" (change)="onChange($event.target.value)" />
+      <button (click)="onChange($event); txt.focus()">Click to set text</button>
+      <p *ngIf="showText">{{ text }}</p>
+    </div>
   `,
 })
 class DeclarativeTestComponent {
@@ -79,6 +81,9 @@ describe(
       }
       static Text() {
         return get('p');
+      }
+      static Container() {
+        return get('div');
       }
     }
 
@@ -278,6 +283,13 @@ describe(
         .and(tap(() => expect(host().componentInstance.text).toBe('abc')))
         .expect(host)
         .toBePresent();
+    });
+
+    it('toHaveClass', () => {
+      When(host)
+        .hasState({ showText: true })
+        .expect(Components.Container)
+        .toHaveClass('text-shown');
     });
 
     it('toHaveCalledService', () => {

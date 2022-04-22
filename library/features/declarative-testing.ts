@@ -68,6 +68,18 @@ export function createDeclarativeTestingApi<
 
             executeTest();
           },
+          toHaveClass(className: string) {
+            state = {
+              ...state,
+              assertion: () => {
+                expect(objectRef().nativeElement.classList).toContain(
+                  className,
+                );
+              },
+            };
+
+            executeTest();
+          },
           toBePresent() {
             state = {
               ...state,
