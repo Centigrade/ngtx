@@ -68,13 +68,15 @@ export function createDeclarativeTestingApi<
 
             executeTest();
           },
-          toHaveClass(className: string) {
+          toHaveCssClass(...classNames: string[]) {
             state = {
               ...state,
               assertion: () => {
-                expect(objectRef().nativeElement.classList).toContain(
-                  className,
-                );
+                classNames.forEach((className) => {
+                  expect(objectRef().nativeElement.classList).toContain(
+                    className,
+                  );
+                });
               },
             };
 

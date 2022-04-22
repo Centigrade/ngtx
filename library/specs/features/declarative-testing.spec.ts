@@ -289,7 +289,7 @@ describe(
       When(host)
         .hasState({ showText: true })
         .expect(Components.Container)
-        .toHaveClass('text-shown');
+        .toHaveCssClass('text-shown');
     });
 
     it('toHaveCalledService', () => {
