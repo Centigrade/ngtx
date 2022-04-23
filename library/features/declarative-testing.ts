@@ -220,6 +220,8 @@ export function createDeclarativeTestingApi<
       has: does,
       /** alias for "does" */
       is: does,
+      /** alias for "does" */
+      gets: does,
       calls(method: keyof Component | keyof Html, ...args: any[]) {
         const original = state.predicate;
 

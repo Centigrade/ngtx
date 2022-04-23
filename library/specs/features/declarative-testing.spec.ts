@@ -381,7 +381,7 @@ describe(
       } catch {}
     });
 
-    it('does/has/is() extension', () => {
+    it('does/has/is/gets() extension', () => {
       const emitTimes: <T>(
         event: Exclude<keyof T, Symbol | number>,
         times: number,
@@ -408,6 +408,11 @@ describe(
 
       When(host)
         .is(emitTimes('textChange', 2))
+        .expect(host)
+        .toEmit('textChange', { times: 2 });
+
+      When(host)
+        .gets(emitTimes('textChange', 2))
         .expect(host)
         .toEmit('textChange', { times: 2 });
     });
