@@ -117,6 +117,19 @@ export interface DeclarativeTestState<
   assertion?: () => void;
 }
 
+export type TargetResolverFn<
+  SubjectHtml extends HTMLElement,
+  Subject,
+  ObjectHtml extends HTMLElement,
+  Object,
+  T,
+> = (
+  state: DeclarativeTestState<SubjectHtml, Subject, ObjectHtml, Object>,
+) => ITargetResolver<T>;
+export interface ITargetResolver<T> {
+  getInstance(): T;
+}
+
 export type DeclarativeTestExtension<
   Html extends HTMLElement,
   Component,

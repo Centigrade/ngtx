@@ -1,16 +1,15 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { fakeAsync, TestBed } from '@angular/core/testing';
 import {
-  assertEmission,
   callsLifeCycleHooks,
+  componentMethod,
+  elementMethod,
+  injected,
   provider,
   then,
   waitFakeAsync,
 } from '../../features/declarative-testing';
-import {
-  DeclarativeTestExtension,
-  EmissionOptions,
-} from '../../features/types';
+import { DeclarativeTestExtension } from '../../features/types';
 import { ngtx } from '../../ngtx';
 
 class SomeService {
@@ -275,11 +274,11 @@ describe(
         .toHaveCssClass('text-shown');
     });
 
-    it('toHaveCalledService', () => {
+    it('toHaveCalled', () => {
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledInjected(SomeService, 'someMethod', {
+        .toHaveCalled(injected(SomeService), 'someMethod', {
           times: 1,
           args: undefined,
           whichReturns: 7911,
@@ -293,7 +292,7 @@ describe(
         When(Components.Button)
           .emits('abort')
           .expect(host)
-          .toHaveCalledInjected(SomeService, 'someMethod');
+          .toHaveCalled(injected(SomeService), 'someMethod');
 
         fail();
       } catch {}
@@ -303,7 +302,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledInjected(SomeService, 'someMethod', { times: 1 });
+        .toHaveCalled(injected(SomeService), 'someMethod', { times: 1 });
     });
 
     it('toHaveCalled { times } -> fail', () => {
@@ -311,7 +310,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(host)
-          .toHaveCalledInjected(SomeService, 'someMethod', { times: 2 });
+          .toHaveCalled(injected(SomeService), 'someMethod', { times: 2 });
 
         fail();
       } catch {}
@@ -321,7 +320,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledInjected(SomeService, 'someMethod', { args: 42 });
+        .toHaveCalled(injected(SomeService), 'someMethod', { args: 42 });
     });
 
     it('toHaveCalled { args } -> fail', () => {
@@ -329,7 +328,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(host)
-          .toHaveCalledInjected(SomeService, 'someMethod', { args: null });
+          .toHaveCalled(injected(SomeService), 'someMethod', { args: null });
 
         fail();
       } catch {}
@@ -339,11 +338,25 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledInjected(SomeService, 'someMethod', {
+        .toHaveCalled(injected(SomeService), 'someMethod', {
           whichReturns: 'some value',
         });
 
       expect(host().componentInstance.returnValue).toEqual('some value');
+    });
+
+    it('toHaveCalled: componentMethod', () => {
+      When(Components.Button)
+        .emits('click')
+        .expect(host)
+        .toHaveCalled(componentMethod, 'onChange', { times: 1 });
+    });
+
+    it('toHaveCalled: elementMethod', () => {
+      When(Components.Button)
+        .emits('click')
+        .expect(Components.Input)
+        .toHaveCalled(elementMethod, 'focus', { times: 1 });
     });
 
     it('to() extension', () => {
@@ -407,40 +420,16 @@ describe(
     });
 
     it('calls', () => {
-      const haveCalled: <T>(
-        method: string,
-        opts?: Omit<EmissionOptions, 'whichReturns'>,
-      ) => DeclarativeTestExtension<
-        any,
-        any,
-        HTMLElement,
-        unknown,
-        HTMLElement,
-        T
-      > =
-        (method: string, opts: EmissionOptions = {}) =>
-        ({ object, predicate }) => {
-          return {
-            predicate: () => {
-              object().componentInstance[method] = jest.fn();
-              predicate();
-            },
-            assertion: () => {
-              assertEmission(object().componentInstance[method], opts);
-            },
-          };
-        };
-
       When(host)
         .calls('onChange', 42)
         .expect(host)
-        .to(haveCalled('onChange', { args: 42, times: 1 }));
+        .toHaveCalled(componentMethod, 'onChange', { args: 42, times: 1 });
 
       When(host)
         .rendered()
         .and(then(host).calls('onChange', 42))
         .expect(host)
-        .to(haveCalled('onChange', { args: 42, times: 1 }));
+        .toHaveCalled(componentMethod, 'onChange', { args: 42, times: 1 });
     });
 
     it('should provide a spyFactory function in extensions', () => {
@@ -475,7 +464,7 @@ describe(
         .calls('asyncOperation')
         .and(waitFakeAsync('animationFrame'))
         .expect(host)
-        .toHaveCalledInjected(SomeService, 'someMethod');
+        .toHaveCalled(injected(SomeService), 'someMethod');
     }));
 
     it('waitFakeAsync', fakeAsync(() => {
@@ -483,7 +472,7 @@ describe(
         .calls('asyncOperation')
         .and(waitFakeAsync('animationFrame'))
         .expect(host)
-        .toHaveCalledInjected(SomeService, 'someMethod');
+        .toHaveCalled(injected(SomeService), 'someMethod');
     }));
 
     it('waitFakeAsync -> fail', fakeAsync(() => {
@@ -492,7 +481,7 @@ describe(
           .calls('asyncOperation')
           .and(waitFakeAsync(0))
           .expect(host)
-          .toHaveCalledInjected(SomeService, 'someMethod');
+          .toHaveCalled(injected(SomeService), 'someMethod');
 
         fail();
       } catch {}

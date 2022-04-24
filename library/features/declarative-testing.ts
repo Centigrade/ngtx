@@ -7,7 +7,9 @@ import {
   DeclarativeTestState,
   EmissionOptions,
   EventsOf,
+  ITargetResolver,
   PartRef,
+  TargetResolverFn,
 } from './types';
 
 export function createDeclarativeTestingApi<
@@ -78,21 +80,28 @@ export function createDeclarativeTestingApi<
            * @param methodName The method name that is expected to be called.
            * @param opts `EmissionOptions` specifying what to assert.
            */
-          toHaveCalledInjected<T>(
-            injectionToken: Type<T>,
-            methodName: keyof T,
+          toHaveCalled<T>(
+            targetResolver: TargetResolverFn<
+              HTMLElement,
+              unknown,
+              ObjectHtml,
+              ObjectType,
+              T
+            >,
+            method: keyof T,
             opts: EmissionOptions = {},
           ) {
-            const originalPredicate = state.predicate;
             const spy = spyFactory(opts.whichReturns);
+            const predicate = state.predicate;
 
             state = {
               ...state,
               predicate: () => {
-                const instance = objectRef().injector.get(injectionToken);
-                instance[methodName] = spy;
+                const result = targetResolver(state);
+                const instance = result.getInstance();
+                instance[method] = spy;
 
-                originalPredicate?.();
+                predicate?.();
               },
               assertion: () => {
                 assertEmission(spy, opts);
@@ -358,51 +367,38 @@ export function createDeclarativeTestingApi<
 }
 
 // ---------------------------------------
-// Built-in extensions
+// Built-in target resolver
 // ---------------------------------------
-export const componentMethod =
-  <T>(
-    method: keyof T,
-  ): DeclarativeTestExtension<
-    HTMLElement,
-    unknown,
-    HTMLElement,
-    T,
-    HTMLElement,
-    unknown
-  > =>
-  ({}) => {
-    return {};
+
+export const elementMethod = <T extends HTMLElement>(
+  state: DeclarativeTestState<HTMLElement, unknown, T, unknown>,
+): ITargetResolver<T> => {
+  return {
+    getInstance: () => state.object().nativeElement,
   };
+};
+
+export const componentMethod = <T>(
+  state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, T>,
+): ITargetResolver<T> => {
+  return {
+    getInstance: () => state.object().componentInstance,
+  };
+};
 
 export const injected =
-  <T>(
-    token: Type<T>,
-    method: keyof T,
-    opts: EmissionOptions = {},
-  ): DeclarativeTestExtension<
-    HTMLElement,
-    unknown,
-    HTMLElement,
-    T,
-    HTMLElement,
-    unknown
-  > =>
-  ({ object, predicate }, _, spyFactory) => {
-    const spy = spyFactory(opts.whichReturns);
-
+  <T>(token: Type<T>) =>
+  (
+    state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
+  ): ITargetResolver<T> => {
     return {
-      predicate: () => {
-        const instance = object().injector.get(token);
-        instance[method] = spy;
-
-        predicate?.();
-      },
-      assertion: () => {
-        assertEmission(spy, opts);
-      },
+      getInstance: () => state.object().injector.get(token),
     };
   };
+
+// ---------------------------------------
+// Built-in extensions
+// ---------------------------------------
 
 export const provider = <T>(token: Type<T>) => {
   return {
