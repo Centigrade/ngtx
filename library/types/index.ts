@@ -1,7 +1,7 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from '../entities';
-import { DeclarativeTestingApi } from '../features/declarative-testing';
+import { TestingApiFactoryFn } from '../features/api';
 
 export type NgtxSuite<T> = Omit<
   NgtxFixture<any, any>,
@@ -31,7 +31,7 @@ export type NgtxSuite<T> = Omit<
     fixture: ComponentFixture<T>,
     skipInitialChangeDetection?: boolean,
   ): void;
-  When: DeclarativeTestingApi<T>;
+  When: ReturnType<TestingApiFactoryFn>;
   host(): NgtxElement<HTMLElement, T>;
 };
 

@@ -1,7 +1,14 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { NgtxFixture } from '../entities/fixture';
-import { Fn, LifeCycleHooks, SpyFactoryFn } from '../types';
+import { Fn, LifeCycleHooks } from '../types';
+import {
+  AfterPredicateApi,
+  DeclarativeTestingApi,
+  Expectations,
+  ExtensionsApi,
+  TestingApiFactoryFn,
+} from './api';
 import {
   DeclarativeTestExtension,
   DeclarativeTestState,
@@ -12,10 +19,12 @@ import {
   TargetResolverFn,
 } from './types';
 
-export function createDeclarativeTestingApi<
+export const createDeclarativeTestingApi: TestingApiFactoryFn = <
   Host,
   HostHtml extends HTMLElement = HTMLElement,
->(fx: NgtxFixture<HostHtml, Host>) {
+>(
+  fx: NgtxFixture<HostHtml, Host>,
+) => {
   let spyFactory = (returnValue?: any): any => {
     throw new Error(
       `No spy-factory passed to ngtx. Please call useFixture(fixture, { spyFactory: () => <spyInstance> })`,
@@ -24,7 +33,7 @@ export function createDeclarativeTestingApi<
 
   const testingApi = <Html extends HTMLElement = HTMLElement, Component = any>(
     subjectRef: PartRef<Html, Component>,
-  ) => {
+  ): DeclarativeTestingApi<HostHtml, Host, Html, Component> => {
     let state: DeclarativeTestState<any, any, any, any> = {};
     state = { subject: subjectRef };
 
@@ -34,29 +43,12 @@ export function createDeclarativeTestingApi<
     };
 
     const expectApi = {
-      /**
-       * Defines the **object** part of the test-case.
-       *
-       * ---
-       *
-       * A declarative test case consists of:
-       *
-       *  - `<subject> <predicate> <object> <assertion>`
-       *
-       * similar to a sentence in human language. The **subject** does something (= **predicate**)
-       * affecting the **object** which will be checked in the **assertion**.
-       * @param objectRef The `PartRef` that is going to be checked for the test's assertion.
-       * @returns A number of assertions that can be made upon the **object**.
-       */
       expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
         objectRef: PartRef<ObjectHtml, ObjectType>,
-      ) {
+      ): Expectations<HostHtml, Host, ObjectHtml, ObjectType> {
         state = { ...state, object: objectRef };
+
         return {
-          /**
-           * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.
-           * @param assertion `DeclarativeTestExtension`-function that adds an assertion to the `DeclarativeTestState`.
-           */
           to(
             assertion: DeclarativeTestExtension<
               HostHtml,
@@ -74,12 +66,6 @@ export function createDeclarativeTestingApi<
 
             executeTest();
           },
-          /**
-           * Injects the specified injection token and asserts that the test's **object** calls a method on it.
-           * @param injectionToken The token to resolve from the **object's** dependency injection.
-           * @param methodName The method name that is expected to be called.
-           * @param opts `EmissionOptions` specifying what to assert.
-           */
           toHaveCalled<T>(
             targetResolver: TargetResolverFn<
               HTMLElement,
@@ -223,7 +209,7 @@ export function createDeclarativeTestingApi<
       },
     };
 
-    const extensionApi = {
+    const extensionApi: ExtensionsApi<HostHtml, Host> = {
       and(
         ...extensions: DeclarativeTestExtension<
           HostHtml,
@@ -249,7 +235,12 @@ export function createDeclarativeTestingApi<
       },
     };
 
-    const afterActionApi = Object.assign({}, extensionApi, expectApi);
+    const afterActionApi: AfterPredicateApi<HostHtml, Host> = Object.assign(
+      {},
+      extensionApi,
+      expectApi,
+    );
+
     const does = (
       action: DeclarativeTestExtension<
         HostHtml,
@@ -364,7 +355,7 @@ export function createDeclarativeTestingApi<
       spyFactory = spyFt;
     },
   });
-}
+};
 
 // ---------------------------------------
 // Built-in target resolver
@@ -484,18 +475,32 @@ export const callsLifeCycleHooks = (
 export const then = <Html extends HTMLElement, Component>(
   subject: PartRef<Html, Component>,
 ) => {
+  return thenApi(subject);
+};
+
+export const emits = thenApi().emits;
+export const calls = thenApi().calls;
+
+// ---------------------------------------
+// Internal api
+// ---------------------------------------
+
+function thenApi<Html extends HTMLElement, Component>(
+  subjectRef?: PartRef<Html, Component>,
+) {
   return {
     calls(method: keyof Component | keyof Html, ...args: any[]) {
       return (
-        state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
+        {
+          subject,
+          predicate,
+        }: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
         fixture: NgtxFixture<any, any>,
       ): DeclarativeTestState<Html, Component, HTMLElement, unknown> => {
-        const original = state.predicate;
-
         return {
           predicate: () => {
-            original?.();
-            const target = subject();
+            predicate?.();
+            const target = subjectRef();
             const componentMethod = method as keyof Component;
 
             if (
@@ -527,16 +532,35 @@ export const then = <Html extends HTMLElement, Component>(
         return {
           predicate: () => {
             original?.();
-            subject().triggerEvent(eventName as string, args);
+            subjectRef().triggerEvent(eventName as string, args);
             fixture.detectChanges();
           },
         };
       };
     },
   };
-};
+}
 
-export function assertEmission(spy: any, opts: EmissionOptions) {
+// ---------------------------------------
+// Exported types that must be in this module
+// ---------------------------------------
+
+// export type DeclarativeTestingApi<
+//   Component,
+//   Html extends HTMLElement = HTMLElement,
+// > = ReturnType<Wrapper<Html, Component>['wrapped']> & {
+// /**
+//  * Sets the spyFactory for ngtx to use with declarative testing.
+//  * @param spyFactory A factory function that returns a testing-framework-specific spy.
+//  */
+// setSpyFactory(spyFactory: SpyFactoryFn): void;
+// };
+
+// ---------------------------------------
+// Module internal
+// ---------------------------------------
+
+function assertEmission(spy: any, opts: EmissionOptions) {
   expect(spy).toHaveBeenCalled();
 
   if (opts.args) {
@@ -545,27 +569,5 @@ export function assertEmission(spy: any, opts: EmissionOptions) {
   }
   if (opts.times != null) {
     expect(spy).toHaveBeenCalledTimes(opts.times);
-  }
-}
-
-export type DeclarativeTestingApi<
-  Component,
-  Html extends HTMLElement = HTMLElement,
-> = ReturnType<Wrapper<Html, Component>['wrapped']> & {
-  /**
-   * Sets the spyFactory for ngtx to use with declarative testing.
-   * @param spyFactory A factory function that returns a testing-framework-specific spy.
-   */
-  setSpyFactory(spyFactory: SpyFactoryFn): void;
-};
-
-// ---------------------------------------
-// Module types
-// ---------------------------------------
-
-// workaround, see: https://stackoverflow.com/a/64919133/3063191
-class Wrapper<Html extends HTMLElement, T> {
-  wrapped(e: NgtxFixture<Html, T>) {
-    return createDeclarativeTestingApi<T>(e);
   }
 }
