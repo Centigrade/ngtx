@@ -35,15 +35,20 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
     suite({
       useFixture: <Html extends HTMLElement = HTMLElement, T = any>(
         fixture: ComponentFixture<T>,
-        opts: UseFixtureOptions = {},
+        opts: UseFixtureOptions | boolean = {},
       ): NgtxFixture<Html, T> => {
-        if (opts.spyFactory) {
-          When.setSpyFactory(opts.spyFactory);
+        const options: UseFixtureOptions =
+          typeof opts === 'boolean'
+            ? { skipInitialChangeDetection: opts }
+            : opts;
+
+        if (options.spyFactory) {
+          When.setSpyFactory(options.spyFactory);
         }
 
         return ngtxFixture.useFixture(
           fixture,
-          opts.skipInitialChangeDetection,
+          options.skipInitialChangeDetection,
         ) as NgtxFixture<Html, T>;
       },
       When: When as DeclarativeTestingApi<T>,

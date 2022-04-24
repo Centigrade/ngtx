@@ -4,7 +4,6 @@ import {
   assertEmission,
   callsLifeCycleHooks,
   provider,
-  tap,
   then,
   waitFakeAsync,
 } from '../../features/declarative-testing';
@@ -269,22 +268,6 @@ describe(
       When(host).rendered().expect(host).toHaveState({});
     });
 
-    it('extension: tap before', () => {
-      When(host)
-        .hasState({ text: 'abc' })
-        .and(tap(() => expect(host().componentInstance.text).toBe(''), true))
-        .expect(host)
-        .toBePresent();
-    });
-
-    it('extension: tap after', () => {
-      When(host)
-        .hasState({ text: 'abc' })
-        .and(tap(() => expect(host().componentInstance.text).toBe('abc')))
-        .expect(host)
-        .toBePresent();
-    });
-
     it('toHaveClass', () => {
       When(host)
         .hasState({ showText: true })
@@ -296,7 +279,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledService(SomeService, 'someMethod', {
+        .toHaveCalledInjected(SomeService, 'someMethod', {
           times: 1,
           args: undefined,
           whichReturns: 7911,
@@ -310,7 +293,7 @@ describe(
         When(Components.Button)
           .emits('abort')
           .expect(host)
-          .toHaveCalledService(SomeService, 'someMethod');
+          .toHaveCalledInjected(SomeService, 'someMethod');
 
         fail();
       } catch {}
@@ -320,7 +303,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledService(SomeService, 'someMethod', { times: 1 });
+        .toHaveCalledInjected(SomeService, 'someMethod', { times: 1 });
     });
 
     it('toHaveCalled { times } -> fail', () => {
@@ -328,7 +311,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(host)
-          .toHaveCalledService(SomeService, 'someMethod', { times: 2 });
+          .toHaveCalledInjected(SomeService, 'someMethod', { times: 2 });
 
         fail();
       } catch {}
@@ -338,7 +321,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledService(SomeService, 'someMethod', { args: 42 });
+        .toHaveCalledInjected(SomeService, 'someMethod', { args: 42 });
     });
 
     it('toHaveCalled { args } -> fail', () => {
@@ -346,7 +329,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(host)
-          .toHaveCalledService(SomeService, 'someMethod', { args: null });
+          .toHaveCalledInjected(SomeService, 'someMethod', { args: null });
 
         fail();
       } catch {}
@@ -356,7 +339,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalledService(SomeService, 'someMethod', {
+        .toHaveCalledInjected(SomeService, 'someMethod', {
           whichReturns: 'some value',
         });
 
@@ -367,7 +350,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(Components.Input)
-        .to(haveFocus);
+        .to(haveFocus());
     });
 
     it('to() extension -> fail', () => {
@@ -375,7 +358,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(Components.Text)
-          .to(haveFocus);
+          .to(haveFocus());
 
         fail();
       } catch {}
@@ -385,16 +368,22 @@ describe(
       const emitTimes: <T>(
         event: Exclude<keyof T, Symbol | number>,
         times: number,
-      ) => DeclarativeTestExtension<any, any, T> =
-        (event: string, times: number) => (_, fx) => {
-          return {
-            predicate: () => {
-              for (let i = 0; i < times; i++) {
-                fx.rootElement.componentInstance[event].emit();
-              }
-            },
-          };
+      ) => DeclarativeTestExtension<
+        any,
+        any,
+        HTMLElement,
+        T,
+        HTMLElement,
+        unknown
+      > = (event: string, times: number) => (_, fx) => {
+        return {
+          predicate: () => {
+            for (let i = 0; i < times; i++) {
+              fx.rootElement.componentInstance[event].emit();
+            }
+          },
         };
+      };
 
       When(host)
         .does(emitTimes('textChange', 2))
@@ -418,10 +407,17 @@ describe(
     });
 
     it('calls', () => {
-      const haveCalled: (
+      const haveCalled: <T>(
         method: string,
         opts?: Omit<EmissionOptions, 'whichReturns'>,
-      ) => DeclarativeTestExtension<any, any> =
+      ) => DeclarativeTestExtension<
+        any,
+        any,
+        HTMLElement,
+        unknown,
+        HTMLElement,
+        T
+      > =
         (method: string, opts: EmissionOptions = {}) =>
         ({ object, predicate }) => {
           return {
@@ -448,11 +444,14 @@ describe(
     });
 
     it('should provide a spyFactory function in extensions', () => {
-      const assertSpyFactory: DeclarativeTestExtension<any, any> = (
-        { assertion },
-        _,
-        factory,
-      ) => {
+      const assertSpyFactory: DeclarativeTestExtension<
+        any,
+        any,
+        HTMLElement,
+        any,
+        HTMLElement,
+        any
+      > = ({ assertion }, _, factory) => {
         return {
           assertion: () => {
             assertion?.();
@@ -471,12 +470,20 @@ describe(
         .to(assertSpyFactory);
     });
 
+    it('injected', fakeAsync(() => {
+      When(host)
+        .calls('asyncOperation')
+        .and(waitFakeAsync('animationFrame'))
+        .expect(host)
+        .toHaveCalledInjected(SomeService, 'someMethod');
+    }));
+
     it('waitFakeAsync', fakeAsync(() => {
       When(host)
         .calls('asyncOperation')
         .and(waitFakeAsync('animationFrame'))
         .expect(host)
-        .toHaveCalledService(SomeService, 'someMethod');
+        .toHaveCalledInjected(SomeService, 'someMethod');
     }));
 
     it('waitFakeAsync -> fail', fakeAsync(() => {
@@ -485,7 +492,7 @@ describe(
           .calls('asyncOperation')
           .and(waitFakeAsync(0))
           .expect(host)
-          .toHaveCalledService(SomeService, 'someMethod');
+          .toHaveCalledInjected(SomeService, 'someMethod');
 
         fail();
       } catch {}
@@ -513,14 +520,20 @@ describe(
   }),
 );
 
-const haveFocus: DeclarativeTestExtension<any, any> = ({
-  assertion,
-  object,
-}) => {
-  return {
-    assertion: () => {
-      assertion?.();
-      expect(document.activeElement).toBe(object().nativeElement);
-    },
+const haveFocus =
+  <T extends HTMLElement>(): DeclarativeTestExtension<
+    any,
+    any,
+    HTMLElement,
+    any,
+    T,
+    any
+  > =>
+  ({ assertion, object }) => {
+    return {
+      assertion: () => {
+        assertion?.();
+        expect(document.activeElement).toBe(object().nativeElement);
+      },
+    };
   };
-};

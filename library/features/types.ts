@@ -1,12 +1,28 @@
 import { NgtxElement, NgtxFixture } from '../entities';
 import { SpyFactoryFn } from '../types';
 
+/**
+ * Defines options what aspects of a spy should be asserted.
+ *
+ * **Example:**
+ * ~~~ts
+ * ...expect(...).toHaveCalledService(AuthService, 'isLoggedIn', {
+ *   args: 'user.name',
+ *   times: 1,
+ *   whichReturns: true
+ * });
+ * ~~~
+ */
 export interface EmissionOptions {
+  /** The value that was passed as (only) argument to the spy. */
   args?: any;
+  /** The number of times the spy was called. */
   times?: number;
+  /** The return-value that the spy should return when being called. */
   whichReturns?: any;
 }
 
+/** A function with no parameters returning a `NgtxElement`. */
 export type PartRef<Html extends HTMLElement, Type> = () => NgtxElement<
   Html,
   Type
@@ -28,7 +44,12 @@ export type EventsOf<T extends string | number | Symbol> =
  * This state can be mutated by setting a subject or object to a `PartRef`
  * or by overriding or wrapping the `predicate` or `assertion` function.
  */
-export interface DeclarativeTestState<Subject = any, Object = any> {
+export interface DeclarativeTestState<
+  SubjectHtml extends HTMLElement,
+  Subject,
+  ObjectHtml extends HTMLElement,
+  Object,
+> {
   /**
    * The `subject` of the test case that *has* or *does* something.
    * It will most likely be used in the `predicate` statement that
@@ -36,7 +57,7 @@ export interface DeclarativeTestState<Subject = any, Object = any> {
    *
    * Set the `subject` in the test case for later use in the `predicate`.
    */
-  subject?: PartRef<any, Subject>;
+  subject?: PartRef<SubjectHtml, Subject>;
   /**
    * The `predicate` of the test case that describes what actions has to
    * be done, before assertions can be made. Override or wrap this function
@@ -69,7 +90,7 @@ export interface DeclarativeTestState<Subject = any, Object = any> {
    * will be made. This part of the state will most likely be used in the
    * `assertion` function to make assertions on it.
    */
-  object?: PartRef<any, Object>;
+  object?: PartRef<ObjectHtml, Object>;
   /**
    * The `assertion` part of the test case. Override or wrap this function in
    * order to run expectations on the test's `object`. In traditional (AAA)
@@ -99,10 +120,12 @@ export interface DeclarativeTestState<Subject = any, Object = any> {
 export type DeclarativeTestExtension<
   Html extends HTMLElement,
   Component,
-  Subject = any,
-  Object = any,
+  SubjectHtml extends HTMLElement,
+  Subject,
+  ObjectHtml extends HTMLElement,
+  Object,
 > = (
-  input: DeclarativeTestState<Subject, Object>,
+  input: DeclarativeTestState<HTMLElement, Subject, ObjectHtml, Object>,
   fixture: NgtxFixture<Html, Component>,
   spyFactory: SpyFactoryFn,
-) => DeclarativeTestState<Subject, Object>;
+) => DeclarativeTestState<SubjectHtml, Subject, ObjectHtml, Object>;

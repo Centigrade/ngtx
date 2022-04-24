@@ -1,7 +1,7 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { NgtxFixture } from '../entities/fixture';
-import { Fn, LifeCycleHooks } from '../types';
+import { Fn, LifeCycleHooks, SpyFactoryFn } from '../types';
 import {
   DeclarativeTestExtension,
   DeclarativeTestState,
@@ -23,7 +23,7 @@ export function createDeclarativeTestingApi<
   const testingApi = <Html extends HTMLElement = HTMLElement, Component = any>(
     subjectRef: PartRef<Html, Component>,
   ) => {
-    let state: DeclarativeTestState = {};
+    let state: DeclarativeTestState<any, any, any, any> = {};
     state = { subject: subjectRef };
 
     const executeTest = () => {
@@ -32,12 +32,39 @@ export function createDeclarativeTestingApi<
     };
 
     const expectApi = {
+      /**
+       * Defines the **object** part of the test-case.
+       *
+       * ---
+       *
+       * A declarative test case consists of:
+       *
+       *  - `<subject> <predicate> <object> <assertion>`
+       *
+       * similar to a sentence in human language. The **subject** does something (= **predicate**)
+       * affecting the **object** which will be checked in the **assertion**.
+       * @param objectRef The `PartRef` that is going to be checked for the test's assertion.
+       * @returns A number of assertions that can be made upon the **object**.
+       */
       expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
         objectRef: PartRef<ObjectHtml, ObjectType>,
       ) {
         state = { ...state, object: objectRef };
         return {
-          to(assertion: DeclarativeTestExtension<HostHtml, Host>) {
+          /**
+           * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.
+           * @param assertion `DeclarativeTestExtension`-function that adds an assertion to the `DeclarativeTestState`.
+           */
+          to(
+            assertion: DeclarativeTestExtension<
+              HostHtml,
+              Host,
+              HTMLElement,
+              unknown,
+              ObjectHtml,
+              ObjectType
+            >,
+          ) {
             state = {
               ...state,
               ...assertion(state, fx, spyFactory),
@@ -45,7 +72,13 @@ export function createDeclarativeTestingApi<
 
             executeTest();
           },
-          toHaveCalledService<T>(
+          /**
+           * Injects the specified injection token and asserts that the test's **object** calls a method on it.
+           * @param injectionToken The token to resolve from the **object's** dependency injection.
+           * @param methodName The method name that is expected to be called.
+           * @param opts `EmissionOptions` specifying what to assert.
+           */
+          toHaveCalledInjected<T>(
             injectionToken: Type<T>,
             methodName: keyof T,
             opts: EmissionOptions = {},
@@ -182,7 +215,16 @@ export function createDeclarativeTestingApi<
     };
 
     const extensionApi = {
-      and(...extensions: DeclarativeTestExtension<HostHtml, Host>[]) {
+      and(
+        ...extensions: DeclarativeTestExtension<
+          HostHtml,
+          Host,
+          HTMLElement,
+          unknown,
+          HTMLElement,
+          unknown
+        >[]
+      ) {
         let newState = state;
 
         extensions.forEach((extension) => {
@@ -200,7 +242,14 @@ export function createDeclarativeTestingApi<
 
     const afterActionApi = Object.assign({}, extensionApi, expectApi);
     const does = (
-      action: DeclarativeTestExtension<HostHtml, Host, Component, unknown>,
+      action: DeclarativeTestExtension<
+        HostHtml,
+        Host,
+        HTMLElement,
+        Component,
+        HTMLElement,
+        unknown
+      >,
     ) => {
       state = {
         ...state,
@@ -311,11 +360,62 @@ export function createDeclarativeTestingApi<
 // ---------------------------------------
 // Built-in extensions
 // ---------------------------------------
+export const componentMethod =
+  <T>(
+    method: keyof T,
+  ): DeclarativeTestExtension<
+    HTMLElement,
+    unknown,
+    HTMLElement,
+    T,
+    HTMLElement,
+    unknown
+  > =>
+  ({}) => {
+    return {};
+  };
+
+export const injected =
+  <T>(
+    token: Type<T>,
+    method: keyof T,
+    opts: EmissionOptions = {},
+  ): DeclarativeTestExtension<
+    HTMLElement,
+    unknown,
+    HTMLElement,
+    T,
+    HTMLElement,
+    unknown
+  > =>
+  ({ object, predicate }, _, spyFactory) => {
+    const spy = spyFactory(opts.whichReturns);
+
+    return {
+      predicate: () => {
+        const instance = object().injector.get(token);
+        instance[method] = spy;
+
+        predicate?.();
+      },
+      assertion: () => {
+        assertEmission(spy, opts);
+      },
+    };
+  };
+
 export const provider = <T>(token: Type<T>) => {
   return {
     hasState(
       map: Partial<Record<keyof T, any>>,
-    ): DeclarativeTestExtension<any, any, T, unknown> {
+    ): DeclarativeTestExtension<
+      any,
+      any,
+      HTMLElement,
+      T,
+      HTMLElement,
+      unknown
+    > {
       return ({ subject, predicate }, fixture) => {
         return {
           predicate: () => {
@@ -337,7 +437,14 @@ export const provider = <T>(token: Type<T>) => {
 export const waitFakeAsync =
   (
     waitDuration?: number | 'animationFrame',
-  ): DeclarativeTestExtension<any, any> =>
+  ): DeclarativeTestExtension<
+    any,
+    any,
+    HTMLElement,
+    unknown,
+    HTMLElement,
+    unknown
+  > =>
   ({ predicate }) => {
     return {
       predicate: () => {
@@ -351,14 +458,20 @@ export const waitFakeAsync =
 
 export const callsLifeCycleHooks = (
   hooks: Record<keyof LifeCycleHooks, any>,
-): DeclarativeTestExtension<HTMLElement, LifeCycleHooks> => {
-  return (state, fixture) => {
-    const original = state.predicate;
+): DeclarativeTestExtension<
+  HTMLElement,
+  unknown,
+  HTMLElement,
+  LifeCycleHooks,
+  HTMLElement,
+  unknown
+> => {
+  return ({ subject, predicate }) => {
     return {
       predicate: () => {
-        original?.();
+        predicate?.();
 
-        const component = fixture.rootElement.componentInstance;
+        const component = subject().componentInstance;
 
         if (hooks.ngOnInit) {
           component.ngOnInit();
@@ -377,7 +490,10 @@ export const then = <Html extends HTMLElement, Component>(
 ) => {
   return {
     calls(method: keyof Component | keyof Html, ...args: any[]) {
-      return (state: DeclarativeTestState, fixture: NgtxFixture<any, any>) => {
+      return (
+        state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
+        fixture: NgtxFixture<any, any>,
+      ): DeclarativeTestState<Html, Component, HTMLElement, unknown> => {
         const original = state.predicate;
 
         return {
@@ -402,11 +518,14 @@ export const then = <Html extends HTMLElement, Component>(
 
             fixture.detectChanges();
           },
-        } as DeclarativeTestState;
+        };
       };
     },
     emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
-      return (state: DeclarativeTestState, fixture: NgtxFixture<any, any>) => {
+      return (
+        state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
+        fixture: NgtxFixture<any, any>,
+      ): DeclarativeTestState<Html, Component, HTMLElement, unknown> => {
         const original = state.predicate;
 
         return {
@@ -415,35 +534,11 @@ export const then = <Html extends HTMLElement, Component>(
             subject().triggerEvent(eventName as string, args);
             fixture.detectChanges();
           },
-        } as DeclarativeTestState;
+        };
       };
     },
   };
 };
-
-export const tap: (
-  action?: (state: DeclarativeTestState) => any,
-  before?: boolean,
-) => DeclarativeTestExtension<any, any> =
-  (action: (state: DeclarativeTestState) => any, before = false) =>
-  (state) => {
-    const originalPredicate = state.predicate;
-    const after = !before;
-
-    return {
-      predicate: () => {
-        if (before) {
-          action?.(state);
-        }
-
-        originalPredicate?.();
-
-        if (after) {
-          action?.(state);
-        }
-      },
-    };
-  };
 
 export function assertEmission(spy: any, opts: EmissionOptions) {
   expect(spy).toHaveBeenCalled();
@@ -461,7 +556,11 @@ export type DeclarativeTestingApi<
   Component,
   Html extends HTMLElement = HTMLElement,
 > = ReturnType<Wrapper<Html, Component>['wrapped']> & {
-  setSpyFactory(spyFactory: (returnValue?: any) => any): void;
+  /**
+   * Sets the spyFactory for ngtx to use with declarative testing.
+   * @param spyFactory A factory function that returns a testing-framework-specific spy.
+   */
+  setSpyFactory(spyFactory: SpyFactoryFn): void;
 };
 
 // ---------------------------------------

@@ -1,5 +1,4 @@
 export {
-  Chainable,
   ConverterFn,
   LifeCycleHooks,
   NgtxSuite,
