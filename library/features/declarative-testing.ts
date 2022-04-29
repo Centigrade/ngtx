@@ -475,9 +475,6 @@ export const then = <Html extends HTMLElement, Component>(
   return thenApi(subject);
 };
 
-export const emits = thenApi().emits;
-export const calls = thenApi().calls;
-
 // ---------------------------------------
 // Internal api
 // ---------------------------------------
@@ -489,7 +486,6 @@ function thenApi<Html extends HTMLElement, Component>(
     calls(method: keyof Component | keyof Html, ...args: any[]) {
       return (
         {
-          subject,
           predicate,
         }: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
         fixture: NgtxFixture<any, any>,
@@ -507,11 +503,11 @@ function thenApi<Html extends HTMLElement, Component>(
                 componentMethod
               ] as unknown as Fn;
 
-              fn.apply(undefined, args);
+              fn.apply(target.componentInstance, args);
             } else {
               const nativeMethod = method as keyof Html;
               const fn = target.nativeElement[nativeMethod] as unknown as Fn;
-              fn.apply(undefined, args);
+              fn.apply(target.nativeElement, args);
             }
 
             fixture.detectChanges();
