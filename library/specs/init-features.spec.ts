@@ -6,7 +6,11 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { hex } from 'chalk';
 import { NgtxElement } from '../entities';
-import { initSyntaxHighlighting } from '../init-features';
+import {
+  initSyntaxHighlighting,
+  NGTX_GLOBAL_CONFIG,
+  setDefaultSpyFactory,
+} from '../init-features';
 
 @Component({
   template: '<div></div>',
@@ -43,5 +47,14 @@ describe('init-features: initSyntaxHighlighting', () => {
     // act, assert
     expect(() => element.debug()).not.toThrow();
     expect(hex).toHaveBeenCalled();
+  });
+
+  it('should set a default spyFactory that can be used by declarative testing api', () => {
+    // arrange
+    const spyFactory = () => jest.fn();
+    // act
+    setDefaultSpyFactory(spyFactory);
+    // assert
+    expect(NGTX_GLOBAL_CONFIG.defaultSpyFactory).toBe(spyFactory);
   });
 });

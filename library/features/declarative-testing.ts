@@ -1,6 +1,7 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { NgtxFixture } from '../entities/fixture';
+import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { Fn, LifeCycleHooks } from '../types';
 import {
   AfterPredicateApi,
@@ -25,11 +26,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
 >(
   fx: NgtxFixture<HostHtml, Host>,
 ) => {
-  let spyFactory = (returnValue?: any): any => {
-    throw new Error(
-      `No spy-factory passed to ngtx. Please call useFixture(fixture, { spyFactory: () => <spyInstance> })`,
-    );
-  };
+  let spyFactory = NGTX_GLOBAL_CONFIG.defaultSpyFactory;
 
   const testingApi = <Html extends HTMLElement = HTMLElement, Component = any>(
     subjectRef: PartRef<Html, Component>,
