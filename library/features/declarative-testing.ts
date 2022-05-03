@@ -1,5 +1,6 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
+import isExpectationError from 'jest-jasmine2/build/isError';
 import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { Fn, LifeCycleHooks } from '../types';
@@ -36,7 +37,25 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
 
     const executeTest = () => {
       state.predicate?.();
-      state.assertion();
+
+      if (state.negateAssertion) {
+        // invert assertion logic by catching AssertionErrors and throwing otherwise:
+
+        try {
+          state.assertion();
+          // TODO: how to improve the error message?
+          throw new Error('The assertion should have been failed.');
+        } catch (error) {
+          // TODO: fragile! this code could potentially break in future versions
+          // as it is deeply imported from jest-jasmine2 package.
+          if (!isExpectationError(error)) {
+            throw error;
+          }
+        }
+      } else {
+        // run assertion normally
+        state.assertion();
+      }
     };
 
     const expectApi = {
@@ -45,7 +64,10 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
       ): Expectations<HostHtml, Host, ObjectHtml, ObjectType> {
         state = { ...state, object: objectRef };
 
-        return {
+        const expectations: Omit<
+          Expectations<HostHtml, Host, ObjectHtml, ObjectType>,
+          'not'
+        > = {
           to(
             assertion: DeclarativeTestExtension<
               HostHtml,
@@ -98,9 +120,8 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
               ...state,
               assertion: () => {
                 classNames.forEach((className) => {
-                  expect(objectRef().nativeElement.classList).toContain(
-                    className,
-                  );
+                  const classList = objectRef().nativeElement.classList;
+                  expect(classList).toContain(className);
                 });
               },
             };
@@ -111,7 +132,8 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
             state = {
               ...state,
               assertion: () => {
-                expect(objectRef()).toBeTruthy();
+                const target = objectRef();
+                expect(target).toBeTruthy();
               },
             };
 
@@ -121,7 +143,8 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
             state = {
               ...state,
               assertion: () => {
-                expect(objectRef()).toBeFalsy();
+                const target = objectRef();
+                expect(target).toBeFalsy();
               },
             };
 
@@ -131,7 +154,8 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
             state = {
               ...state,
               assertion: () => {
-                expect(objectRef().textContent()).toContain(text);
+                const textContent = objectRef().textContent();
+                expect(textContent).toContain(text);
               },
             };
 
@@ -141,7 +165,8 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
             state = {
               ...state,
               assertion: () => {
-                expect(objectRef().textContent()).toEqual(text);
+                const textContent = objectRef().textContent();
+                expect(textContent).toEqual(text);
               },
             };
 
@@ -155,7 +180,6 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
 
                 Object.entries(map).forEach(([key, value]) => {
                   const property = target.componentInstance[key];
-
                   expect(property).toEqual(value);
                 });
               },
@@ -203,6 +227,19 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
             executeTest();
           },
         };
+
+        return Object.assign({}, expectations, {
+          not: new Proxy(
+            {},
+            {
+              get: (_: any, prop: string) => {
+                // hint: mark assertion as "to be negated":
+                state.negateAssertion = !state.negateAssertion;
+                return expectations[prop];
+              },
+            },
+          ),
+        }) as Expectations<HostHtml, Host, ObjectHtml, ObjectType>;
       },
     };
 

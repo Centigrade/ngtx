@@ -40,6 +40,10 @@ class DeclarativeTestComponent {
     this.returnValue = this.token.someMethod(42);
   }
 
+  public throwError(): void {
+    throw new Error('oh no!');
+  }
+
   ngOnInit() {}
 
   ngOnChanges(e: any) {}
@@ -506,6 +510,42 @@ describe(
         fail();
       } catch {}
     }));
+
+    it('not toHaveCalled', () => {
+      When(host)
+        .rendered()
+        .expect(host)
+        .not.toHaveCalled(componentMethod, 'onChange');
+    });
+
+    it('not -> fail', () => {
+      try {
+        When(host)
+          .calls('onChange')
+          .expect(host)
+          .not.toHaveCalled(componentMethod, 'onChange');
+
+        fail();
+      } catch {}
+    });
+
+    it('not', () => {
+      When(host)
+        .rendered()
+        .expect(host)
+        .not.toHaveCalled(componentMethod, 'onChange');
+    });
+
+    it('not (throw runtime error)', () => {
+      try {
+        When(host)
+          .calls('throwError')
+          .expect(host)
+          .not.toHaveCalled(componentMethod, 'onChange');
+
+        fail();
+      } catch {}
+    });
   }),
 );
 

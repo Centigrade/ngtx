@@ -48,6 +48,7 @@ export interface Expectations<
   ObjectHtml extends HTMLElement,
   ObjectType,
 > {
+  not: Expectations<HostHtml, Host, ObjectHtml, ObjectType>;
   /**
    * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.
    * @param assertion `DeclarativeTestExtension`-function that adds an assertion to the `DeclarativeTestState`.

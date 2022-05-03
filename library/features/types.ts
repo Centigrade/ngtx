@@ -52,6 +52,8 @@ export interface DeclarativeTestState<
   ObjectHtml extends HTMLElement,
   Object,
 > {
+  /** Whether the assertion is preceded by a ".not" and should be negated. */
+  negateAssertion?: boolean;
   /**
    * The `subject` of the test case that *has* or *does* something.
    * It will most likely be used in the `predicate` statement that
