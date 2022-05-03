@@ -40,7 +40,7 @@ class DeclarativeTestComponent {
     this.returnValue = this.token.someMethod(42);
   }
 
-  public throwError(): void {
+  public methodThatThrows(): void {
     throw new Error('oh no!');
   }
 
@@ -539,7 +539,7 @@ describe(
     it('not (throw runtime error)', () => {
       try {
         When(host)
-          .calls('throwError')
+          .calls('methodThatThrows')
           .expect(host)
           .not.toHaveCalled(componentMethod, 'onChange');
 
