@@ -1,7 +1,7 @@
 import { NgtxElement, NgtxFixture } from '../entities';
 import { SpyFactoryFn } from '../types';
 
-export type AnyValues<T> = T & Record<keyof T, any>;
+export type PropertyMap<T> = T & Record<keyof T, any>;
 
 /**
  * Defines options what aspects of a spy should be asserted.

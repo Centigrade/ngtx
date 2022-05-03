@@ -1,11 +1,11 @@
 import { NgtxFixture } from '../entities';
 import { SpyFactoryFn } from '../types';
 import {
-  AnyValues,
   DeclarativeTestExtension,
   EmissionOptions,
   EventsOf,
   PartRef,
+  PropertyMap,
   TargetResolverFn,
 } from './types';
 
@@ -85,8 +85,8 @@ export interface Expectations<
   toBeMissing(): void;
   toContainText(text: string): void;
   toHaveText(text: string): void;
-  toHaveState(map: Partial<AnyValues<ObjectType>>): void;
-  toHaveAttributes(map: Partial<AnyValues<ObjectHtml>>): void;
+  toHaveState(map: Partial<PropertyMap<ObjectType>>): void;
+  toHaveAttributes(map: Partial<PropertyMap<ObjectHtml>>): void;
   toEmit(
     eventName: keyof ObjectType,
     opts?: Omit<EmissionOptions, 'whichReturns'>,
@@ -126,9 +126,11 @@ export interface DeclarativeTestingApi<
     args?: any,
   ): AfterPredicateApi<HostHtml, Host>;
   hasAttributes(
-    map: Partial<AnyValues<SubjectHtml>>,
+    map: Partial<PropertyMap<SubjectHtml>>,
   ): AfterPredicateApi<HostHtml, Host>;
-  hasState(map: Partial<AnyValues<Subject>>): AfterPredicateApi<HostHtml, Host>;
+  hasState(
+    map: Partial<PropertyMap<Subject>>,
+  ): AfterPredicateApi<HostHtml, Host>;
   // --------------------------------------
   // predicate extension function aliases
   // --------------------------------------
