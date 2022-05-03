@@ -63,3 +63,12 @@ When(the.Button) // subject
   .times(2)
   .try(); // assertion
 ```
+
+## With multiple objects:
+
+```ts
+When(host) //
+  .hasState({ width: '300px' })
+  .expect(Container.Items)
+  .toHaveState([{ items: [1, 2, 3] }, { items: [4, 5, 6] }]);
+```
