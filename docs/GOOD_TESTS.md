@@ -10,6 +10,10 @@
 > ### Component Test Harnesses
 >
 > Understand what [Component Test Harnesses][harnesses] are and how you can utilize them to become more DRY in your tests.
+>
+> ### Declarative Testing API Documentation
+>
+> Formal documentation of the [declarative testing api][declarativetests].
 
 ---
 
@@ -35,7 +39,7 @@ This article explains to you what we have learnt about testing Angular component
 In order to write good, maintainable tests...
 
 - use [Component Test Harnesses][harnesses] and
-- use ngtx' declarative testing api
+- use ngtx' [declarative testing api][declarativetests]
 
 That's all you need to do :) If you like to learn more details, just read on. We are going to write our first tests from complete, default Angular tests to using declarative testing.
 
@@ -53,11 +57,10 @@ Everybody else should be good to go!
 
 ## What You will Learn
 
-- Difference between imperative and declarative code
-- Why declarative code is often better
+- How to create and use component-testing-harnesses in your tests,
 - How to work with ngtx' declarative test api and component test harnesses
 
-At the end of this article you will be able to write declarative tests with ngtx and test-component harnesses. You will also have a proper mental model of declarative test cases and a **basic** understanding of the inner workings.
+At the end of this article you will be able to understand the benefit of declarative tests with ngtx and test-component harnesses. You will also have a proper mental model of declarative test cases and a **basic** understanding of the inner workings.
 
 ## Starting from Scratch
 
@@ -329,11 +332,32 @@ The problem with this is, that you cannot read the tests as a story. You cannot 
 
 Written in imperative style, this will quickly bloat your test. So how to fix it?
 
+### The Mental Model (... and why declarative code is cool)
+
+The common `AAA` pattern (arrange, act, assert) is useful when writing imperative tests, as it provides a good code-structure for unit tests. But this only works well for imperative testing-code; such code exactly describes **how to do things** while declarative code focuses on **what to do, not how to do it**.
+
+When we try to move away from `AAA` and think of an unit test more like a short story, another schema becomes useful: `subject predicate object assertion`. It's the same structure human-language sentences have (except the "assertion" part, of course). And that's why it is useful in declarative test contexts: You can express any fact with it, and it feels natural when reading it:
+
+Some examples:
+
+```
+When the expander is open, expect the icon.name to be "arrow-up".
+     ~~~~~~~~~~~~  ~~~~~~~        ~~~~~~~~~~~~~    ~~~~~~~~~~~~~~~
+     subject       predicate      object           assertion
+
+When the clear-button gets clicked, expect the text-field to be empty.
+When the native input emits a change event, expect the host to emit a textChange event.
+...
+```
+
 ### Using ngtx' Declarative Testing API
 
 Let's have a look on how to utilize ngtx to move from imperative, repeating code to pretty DRY and extremely readable code:
 
 ```diff
+- import { ngtx } from '@centigrade/ngtx';
++ import { ngtx, then } from '@centigrade/ngtx';
+
 - describe('ExpanderComponent', ngtx(({ useFixture, get, detectChanges }) => {
 + describe('ExpanderComponent', ngtx<ExpanderComponent>(
 +  ({ useFixture, get, When, host }) => {
@@ -417,11 +441,12 @@ Let's have a look on how to utilize ngtx to move from imperative, repeating code
 }));
 ```
 
-That's much better. Now every test reads just like a short story! There is not much to think about, it's simple and clear.
+That's much better. Now every test reads just like a short story! There is not much to think about, it's simple and clear. If you want to see a full documentation of ngtx' declarative testing API, please refer to [declarative testing api][declarativetests].
 
 [api]: ./DOCUMENTATION.md
 [harnesses]: ./HARNESSES.md
 [firststeps]: ./FIRST_STEPS.md
 [home]: ../README.md
+[declarativetests]: ./DECLARATIVE_TEST_API.md
 [jest]: https://jestjs.io/
 [unittests]: https://angular.io/guide/testing

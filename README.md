@@ -21,6 +21,7 @@ New to ngtx? Let's get you started with these links:
 - [Getting Started / First Steps][firststeps]
 - [Feature Overview][features]
 - [Api Documentation][documentation]
+- **🔥 new!** [Declarative Testing API][declarativetesting]
 
 Having questions or issues using ngtx? You may want to take a look at this:
 
@@ -65,6 +66,7 @@ If you know and like ngtx we would love for you to contribute by either giving u
 [api]: ./docs/API.md
 [contributing]: ./CONTRIBUTING.md
 [codeofconduct]: ./CODE_OF_CONDUCT.md
+[declarativetesting]: ./docs/DECLARATIVE_TEST_API.md
 [documentation]: ./docs/DOCUMENTATION.md
 [examples]: ./docs/EXAMPLES.md
 [features]: ./docs/FEATURES.md

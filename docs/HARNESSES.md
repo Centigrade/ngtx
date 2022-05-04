@@ -7,9 +7,13 @@
 >
 > You may want to visit our [first steps page][firststeps].
 >
-> ### Component Test Harnesses
+> ### Writing Good Tests
 >
-> You may want to visit our [API documentation][api].
+> Introduction on [how to write simple, maintainable tests using ngtx][goodtests] and its features.
+>
+> ### Declarative Testing API
+>
+> Formal documentation of ngtx' [declarative testing api][declarativetests] helping you to write beautiful, simple and robust tests.
 
 ---
 
@@ -18,17 +22,6 @@
 &nbsp;
 
 This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be situations where another approach is also perfectly fine.
-
-> ### Any Ideas?
->
-> We would love to hear how you are doing Angular testing! We can learn from it to further improve ngtx and make it (even) more useful to you.
->
-> - What common problems / challenges do you have?
-> - How do you currently handle these problems?
-> - What do you think could ngtx improve in your tests?
-> - Where does ngtx needs to be improved to suit your needs?
->
-> Please create an issue telling us about the points above and how you would like to utilize ngtx.
 
 ## Use Component Test-APIs (aka "Component Harnesses")
 
@@ -139,6 +132,7 @@ This way we only need to adjust very few lines of code whenever we reorder colum
 It may seem to be overhead to some, but it is really worth it. Of course you need to spend some time in writing the test API, but it saves you far more time when it comes to component changes. Thus our strong recommendation is to follow this pattern, even for smaller components being tested.
 
 [api]: ./DOCUMENTATION.md
-[harnesses]: ./
+[goodtests]: ./GOOD_TESTS.md
+[declarativetests]: ./DECLARATIVE_TEST_API.md
 [firststeps]: ./FIRST_STEPS.md
 [home]: ../README.md
