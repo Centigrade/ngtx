@@ -1,6 +1,5 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import isExpectationError from 'jest-jasmine2/build/isError';
 import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { Fn, LifeCycleHooks } from '../types';
@@ -37,25 +36,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
 
     const executeTest = () => {
       state.predicate?.();
-
-      if (state.negateAssertion) {
-        // invert assertion logic by catching AssertionErrors and throwing otherwise:
-
-        try {
-          state.assertion();
-          // TODO: how to improve the error message?
-          throw new Error('The assertion should have been failed.');
-        } catch (error) {
-          // TODO: fragile! this code could potentially break in future versions
-          // as it is deeply imported from jest-jasmine2 package.
-          if (!isExpectationError(error)) {
-            throw error;
-          }
-        }
-      } else {
-        // run assertion normally
-        state.assertion();
-      }
+      state.assertion();
     };
 
     const expectApi = {
@@ -109,7 +90,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
                 predicate?.();
               },
               assertion: () => {
-                assertEmission(spy, opts);
+                assertEmission(spy, opts, state.negateAssertion);
               },
             };
 
@@ -121,7 +102,12 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
               assertion: () => {
                 classNames.forEach((className) => {
                   const classList = objectRef().nativeElement.classList;
-                  expect(classList).toContain(className);
+
+                  if (state.negateAssertion) {
+                    expect(classList).not.toContain(className);
+                  } else {
+                    expect(classList).toContain(className);
+                  }
                 });
               },
             };
@@ -133,7 +119,12 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
               ...state,
               assertion: () => {
                 const target = objectRef();
-                expect(target).toBeTruthy();
+
+                if (state.negateAssertion) {
+                  expect(target).not.toBeTruthy();
+                } else {
+                  expect(target).toBeTruthy();
+                }
               },
             };
 
@@ -144,7 +135,12 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
               ...state,
               assertion: () => {
                 const target = objectRef();
-                expect(target).toBeFalsy();
+
+                if (state.negateAssertion) {
+                  expect(target).not.toBeFalsy();
+                } else {
+                  expect(target).toBeFalsy();
+                }
               },
             };
 
@@ -155,7 +151,12 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
               ...state,
               assertion: () => {
                 const textContent = objectRef().textContent();
-                expect(textContent).toContain(text);
+
+                if (state.negateAssertion) {
+                  expect(textContent).not.toContain(text);
+                } else {
+                  expect(textContent).toContain(text);
+                }
               },
             };
 
@@ -166,7 +167,12 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
               ...state,
               assertion: () => {
                 const textContent = objectRef().textContent();
-                expect(textContent).toEqual(text);
+
+                if (state.negateAssertion) {
+                  expect(textContent).not.toEqual(text);
+                } else {
+                  expect(textContent).toEqual(text);
+                }
               },
             };
 
@@ -180,7 +186,12 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
 
                 Object.entries(map).forEach(([key, value]) => {
                   const property = target.componentInstance[key];
-                  expect(property).toEqual(value);
+
+                  if (state.negateAssertion) {
+                    expect(property).not.toEqual(value);
+                  } else {
+                    expect(property).toEqual(value);
+                  }
                 });
               },
             };
@@ -195,7 +206,12 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
 
                 Object.entries(map).forEach(([key, value]) => {
                   const property = target.nativeElement[key];
-                  expect(property).toEqual(value);
+
+                  if (state.negateAssertion) {
+                    expect(property).not.toEqual(value);
+                  } else {
+                    expect(property).toEqual(value);
+                  }
                 });
               },
             };
@@ -220,7 +236,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
                 originalPredicate();
               },
               assertion: () => {
-                assertEmission(emitter.emit, opts);
+                assertEmission(emitter.emit, opts, state.negateAssertion);
               },
             };
 
@@ -590,14 +606,26 @@ function thenApi<Html extends HTMLElement, Component>(
 // Module internal
 // ---------------------------------------
 
-function assertEmission(spy: any, opts: EmissionOptions) {
-  expect(spy).toHaveBeenCalled();
+function assertEmission(spy: any, opts: EmissionOptions, negate: boolean) {
+  if (negate) {
+    expect(spy).not.toHaveBeenCalled();
 
-  if (opts.args) {
-    const value = opts.args;
-    expect(spy).toHaveBeenCalledWith(value);
-  }
-  if (opts.times != null) {
-    expect(spy).toHaveBeenCalledTimes(opts.times);
+    if (opts.args) {
+      const value = opts.args;
+      expect(spy).not.toHaveBeenCalledWith(value);
+    }
+    if (opts.times != null) {
+      expect(spy).not.toHaveBeenCalledTimes(opts.times);
+    }
+  } else {
+    expect(spy).toHaveBeenCalled();
+
+    if (opts.args) {
+      const value = opts.args;
+      expect(spy).toHaveBeenCalledWith(value);
+    }
+    if (opts.times != null) {
+      expect(spy).toHaveBeenCalledTimes(opts.times);
+    }
   }
 }

@@ -3,5 +3,6 @@ export {
   LifeCycleHooks,
   NgtxSuite,
   QueryTarget,
+  SpyFactoryFn,
   TypedDebugElement,
 } from './index';

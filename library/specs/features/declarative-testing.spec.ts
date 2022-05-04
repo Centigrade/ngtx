@@ -518,6 +518,13 @@ describe(
         .not.toHaveCalled(componentMethod, 'onChange');
     });
 
+    it('not toBeMissing', () => {
+      When(host)
+        .hasState({ showText: true })
+        .expect(Components.Text)
+        .not.toBeMissing();
+    });
+
     it('not -> fail', () => {
       try {
         When(host)
