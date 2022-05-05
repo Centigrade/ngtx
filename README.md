@@ -26,6 +26,7 @@ New to ngtx? Let's get you started with these links:
 Having questions or issues using ngtx? You may want to take a look at this:
 
 - [Examples][examples]
+- [How to: Writing Good Tests][goodtests]
 - [StackOverflow][stackoverflow]
 
 ### Quick Start
@@ -70,5 +71,6 @@ If you know and like ngtx we would love for you to contribute by either giving u
 [documentation]: ./docs/DOCUMENTATION.md
 [examples]: ./docs/EXAMPLES.md
 [features]: ./docs/FEATURES.md
+[goodtests]: ./docs/GOOD_TESTS.md
 [firststeps]: ./docs/FIRST_STEPS.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
