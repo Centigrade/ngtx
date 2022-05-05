@@ -25,7 +25,7 @@ This article explains what component test harnesses are and why they are useful 
 
 > ### Pro Tip!
 >
-> To make the most of it, combine them with ngtx' [declarative testing api][declarativetests]!
+> To make the most of it, combine them with ngtx' [declarative testing api][goodtests]!
 
 ## Use Component Test-APIs (aka "Component Harnesses")
 
