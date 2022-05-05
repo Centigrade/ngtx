@@ -3,15 +3,15 @@
 <details>
   <summary>🧭 &nbsp;<b>Related topics</b></summary>
 
-> ### First Steps
+> #### First Steps
 >
 > Learn how to integrate ngtx into your test cases step by step. The [first steps page][firststeps] is the perfect starting point, when you never worked with ngtx before.
 >
-> ### Writing Good Tests
+> #### Writing Good Tests
 >
 > Learn how to write [robust and readable tests][goodtests].
 >
-> ### Feature API
+> #### Feature API
 >
 > Formal documentation of ngtx' [imperative test helpers][api].
 
@@ -98,7 +98,7 @@ In fact you already saw one: the imported `then` function is an `DeclarativeTest
 
 ## Formal API Documentation
 
-> ### `When(subject: PartRef): DeclarativeTestingApi`
+> #### `When(subject: PartRef): DeclarativeTestingApi`
 >
 > Entry point for ngtx' declarative testing API returning the `DeclarativeTestingApi`.
 >
@@ -114,7 +114,7 @@ In fact you already saw one: the imported `then` function is an `DeclarativeTest
 
 Provides APIs to describe start situations for your test cases:
 
-> ### `rendered()`
+> #### `rendered()`
 >
 > Lets the component-under-test render and returns the `AfterPredicateApi`.
 >
@@ -122,7 +122,7 @@ Provides APIs to describe start situations for your test cases:
 > rendered(): AfterPredicateApi
 > ```
 
-> ### `calls(method, ...args)`
+> #### `calls(method, ...args)`
 >
 > Calls the specified method on the **subject** (optionally with the passed arguments) and then returns the `AfterPredicateApi`.
 >
@@ -130,7 +130,7 @@ Provides APIs to describe start situations for your test cases:
 > calls(method: keyof Subject, ...callArgs: any[]): AfterPredicateApi
 > ```
 
-> ### `emits(eventName, arg?)`
+> #### `emits(eventName, arg?)`
 >
 > Emits the event on the **subject** (optionally with the passed argument) and then returns the `AfterPredicateApi`.
 >
@@ -138,7 +138,7 @@ Provides APIs to describe start situations for your test cases:
 > emits(eventName: keyof Subject, eventArg?: any): AfterPredicateApi
 > ```
 
-> ### `hasAttributes(attrMap)`
+> #### `hasAttributes(attrMap)`
 >
 > Sets the attributes passed as object-map on the **subject's** `nativeElement` and then returns the `AfterPredicateApi`.
 >
@@ -155,7 +155,7 @@ Provides APIs to describe start situations for your test cases:
 > When(NativeInput).hasAttributes({ disabled: true, value: 'Hi!' }) ...
 > ```
 
-> ### `hasState(propMap)`
+> #### `hasState(propMap)`
 >
 > Sets the properties passed as object-map on the **subject's** `componentInstance` and then returns the `AfterPredicateApi`.
 >
@@ -170,7 +170,7 @@ Provides APIs to describe start situations for your test cases:
 > When(Expander).hasState({ open: false }) ...
 > ```
 
-> ### `does(extensionFn)`
+> #### `does(extensionFn)`
 >
 > Allows to add custom (predicate) logic to the test case via [extension functions][extensionfns].
 >
@@ -186,7 +186,7 @@ Provides APIs to describe start situations for your test cases:
 
 Allows to specify the **object** of your test case or add additional custom logic to it via the `and` API. The object will always be the thing that will be checked for effects done by the **subject and predicate**. If the assertions on the object fail, your test fails.
 
-> ### `expect(object)`
+> #### `expect(object)`
 >
 > Takes a `PartRef` as a single argument, that will be stored as **object** of the test case. **Objects** are tested against the assertions specified via the `Expectations`-API.
 >
@@ -194,7 +194,7 @@ Allows to specify the **object** of your test case or add additional custom logi
 > expect(object: PartRef): Expectations
 > ```
 
-> ### `and(extensionFn)`
+> #### `and(extensionFn)`
 >
 > Takes an arbitrary number of extension functions being able to change the internal test state of the current test and returns the `Expectations`. To learn more about extensibility, please refer to the [extension functions][extensionfns] page.
 >
@@ -208,7 +208,7 @@ Allows to specify the **object** of your test case or add additional custom logi
 
 Allows to describe the expected effect that should have happened on the test case's **object**.
 
-> ### `not`
+> #### `not`
 >
 > Negates the assertion that is following this property and returns the `Expectations`-API. Works the same way as in other JavaScript testing frameworks like `jasmine` or `jest`.
 >
@@ -223,7 +223,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(host).not.toBeMissing();
 > ```
 
-> ### `toHaveCalled(targetResolver, method, emissionOpts?)`
+> #### `toHaveCalled(targetResolver, method, emissionOpts?)`
 >
 > Expects that the test case's **object** has called the specified `method` on the resolved target. Optionally takes `EmissionOptions` allowing to specify additional aspects for the function-spy check.
 >
@@ -248,7 +248,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > });
 > ```
 
-> ### `toHaveCssClass(...classNames)`
+> #### `toHaveCssClass(...classNames)`
 >
 > Expects that the test case's **object** has the specified css classes present on its nativeElement's class list.
 >
@@ -263,7 +263,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(host).toHaveCssClass('focused', 'selected');
 > ```
 
-> ### `toBePresent()`
+> #### `toBePresent()`
 >
 > Expects that the test case's **object** is present (i.e. can be found) in the CuT's html template.
 >
@@ -280,7 +280,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(CloseButton).toBePresent();
 > ```
 
-> ### `toBeMissing()`
+> #### `toBeMissing()`
 >
 > Expects that the test case's **object** is **not** present (i.e. **cannot** be found) in the CuT's html template.
 >
@@ -297,7 +297,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(CloseButton).toBeMissing();
 > ```
 
-> ### `toContainText(subStr)`
+> #### `toContainText(subStr)`
 >
 > Expects that the test case's **object** contains the specified substring (case sensitive).
 >
@@ -314,7 +314,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(Headline).toContainText('Welcome');
 > ```
 
-> ### `toHaveText(text)`
+> #### `toHaveText(text)`
 >
 > Expects that the **object's** text-content equals the specified string (case sensitive).
 >
@@ -331,7 +331,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(Headline).toHaveText('Welcome Ann!');
 > ```
 
-> ### `toHaveState(propMap)`
+> #### `toHaveState(propMap)`
 >
 > Expects that the **object's** `componentInstance` contains all of the specified properties with their given values.
 >
@@ -347,7 +347,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(InputField).toHaveState({ disabled: true, text: 'Hi!' });
 > ```
 
-> ### `toHaveAttributes(attrMap)`
+> #### `toHaveAttributes(attrMap)`
 >
 > Expects that the **object's** `nativeElement` contains all of the specified attributes with their given values.
 >
@@ -363,7 +363,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > ...expect(NativeInput).toHaveAttributes({ readonly: true, value: 'Hi!' });
 > ```
 
-> ### `toEmit(eventName, emissionOpts?)`
+> #### `toEmit(eventName, emissionOpts?)`
 >
 > Expects that the **object** has emitted the specified event. Optionally takes `EmissionOptions` that allow to further specify aspects of the expected event emission.
 >
@@ -382,7 +382,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > });
 > ```
 
-> ### `to(extensionFn)`
+> #### `to(extensionFn)`
 >
 > Allows to add custom (assertion) logic to the test case by allowing to edit its internal state. If you like to learn more on how to extend ngtx, please have a look on the [extension functions][extensionfns] page.
 >
