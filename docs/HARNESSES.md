@@ -21,7 +21,11 @@
 
 &nbsp;
 
-This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be situations where another approach is also perfectly fine.
+This article explains what component test harnesses are and why they are useful for everyday testing.
+
+> ### Pro Tip!
+>
+> To make the most of it, combine them with ngtx' [declarative testing api][declarativetests]!
 
 ## Use Component Test-APIs (aka "Component Harnesses")
 
