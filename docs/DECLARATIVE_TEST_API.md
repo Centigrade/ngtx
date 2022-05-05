@@ -11,6 +11,10 @@
 >
 > Learn how to write [robust and readable tests][goodtests].
 >
+> #### Extension Functions
+>
+> Learn how to extend ngtx' declarative testing API to suit your custom needs: [extension functions page][extensionfns].
+>
 > #### Feature API
 >
 > Formal documentation of ngtx' [imperative test helpers][api].
@@ -94,7 +98,7 @@ This test case is complete and works just by describing the starting situation (
 
 This test case is just an example. ngtx provides many built-in `predicates` and `assertions` for your convenience. If there are cases that are not possible to test with existing APIs, there are also extension points for custom `predicates` and `assertions`.
 
-In fact you already saw one: the imported `then` function is an `DeclarativeTestExtension` function that is coming with the default ngtx package. But we talk more about extensibility at the end of this documentation.
+In fact you already saw one: the imported `then` function is an `DeclarativeTestExtension` function that is coming with the default ngtx package. But if you want to learn more about extensibility, please take a look at the [extension functions][extensionfns] page.
 
 ## Formal API Documentation
 
@@ -409,5 +413,5 @@ interface EmissionOptions {
 [api]: ./DOCUMENTATION.md
 [goodtests]: ./GOOD_TESTS.md
 [firststeps]: ./FIRST_STEPS.md
-[extensionfns]: ./FIRST_STEPS.md
+[extensionfns]: ./EXTENSION_FNS.md
 [home]: ../README.md
