@@ -94,7 +94,7 @@ class Expanders {
 }
 
 it('[ExpanderComponent] should toggle its open property on title click', () => {
-  When(host)
+  When(host) // note: "host" is the component-under-test
     .hasState({ open: false })
     .and(then(Expanders.Title).emits('click'))
     .expect(host)
@@ -136,7 +136,7 @@ Provides APIs to describe start situations for your test cases:
 
 > #### `calls(method, ...args)`
 >
-> Calls the specified method on the **subject** (optionally with the passed arguments) and then returns the `AfterPredicateApi`.
+> Sets up a call to the specified method on the **subject** (optionally with the passed arguments) and then returns the `AfterPredicateApi`.
 >
 > ```ts
 > calls(method: keyof Subject, ...callArgs: any[]): AfterPredicateApi
@@ -144,7 +144,7 @@ Provides APIs to describe start situations for your test cases:
 
 > #### `emits(eventName, arg?)`
 >
-> Emits the event on the **subject** (optionally with the passed argument) and then returns the `AfterPredicateApi`.
+> Sets up an event emission on the **subject** (optionally with the passed argument) and then returns the `AfterPredicateApi`.
 >
 > ```ts
 > emits(eventName: keyof Subject, eventArg?: any): AfterPredicateApi
@@ -152,7 +152,7 @@ Provides APIs to describe start situations for your test cases:
 
 > #### `hasAttributes(attrMap)`
 >
-> Sets the attributes passed as object-map on the **subject's** `nativeElement` and then returns the `AfterPredicateApi`.
+> Sets up the **subject** to have the attributes passed as object-map on its `nativeElement` and then returns the `AfterPredicateApi`.
 >
 > **Signature:**
 >
@@ -164,12 +164,12 @@ Provides APIs to describe start situations for your test cases:
 >
 > ```ts
 > const NativeInput = () => get<HTMLInputElement, unknown>('input');
-> When(NativeInput).hasAttributes({ disabled: true, value: 'Hi!' }) ...
+> When(NativeInput).hasAttributes({ disabled: true, value: 'some text' }) ...
 > ```
 
 > #### `hasState(propMap)`
 >
-> Sets the properties passed as object-map on the **subject's** `componentInstance` and then returns the `AfterPredicateApi`.
+> Sets up the **subject** to have the properties passed as object-map on the `componentInstance` and then returns the `AfterPredicateApi`.
 >
 > ```ts
 > hasState(propMap: Record<keyof Subject, any>): AfterPredicateApi
@@ -184,7 +184,7 @@ Provides APIs to describe start situations for your test cases:
 
 > #### `does(extensionFn)`
 >
-> Allows to add custom (predicate) logic to the test case via [extension functions][extensionfns].
+> Allows to add custom logic to the test case via [extension functions][extensionfns].
 >
 > **aliases**: `gets`, `has`, `is`
 >
