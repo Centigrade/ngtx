@@ -77,8 +77,12 @@ For out test cases we use a simple expander component. We got the following spec
 
 - It has a header section with a customizable title
 - The header section also contains arrow-icon showing the current open or collapsed state.
-- Clicking the header section will toggle the expander's open
-- When open the expander's content will be visible; otherwise it should be hidden
+- Clicking the header section will toggle the expander's open state
+- When open, the expander's content will be visible; otherwise it should be hidden
+
+> ### Expander Design
+>
+> ![expander in closed state](./media/expander-closed.jpg) > ![expander in opened state](./media/expander-opened.jpg)
 
 ### The Component Code
 
@@ -86,7 +90,7 @@ So let's jump right in. To fulfill the requirements, we created the following si
 
 ```html
 <section class="header" (click)="toggle()">
-  <span *ngIf="title">{{ title }}</span>
+  <span>{{ title }}</span>
   <app-icon [name]="icon"></app-icon>
 </section>
 
@@ -109,7 +113,7 @@ export class ExpanderComponent {
   public toggle(): void {
     this.open = !this.open;
     this.openChange.emit(this.open);
-    this.icon = this.open ? 'arrow-down' : 'arrow-up';
+    this.icon = this.open ? 'arrow-up' : 'arrow-down';
   }
 }
 ```
