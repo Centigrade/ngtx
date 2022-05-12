@@ -54,6 +54,14 @@ When <the ClearButton> <gets clicked> expect <the SearchBox> to <have no text>.
 When <the NativeInput> <emits change event> expect <the CuT> to <emit textChange>.
 ```
 
+Let's see a more advanced test schema:
+
+```
+When <the CuT> <is disabled> and <gets clicked> expect <the CuT> to <not toggle openState>.
+     ~~~~~~~~~ ~~~~~~~~~~~~~     ~~~~~~~~~~~~~~        ~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~
+     subject   predicate-1       predicate-2           object       assertion
+```
+
 The power of this scheme is that it can express anything in a pretty natural and human-readable way. It is precise and easy to understand at the same time.
 
 ## Getting Started
@@ -73,7 +81,7 @@ describe(
 );
 ```
 
-Once we have done this, you can create your declarative tests by using the `When` function:
+Once we have done this, you can create your declarative tests by using the `When` function and a [component test harness][harnesses] class:
 
 ```ts
 import { ngtx, then } from '@centigrade/ngtx';
@@ -102,7 +110,7 @@ In fact you already saw one: the imported `then` function is an `DeclarativeTest
 
 ## Formal API Documentation
 
-> #### `When(subject: PartRef): DeclarativeTestingApi`
+> #### `When(subject)`
 >
 > Entry point for ngtx' declarative testing API returning the `DeclarativeTestingApi`.
 >
@@ -411,6 +419,7 @@ interface EmissionOptions {
 ```
 
 [api]: ./DOCUMENTATION.md
+[harnesses]: ./HARNESSES.md
 [goodtests]: ./GOOD_TESTS.md
 [firststeps]: ./FIRST_STEPS.md
 [extensionfns]: ./EXTENSION_FNS.md
