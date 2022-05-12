@@ -1,4 +1,4 @@
-## [🏠][home] &nbsp; → &nbsp; [Documentation][api] &nbsp; → &nbsp; **Writing Good Tests**
+## [🏠][home] &nbsp; → &nbsp; [Documentation][api] &nbsp; → &nbsp; **Component Test Harnesses**
 
 <details>
   <summary>🧭 &nbsp;<b>Related topics</b></summary>
