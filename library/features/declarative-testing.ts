@@ -478,7 +478,7 @@ export const callsLifeCycleHooks = <T>(
   HTMLElement,
   unknown
 > => {
-  return ({ subject, predicate }) => {
+  return ({ subject, predicate }, fixture) => {
     return {
       predicate: () => {
         predicate?.();
@@ -492,6 +492,9 @@ export const callsLifeCycleHooks = <T>(
           const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
           component.ngOnChanges(args);
         }
+
+        // hooks could possibly change state again, so detect changes at the end
+        fixture.detectChanges();
       },
     };
   };
