@@ -471,7 +471,7 @@ export const waitFakeAsync =
   };
 
 export const callsLifeCycleHooks = <T>(
-  hooks: Record<keyof LifeCycleHooks, any>,
+  hooks: Partial<Record<keyof LifeCycleHooks, any>>,
 ): DeclarativeTestExtension<
   HTMLElement,
   LifeCycleHooks & T,
