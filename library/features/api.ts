@@ -86,34 +86,40 @@ export interface Expectations<ObjectHtml extends HTMLElement, ObjectType> {
   ): void;
 }
 
-export interface ExtensionsApi {
+export interface ExtensionsApi<SubjectHtml extends HTMLElement, Subject> {
   and(
     ...extensions: DeclarativeTestExtension<
-      HTMLElement,
-      unknown,
+      SubjectHtml,
+      Subject,
       HTMLElement,
       unknown
     >[]
   ): ExpectApi;
 }
 
-export interface AfterPredicateApi extends ExtensionsApi, ExpectApi {}
+export interface AfterPredicateApi<SubjectHtml extends HTMLElement, Subject>
+  extends ExtensionsApi<SubjectHtml, Subject>,
+    ExpectApi {}
 
 export interface DeclarativeTestingApi<
   SubjectHtml extends HTMLElement,
   Subject,
 > {
-  rendered(): AfterPredicateApi;
+  rendered(): AfterPredicateApi<SubjectHtml, Subject>;
   calls(
     method: keyof Subject | keyof SubjectHtml,
     ...args: any[]
-  ): AfterPredicateApi;
+  ): AfterPredicateApi<SubjectHtml, Subject>;
   emits(
     eventName: keyof Subject | EventsOf<keyof SubjectHtml>,
     args?: any,
-  ): AfterPredicateApi;
-  hasAttributes(map: Partial<PropertyMap<SubjectHtml>>): AfterPredicateApi;
-  hasState(map: Partial<PropertyMap<Subject>>): AfterPredicateApi;
+  ): AfterPredicateApi<SubjectHtml, Subject>;
+  hasAttributes(
+    map: Partial<PropertyMap<SubjectHtml>>,
+  ): AfterPredicateApi<SubjectHtml, Subject>;
+  hasState(
+    map: Partial<PropertyMap<Subject>>,
+  ): AfterPredicateApi<SubjectHtml, Subject>;
   // --------------------------------------
   // predicate extension function aliases
   // --------------------------------------
@@ -125,4 +131,4 @@ export interface DeclarativeTestingApi<
 
 export type PredicateExtensionFn<SubjectHtml extends HTMLElement, Subject> = (
   action: DeclarativeTestExtension<SubjectHtml, Subject, HTMLElement, unknown>,
-) => AfterPredicateApi;
+) => AfterPredicateApi<SubjectHtml, Subject>;

@@ -254,11 +254,11 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
       },
     };
 
-    const extensionApi: ExtensionsApi = {
+    const extensionApi: ExtensionsApi<Html, Component> = {
       and(
         ...extensions: DeclarativeTestExtension<
-          HTMLElement,
-          unknown,
+          Html,
+          Component,
           HTMLElement,
           unknown
         >[]
@@ -278,7 +278,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
       },
     };
 
-    const afterActionApi: AfterPredicateApi = Object.assign(
+    const afterActionApi: AfterPredicateApi<Html, Component> = Object.assign(
       {},
       extensionApi,
       expectApi,
@@ -436,7 +436,7 @@ export const provider = <T>(token: Type<T>) => {
   return {
     hasState(
       map: Partial<Record<keyof T, any>>,
-    ): DeclarativeTestExtension<HTMLElement, T, HTMLElement, unknown> {
+    ): DeclarativeTestExtension<HTMLElement, any, HTMLElement, any> {
       return ({ subject, predicate }, fixture) => {
         return {
           predicate: () => {
@@ -456,9 +456,9 @@ export const provider = <T>(token: Type<T>) => {
 };
 
 export const waitFakeAsync =
-  (
+  <Subject, Object>(
     waitDuration?: number | 'animationFrame',
-  ): DeclarativeTestExtension<HTMLElement, unknown, HTMLElement, unknown> =>
+  ): DeclarativeTestExtension<HTMLElement, Subject, HTMLElement, Object> =>
   ({ predicate }) => {
     return {
       predicate: () => {
@@ -470,11 +470,11 @@ export const waitFakeAsync =
     };
   };
 
-export const callsLifeCycleHooks = (
+export const callsLifeCycleHooks = <T>(
   hooks: Record<keyof LifeCycleHooks, any>,
 ): DeclarativeTestExtension<
   HTMLElement,
-  LifeCycleHooks,
+  LifeCycleHooks & T,
   HTMLElement,
   unknown
 > => {
