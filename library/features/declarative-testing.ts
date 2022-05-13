@@ -20,17 +20,14 @@ import {
   TargetResolverFn,
 } from './types';
 
-export const createDeclarativeTestingApi: TestingApiFactoryFn = <
-  Host,
-  HostHtml extends HTMLElement = HTMLElement,
->(
-  fx: NgtxFixture<HostHtml, Host>,
+export const createDeclarativeTestingApi: TestingApiFactoryFn = (
+  fx: NgtxFixture<any, any>,
 ) => {
   let spyFactory = NGTX_GLOBAL_CONFIG.defaultSpyFactory;
 
   const testingApi = <Html extends HTMLElement = HTMLElement, Component = any>(
     subjectRef: PartRef<Html, Component>,
-  ): DeclarativeTestingApi<HostHtml, Host, Html, Component> => {
+  ): DeclarativeTestingApi<Html, Component> => {
     let state: DeclarativeTestState<any, any, any, any> = {};
     state = { subject: subjectRef };
 
@@ -42,17 +39,15 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
     const expectApi = {
       expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
         objectRef: PartRef<ObjectHtml, ObjectType>,
-      ): Expectations<HostHtml, Host, ObjectHtml, ObjectType> {
+      ): Expectations<ObjectHtml, ObjectType> {
         state = { ...state, object: objectRef };
 
         const expectations: Omit<
-          Expectations<HostHtml, Host, ObjectHtml, ObjectType>,
+          Expectations<ObjectHtml, ObjectType>,
           'not'
         > = {
           to(
             assertion: DeclarativeTestExtension<
-              HostHtml,
-              Host,
               HTMLElement,
               unknown,
               ObjectHtml,
@@ -255,15 +250,13 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
               },
             },
           ),
-        }) as Expectations<HostHtml, Host, ObjectHtml, ObjectType>;
+        }) as Expectations<ObjectHtml, ObjectType>;
       },
     };
 
-    const extensionApi: ExtensionsApi<HostHtml, Host> = {
+    const extensionApi: ExtensionsApi = {
       and(
         ...extensions: DeclarativeTestExtension<
-          HostHtml,
-          Host,
           HTMLElement,
           unknown,
           HTMLElement,
@@ -285,7 +278,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
       },
     };
 
-    const afterActionApi: AfterPredicateApi<HostHtml, Host> = Object.assign(
+    const afterActionApi: AfterPredicateApi = Object.assign(
       {},
       extensionApi,
       expectApi,
@@ -293,8 +286,6 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = <
 
     const does = (
       action: DeclarativeTestExtension<
-        HostHtml,
-        Host,
         HTMLElement,
         Component,
         HTMLElement,
@@ -445,14 +436,7 @@ export const provider = <T>(token: Type<T>) => {
   return {
     hasState(
       map: Partial<Record<keyof T, any>>,
-    ): DeclarativeTestExtension<
-      any,
-      any,
-      HTMLElement,
-      T,
-      HTMLElement,
-      unknown
-    > {
+    ): DeclarativeTestExtension<HTMLElement, T, HTMLElement, unknown> {
       return ({ subject, predicate }, fixture) => {
         return {
           predicate: () => {
@@ -474,14 +458,7 @@ export const provider = <T>(token: Type<T>) => {
 export const waitFakeAsync =
   (
     waitDuration?: number | 'animationFrame',
-  ): DeclarativeTestExtension<
-    any,
-    any,
-    HTMLElement,
-    unknown,
-    HTMLElement,
-    unknown
-  > =>
+  ): DeclarativeTestExtension<HTMLElement, unknown, HTMLElement, unknown> =>
   ({ predicate }) => {
     return {
       predicate: () => {
@@ -496,8 +473,6 @@ export const waitFakeAsync =
 export const callsLifeCycleHooks = (
   hooks: Record<keyof LifeCycleHooks, any>,
 ): DeclarativeTestExtension<
-  HTMLElement,
-  unknown,
   HTMLElement,
   LifeCycleHooks,
   HTMLElement,

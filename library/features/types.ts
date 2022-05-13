@@ -135,14 +135,12 @@ export interface ITargetResolver<T> {
 }
 
 export type DeclarativeTestExtension<
-  Html extends HTMLElement,
-  Component,
   SubjectHtml extends HTMLElement,
   Subject,
   ObjectHtml extends HTMLElement,
   Object,
 > = (
   input: DeclarativeTestState<HTMLElement, Subject, ObjectHtml, Object>,
-  fixture: NgtxFixture<Html, Component>,
+  fixture: NgtxFixture<HTMLElement, any>,
   spyFactory: SpyFactoryFn,
 ) => DeclarativeTestState<SubjectHtml, Subject, ObjectHtml, Object>;

@@ -385,22 +385,16 @@ describe(
       const emitTimes: <T>(
         event: Exclude<keyof T, Symbol | number>,
         times: number,
-      ) => DeclarativeTestExtension<
-        any,
-        any,
-        HTMLElement,
-        T,
-        HTMLElement,
-        unknown
-      > = (event: string, times: number) => (_, fx) => {
-        return {
-          predicate: () => {
-            for (let i = 0; i < times; i++) {
-              fx.rootElement.componentInstance[event].emit();
-            }
-          },
+      ) => DeclarativeTestExtension<HTMLElement, T, HTMLElement, unknown> =
+        (event: string, times: number) => (_, fx) => {
+          return {
+            predicate: () => {
+              for (let i = 0; i < times; i++) {
+                fx.rootElement.componentInstance[event].emit();
+              }
+            },
+          };
         };
-      };
 
       When(host)
         .does(emitTimes('textChange', 2))
@@ -438,8 +432,6 @@ describe(
 
     it('should provide a spyFactory function in extensions', () => {
       const assertSpyFactory: DeclarativeTestExtension<
-        any,
-        any,
         HTMLElement,
         any,
         HTMLElement,
@@ -558,8 +550,6 @@ describe(
 
 const haveFocus =
   <T extends HTMLElement>(): DeclarativeTestExtension<
-    any,
-    any,
     HTMLElement,
     any,
     T,

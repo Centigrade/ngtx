@@ -16,13 +16,13 @@ export interface ISetSpyFactory {
 export type WhenFn<HostHtml extends HTMLElement, Host> = ISetSpyFactory &
   (<Html extends HTMLElement, Component>(
     subjectRef: PartRef<Html, Component>,
-  ) => DeclarativeTestingApi<HostHtml, Host, Html, Component>);
+  ) => DeclarativeTestingApi<Html, Component>);
 
 export type TestingApiFactoryFn = <HostHtml extends HTMLElement, Host>(
   fx: NgtxFixture<HostHtml, Host>,
 ) => WhenFn<HostHtml, Host>;
 
-export interface ExpectApi<HostHtml extends HTMLElement, Host> {
+export interface ExpectApi {
   /**
    * Defines the **object** part of the test-case.
    *
@@ -39,24 +39,17 @@ export interface ExpectApi<HostHtml extends HTMLElement, Host> {
    */
   expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
     objectRef: PartRef<ObjectHtml, ObjectType>,
-  ): Expectations<HostHtml, Host, ObjectHtml, ObjectType>;
+  ): Expectations<ObjectHtml, ObjectType>;
 }
 
-export interface Expectations<
-  HostHtml extends HTMLElement,
-  Host,
-  ObjectHtml extends HTMLElement,
-  ObjectType,
-> {
-  not: Expectations<HostHtml, Host, ObjectHtml, ObjectType>;
+export interface Expectations<ObjectHtml extends HTMLElement, ObjectType> {
+  not: Expectations<ObjectHtml, ObjectType>;
   /**
    * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.
    * @param assertion `DeclarativeTestExtension`-function that adds an assertion to the `DeclarativeTestState`.
    */
   to(
     assertion: DeclarativeTestExtension<
-      HostHtml,
-      Host,
       HTMLElement,
       unknown,
       ObjectHtml,
@@ -93,65 +86,43 @@ export interface Expectations<
   ): void;
 }
 
-export interface ExtensionsApi<HostHtml extends HTMLElement, Host> {
+export interface ExtensionsApi {
   and(
     ...extensions: DeclarativeTestExtension<
-      HostHtml,
-      Host,
       HTMLElement,
       unknown,
       HTMLElement,
       unknown
     >[]
-  ): ExpectApi<HostHtml, Host>;
+  ): ExpectApi;
 }
 
-export interface AfterPredicateApi<HostHtml extends HTMLElement, Host>
-  extends ExtensionsApi<HostHtml, Host>,
-    ExpectApi<HostHtml, Host> {}
+export interface AfterPredicateApi extends ExtensionsApi, ExpectApi {}
 
 export interface DeclarativeTestingApi<
-  HostHtml extends HTMLElement,
-  Host,
   SubjectHtml extends HTMLElement,
   Subject,
 > {
-  rendered(): AfterPredicateApi<HostHtml, Host>;
+  rendered(): AfterPredicateApi;
   calls(
     method: keyof Subject | keyof SubjectHtml,
     ...args: any[]
-  ): AfterPredicateApi<HostHtml, Host>;
+  ): AfterPredicateApi;
   emits(
     eventName: keyof Subject | EventsOf<keyof SubjectHtml>,
     args?: any,
-  ): AfterPredicateApi<HostHtml, Host>;
-  hasAttributes(
-    map: Partial<PropertyMap<SubjectHtml>>,
-  ): AfterPredicateApi<HostHtml, Host>;
-  hasState(
-    map: Partial<PropertyMap<Subject>>,
-  ): AfterPredicateApi<HostHtml, Host>;
+  ): AfterPredicateApi;
+  hasAttributes(map: Partial<PropertyMap<SubjectHtml>>): AfterPredicateApi;
+  hasState(map: Partial<PropertyMap<Subject>>): AfterPredicateApi;
   // --------------------------------------
   // predicate extension function aliases
   // --------------------------------------
-  does: PredicateExtensionFn<HostHtml, Host, SubjectHtml, Subject>;
-  has: PredicateExtensionFn<HostHtml, Host, SubjectHtml, Subject>;
-  gets: PredicateExtensionFn<HostHtml, Host, SubjectHtml, Subject>;
-  is: PredicateExtensionFn<HostHtml, Host, SubjectHtml, Subject>;
+  does: PredicateExtensionFn<SubjectHtml, Subject>;
+  has: PredicateExtensionFn<SubjectHtml, Subject>;
+  gets: PredicateExtensionFn<SubjectHtml, Subject>;
+  is: PredicateExtensionFn<SubjectHtml, Subject>;
 }
 
-export type PredicateExtensionFn<
-  HostHtml extends HTMLElement,
-  Host,
-  SubjectHtml extends HTMLElement,
-  Subject,
-> = (
-  action: DeclarativeTestExtension<
-    HostHtml,
-    Host,
-    SubjectHtml,
-    Subject,
-    HTMLElement,
-    unknown
-  >,
-) => AfterPredicateApi<HostHtml, Host>;
+export type PredicateExtensionFn<SubjectHtml extends HTMLElement, Subject> = (
+  action: DeclarativeTestExtension<SubjectHtml, Subject, HTMLElement, unknown>,
+) => AfterPredicateApi;
