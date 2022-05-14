@@ -5,8 +5,12 @@
 > #### 🚧 Coming soon
 >
 > This article is not available yet, but is work in progress.
+> You can add your thoughts to the issue associated with this task:
 >
-> [Go back to article "Writing good tests"][goodtests]
+> - https://github.com/Centigrade/ngtx/issues/29
+>
+> [Go back to the article "Writing good tests"][goodtests] or
+> [go back to the article "Declarative api documentation"][declarativeapi].
 
 [api]: ./DOCUMENTATION.md
 [goodtests]: ./GOOD_TESTS.md
