@@ -13,7 +13,7 @@
 >
 > ### Feature Overview
 >
-> You may want to visit our [feature overview page][features] listing some helpers, to quickly explore what ngtx can do for you.
+> You may want to visit our [feature overview page][features] listing some helpers, to quickly explore how ngtx can support you.
 
 ---
 
