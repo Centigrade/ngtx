@@ -29,7 +29,7 @@ This article explains what component test harnesses are and why they are useful 
 
 ## Use Component Test-APIs (aka "Component Harnesses")
 
-Although being "DRY" is something absolutely normal in production code, this is often not true in testing code. But fact is, the same reasons behind us writing DRY code in production, should urge us to maintaining DRY in testing code as well.
+Staying ["DRY"](https://en.wikipedia.org/wiki/Don't_repeat_yourself) is a standard best practice that every software developer should follow in their projects. This is often hard to do when it comes to Angular testing code. But fact is, the same reasons behind us writing DRY code in production code, should urge us to be DRY in testing code as well.
 
 ngtx is featuring a concept that is also known as `Component Harnesses`. Harnesses are an abstraction of the component-under-test against the test suite that actually performs the tests. This way tests use a well-defined API rather than search the component's template for semantic stuff that might change in future.
 
