@@ -23,7 +23,7 @@
 
 This article gives a basic overview on a range of ngtx helpers.
 
-The following examples are taken from real world applications and show in what way ngtx can help writing tests that are easier to read and maintain. Please note that the following test-cases are actually coming from _different_ components, i.e. multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
+The following examples are influenced by real enterprise applications, ngtx was used in. It demonstrates how ngtx can help you writing tests that are easier to read and maintain. Please note that the following test-cases are actually coming from _different_ components, i.e. multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
 
 This article will only show examples where ngtx is used in a "standalone" way, without additional constructs around it; but in our experience the best way of using ngtx is along with component harnesses, which is explained [in this article][good-tests].
 
