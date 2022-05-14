@@ -21,7 +21,7 @@ New to ngtx? Let's get you started with these links:
 - [Getting Started / First Steps][firststeps]
 - [Feature Overview][features]
 - [Api Documentation][documentation]
-- [Declarative Testing API][declarativetesting] (**🔥 new!**)
+- [Declarative Testing API][declarativetesting] (**🔥 new (alpha)**)
 
 Having questions or issues using ngtx? You may want to take a look at this:
 
