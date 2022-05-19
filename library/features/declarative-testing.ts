@@ -18,6 +18,7 @@ import {
   ITargetResolver,
   PartRef,
   TargetResolverFn,
+  Token,
 } from './types';
 
 export const createDeclarativeTestingApi: TestingApiFactoryFn = (
@@ -419,7 +420,7 @@ export const componentMethod = <T>(
 };
 
 export const injected =
-  <T>(token: Type<T>) =>
+  <T>(token: Token<T>) =>
   (
     state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
   ): ITargetResolver<T> => {

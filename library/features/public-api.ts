@@ -7,4 +7,5 @@ export {
   ITargetResolver,
   PartRef,
   TargetResolverFn,
+  Token,
 } from './types';

@@ -1,7 +1,9 @@
+import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture } from '../entities';
 import { SpyFactoryFn } from '../types';
 
 export type PropertyMap<T> = T & Record<keyof T, any>;
+export type Token<T> = Type<T> | Function;
 
 /**
  * Defines options what aspects of a spy should be asserted.
