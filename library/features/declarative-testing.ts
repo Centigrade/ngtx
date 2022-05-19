@@ -591,7 +591,7 @@ function assertEmission(spy: any, opts: EmissionOptions, negate: boolean) {
 
     if (opts.args) {
       const value = opts.args;
-      expect(spy).not.toHaveBeenCalledWith(value);
+      expect(spy).not.toHaveBeenCalledWith(...value);
     }
     if (opts.times != null) {
       expect(spy).not.toHaveBeenCalledTimes(opts.times);
@@ -601,7 +601,7 @@ function assertEmission(spy: any, opts: EmissionOptions, negate: boolean) {
 
     if (opts.args) {
       const value = opts.args;
-      expect(spy).toHaveBeenCalledWith(value);
+      expect(spy).toHaveBeenCalledWith(...value);
     }
     if (opts.times != null) {
       expect(spy).toHaveBeenCalledTimes(opts.times);

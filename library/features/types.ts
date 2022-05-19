@@ -18,8 +18,8 @@ export type Token<T> = Type<T> | Function;
  * ~~~
  */
 export interface EmissionOptions {
-  /** The value that was passed as (only) argument to the spy. */
-  args?: any;
+  /** The values that were passed as arguments to the spy. */
+  args?: any[];
   /** The number of times the spy was called. */
   times?: number;
   /** The return-value that the spy should return when being called. */

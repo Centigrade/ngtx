@@ -136,7 +136,7 @@ describe(
       When(Components.Button)
         .emits('click', 'some text')
         .expect(host)
-        .toEmit('textChange', { args: 'some text' });
+        .toEmit('textChange', { args: ['some text'] });
     });
 
     it('when -> emits -> expect -> toEmit { args: "value" } -> fail', () => {
@@ -144,7 +144,7 @@ describe(
         When(Components.Button)
           .emits('click', 'some text')
           .expect(host)
-          .toEmit('textChange', { args: 'some other text than emitted' });
+          .toEmit('textChange', { args: ['some other text than emitted'] });
 
         fail();
       } catch {}
@@ -324,7 +324,7 @@ describe(
       When(Components.Button)
         .emits('click')
         .expect(host)
-        .toHaveCalled(injected(SomeService), 'someMethod', { args: 42 });
+        .toHaveCalled(injected(SomeService), 'someMethod', { args: [42] });
     });
 
     it('toHaveCalled { args } -> fail', () => {
@@ -332,7 +332,7 @@ describe(
         When(Components.Button)
           .emits('click')
           .expect(host)
-          .toHaveCalled(injected(SomeService), 'someMethod', { args: null });
+          .toHaveCalled(injected(SomeService), 'someMethod', { args: [null] });
 
         fail();
       } catch {}
@@ -421,13 +421,13 @@ describe(
       When(host)
         .calls('onChange', 42)
         .expect(host)
-        .toHaveCalled(componentMethod, 'onChange', { args: 42, times: 1 });
+        .toHaveCalled(componentMethod, 'onChange', { args: [42], times: 1 });
 
       When(host)
         .rendered()
         .and(then(host).calls('onChange', 42))
         .expect(host)
-        .toHaveCalled(componentMethod, 'onChange', { args: 42, times: 1 });
+        .toHaveCalled(componentMethod, 'onChange', { args: [42], times: 1 });
     });
 
     it('should provide a spyFactory function in extensions', () => {
