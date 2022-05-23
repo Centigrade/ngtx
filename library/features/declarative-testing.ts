@@ -297,7 +297,29 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
 
             executeTest();
           },
-          toBePresent(opts: MultipleFindingOptions = {}) {
+          toHaveStates(maps: Partial<Record<keyof ObjectType, any>>[]) {
+            state = {
+              ...multiState,
+              assertion: () => {
+                const targets = multiState.object();
+
+                maps.forEach((map, index) => {
+                  Object.entries(map).forEach(([key, value]) => {
+                    const state = targets.atIndex(index).componentInstance;
+
+                    if (multiState.negateAssertion) {
+                      expect(state[key]).not.toEqual(value);
+                    } else {
+                      expect(state[key]).toEqual(value);
+                    }
+                  });
+                });
+              },
+            };
+
+            executeTest();
+          },
+          toBeFound(opts: MultipleFindingOptions = {}) {
             state = {
               ...multiState,
               assertion: () => {

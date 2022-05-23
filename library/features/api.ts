@@ -68,7 +68,30 @@ export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType> {
       MultiPartRef<ObjectHtml, ObjectType>
     >,
   ): void;
-  toBePresent(opts?: MultipleFindingOptions): void;
+  /**
+   * Asserts that the specified objects are to be found in the template. If no options are given, it will
+   * assert that at least one of the object-type could be found in the component under test's template.
+   *
+   * ~~~ts
+   * When(host).hasState({ items: [1,2,3] })
+   *   .expect(Components.Items).toBeFound({ count: 3 });
+   * ~~~
+   * @param opts (Optional) finding options specifying more details about the findings.
+   */
+  toBeFound(opts?: MultipleFindingOptions): void;
+  /**
+   * Asserts that the found component's states match the given object-property-maps.
+   *
+   * ~~~ts
+   * When(host).hasState({ users: [{ name: 'Ann Ray' }, { name: 'Mary Jane' }] })
+   *   .expect(Components.Avatars).toHaveStates([
+   *     { initials: 'AR' },
+   *     { initials: 'MJ' }
+   *   ]);
+   * ~~~
+   * @param maps Array of objects that provide properties defining the expected component states, in the correct order of finding.
+   */
+  toHaveStates(maps: Partial<Record<keyof ObjectType, any>>[]): void;
 }
 
 export interface MultipleFindingOptions {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { fakeAsync, TestBed } from '@angular/core/testing';
 import {
   callsLifeCycleHooks,
@@ -18,13 +18,22 @@ class SomeService {
 }
 
 @Component({
+  selector: 'app-item',
+  template: `<span data-ngtx="item:text">{{ text }}</span>`,
+})
+class ItemComponent {
+  @Input() text?: string;
+}
+
+@Component({
   template: `
     <div [class.text-shown]="showText">
       <input #txt [value]="text" (change)="onChange($event.target.value)" />
       <button (click)="onChange($event); txt.focus()">Click to set text</button>
       <p *ngIf="showText">{{ text }}</p>
 
-      <div *ngFor="let item of items" data-ngtx="item">{{ item }}</div>
+      <app-item *ngFor="let item of items" data-ngtx="item" [text]="item">
+      </app-item>
     </div>
   `,
 })
@@ -65,7 +74,7 @@ describe(
   ngtx<DeclarativeTestComponent>(({ useFixture, When, host, get, getAll }) => {
     beforeEach(async () => {
       await TestBed.configureTestingModule({
-        declarations: [DeclarativeTestComponent],
+        declarations: [DeclarativeTestComponent, ItemComponent],
         providers: [SomeService],
       }).compileComponents();
     });
@@ -91,7 +100,7 @@ describe(
         return get('div');
       }
       static Items() {
-        return getAll<HTMLDivElement>('ngtx_item');
+        return getAll<HTMLElement, ItemComponent>('ngtx_item');
       }
     }
 
@@ -563,7 +572,7 @@ describe(
       When(host)
         .hasState({ items: [1, 2, 3] })
         .expect(Components.Items)
-        .toBePresent({ count: 3 });
+        .toBeFound({ count: 3 });
     });
 
     it('toBePresent -> fail', () => {
@@ -571,7 +580,7 @@ describe(
         When(host)
           .hasState({ items: [1, 2, 3] })
           .expect(Components.Items)
-          .toBePresent({ count: 4 });
+          .toBeFound({ count: 4 });
 
         fail();
       } catch {}
@@ -581,7 +590,27 @@ describe(
       When(host)
         .hasState({ items: [1, 2, 3] })
         .expect(Components.Items)
-        .not.toBePresent({ count: 4 });
+        .not.toBeFound({ count: 4 });
+    });
+
+    it('toHaveState', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toHaveStates([
+          { text: 1 },
+          { text: 2 },
+          { text: 3 },
+          { text: 4 },
+          { text: 5 },
+        ]);
+    });
+
+    it('toHaveState -> not', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3] })
+        .expect(Components.Items)
+        .not.toHaveStates([{ text: 4 }, { text: 5 }, { text: 6 }]);
     });
     //#endregion
   }),
