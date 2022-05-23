@@ -1,13 +1,17 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
+import { NgtxElement } from '../entities';
 import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { Fn, LifeCycleHooks } from '../types';
 import {
   AfterPredicateApi,
   DeclarativeTestingApi,
-  Expectations,
+  ExpectApi,
   ExtensionsApi,
+  MultiExpectations,
+  MultipleFindingOptions,
+  SingleExpectations,
   TestingApiFactoryFn,
 } from './api';
 import {
@@ -16,10 +20,12 @@ import {
   EmissionOptions,
   EventsOf,
   ITargetResolver,
+  MultiPartRef,
   PartRef,
   TargetResolverFn,
   Token,
 } from './types';
+import { isMultiElementRef } from './utility';
 
 export const createDeclarativeTestingApi: TestingApiFactoryFn = (
   fx: NgtxFixture<any, any>,
@@ -29,7 +35,13 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
   const testingApi = <Html extends HTMLElement = HTMLElement, Component = any>(
     subjectRef: PartRef<Html, Component>,
   ): DeclarativeTestingApi<Html, Component> => {
-    let state: DeclarativeTestState<any, any, any, any> = {};
+    let state: DeclarativeTestState<
+      any,
+      any,
+      any,
+      any,
+      PartRef<HTMLElement, unknown> | MultiPartRef<HTMLElement, unknown>
+    > = {};
     state = { subject: subjectRef };
 
     const executeTest = () => {
@@ -37,14 +49,27 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
       state.assertion();
     };
 
-    const expectApi = {
+    const expectApi: ExpectApi = {
       expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
-        objectRef: PartRef<ObjectHtml, ObjectType>,
-      ): Expectations<ObjectHtml, ObjectType> {
+        objectRef:
+          | PartRef<ObjectHtml, ObjectType>
+          | MultiPartRef<ObjectHtml, ObjectType>,
+      ):
+        | SingleExpectations<ObjectHtml, ObjectType>
+        | MultiExpectations<ObjectHtml, ObjectType> {
         state = { ...state, object: objectRef };
 
-        const expectations: Omit<
-          Expectations<ObjectHtml, ObjectType>,
+        const singleObjectRef = objectRef as PartRef<ObjectHtml, ObjectType>;
+        const singleRefState = state as DeclarativeTestState<
+          HTMLElement,
+          unknown,
+          ObjectHtml,
+          ObjectType,
+          PartRef<ObjectHtml, ObjectType>
+        >;
+
+        const singleExpectations: Omit<
+          SingleExpectations<ObjectHtml, ObjectType>,
           'not'
         > = {
           to(
@@ -52,12 +77,13 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
               HTMLElement,
               unknown,
               ObjectHtml,
-              ObjectType
+              ObjectType,
+              PartRef<ObjectHtml, ObjectType>
             >,
           ) {
             state = {
               ...state,
-              ...assertion(state, fx, spyFactory),
+              ...assertion(singleRefState, fx, spyFactory),
             };
 
             executeTest();
@@ -79,7 +105,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             state = {
               ...state,
               predicate: () => {
-                const result = targetResolver(state);
+                const result = targetResolver(singleRefState);
                 const instance = result.getInstance();
                 instance[method] = spy;
 
@@ -94,10 +120,10 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           },
           toHaveCssClass(...classNames: string[]) {
             state = {
-              ...state,
+              ...singleRefState,
               assertion: () => {
                 classNames.forEach((className) => {
-                  const classList = objectRef().nativeElement.classList;
+                  const classList = singleObjectRef().nativeElement.classList;
 
                   if (state.negateAssertion) {
                     expect(classList).not.toContain(className);
@@ -130,7 +156,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             state = {
               ...state,
               assertion: () => {
-                const target = objectRef();
+                const target = singleObjectRef();
 
                 if (state.negateAssertion) {
                   expect(target).not.toBeFalsy();
@@ -146,7 +172,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             state = {
               ...state,
               assertion: () => {
-                const textContent = objectRef().textContent();
+                const textContent = singleObjectRef().textContent();
 
                 if (state.negateAssertion) {
                   expect(textContent).not.toContain(text);
@@ -162,7 +188,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             state = {
               ...state,
               assertion: () => {
-                const textContent = objectRef().textContent();
+                const textContent = singleObjectRef().textContent();
 
                 if (state.negateAssertion) {
                   expect(textContent).not.toEqual(text);
@@ -178,7 +204,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             state = {
               ...state,
               assertion: () => {
-                const target = objectRef();
+                const target = singleObjectRef();
 
                 Object.entries(map).forEach(([key, value]) => {
                   const property = target.componentInstance[key];
@@ -198,7 +224,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             state = {
               ...state,
               assertion: () => {
-                const target = objectRef();
+                const target = singleObjectRef();
 
                 Object.entries(map).forEach(([key, value]) => {
                   const property = target.nativeElement[key];
@@ -218,10 +244,14 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             eventName: keyof ObjectType,
             opts: Omit<EmissionOptions, 'whichReturns'> = {},
           ) {
-            const target = state.object();
+            const target = state.object() as NgtxElement<
+              ObjectHtml,
+              ObjectType
+            >;
+
             const emitter = target.componentInstance[
               eventName
-            ] as EventEmitter<any>;
+            ] as unknown as EventEmitter<any>;
 
             const originalPredicate = state.predicate;
 
@@ -240,7 +270,62 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           },
         };
 
-        return Object.assign({}, expectations, {
+        const multiState = state as DeclarativeTestState<
+          HTMLElement,
+          unknown,
+          ObjectHtml,
+          ObjectType,
+          MultiPartRef<ObjectHtml, ObjectType>
+        >;
+        const multiExpectations: Omit<
+          MultiExpectations<ObjectHtml, ObjectType>,
+          'not'
+        > = {
+          to(
+            assertion: DeclarativeTestExtension<
+              HTMLElement,
+              unknown,
+              ObjectHtml,
+              ObjectType,
+              MultiPartRef<ObjectHtml, ObjectType>
+            >,
+          ) {
+            state = {
+              ...multiState,
+              ...assertion(multiState, fx, spyFactory),
+            };
+
+            executeTest();
+          },
+          toBePresent(opts: MultipleFindingOptions = {}) {
+            state = {
+              ...multiState,
+              assertion: () => {
+                if (multiState.negateAssertion) {
+                  if (opts?.count != null) {
+                    expect(multiState.object().length).not.toEqual(opts.count);
+                  } else {
+                    expect(multiState.object().length).not.toBeGreaterThan(0);
+                  }
+                } else {
+                  if (opts?.count != null) {
+                    expect(multiState.object().length).toEqual(opts.count);
+                  } else {
+                    expect(multiState.object().length).toBeGreaterThan(0);
+                  }
+                }
+              },
+            };
+
+            executeTest();
+          },
+        };
+
+        const expectations = isMultiElementRef(objectRef)
+          ? multiExpectations
+          : singleExpectations;
+
+        const api = Object.assign({}, expectations, {
           not: new Proxy(
             {},
             {
@@ -251,9 +336,11 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
               },
             },
           ),
-        }) as Expectations<ObjectHtml, ObjectType>;
+        });
+
+        return api;
       },
-    };
+    } as ExpectApi;
 
     const extensionApi: ExtensionsApi<Html, Component> = {
       and(
@@ -261,10 +348,17 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           Html,
           Component,
           HTMLElement,
-          unknown
+          unknown,
+          PartRef<HTMLElement, unknown>
         >[]
-      ) {
-        let newState = state;
+      ): ExpectApi {
+        let newState = state as DeclarativeTestState<
+          Html,
+          Component,
+          HTMLElement,
+          unknown,
+          PartRef<HTMLElement, unknown>
+        >;
 
         extensions.forEach((extension) => {
           newState = extension(newState, fx, spyFactory);
@@ -290,12 +384,21 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
         HTMLElement,
         Component,
         HTMLElement,
-        unknown
+        unknown,
+        PartRef<HTMLElement, unknown>
       >,
     ) => {
+      const singleState = state as DeclarativeTestState<
+        HTMLElement,
+        Component,
+        HTMLElement,
+        unknown,
+        PartRef<HTMLElement, unknown>
+      >;
+
       state = {
         ...state,
-        ...action(state, fx, spyFactory),
+        ...action(singleState, fx, spyFactory),
       };
 
       return afterActionApi;
@@ -404,7 +507,13 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
 // ---------------------------------------
 
 export const elementMethod = <T extends HTMLElement>(
-  state: DeclarativeTestState<HTMLElement, unknown, T, unknown>,
+  state: DeclarativeTestState<
+    HTMLElement,
+    unknown,
+    T,
+    unknown,
+    PartRef<T, unknown>
+  >,
 ): ITargetResolver<T> => {
   return {
     getInstance: () => state.object().nativeElement,
@@ -412,7 +521,13 @@ export const elementMethod = <T extends HTMLElement>(
 };
 
 export const componentMethod = <T>(
-  state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, T>,
+  state: DeclarativeTestState<
+    HTMLElement,
+    unknown,
+    HTMLElement,
+    T,
+    PartRef<HTMLElement, T>
+  >,
 ): ITargetResolver<T> => {
   return {
     getInstance: () => state.object().componentInstance,
@@ -422,7 +537,13 @@ export const componentMethod = <T>(
 export const injected =
   <T>(token: Token<T>) =>
   (
-    state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
+    state: DeclarativeTestState<
+      HTMLElement,
+      unknown,
+      HTMLElement,
+      unknown,
+      PartRef<HTMLElement, unknown>
+    >,
   ): ITargetResolver<T> => {
     return {
       getInstance: () => state.object().injector.get(token),
@@ -437,7 +558,13 @@ export const provider = <T>(token: Type<T>) => {
   return {
     hasState(
       map: Partial<Record<keyof T, any>>,
-    ): DeclarativeTestExtension<HTMLElement, any, HTMLElement, any> {
+    ): DeclarativeTestExtension<
+      HTMLElement,
+      any,
+      HTMLElement,
+      any,
+      PartRef<HTMLElement, any>
+    > {
       return ({ subject, predicate }, fixture) => {
         return {
           predicate: () => {
@@ -459,7 +586,13 @@ export const provider = <T>(token: Type<T>) => {
 export const waitFakeAsync =
   <Subject, Object>(
     waitDuration?: number | 'animationFrame',
-  ): DeclarativeTestExtension<HTMLElement, Subject, HTMLElement, Object> =>
+  ): DeclarativeTestExtension<
+    HTMLElement,
+    Subject,
+    HTMLElement,
+    Object,
+    PartRef<HTMLElement, Object>
+  > =>
   ({ predicate }) => {
     return {
       predicate: () => {
@@ -477,7 +610,8 @@ export const callsLifeCycleHooks = <T>(
   HTMLElement,
   LifeCycleHooks & T,
   HTMLElement,
-  unknown
+  unknown,
+  PartRef<HTMLElement, unknown>
 > => {
   return ({ subject, predicate }, fixture) => {
     return {
@@ -519,9 +653,21 @@ function thenApi<Html extends HTMLElement, Component>(
       return (
         {
           predicate,
-        }: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
+        }: DeclarativeTestState<
+          HTMLElement,
+          unknown,
+          HTMLElement,
+          unknown,
+          PartRef<HTMLElement, unknown>
+        >,
         fixture: NgtxFixture<any, any>,
-      ): DeclarativeTestState<Html, Component, HTMLElement, unknown> => {
+      ): DeclarativeTestState<
+        Html,
+        Component,
+        HTMLElement,
+        unknown,
+        PartRef<HTMLElement, unknown>
+      > => {
         return {
           predicate: () => {
             predicate?.();
@@ -549,9 +695,21 @@ function thenApi<Html extends HTMLElement, Component>(
     },
     emits(eventName: keyof Component | EventsOf<keyof Html>, args?: any) {
       return (
-        state: DeclarativeTestState<HTMLElement, unknown, HTMLElement, unknown>,
+        state: DeclarativeTestState<
+          HTMLElement,
+          unknown,
+          HTMLElement,
+          unknown,
+          PartRef<HTMLElement, unknown>
+        >,
         fixture: NgtxFixture<any, any>,
-      ): DeclarativeTestState<Html, Component, HTMLElement, unknown> => {
+      ): DeclarativeTestState<
+        Html,
+        Component,
+        HTMLElement,
+        unknown,
+        PartRef<HTMLElement, unknown>
+      > => {
         const original = state.predicate;
 
         return {

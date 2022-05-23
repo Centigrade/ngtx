@@ -4,6 +4,7 @@ import {
   DeclarativeTestExtension,
   EmissionOptions,
   EventsOf,
+  MultiPartRef,
   PartRef,
   PropertyMap,
   TargetResolverFn,
@@ -39,11 +40,21 @@ export interface ExpectApi {
    */
   expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
     objectRef: PartRef<ObjectHtml, ObjectType>,
-  ): Expectations<ObjectHtml, ObjectType>;
+  ): SingleExpectations<ObjectHtml, ObjectType>;
+  expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
+    objectRef: MultiPartRef<ObjectHtml, ObjectType>,
+  ): MultiExpectations<ObjectHtml, ObjectType>;
+  expect<ObjectHtml extends HTMLElement = HTMLElement, ObjectType = any>(
+    objectRef:
+      | PartRef<ObjectHtml, ObjectType>
+      | MultiPartRef<ObjectHtml, ObjectType>,
+  ):
+    | SingleExpectations<ObjectHtml, ObjectType>
+    | MultiExpectations<ObjectHtml, ObjectType>;
 }
 
-export interface Expectations<ObjectHtml extends HTMLElement, ObjectType> {
-  not: Expectations<ObjectHtml, ObjectType>;
+export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType> {
+  not: MultiExpectations<ObjectHtml, ObjectType>;
   /**
    * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.
    * @param assertion `DeclarativeTestExtension`-function that adds an assertion to the `DeclarativeTestState`.
@@ -53,7 +64,33 @@ export interface Expectations<ObjectHtml extends HTMLElement, ObjectType> {
       HTMLElement,
       unknown,
       ObjectHtml,
-      ObjectType
+      ObjectType,
+      MultiPartRef<ObjectHtml, ObjectType>
+    >,
+  ): void;
+  toBePresent(opts?: MultipleFindingOptions): void;
+}
+
+export interface MultipleFindingOptions {
+  count?: number;
+}
+
+export interface SingleExpectations<
+  ObjectHtml extends HTMLElement,
+  ObjectType,
+> {
+  not: SingleExpectations<ObjectHtml, ObjectType>;
+  /**
+   * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.
+   * @param assertion `DeclarativeTestExtension`-function that adds an assertion to the `DeclarativeTestState`.
+   */
+  to(
+    assertion: DeclarativeTestExtension<
+      HTMLElement,
+      unknown,
+      ObjectHtml,
+      ObjectType,
+      PartRef<ObjectHtml, ObjectType>
     >,
   ): void;
   /**
@@ -92,7 +129,8 @@ export interface ExtensionsApi<SubjectHtml extends HTMLElement, Subject> {
       SubjectHtml,
       Subject,
       HTMLElement,
-      unknown
+      unknown,
+      any
     >[]
   ): ExpectApi;
 }
@@ -130,5 +168,11 @@ export interface DeclarativeTestingApi<
 }
 
 export type PredicateExtensionFn<SubjectHtml extends HTMLElement, Subject> = (
-  action: DeclarativeTestExtension<SubjectHtml, Subject, HTMLElement, unknown>,
+  action: DeclarativeTestExtension<
+    SubjectHtml,
+    Subject,
+    HTMLElement,
+    unknown,
+    PartRef<HTMLElement, unknown> | MultiPartRef<HTMLElement, unknown>
+  >,
 ) => AfterPredicateApi<SubjectHtml, Subject>;

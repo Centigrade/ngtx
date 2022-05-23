@@ -9,7 +9,7 @@ import {
   then,
   waitFakeAsync,
 } from '../../features/declarative-testing';
-import { DeclarativeTestExtension } from '../../features/types';
+import { DeclarativeTestExtension, PartRef } from '../../features/types';
 import { ngtx } from '../../ngtx';
 
 class SomeService {
@@ -23,6 +23,8 @@ class SomeService {
       <input #txt [value]="text" (change)="onChange($event.target.value)" />
       <button (click)="onChange($event); txt.focus()">Click to set text</button>
       <p *ngIf="showText">{{ text }}</p>
+
+      <div *ngFor="let item of items" data-ngtx="item">{{ item }}</div>
     </div>
   `,
 })
@@ -31,6 +33,7 @@ class DeclarativeTestComponent {
   public text = '';
   public showText = false;
   public returnValue: any;
+  public items = [1, 2, 3, 4];
 
   constructor(public readonly token: SomeService) {}
 
@@ -59,7 +62,7 @@ const fail = () => expect(false).toBe(true);
 
 describe(
   'When',
-  ngtx<DeclarativeTestComponent>(({ useFixture, When, host, get }) => {
+  ngtx<DeclarativeTestComponent>(({ useFixture, When, host, get, getAll }) => {
     beforeEach(async () => {
       await TestBed.configureTestingModule({
         declarations: [DeclarativeTestComponent],
@@ -86,6 +89,9 @@ describe(
       }
       static Container() {
         return get('div');
+      }
+      static Items() {
+        return getAll<HTMLDivElement>('ngtx_item');
       }
     }
 
@@ -385,16 +391,21 @@ describe(
       const emitTimes: <T>(
         event: Exclude<keyof T, Symbol | number>,
         times: number,
-      ) => DeclarativeTestExtension<HTMLElement, T, HTMLElement, unknown> =
-        (event: string, times: number) => (_, fx) => {
-          return {
-            predicate: () => {
-              for (let i = 0; i < times; i++) {
-                fx.rootElement.componentInstance[event].emit();
-              }
-            },
-          };
+      ) => DeclarativeTestExtension<
+        HTMLElement,
+        T,
+        HTMLElement,
+        unknown,
+        PartRef<HTMLElement, unknown>
+      > = (event: string, times: number) => (_, fx) => {
+        return {
+          predicate: () => {
+            for (let i = 0; i < times; i++) {
+              fx.rootElement.componentInstance[event].emit();
+            }
+          },
         };
+      };
 
       When(host)
         .does(emitTimes('textChange', 2))
@@ -435,7 +446,8 @@ describe(
         HTMLElement,
         any,
         HTMLElement,
-        any
+        any,
+        PartRef<HTMLElement, any>
       > = ({ assertion }, _, factory) => {
         return {
           assertion: () => {
@@ -545,6 +557,33 @@ describe(
         fail();
       } catch {}
     });
+
+    //#region MultiApi
+    it('toBePresent', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3] })
+        .expect(Components.Items)
+        .toBePresent({ count: 3 });
+    });
+
+    it('toBePresent -> fail', () => {
+      try {
+        When(host)
+          .hasState({ items: [1, 2, 3] })
+          .expect(Components.Items)
+          .toBePresent({ count: 4 });
+
+        fail();
+      } catch {}
+    });
+
+    it('toBePresent -> fail', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3] })
+        .expect(Components.Items)
+        .not.toBePresent({ count: 4 });
+    });
+    //#endregion
   }),
 );
 
@@ -553,7 +592,8 @@ const haveFocus =
     HTMLElement,
     any,
     T,
-    any
+    any,
+    PartRef<T, any>
   > =>
   ({ assertion, object }) => {
     return {

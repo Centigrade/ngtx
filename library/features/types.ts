@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { NgtxElement, NgtxFixture } from '../entities';
+import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../entities';
 import { SpyFactoryFn } from '../types';
 
 export type PropertyMap<T> = T & Record<keyof T, any>;
@@ -32,6 +32,11 @@ export type PartRef<Html extends HTMLElement, Type> = () => NgtxElement<
   Type
 >;
 
+export type MultiPartRef<
+  Html extends HTMLElement,
+  Type,
+> = () => NgtxMultiElement<Html, Type>;
+
 export type EventsOf<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
 
@@ -53,6 +58,9 @@ export interface DeclarativeTestState<
   Subject,
   ObjectHtml extends HTMLElement,
   Object,
+  SingleOrMulti extends
+    | PartRef<ObjectHtml, Object>
+    | MultiPartRef<ObjectHtml, Object>,
 > {
   /** Whether the assertion is preceded by a ".not" and will be negated. */
   negateAssertion?: boolean;
@@ -96,7 +104,7 @@ export interface DeclarativeTestState<
    * will be made. This part of the state will most likely be used in the
    * `assertion` function to make assertions on it.
    */
-  object?: PartRef<ObjectHtml, Object>;
+  object?: SingleOrMulti;
   /**
    * The `assertion` part of the test case. Override or wrap this function in
    * order to run expectations on the test's `object`. In traditional (AAA)
@@ -130,7 +138,13 @@ export type TargetResolverFn<
   Object,
   T,
 > = (
-  state: DeclarativeTestState<SubjectHtml, Subject, ObjectHtml, Object>,
+  state: DeclarativeTestState<
+    SubjectHtml,
+    Subject,
+    ObjectHtml,
+    Object,
+    PartRef<ObjectHtml, Object>
+  >,
 ) => ITargetResolver<T>;
 export interface ITargetResolver<T> {
   getInstance(): T;
@@ -141,8 +155,23 @@ export type DeclarativeTestExtension<
   Subject,
   ObjectHtml extends HTMLElement,
   Object,
+  SingleOrMulti extends
+    | PartRef<ObjectHtml, Object>
+    | MultiPartRef<ObjectHtml, Object>,
 > = (
-  input: DeclarativeTestState<HTMLElement, Subject, ObjectHtml, Object>,
+  input: DeclarativeTestState<
+    HTMLElement,
+    Subject,
+    ObjectHtml,
+    Object,
+    SingleOrMulti
+  >,
   fixture: NgtxFixture<HTMLElement, any>,
   spyFactory: SpyFactoryFn,
-) => DeclarativeTestState<SubjectHtml, Subject, ObjectHtml, Object>;
+) => DeclarativeTestState<
+  SubjectHtml,
+  Subject,
+  ObjectHtml,
+  Object,
+  PartRef<ObjectHtml, Object>
+>;
