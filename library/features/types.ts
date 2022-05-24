@@ -21,7 +21,7 @@ export interface EmissionOptions {
   /** The values that were passed as arguments to the spy. */
   args?: any[];
   /** The number of times the spy was called. */
-  times?: number;
+  times?: number | null;
   /** The return-value that the spy should return when being called. */
   whichReturns?: any;
 }
