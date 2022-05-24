@@ -1,4 +1,4 @@
-import { Type } from '@angular/core';
+import { SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxMultiElement } from '.';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
@@ -12,7 +12,7 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
   }
 
   constructor(private fixture?: ComponentFixture<any>) {
-    this.root = new NgtxElement(fixture?.debugElement);
+    this.root = new NgtxElement(fixture?.debugElement!);
   }
 
   /**
@@ -101,10 +101,10 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
   ): void {
     this.checkFixture();
 
-    component?.ngOnChanges?.(changes);
+    component?.ngOnChanges?.(changes as SimpleChanges);
     component?.ngOnInit?.();
 
-    this.fixture.detectChanges();
+    this.fixture!.detectChanges();
   }
 
   public get<Html extends HTMLElement, Component = any>(

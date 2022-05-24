@@ -413,7 +413,7 @@ describe(
         T,
         HTMLElement,
         unknown,
-        PartRef<HTMLElement, unknown>
+        any
       > = (event: string, times: number) => (_, fx) => {
         return {
           predicate: () => {
@@ -464,7 +464,7 @@ describe(
         any,
         HTMLElement,
         any,
-        PartRef<HTMLElement, any>
+        any
       > = ({ assertion }, _, factory) => {
         return {
           assertion: () => {
@@ -636,7 +636,7 @@ const haveFocus =
     return {
       assertion: () => {
         assertion?.();
-        expect(document.activeElement).toBe(object().nativeElement);
+        expect(document.activeElement).toBe(object!().nativeElement);
       },
     };
   };

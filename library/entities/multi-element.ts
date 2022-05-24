@@ -55,7 +55,7 @@ export class NgtxMultiElement<
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();
-    return results.length > 0 ? new NgtxMultiElement(results) : null;
+    return results.length > 0 ? new NgtxMultiElement(results) : null!;
   }
 
   public forEach(
@@ -67,7 +67,7 @@ export class NgtxMultiElement<
   public find(
     handler: (element: NgtxElement<Html, Component>, index: number) => boolean,
   ): NgtxElement<Html, Component> {
-    return this.elements.find((element, i) => handler(element, i));
+    return this.elements.find((element, i) => handler(element, i))!;
   }
 
   public filter(
@@ -131,8 +131,8 @@ export class NgtxMultiElement<
    */
   public attr<Out>(name: string, convert: ConverterFn<Out>): Out[];
   public attr<Out>(name: string, convert?: ConverterFn<Out>): string[] | Out[] {
-    const values = this.elements.map((debugElement) =>
-      debugElement.nativeElement.getAttribute(name),
+    const values = this.elements.map(
+      (debugElement) => debugElement.nativeElement.getAttribute(name)!,
     );
 
     return convert ? values.map(convert) : values;
@@ -140,7 +140,7 @@ export class NgtxMultiElement<
 
   public textContents(trim = true): string[] {
     return this.elements
-      .map((debugElement) => debugElement.nativeElement.textContent)
+      .map((debugElement) => debugElement.nativeElement.textContent!)
       .map((text) => (trim ? text.trim() : text));
   }
 

@@ -46,7 +46,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
 
     const executeTest = () => {
       state.predicate?.();
-      state.assertion();
+      state.assertion?.();
     };
 
     const expectApi: ExpectApi = {
@@ -244,7 +244,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             eventName: keyof ObjectType,
             opts: Omit<EmissionOptions, 'whichReturns'> = {},
           ) {
-            const target = state.object() as NgtxElement<
+            const target = state.object!() as NgtxElement<
               ObjectHtml,
               ObjectType
             >;
@@ -259,7 +259,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
               ...state,
               predicate: () => {
                 emitter.emit = spyFactory();
-                originalPredicate();
+                originalPredicate?.();
               },
               assertion: () => {
                 assertEmission(emitter.emit, opts, state.negateAssertion);
@@ -301,7 +301,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
             state = {
               ...multiState,
               assertion: () => {
-                const targets = multiState.object();
+                const targets = multiState.object!();
 
                 maps.forEach((map, index) => {
                   Object.entries(map).forEach(([key, value]) => {
@@ -325,15 +325,15 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
               assertion: () => {
                 if (multiState.negateAssertion) {
                   if (opts?.count != null) {
-                    expect(multiState.object().length).not.toEqual(opts.count);
+                    expect(multiState.object!().length).not.toEqual(opts.count);
                   } else {
-                    expect(multiState.object().length).not.toBeGreaterThan(0);
+                    expect(multiState.object!().length).not.toBeGreaterThan(0);
                   }
                 } else {
                   if (opts?.count != null) {
-                    expect(multiState.object().length).toEqual(opts.count);
+                    expect(multiState.object!().length).toEqual(opts.count);
                   } else {
-                    expect(multiState.object().length).toBeGreaterThan(0);
+                    expect(multiState.object!().length).toBeGreaterThan(0);
                   }
                 }
               },
@@ -486,7 +486,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
         state = {
           ...state,
           predicate: () => {
-            const target = state.subject();
+            const target = state.subject!();
 
             Object.entries(map).forEach(([key, value]) => {
               target.nativeElement[key] = value;
@@ -502,7 +502,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
         state = {
           ...state,
           predicate: () => {
-            const target = state.subject();
+            const target = state.subject!();
 
             Object.entries(map).forEach(([key, value]) => {
               target.componentInstance[key] = value;
@@ -538,7 +538,7 @@ export const elementMethod = <T extends HTMLElement>(
   >,
 ): ITargetResolver<T> => {
   return {
-    getInstance: () => state.object().nativeElement,
+    getInstance: () => state.object!().nativeElement,
   };
 };
 
@@ -552,7 +552,7 @@ export const componentMethod = <T>(
   >,
 ): ITargetResolver<T> => {
   return {
-    getInstance: () => state.object().componentInstance,
+    getInstance: () => state.object!().componentInstance,
   };
 };
 
@@ -568,7 +568,7 @@ export const injected =
     >,
   ): ITargetResolver<T> => {
     return {
-      getInstance: () => state.object().injector.get(token),
+      getInstance: () => state.object!().injector.get(token),
     };
   };
 
@@ -590,7 +590,7 @@ export const provider = <T>(token: Type<T>) => {
       return ({ subject, predicate }, fixture) => {
         return {
           predicate: () => {
-            const instance = subject().injector.get(token);
+            const instance = subject!().injector.get(token);
 
             Object.entries(map).forEach(([key, value]) => {
               instance[key] = value;
@@ -640,14 +640,14 @@ export const callsLifeCycleHooks = <T>(
       predicate: () => {
         predicate?.();
 
-        const component = subject().componentInstance;
+        const component = subject!().componentInstance;
 
         if (hooks.ngOnInit) {
-          component.ngOnInit();
+          component.ngOnInit!();
         }
         if (hooks.ngOnChanges) {
           const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
-          component.ngOnChanges(args);
+          component.ngOnChanges!(args);
         }
 
         // hooks could possibly change state again, so detect changes at the end
@@ -693,7 +693,7 @@ function thenApi<Html extends HTMLElement, Component>(
         return {
           predicate: () => {
             predicate?.();
-            const target = subjectRef();
+            const target = subjectRef?.()!;
             const componentMethod = method as keyof Component;
 
             if (
@@ -737,7 +737,7 @@ function thenApi<Html extends HTMLElement, Component>(
         return {
           predicate: () => {
             original?.();
-            subjectRef().triggerEvent(eventName as string, args);
+            subjectRef?.().triggerEvent(eventName as string, args);
             fixture.detectChanges();
           },
         };
@@ -765,7 +765,7 @@ function thenApi<Html extends HTMLElement, Component>(
 // Module internal
 // ---------------------------------------
 
-function assertEmission(spy: any, opts: EmissionOptions, negate: boolean) {
+function assertEmission(spy: any, opts: EmissionOptions, negate?: boolean) {
   if (negate) {
     expect(spy).not.toHaveBeenCalled();
 

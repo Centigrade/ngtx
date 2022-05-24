@@ -92,7 +92,7 @@ function getPropertyDescriptor(
   let descriptor: PropertyDescriptor | null = null;
   let obj = classType;
   do {
-    descriptor = Object.getOwnPropertyDescriptor(obj, property);
+    descriptor = Object.getOwnPropertyDescriptor(obj, property)!;
   } while (descriptor == null && (obj = Object.getPrototypeOf(obj)));
 
   return descriptor;

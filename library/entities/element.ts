@@ -60,7 +60,7 @@ export class NgtxElement<
 
     // only provide an ngtx element if the query could be resolved.
     // this allows tests like: expect(Get.Icon()).toBeNull();
-    return results.length > 0 ? results[0] : null;
+    return results.length > 0 ? results[0] : null!;
   }
 
   public getAll<Html extends HTMLElement, Component = any>(
@@ -88,7 +88,7 @@ export class NgtxElement<
     // this allows tests like: expect(Get.ListItems()).toBeNull();
     return results.length > 0
       ? new NgtxMultiElement(removeDuplicates(results))
-      : null;
+      : null!;
   }
 
   /**
@@ -117,7 +117,7 @@ export class NgtxElement<
    */
   public attr<Out>(name: string, convert: ConverterFn<Out>): Out;
   public attr<Out>(name: string, convert?: ConverterFn<Out>): string | Out {
-    const value = this.debugElement.nativeElement.getAttribute(name);
+    const value = this.debugElement.nativeElement.getAttribute(name)!;
     return convert ? convert(value) : value;
   }
 
@@ -126,7 +126,7 @@ export class NgtxElement<
   }
 
   public textContent(trim = true): string {
-    const text = this.debugElement.nativeElement.textContent;
+    const text = this.debugElement.nativeElement.textContent!;
     return trim ? text.trim() : text;
   }
 
