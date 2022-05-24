@@ -684,8 +684,8 @@ function thenApi<Html extends HTMLElement, Component>(
         >,
         fixture: NgtxFixture<any, any>,
       ): DeclarativeTestState<
-        Html,
-        Component,
+        any,
+        any,
         HTMLElement,
         unknown,
         PartRef<HTMLElement, unknown>
@@ -726,8 +726,8 @@ function thenApi<Html extends HTMLElement, Component>(
         >,
         fixture: NgtxFixture<any, any>,
       ): DeclarativeTestState<
-        Html,
-        Component,
+        any,
+        any,
         HTMLElement,
         unknown,
         PartRef<HTMLElement, unknown>
