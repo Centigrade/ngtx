@@ -1,9 +1,7 @@
-import { Type } from '@angular/core';
 import { NgtxFixture, NgtxMultiElement } from '../entities';
 import { DeclarativeTestState } from './types';
 
-export function refersToType(
-  type: Type<any>,
+export function isMultiElementRef(
   value: any,
 ): value is NgtxMultiElement<HTMLElement, unknown> {
   if (value == null || typeof value !== 'function') {
@@ -11,7 +9,7 @@ export function refersToType(
   }
 
   const target = value();
-  return target instanceof type;
+  return target != null && typeof target.unwrap === 'function';
 }
 
 export function runSafely(fn?: () => void): string {

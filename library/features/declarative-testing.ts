@@ -1,6 +1,6 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { NgtxElement, NgtxMultiElement } from '../entities';
+import { NgtxElement } from '../entities';
 import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { Fn, LifeCycleHooks } from '../types';
@@ -25,7 +25,7 @@ import {
   TargetResolverFn,
   Token,
 } from './types';
-import { refersToType, runTestSafelyAndOutputExceptions } from './utility';
+import { isMultiElementRef, runTestSafelyAndOutputExceptions } from './utility';
 
 export const createDeclarativeTestingApi: TestingApiFactoryFn = (
   fx: NgtxFixture<any, any>,
@@ -351,7 +351,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           },
         };
 
-        const expectations = refersToType(NgtxMultiElement, objectRef)
+        const expectations = isMultiElementRef(objectRef)
           ? multiExpectations
           : singleExpectations;
 
