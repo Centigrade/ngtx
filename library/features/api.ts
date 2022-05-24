@@ -53,7 +53,12 @@ export interface ExpectApi {
     | MultiExpectations<ObjectHtml, ObjectType>;
 }
 
-export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType> {
+interface BaseExpectations {
+  debugTest(): void;
+}
+
+export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType>
+  extends BaseExpectations {
   not: MultiExpectations<ObjectHtml, ObjectType>;
   /**
    * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.
@@ -98,10 +103,8 @@ export interface MultipleFindingOptions {
   count?: number;
 }
 
-export interface SingleExpectations<
-  ObjectHtml extends HTMLElement,
-  ObjectType,
-> {
+export interface SingleExpectations<ObjectHtml extends HTMLElement, ObjectType>
+  extends BaseExpectations {
   not: SingleExpectations<ObjectHtml, ObjectType>;
   /**
    * Allows to pass a custom assertion function that gets called by ngtx at the end of the test case.

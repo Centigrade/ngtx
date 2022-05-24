@@ -102,6 +102,9 @@ describe(
       static Items() {
         return getAll<HTMLElement, ItemComponent>('ngtx_item');
       }
+      static NotExistingItems() {
+        return getAll<HTMLElement, ItemComponent>('not existing');
+      }
     }
 
     it('when -> emits -> expect -> toHaveState { "value" }', () => {
@@ -576,6 +579,13 @@ describe(
     });
 
     //#region MultiApi
+    it('debugTest', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3] })
+        .expect(Components.NotExistingItems)
+        .debugTest();
+    });
+
     it('toBePresent', () => {
       When(host)
         .hasState({ items: [1, 2, 3] })

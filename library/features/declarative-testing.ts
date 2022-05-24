@@ -1,6 +1,6 @@
 import { EventEmitter, Type } from '@angular/core';
 import { tick } from '@angular/core/testing';
-import { NgtxElement } from '../entities';
+import { NgtxElement, NgtxMultiElement } from '../entities';
 import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { Fn, LifeCycleHooks } from '../types';
@@ -25,7 +25,7 @@ import {
   TargetResolverFn,
   Token,
 } from './types';
-import { isMultiElementRef } from './utility';
+import { refersToType, runTestSafelyAndOutputExceptions } from './utility';
 
 export const createDeclarativeTestingApi: TestingApiFactoryFn = (
   fx: NgtxFixture<any, any>,
@@ -72,6 +72,10 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           SingleExpectations<ObjectHtml, ObjectType>,
           'not'
         > = {
+          debugTest() {
+            state = runTestSafelyAndOutputExceptions(state, fx);
+            executeTest();
+          },
           to(
             assertion: DeclarativeTestExtension<
               HTMLElement,
@@ -281,6 +285,10 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           MultiExpectations<ObjectHtml, ObjectType>,
           'not'
         > = {
+          debugTest() {
+            state = runTestSafelyAndOutputExceptions(state, fx);
+            executeTest();
+          },
           to(
             assertion: DeclarativeTestExtension<
               HTMLElement,
@@ -343,11 +351,11 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           },
         };
 
-        const expectations = isMultiElementRef(objectRef)
+        const expectations = refersToType(NgtxMultiElement, objectRef)
           ? multiExpectations
           : singleExpectations;
 
-        const api = Object.assign({}, expectations, {
+        const expectationsApi = Object.assign({}, expectations, {
           not: new Proxy(
             {},
             {
@@ -360,7 +368,7 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
           ),
         });
 
-        return api;
+        return expectationsApi;
       },
     } as ExpectApi;
 
