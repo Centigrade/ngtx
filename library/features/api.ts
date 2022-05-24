@@ -199,6 +199,6 @@ export type PredicateExtensionFn<SubjectHtml extends HTMLElement, Subject> = (
     Subject,
     HTMLElement,
     unknown,
-    PartRef<HTMLElement, unknown> | MultiPartRef<HTMLElement, unknown>
+    any
   >,
 ) => AfterPredicateApi<SubjectHtml, Subject>;
