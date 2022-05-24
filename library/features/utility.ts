@@ -50,8 +50,16 @@ export function runTestSafelyAndOutputExceptions(
     ...state,
     predicate: () => {
       runSafelyAndOutputExceptions(originalPredicate, fx, 'predicate');
+      console.log(
+        'subject after predicate:',
+        state.subject?.() ?? 'not defined!',
+      );
     },
     assertion: () => {
+      console.log(
+        'object before assertion:',
+        state.object?.() ?? 'not defined!',
+      );
       runSafelyAndOutputExceptions(originalAssertion, fx, 'assertion');
     },
   };
