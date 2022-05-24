@@ -785,7 +785,7 @@ function assertEmission(spy: any, opts: EmissionOptions, negate: boolean) {
     }
     if (opts.times != null) {
       expect(spy).toHaveBeenCalledTimes(opts.times);
-    } else {
+    } else if (opts.times !== null) {
       expect(spy).toHaveBeenCalledTimes(1);
     }
   }

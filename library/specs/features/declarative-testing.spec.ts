@@ -118,6 +118,14 @@ describe(
         .toEmit('textChange');
     });
 
+    it('toEmit -> deactivate times explicitly', () => {
+      When(Components.Button)
+        .emits('click', 'some text')
+        .and(then(Components.Button).emits('click'))
+        .expect(host)
+        .toEmit('textChange', { times: null });
+    });
+
     it('when -> emits -> expect -> toEmit -> fail', () => {
       try {
         When(Components.Button)
