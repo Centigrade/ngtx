@@ -1,4 +1,5 @@
 import { Type } from '@angular/core';
+import { NgtxEmptySet } from '../features/constants';
 import { ConverterFn, QueryTarget } from '../types';
 import { NgtxElement } from './element';
 
@@ -55,7 +56,9 @@ export class NgtxMultiElement<
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();
-    return results.length > 0 ? new NgtxMultiElement(results) : null!;
+    return results.length > 0
+      ? new NgtxMultiElement(results)
+      : (NgtxEmptySet as any);
   }
 
   public forEach(

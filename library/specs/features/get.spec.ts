@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ngtx } from '../..';
+import { NgtxEmptySet } from '../../features/constants';
 import { Expect } from '../shared/expect';
 import { configureTestModule } from '../shared/util';
 
@@ -126,11 +127,11 @@ describe(
       );
     });
 
-    it('should return null if nothing could be found', () => {
+    it('should return NgtxEmptySet if nothing could be found', () => {
       // arrange, act
       const result = getAll('.not-existing');
       // assert
-      expect(result).toBeNull();
+      expect(result).toBe(NgtxEmptySet);
     });
 
     it('should be chainable', () => {
@@ -143,7 +144,7 @@ describe(
 
       // assert
       expect(spans.length).toBe(3);
-      expect(unreachableFromChild).toBeNull();
+      expect(unreachableFromChild).toBe(NgtxEmptySet);
       Expect.element(reachableFromRoot.first()).toBeComponent(ListComponent);
     });
 
@@ -184,9 +185,11 @@ describe(
       expect(result3.length).toBe(result1.length);
     });
 
-    it('should return null if nothing matches', () => {
+    it('should return NgtxEmptySet if nothing matches', () => {
       // arrange, act, assert
-      expect(getAll(['.not-existing', NotExistingComponent])).toBeNull();
+      expect(getAll(['.not-existing', NotExistingComponent])).toBe(
+        NgtxEmptySet,
+      );
     });
   }),
 );

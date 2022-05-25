@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { NgtxEmptySet } from '../features/constants';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';
@@ -88,7 +89,7 @@ export class NgtxElement<
     // this allows tests like: expect(Get.ListItems()).toBeNull();
     return results.length > 0
       ? new NgtxMultiElement(removeDuplicates(results))
-      : null!;
+      : (NgtxEmptySet as any);
   }
 
   /**
