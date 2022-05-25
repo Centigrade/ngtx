@@ -1,4 +1,5 @@
 import { NgtxFixture, NgtxMultiElement } from '../entities';
+import { NgtxEmptySet } from './constants';
 import { DeclarativeTestState } from './types';
 
 export function isMultiElementRef(
@@ -9,7 +10,9 @@ export function isMultiElementRef(
   }
 
   const target = value();
-  return target != null && typeof target.unwrap === 'function';
+  const isDefined = target != null;
+  const isEmptySet = target === NgtxEmptySet;
+  return isDefined && (isEmptySet || typeof target.unwrap === 'function');
 }
 
 export function runSafely(fn?: () => void): string {
