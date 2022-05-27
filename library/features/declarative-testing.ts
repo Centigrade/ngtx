@@ -6,6 +6,7 @@ import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { Fn, LifeCycleHooks } from '../types';
 import {
   AfterPredicateApi,
+  CssClasses,
   DeclarativeTestingApi,
   ExpectApi,
   ExtensionsApi,
@@ -22,6 +23,7 @@ import {
   ITargetResolver,
   MultiPartRef,
   PartRef,
+  PropertyMap,
   TargetResolverFn,
   Token,
 } from './types';
@@ -305,13 +307,24 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
 
             executeTest();
           },
-          toHaveStates(maps: Partial<Record<keyof ObjectType, any>>[]) {
+          toHaveStates(
+            maps:
+              | Partial<PropertyMap<ObjectType>>
+              | Partial<PropertyMap<ObjectType>>[],
+          ) {
             state = {
               ...multiState,
               assertion: () => {
                 const targets = multiState.object!();
+                // if only a single argument is given, ngtx assumes that each found item should have this state:
+                const mapForEachItem = convertToArrayIfNone(
+                  maps,
+                  targets.length,
+                );
 
-                maps.forEach((map, index) => {
+                checkItemsLength(mapForEachItem, targets);
+
+                mapForEachItem.forEach((map, index) => {
                   Object.entries(map).forEach(([key, value]) => {
                     const state = targets.atIndex(index).componentInstance;
 
@@ -319,6 +332,39 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
                       expect(state[key]).not.toEqual(value);
                     } else {
                       expect(state[key]).toEqual(value);
+                    }
+                  });
+                });
+              },
+            };
+
+            executeTest();
+          },
+          toHaveAttributes(
+            maps:
+              | Partial<PropertyMap<ObjectHtml>>
+              | Partial<PropertyMap<ObjectHtml>>[],
+          ) {
+            state = {
+              ...multiState,
+              assertion: () => {
+                const targets = multiState.object!();
+                // if only a single argument is given, ngtx assumes that each found item should have this state:
+                const mapForEachItem = convertToArrayIfNone(
+                  maps,
+                  targets.length,
+                );
+
+                checkItemsLength(mapForEachItem, targets);
+
+                mapForEachItem.forEach((map, index) => {
+                  Object.entries(map).forEach(([key, value]) => {
+                    const attributes = targets.atIndex(index).nativeElement;
+
+                    if (multiState.negateAssertion) {
+                      expect(attributes[key]).not.toEqual(value);
+                    } else {
+                      expect(attributes[key]).toEqual(value);
                     }
                   });
                 });
@@ -344,6 +390,92 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
                     expect(multiState.object!().length).toBeGreaterThan(0);
                   }
                 }
+              },
+            };
+
+            executeTest();
+          },
+          toHaveCssClasses(cssClasses: CssClasses[]): void {
+            state = {
+              ...multiState,
+              assertion: () => {
+                const targets = multiState.object!();
+
+                // one entry can be either a single string or multiple class strings (array)
+                // so ensuring here that each item becomes an array.
+                const allCssClasses = cssClasses.map((cssClass) =>
+                  Array.isArray(cssClass) ? cssClass : [cssClass],
+                );
+
+                allCssClasses.forEach((cssClasses, index) => {
+                  const target = targets.atIndex(index);
+
+                  cssClasses.forEach((singleCssClass) => {
+                    if (multiState.negateAssertion) {
+                      expect(target.nativeElement.classList).not.toContain(
+                        singleCssClass,
+                      );
+                    } else {
+                      expect(target.nativeElement.classList).toContain(
+                        singleCssClass,
+                      );
+                    }
+                  });
+                });
+              },
+            };
+
+            executeTest();
+          },
+          toHaveTexts(texts: string | string[]): void {
+            state = {
+              ...multiState,
+              assertion: () => {
+                const targets = multiState.object!();
+                const textPhrasesArray = convertToArrayIfNone(
+                  texts,
+                  targets.length,
+                );
+
+                checkItemsLength(textPhrasesArray, targets);
+
+                textPhrasesArray.forEach((text, index) => {
+                  const target = targets.atIndex(index);
+
+                  if (multiState.negateAssertion) {
+                    expect(target.nativeElement.textContent).not.toEqual(text);
+                  } else {
+                    expect(target.nativeElement.textContent).toEqual(text);
+                  }
+                });
+              },
+            };
+
+            executeTest();
+          },
+          toContainTexts(texts: string | string[]): void {
+            state = {
+              ...multiState,
+              assertion: () => {
+                const targets = multiState.object!();
+                const textPhrasesArray = convertToArrayIfNone(
+                  texts,
+                  targets.length,
+                );
+
+                checkItemsLength(textPhrasesArray, targets);
+
+                textPhrasesArray.forEach((text, index) => {
+                  const target = targets.atIndex(index);
+
+                  if (multiState.negateAssertion) {
+                    expect(target.nativeElement.textContent).not.toContain(
+                      text,
+                    );
+                  } else {
+                    expect(target.nativeElement.textContent).toContain(text);
+                  }
+                });
               },
             };
 
@@ -796,5 +928,22 @@ function assertEmission(spy: any, opts: EmissionOptions, negate?: boolean) {
     } else if (opts.times !== null) {
       expect(spy).toHaveBeenCalledTimes(1);
     }
+  }
+}
+
+function convertToArrayIfNone<T>(arrayOrOther: T | T[], length: number): T[] {
+  return Array.isArray(arrayOrOther)
+    ? arrayOrOther
+    : new Array(length).fill(null).map(() => arrayOrOther);
+}
+
+function checkItemsLength(
+  expectations: { length: number },
+  targets: { length: number },
+): void {
+  if (expectations.length !== targets.length) {
+    throw new Error(
+      `ngtx: The number of expectations do not match the number of found elements. Please ensure that you describe all elements of your query.`,
+    );
   }
 }

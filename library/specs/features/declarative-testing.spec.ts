@@ -19,7 +19,7 @@ class SomeService {
 
 @Component({
   selector: 'app-item',
-  template: `<span data-ngtx="item:text">{{ text }}</span>`,
+  template: `<span data-ngtx="item:text">Item {{ text }}</span>`,
 })
 class ItemComponent {
   @Input() text?: string;
@@ -32,7 +32,14 @@ class ItemComponent {
       <button (click)="onChange($event); txt.focus()">Click to set text</button>
       <p *ngIf="showText">{{ text }}</p>
 
-      <app-item *ngFor="let item of items" data-ngtx="item" [text]="item">
+      <app-item
+        *ngFor="let item of items; let i = index"
+        data-ngtx="item"
+        class="item"
+        [text]="item"
+        [attr.data-index]="i"
+        [class.index]="i % 2 == 0"
+      >
       </app-item>
     </div>
   `,
@@ -611,7 +618,14 @@ describe(
         .not.toBeFound({ count: 4 });
     });
 
-    it('toHaveState', () => {
+    it('toHaveState -> single argument', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toHaveStates({ text: expect.any(Number) });
+    });
+
+    it('toHaveState -> array argument', () => {
       When(host)
         .hasState({ items: [1, 2, 3, 4, 5] })
         .expect(Components.Items)
@@ -624,12 +638,96 @@ describe(
         ]);
     });
 
+    it('toHaveState -> array not matching found items length', () => {
+      expect(() =>
+        When(host)
+          .hasState({ items: [1, 2, 3] })
+          .expect(Components.Items)
+          .toHaveStates([{ text: 1 }, { text: 2 }]),
+      ).toThrow();
+    });
+
     it('toHaveState -> not', () => {
       When(host)
         .hasState({ items: [1, 2, 3] })
         .expect(Components.Items)
         .not.toHaveStates([{ text: 4 }, { text: 5 }, { text: 6 }]);
     });
+
+    it('toHaveCssClasses', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toHaveCssClasses([
+          ['item', 'index'],
+          'item',
+          ['item', 'index'],
+          'item',
+          ['item', 'index'],
+        ]);
+    });
+
+    it('toHaveCssClasses -> fail', () => {
+      expect(() =>
+        When(host)
+          .hasState({ items: [1, 2, 3, 4, 5] })
+          .expect(Components.Items)
+          .toHaveCssClasses([
+            ['item', 'index'],
+            ['item', 'index'],
+            ['item', 'index'],
+            'item',
+            'item',
+          ]),
+      ).toThrow();
+    });
+
+    it('toHaveTexts -> array argument', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toHaveTexts(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']);
+    });
+
+    it('toHaveTexts -> array not matching found items length', () => {
+      expect(() =>
+        When(host)
+          .hasState({ items: [1, 2, 3] })
+          .expect(Components.Items)
+          .toHaveTexts(['Item 1', 'Item 2']),
+      ).toThrow();
+    });
+
+    it('toHaveTexts -> single argument', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toHaveTexts(expect.stringMatching(/Item \d/));
+    });
+
+    it('toContainTexts -> array argument', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toContainTexts(['1', '2', '3', '4', '5']);
+    });
+
+    it('toContainTexts -> array not matching found items length', () => {
+      expect(() =>
+        When(host)
+          .hasState({ items: [1, 2, 3] })
+          .expect(Components.Items)
+          .toContainTexts(['1', '2']),
+      ).toThrow();
+    });
+
+    it('toContainTexts -> single argument', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toContainTexts('Item');
+    });
+
     //#endregion
   }),
 );

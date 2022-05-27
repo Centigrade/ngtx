@@ -7,10 +7,10 @@ When(host)
 When(host)
   .hasState({ items: [{}, {}, {}] })
   .expect(the.Items)
-  .toHaveState({ readonly: true });
+  .toHaveStates({ readonly: true });
 
 When(host)
   .hasState({ items: [{}, {}, {}] })
   .expect(the.Items)
-  .toHaveState([{ selected: true }, { selected: false }, { selected: false }]);
+  .toHaveStates([{ selected: true }, { selected: false }, { selected: false }]);
 ```

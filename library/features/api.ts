@@ -57,6 +57,8 @@ interface BaseExpectations {
   debugTest(): void;
 }
 
+export type CssClasses = string | string[];
+
 export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType>
   extends BaseExpectations {
   not: MultiExpectations<ObjectHtml, ObjectType>;
@@ -85,7 +87,12 @@ export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType>
    */
   toBeFound(opts?: MultipleFindingOptions): void;
   /**
-   * Asserts that the found component's states match the given object-property-maps.
+   * Asserts that the found components' states match the given object-property-maps.
+   *
+   * ---
+   * **Please note:** When providing an array as argument, you have to describe all items that will be found during this test.
+   * If the number of given property-maps do not match the number of found items, ngtx will throw.
+   * ---
    *
    * ~~~ts
    * When(host).hasState({ users: [{ name: 'Ann Ray' }, { name: 'Mary Jane' }] })
@@ -96,7 +103,74 @@ export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType>
    * ~~~
    * @param maps Array of objects that provide properties defining the expected component states, in the correct order of finding.
    */
-  toHaveStates(maps: Partial<Record<keyof ObjectType, any>>[]): void;
+  toHaveStates(
+    maps: Partial<PropertyMap<ObjectType>> | Partial<PropertyMap<ObjectType>>[],
+  ): void;
+  /**
+   * Asserts that the found components' native-elements have the specified attributes defined.
+   *
+   * ---
+   * **Please note:** When providing an array as argument, you have to describe all items that will be found during this test.
+   * If the number of given property-maps do not match the number of found items, ngtx will throw.
+   * ---
+   *
+   * ~~~ts
+   * When(host).hasState({ disabled: true })
+   *   .expect(Components.ActionButtons).toHaveAttributes([
+   *     { disabled: true },
+   *     { disabled: true },
+   *   ]);
+   * ~~~
+   * @param map Array of objects that provide properties defining the expected native-element attributes, in the correct order of finding.
+   */
+  toHaveAttributes(
+    map: Partial<PropertyMap<ObjectHtml>> | Partial<PropertyMap<ObjectHtml>>[],
+  ): void;
+  /**
+   * Asserts that the found components' css classes match the given values.
+   *
+   * ---
+   * **Please note:** When providing an array as argument, you have to describe all items that will be found during this test.
+   * If the number of given property-maps do not match the number of found items, ngtx will throw.
+   * ---
+   *
+   * ~~~ts
+   * When(host).hasState({ tabs: [{ label: 'A' }, { label: 'B' }], selected: 'A' })
+   *   .expect(Components.TabItems).toHaveCssClasses([
+   *     ['tab', 'selected'],
+   *     'tab',
+   *   ]);
+   * ~~~
+   * @param cssClasses Array of strings or string-sub-arrays that provide the css classes to expect on the respective item.
+   */
+  toHaveCssClasses(cssClasses: CssClasses[]): void;
+  /**
+   * Asserts that the found components native elements have the (exact) given text phrase(s).
+   *
+   * ~~~ts
+   * When(host).hasState({ tabs: [{ label: 'Tab A' }, { label: 'Tab B' }], selected: 'Tab A' })
+   *   .expect(Components.TabItems)
+   *   .toHaveTexts(['Tab A', 'Tab B', 'Tab C']);
+   * ~~~
+   * @param texts Array of sub-strings to be found in the respective item(s).
+   */
+  toHaveTexts(texts: string | string[]): void;
+  /**
+   * Asserts that the found components native elements contain the given text phrase(s).
+   *
+   * ---
+   * **Please note:** When providing an array as argument, you have to describe all items that will be found during this test.
+   * If the number of given text-phrases do not match the number of found items, ngtx will throw.
+   * ---
+   *
+   * ~~~ts
+   * When(host).hasState({ tabs: [{ label: 'Tab A' }, { label: 'Tab B' }], selected: 'Tab A' })
+   *   .expect(Components.TabItems)
+   *   .toContainTexts(['A', 'B', 'C']);
+   * ~~~
+   * @param texts Array of sub-strings to be found in the respective item(s).
+   */
+  toContainTexts(texts: string | string[]): void;
 }
 
 export interface MultipleFindingOptions {
@@ -122,7 +196,7 @@ export interface SingleExpectations<ObjectHtml extends HTMLElement, ObjectType>
   /**
    * Injects the specified injection token and asserts that the test's **object** calls a method on it.
    * @param targetResolver A `TargetResolverFn` such as `injected`, `componentMethod` or `elementMethod`.
-   * @param methodName The method name that is expected to be called.
+   * @param method The method name that is expected to be called.
    * @param opts `EmissionOptions` specifying what to assert.
    */
   toHaveCalled<T>(
