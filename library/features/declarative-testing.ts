@@ -946,7 +946,7 @@ function checkItemsLength(
 ): void {
   if (expectations.length !== targets.length) {
     throw new Error(
-      `ngtx: The number of expectations do not match the number of found elements. Please ensure that you describe all elements of your query.`,
+      `ngtx: The number of expectations (${expectations.length}) do not match the number of found elements (${targets.length}). Please ensure that you describe all elements of your query.`,
     );
   }
 }
