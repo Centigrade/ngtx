@@ -448,9 +448,9 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
                   const target = targets.atIndex(index);
 
                   if (multiState.negateAssertion) {
-                    expect(target.nativeElement.textContent).not.toEqual(text);
+                    expect(target.textContent()).not.toEqual(text);
                   } else {
-                    expect(target.nativeElement.textContent).toEqual(text);
+                    expect(target.textContent()).toEqual(text);
                   }
                 });
               },
@@ -474,11 +474,9 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
                   const target = targets.atIndex(index);
 
                   if (multiState.negateAssertion) {
-                    expect(target.nativeElement.textContent).not.toContain(
-                      text,
-                    );
+                    expect(target.textContent()).not.toContain(text);
                   } else {
-                    expect(target.nativeElement.textContent).toContain(text);
+                    expect(target.textContent()).toContain(text);
                   }
                 });
               },
