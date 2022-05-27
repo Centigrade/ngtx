@@ -667,6 +667,13 @@ describe(
         ]);
     });
 
+    it('toHaveCssClasses -> skip falsy values', () => {
+      When(host)
+        .hasState({ items: [1, 2, 3, 4, 5] })
+        .expect(Components.Items)
+        .toHaveCssClasses(['', null, false, undefined, ['item', 'index']]);
+    });
+
     it('toHaveCssClasses -> fail', () => {
       expect(() =>
         When(host)

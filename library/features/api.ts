@@ -57,7 +57,8 @@ interface BaseExpectations {
   debugTest(): void;
 }
 
-export type CssClasses = string | string[];
+export type CssClass = string | null | undefined | false;
+export type CssClasses = CssClass | CssClass[];
 
 export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType>
   extends BaseExpectations {
@@ -132,6 +133,10 @@ export interface MultiExpectations<ObjectHtml extends HTMLElement, ObjectType>
    * ---
    * **Please note:** When providing an array as argument, you have to describe all items that will be found during this test.
    * If the number of given property-maps do not match the number of found items, ngtx will throw.
+   * ---
+   *
+   * **Please note:** When providing a falsy value as an expectation, it will be skipped. This can be utilized to only
+   * check for certain elements from the list of found ones.
    * ---
    *
    * ~~~ts

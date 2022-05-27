@@ -411,6 +411,11 @@ export const createDeclarativeTestingApi: TestingApiFactoryFn = (
                   const target = targets.atIndex(index);
 
                   cssClasses.forEach((singleCssClass) => {
+                    // falsy values will be ignored as a tool for the user to skip uninteresting elements.
+                    if (!singleCssClass) {
+                      return;
+                    }
+
                     if (multiState.negateAssertion) {
                       expect(target.nativeElement.classList).not.toContain(
                         singleCssClass,
