@@ -2,6 +2,7 @@ import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { DeclarativeTestingApi, ExtensionFn } from './api';
 import { DeclarativeTestState, TargetRef } from './types';
+import { asMultiElement } from './utility';
 
 export const createDeclarativeTestingApi = (
   fx: NgtxFixture<any, any>,
@@ -24,7 +25,12 @@ export const createDeclarativeTestingApi = (
 
     const has = (...fns: ExtensionFn<Html, Type>[]) => {
       fns.forEach((fn) => {
-        const newState = fn(target, state, fx, spyFactory);
+        const newState = fn(
+          () => asMultiElement(target),
+          state,
+          fx,
+          spyFactory,
+        );
         state = {
           ...state,
           ...newState,
@@ -39,7 +45,7 @@ export const createDeclarativeTestingApi = (
               fns.forEach((fn) => {
                 state = {
                   ...state,
-                  ...fn(target, state, fx, spyFactory),
+                  ...fn(() => asMultiElement(target), state, fx, spyFactory),
                 };
               });
 

@@ -1,6 +1,11 @@
 import { NgtxFixture } from '../entities';
 import { SpyFactoryFn } from '../types';
-import { DeclarativeTestState, ISetSpyFactory, TargetRef } from './types';
+import {
+  DeclarativeTestState,
+  ISetSpyFactory,
+  MultiPartRef,
+  TargetRef,
+} from './types';
 
 export type DeclarativeTestingApi = ISetSpyFactory &
   (<Html extends HTMLElement, Component>(
@@ -25,7 +30,7 @@ type PredicateFn<Html extends HTMLElement, Component> = (
 ) => ExpectApi;
 
 export type ExtensionFn<Html extends HTMLElement, Component> = (
-  target: TargetRef<Html, Component>,
+  target: MultiPartRef<Html, Component>,
   state: DeclarativeTestState,
   fixture: NgtxFixture<HTMLElement, any>,
   spyFactory: SpyFactoryFn,

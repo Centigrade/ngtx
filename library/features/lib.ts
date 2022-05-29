@@ -3,7 +3,6 @@ import { ExtensionFn } from './api';
 import { ComponentState, Events } from './types';
 import {
   asArray,
-  asMultiElement,
   checkAssertionsCountMatchesFoundElementCount,
 } from './utility';
 
@@ -32,7 +31,7 @@ export const emit =
       predicate: () => {
         predicate?.();
 
-        asMultiElement(target).forEach((subject) => {
+        target().forEach((subject) => {
           subject.triggerEvent(eventName as string, args);
         });
 
@@ -50,7 +49,7 @@ export const state =
       predicate: () => {
         console.log('state');
 
-        const element = asMultiElement(target);
+        const element = target();
         const states = asArray(stateDef);
 
         states.forEach((state, index) => {
@@ -77,7 +76,7 @@ export const haveState =
     return {
       assertion: () => {
         const states = asArray(stateDef);
-        const element = asMultiElement(target);
+        const element = target();
 
         checkAssertionsCountMatchesFoundElementCount(states, element);
 
