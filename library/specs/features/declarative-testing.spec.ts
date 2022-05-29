@@ -1,6 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { emit, haveState, state } from '../../features/lib';
+import {
+  attributes,
+  emit,
+  haveAttributes,
+  haveState,
+  state,
+} from '../../features/lib';
 import { ngtx } from '../../ngtx';
 
 @Component({
@@ -72,15 +78,17 @@ describe(
       static Toggle() {
         return get('ngtx_dropdown:toggle');
       }
-      static ItemContainer() {
+      static ItemsContainer() {
         return get('ngtx_dropdown:item-container');
       }
-
       static Items(nth?: number) {
         return () => {
           const matches = getAll(DropDownItemComponent);
           return nth ? matches.nth(nth) : matches;
         };
+      }
+      static ItemContainers() {
+        return getAll('ngtx_dropdown-item:content-container');
       }
     }
 
@@ -89,6 +97,15 @@ describe(
         .has(state({ items: ['a', 'b', 'c'], opened: true }))
         .expect(the.Items())
         .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
+    });
+
+    it('attributes -> haveAttributes', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .and(the.ItemContainers)
+        .has(attributes([{ title: 'title a' }, { title: 'title b' }]))
+        .expect(the.ItemContainers)
+        .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
     });
 
     it('emits', () => {

@@ -4,7 +4,7 @@ import { SpyFactoryFn } from '../types';
 
 export type PropertyMap<T> = T & Record<keyof T, any>;
 export type Token<T> = Type<T> | Function;
-export type ComponentState<T> = Partial<PropertyMap<T>>;
+export type PropertyState<T> = Partial<PropertyMap<T>>;
 export type Events<Html extends HTMLElement, Type> =
   | EventEmitterOf<Type>
   | EventsOf<keyof Html>;

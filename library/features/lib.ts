@@ -1,6 +1,6 @@
 import { NgtxFixture } from '../entities';
 import { ExtensionFn } from './api';
-import { ComponentState, Events } from './types';
+import { Events, PropertyState } from './types';
 import {
   asArray,
   checkAssertionsCountMatchesFoundElementCount,
@@ -40,17 +40,79 @@ export const emit =
     };
   };
 
+export const attributes =
+  <Html extends HTMLElement>(
+    stateDef: PropertyState<Html> | PropertyState<Html>[],
+  ): ExtensionFn<Html, any> =>
+  (target, { predicate }, fixture) => {
+    return {
+      predicate: () => {
+        predicate?.();
+
+        const element = target();
+        const states = asArray(stateDef);
+
+        // TODO: add length comparison check
+
+        states.forEach((state, index) => {
+          const subject = element.atIndex(index);
+          const props = Object.entries(state) as [string, any][];
+
+          props.forEach(([key, value]) => {
+            subject.nativeElement[key] = value;
+          });
+
+          fixture.detectChanges();
+        });
+      },
+    };
+  };
+
+export const haveAttributes =
+  <Html extends HTMLElement>(
+    stateDef: PropertyState<Html> | PropertyState<Html>[],
+  ): ExtensionFn<Html, any> =>
+  (target, { assertion, negateAssertion }, fx) => {
+    return {
+      assertion: () => {
+        const states = asArray(stateDef);
+        const element = target();
+
+        checkAssertionsCountMatchesFoundElementCount(states, element);
+
+        states.forEach((state, index) => {
+          const subject = element.atIndex(index);
+          const props = Object.entries(state) as [string, any][];
+
+          props.forEach(([key, value]) => {
+            const property = subject.attr(key);
+
+            if (negateAssertion) {
+              expect(property).not.toEqual(value);
+            } else {
+              expect(property).toEqual(value);
+            }
+          });
+        });
+
+        assertion?.();
+      },
+    };
+  };
+
 export const state =
   <T>(
-    stateDef: ComponentState<T> | ComponentState<T>[],
+    stateDef: PropertyState<T> | PropertyState<T>[],
   ): ExtensionFn<HTMLElement, T> =>
   (target, { predicate }, fixture) => {
     return {
       predicate: () => {
-        console.log('state');
+        predicate?.();
 
         const element = target();
         const states = asArray(stateDef);
+
+        // TODO: add length comparison check
 
         states.forEach((state, index) => {
           const subject = element.atIndex(index);
@@ -62,15 +124,13 @@ export const state =
 
           fixture.detectChanges();
         });
-
-        predicate?.();
       },
     };
   };
 
 export const haveState =
   <T>(
-    stateDef: ComponentState<T> | ComponentState<T>[],
+    stateDef: PropertyState<T> | PropertyState<T>[],
   ): ExtensionFn<HTMLElement, T> =>
   (target, { assertion, negateAssertion }) => {
     return {
