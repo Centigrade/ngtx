@@ -109,24 +109,6 @@ export const createDeclarativeTestingApi = (
       return expectationApi;
     };
 
-    const emits = (fn: ExtensionFn<Html, Type>) => {
-      state = {
-        ...state,
-        ...fn(() => asMultiElement(target), state, fx, spyOn),
-      };
-
-      return expectationApi;
-    };
-
-    const calls = (fn: ExtensionFn<Html, Type>) => {
-      state = {
-        ...state,
-        ...fn(() => asMultiElement(target), state, fx, spyOn),
-      };
-
-      return expectationApi;
-    };
-
     return {
       has,
       have: has,
@@ -136,9 +118,6 @@ export const createDeclarativeTestingApi = (
       do: has,
       gets: has,
       get: has,
-      emits,
-      emit: emits,
-      calls,
     };
   };
 

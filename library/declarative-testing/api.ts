@@ -21,9 +21,6 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
   get: PredicateFn<Html, Component>;
   is: PredicateFn<Html, Component>;
   are: PredicateFn<Html, Component>;
-  calls: (callImplementationFn: ExtensionFn<Html, Component>) => ExpectApi;
-  emits: (emitImplementationFn: ExtensionFn<Html, Component>) => ExpectApi;
-  emit: (emitImplementationFn: ExtensionFn<Html, Component>) => ExpectApi;
 }
 
 type PredicateFn<Html extends HTMLElement, Component> = (
