@@ -1,7 +1,7 @@
 import { ComponentFixture } from '@angular/core/testing';
+import { DeclarativeTestingApi } from './declarative-testing/api';
+import { createDeclarativeTestingApi } from './declarative-testing/declarative-testing';
 import { NgtxElement, NgtxFixture } from './entities';
-import { DeclarativeTestingApi } from './features/api';
-import { createDeclarativeTestingApi } from './features/declarative-testing';
 import { NgtxSuite, UseFixtureOptions } from './types';
 
 /**

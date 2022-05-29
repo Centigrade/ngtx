@@ -1,7 +1,7 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
+import { DeclarativeTestingApi } from '../declarative-testing/api';
 import { NgtxElement, NgtxFixture } from '../entities';
-import { DeclarativeTestingApi } from '../features/api';
 
 export type NgtxSuite<T> = Omit<
   NgtxFixture<any, any>,

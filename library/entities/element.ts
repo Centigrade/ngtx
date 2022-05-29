@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { NgtxEmptySet } from '../features/constants';
+import { NgtxEmptySet } from '../declarative-testing/constants';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';

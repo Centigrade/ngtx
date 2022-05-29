@@ -6,7 +6,7 @@ import {
   haveAttributes,
   haveState,
   state,
-} from '../../features/lib';
+} from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
 
 @Component({

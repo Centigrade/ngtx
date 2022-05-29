@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { NgtxEmptySet } from '../features/constants';
+import { NgtxEmptySet } from '../declarative-testing/constants';
 import { ConverterFn, QueryTarget } from '../types';
 import { NgtxElement } from './element';
 
