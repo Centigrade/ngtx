@@ -6,6 +6,7 @@ import {
   checkAssertionsCountMatchesFoundElementCount,
 } from './utility';
 
+//#region utility extensions
 export const debug: ExtensionFn<HTMLElement, any> = (
   _,
   { predicate, assertion },
@@ -20,7 +21,9 @@ export const debug: ExtensionFn<HTMLElement, any> = (
     },
   };
 };
+//#endregion
 
+//#region predicate extensions
 export const emit =
   <Html extends HTMLElement, Type>(
     eventName: Events<Html, Type>,
@@ -72,6 +75,36 @@ export const attributes =
     };
   };
 
+export const state =
+  <T>(
+    stateDef: PropertyState<T> | PropertyState<T>[],
+  ): ExtensionFn<HTMLElement, T> =>
+  (target, { predicate }, fixture) => {
+    return {
+      predicate: () => {
+        predicate?.();
+
+        const element = target();
+        const states = asArray(stateDef);
+
+        checkAssertionsCountMatchesFoundElementCount('state', states, element);
+
+        states.forEach((state, index) => {
+          const subject = element.atIndex(index);
+          const props = Object.entries(state) as [string, any][];
+
+          props.forEach(([key, value]) => {
+            subject.componentInstance[key] = value;
+          });
+
+          fixture.detectChanges();
+        });
+      },
+    };
+  };
+//#endregion
+
+//#region assertion extensions
 export const haveAttributes =
   <Html extends HTMLElement>(
     stateDef: PropertyState<Html> | PropertyState<Html>[],
@@ -104,34 +137,6 @@ export const haveAttributes =
         });
 
         assertion?.();
-      },
-    };
-  };
-
-export const state =
-  <T>(
-    stateDef: PropertyState<T> | PropertyState<T>[],
-  ): ExtensionFn<HTMLElement, T> =>
-  (target, { predicate }, fixture) => {
-    return {
-      predicate: () => {
-        predicate?.();
-
-        const element = target();
-        const states = asArray(stateDef);
-
-        checkAssertionsCountMatchesFoundElementCount('state', states, element);
-
-        states.forEach((state, index) => {
-          const subject = element.atIndex(index);
-          const props = Object.entries(state) as [string, any][];
-
-          props.forEach(([key, value]) => {
-            subject.componentInstance[key] = value;
-          });
-
-          fixture.detectChanges();
-        });
       },
     };
   };
@@ -171,6 +176,7 @@ export const haveState =
       },
     };
   };
+//#endregion
 
 // -------------------------------------
 // Module internals
