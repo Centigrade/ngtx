@@ -2,6 +2,7 @@ import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../entities';
 import { SpyFactoryFn } from '../types';
 
+export type Maybe<T> = T | undefined | null;
 export type PropertyMap<T> = T & Record<keyof T, any>;
 export type Token<T> = Type<T> | Function;
 export type PropertyState<T> = Partial<PropertyMap<T>>;
@@ -98,7 +99,7 @@ export interface DeclarativeTestState {
    * When(host).is(disabled).expect(...).to(...);
    * ~~~
    */
-  predicate?: () => void;
+  predicate?: (() => void)[];
   /**
    * The `assertion` part of the test case. Override or wrap this function in
    * order to run expectations on the test's `object`. In traditional (AAA)
@@ -122,15 +123,20 @@ export interface DeclarativeTestState {
    * When(...).has(...).expect(Input).to(haveFocus);
    * ~~~
    */
-  assertion?: () => void;
+  assertion?: (() => void)[];
 }
 
-export type TargetResolverFn<T> = (
-  state: DeclarativeTestState,
-) => ITargetResolver<T>;
-export interface ITargetResolver<T> {
-  getInstance(): T;
+export interface SpyRegisterEntry {
+  done: boolean;
+  host: () => any;
+  methodName: string;
+  spy: any;
 }
+export type SpyOnFn = <T>(host: () => T, methodName: keyof PublicApi<T>) => any;
+
+export type ITargetResolver<Html extends HTMLElement, Type, Output> = (
+  target: NgtxElement<Html, Type>,
+) => Output;
 export interface ISetSpyFactory {
   setSpyFactory(fn: any): void;
 }
@@ -141,3 +147,11 @@ export type DeclarativeTestExtension<Html extends HTMLElement, Type> = (
   fixture: NgtxFixture<HTMLElement, any>,
   spyFactory: SpyFactoryFn,
 ) => DeclarativeTestState;
+
+type AllowType<Base, Type> = {
+  [Key in keyof Base]: Base[Key] extends Type ? Key : never;
+};
+type AllowedNames<Base, Type> = AllowType<Base, Type>[keyof Base];
+type OmitType<Base, Type> = Pick<Base, AllowedNames<Base, Type>>;
+export type PublicApi<T> = OmitType<T, Function>;
+export type PublicMembers<T> = OmitType<T, any>;

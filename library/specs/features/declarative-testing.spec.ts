@@ -1,10 +1,18 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
+  and,
   attributes,
+  call,
+  componentMethod,
+  containText,
   emit,
   haveAttributes,
+  haveCalled,
   haveState,
+  haveText,
+  injected,
+  nativeMethod,
   state,
 } from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
@@ -56,7 +64,7 @@ class DropDownComponent {
     this.opened = true;
   }
   public close(): void {
-    this.opened = true;
+    this.opened = false;
   }
 }
 
@@ -67,7 +75,9 @@ describe(
       await TestBed.configureTestingModule({
         declarations: [DropDownComponent, DropDownItemComponent],
       }).compileComponents();
+    });
 
+    beforeEach(() => {
       const fixture = TestBed.createComponent(DropDownComponent);
       useFixture(fixture, {
         spyFactory: (retValue) => jest.fn(() => retValue),
@@ -108,6 +118,20 @@ describe(
         .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
     });
 
+    it('haveText', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .expect(the.ItemContainers)
+        .to(haveText(['a', 'b']));
+    });
+
+    it('containText', () => {
+      When(host)
+        .has(state({ items: ['item a', 'item b'], opened: true }))
+        .expect(the.ItemContainers)
+        .to(containText(['a', 'b']));
+    });
+
     it('emits', () => {
       When(host)
         .has(
@@ -121,6 +145,47 @@ describe(
         .does(emit('activate'))
         .expect(host)
         .to(haveState({ value: 'b' }));
+    });
+
+    it('call(componentMethod)', () => {
+      When(host)
+        .has(state({ opened: false }), and(call(componentMethod, 'open')))
+        .expect(host)
+        .to(haveState({ opened: true }));
+    });
+
+    it('call(nativeMethod)', () => {
+      When(host)
+        .has(state({ opened: false }))
+        .and(the.Toggle)
+        .does(call(nativeMethod, 'click'))
+        .expect(host)
+        .to(haveState({ opened: true }));
+    });
+
+    it('call(injected)', () => {
+      When(host)
+        .has(state({ items: ['a'], opened: true }))
+        .and(the.Items(1))
+        .does(call(injected(DropDownComponent), 'close'))
+        .expect(host)
+        .to(haveState({ opened: false }));
+    });
+
+    it('haveCalled (registerable before first predicate)', () => {
+      When(host)
+        .does(call(componentMethod, 'open'))
+        .expect(host)
+        .to(haveCalled(componentMethod, 'open'));
+    });
+
+    it('haveCalled (registerable after first predicate)', () => {
+      When(host)
+        .has(state({ items: ['a'], opened: true }))
+        .and(the.ItemContainers)
+        .does(call(injected(DropDownComponent), 'open'))
+        .expect(the.ItemContainers)
+        .to(haveCalled(injected(DropDownComponent), 'open'));
     });
   }),
 );

@@ -1,14 +1,25 @@
 import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
+import { SpyFactoryFn } from '../types';
 import { DeclarativeTestingApi, ExtensionFn } from './api';
-import { DeclarativeTestState, TargetRef } from './types';
+import {
+  DeclarativeTestState,
+  PublicApi,
+  SpyOnFn,
+  SpyRegisterEntry,
+  TargetRef,
+} from './types';
 import { asMultiElement } from './utility';
 
 export const createDeclarativeTestingApi = (
   fx: NgtxFixture<any, any>,
-  initialTestState: DeclarativeTestState = {},
+  initialTestState: DeclarativeTestState = {
+    predicate: [],
+    assertion: [],
+  },
+  defaultSpyFactory?: SpyFactoryFn,
 ) => {
-  let spyFactory = NGTX_GLOBAL_CONFIG.defaultSpyFactory;
+  let spyFactory = defaultSpyFactory ?? NGTX_GLOBAL_CONFIG.defaultSpyFactory;
 
   const when: Omit<DeclarativeTestingApi, 'setSpyFactory'> = <
     Html extends HTMLElement,
@@ -17,20 +28,60 @@ export const createDeclarativeTestingApi = (
     target: TargetRef<Html, Type>,
   ) => {
     let state: DeclarativeTestState = initialTestState;
+    const spiesToPlace: SpyRegisterEntry[] = [];
+
+    const spyOn: SpyOnFn = <T>(
+      host: () => T,
+      methodName: keyof PublicApi<T>,
+      returnValue?: any,
+    ) => {
+      const spy = spyFactory(returnValue);
+      spiesToPlace.push({
+        host,
+        methodName: methodName as string,
+        done: false,
+        spy,
+      });
+
+      return spy;
+    };
+
+    const tryPlaceSpies = () => {
+      spiesToPlace
+        .filter((entry) => !entry.done)
+        .forEach((entry) => {
+          const { host, methodName } = entry;
+
+          try {
+            const instance = host();
+
+            if (instance) {
+              instance[methodName] = entry.spy;
+              entry.done = true;
+            }
+          } catch {
+            // ignore if host cannot be resolved and try after next tick
+            return;
+          }
+        });
+    };
 
     const executeTest = () => {
-      state.predicate?.();
-      state.assertion?.();
+      const predicates = state.predicate ?? [];
+      predicates.forEach((predicate) => {
+        // try to place spies as early as possible. If spy-target could not be found, retry before next predicate call
+        tryPlaceSpies();
+        predicate();
+      });
+      const assertions = state.assertion ?? [];
+      assertions.forEach((assertion) => {
+        assertion();
+      });
     };
 
     const has = (...fns: ExtensionFn<Html, Type>[]) => {
       fns.forEach((fn) => {
-        const newState = fn(
-          () => asMultiElement(target),
-          state,
-          fx,
-          spyFactory,
-        );
+        const newState = fn(() => asMultiElement(target), state, fx, spyOn);
         state = {
           ...state,
           ...newState,
@@ -38,14 +89,14 @@ export const createDeclarativeTestingApi = (
       });
 
       return {
-        and: createDeclarativeTestingApi(fx, state),
+        and: createDeclarativeTestingApi(fx, state, spyFactory),
         expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
           return {
             to(...fns: ExtensionFn<Html, Type>[]) {
               fns.forEach((fn) => {
                 state = {
                   ...state,
-                  ...fn(() => asMultiElement(target), state, fx, spyFactory),
+                  ...fn(() => asMultiElement(target), state, fx, spyOn),
                 };
               });
 
@@ -69,7 +120,7 @@ export const createDeclarativeTestingApi = (
   };
 
   return Object.assign(when, {
-    setSpyFactory: (spyFt: () => any): void => {
+    setSpyFactory: (spyFt: SpyFactoryFn): void => {
       spyFactory = spyFt;
     },
   }) as DeclarativeTestingApi;

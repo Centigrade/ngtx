@@ -1,9 +1,9 @@
 import { NgtxFixture } from '../entities';
-import { SpyFactoryFn } from '../types';
 import {
   DeclarativeTestState,
   ISetSpyFactory,
   MultiPartRef,
+  SpyOnFn,
   TargetRef,
 } from './types';
 
@@ -33,13 +33,13 @@ export type ExtensionFn<Html extends HTMLElement, Component> = (
   target: MultiPartRef<Html, Component>,
   state: DeclarativeTestState,
   fixture: NgtxFixture<HTMLElement, any>,
-  spyFactory: SpyFactoryFn,
+  spyOn: SpyOnFn,
 ) => DeclarativeTestState;
 
 export interface ExpectApi {
   and: DeclarativeTestingApi;
   expect<Html extends HTMLElement, Component>(
-    targetRef: TargetRef<Html, Component>,
+    object: TargetRef<Html, Component>,
   ): AssertionApi<Html, Component>;
 }
 

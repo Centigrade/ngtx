@@ -44,3 +44,14 @@ export function isMultiPartRef(
   const isEmptySet = target === NgtxEmptySet;
   return isDefined && (isEmptySet || typeof target.unwrap === 'function');
 }
+
+export function scheduleFn(
+  fnArray: undefined | (() => void)[],
+  fn: () => void,
+): (() => void)[] {
+  if (fnArray == null) {
+    return [fn];
+  }
+
+  return [...fnArray, fn];
+}

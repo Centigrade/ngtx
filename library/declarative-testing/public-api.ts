@@ -6,6 +6,5 @@ export {
   EventsOf,
   ITargetResolver,
   TargetRef,
-  TargetResolverFn,
   Token,
 } from './types';
