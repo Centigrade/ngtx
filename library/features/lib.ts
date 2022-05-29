@@ -52,7 +52,11 @@ export const attributes =
         const element = target();
         const states = asArray(stateDef);
 
-        // TODO: add length comparison check
+        checkAssertionsCountMatchesFoundElementCount(
+          'attributes',
+          states,
+          element,
+        );
 
         states.forEach((state, index) => {
           const subject = element.atIndex(index);
@@ -78,7 +82,11 @@ export const haveAttributes =
         const states = asArray(stateDef);
         const element = target();
 
-        checkAssertionsCountMatchesFoundElementCount(states, element);
+        checkAssertionsCountMatchesFoundElementCount(
+          'haveAttributes',
+          states,
+          element,
+        );
 
         states.forEach((state, index) => {
           const subject = element.atIndex(index);
@@ -112,7 +120,7 @@ export const state =
         const element = target();
         const states = asArray(stateDef);
 
-        // TODO: add length comparison check
+        checkAssertionsCountMatchesFoundElementCount('state', states, element);
 
         states.forEach((state, index) => {
           const subject = element.atIndex(index);
@@ -138,7 +146,11 @@ export const haveState =
         const states = asArray(stateDef);
         const element = target();
 
-        checkAssertionsCountMatchesFoundElementCount(states, element);
+        checkAssertionsCountMatchesFoundElementCount(
+          'haveState',
+          states,
+          element,
+        );
 
         states.forEach((state, index) => {
           const subject = element.atIndex(index);

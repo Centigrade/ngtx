@@ -103,7 +103,7 @@ describe(
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
         .and(the.ItemContainers)
-        .has(attributes([{ title: 'title a' }, { title: 'title b' }]))
+        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
         .expect(the.ItemContainers)
         .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
     });
