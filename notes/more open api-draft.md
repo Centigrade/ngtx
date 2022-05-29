@@ -3,6 +3,11 @@ When(host) // configures next state call in terms of generic type
   .has(state({ disabled: true }))
   .expect(the.Items) // configures next state call in terms of generic type
   .to(haveState([{ disabled: true }, { disabled: false }]));
+
+When(the.Items)
+  .does(emit('click'))
+  .expect(host)
+  .to(haveEmitted('activated', { args: [true] }));
 ```
 
 When and expect are the only functions that need to configure the next fn-generics.

@@ -4,6 +4,13 @@ import { SpyFactoryFn } from '../types';
 
 export type PropertyMap<T> = T & Record<keyof T, any>;
 export type Token<T> = Type<T> | Function;
+export type ComponentState<T> = Partial<PropertyMap<T>>;
+export type Events<Html extends HTMLElement, Type> =
+  | EventEmitterOf<Type>
+  | EventsOf<keyof Html>;
+export type EventEmitterOf<Type> = {
+  [P in keyof Type]: Type[P] extends { emit: Function } ? P : never;
+}[keyof Type];
 
 /**
  * Defines options what aspects of a spy should be asserted.
@@ -37,6 +44,15 @@ export type MultiPartRef<
   Type,
 > = () => NgtxMultiElement<Html, Type>;
 
+export type UnknownRef<Html extends HTMLElement, Type> = () =>
+  | NgtxElement<Html, Type>
+  | NgtxMultiElement<Html, Type>;
+
+export type TargetRef<Html extends HTMLElement, Type> =
+  | PartRef<Html, Type>
+  | MultiPartRef<Html, Type>
+  | UnknownRef<Html, Type>;
+
 export type EventsOf<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
 
@@ -53,25 +69,9 @@ export type EventsOf<T extends string | number | Symbol> =
  * This state can be mutated by setting a subject or object to a `PartRef`
  * or by overriding or wrapping the `predicate` or `assertion` function.
  */
-export interface DeclarativeTestState<
-  SubjectHtml extends HTMLElement,
-  Subject,
-  ObjectHtml extends HTMLElement,
-  Object,
-  SingleOrMulti extends
-    | PartRef<ObjectHtml, Object>
-    | MultiPartRef<ObjectHtml, Object>,
-> {
+export interface DeclarativeTestState {
   /** Whether the assertion is preceded by a ".not" and will be negated. */
   negateAssertion?: boolean;
-  /**
-   * The `subject` of the test case that *has* or *does* something.
-   * It will most likely be used in the `predicate` statement that
-   * follows the `When` clause.
-   *
-   * Set the `subject` in the test case for later use in the `predicate`.
-   */
-  subject?: PartRef<SubjectHtml, Subject>;
   /**
    * The `predicate` of the test case that describes what actions has to
    * be done, before assertions can be made. Override or wrap this function
@@ -100,12 +100,6 @@ export interface DeclarativeTestState<
    */
   predicate?: () => void;
   /**
-   * The `object` of the test case that determines on what target assertions
-   * will be made. This part of the state will most likely be used in the
-   * `assertion` function to make assertions on it.
-   */
-  object?: SingleOrMulti;
-  /**
    * The `assertion` part of the test case. Override or wrap this function in
    * order to run expectations on the test's `object`. In traditional (AAA)
    * testing this would map to the `assert` part of your test.
@@ -131,47 +125,19 @@ export interface DeclarativeTestState<
   assertion?: () => void;
 }
 
-export type TargetResolverFn<
-  SubjectHtml extends HTMLElement,
-  Subject,
-  ObjectHtml extends HTMLElement,
-  Object,
-  T,
-> = (
-  state: DeclarativeTestState<
-    SubjectHtml,
-    Subject,
-    ObjectHtml,
-    Object,
-    PartRef<ObjectHtml, Object>
-  >,
+export type TargetResolverFn<T> = (
+  state: DeclarativeTestState,
 ) => ITargetResolver<T>;
 export interface ITargetResolver<T> {
   getInstance(): T;
 }
+export interface ISetSpyFactory {
+  setSpyFactory(fn: any): void;
+}
 
-export type DeclarativeTestExtension<
-  SubjectHtml extends HTMLElement,
-  Subject,
-  ObjectHtml extends HTMLElement,
-  Object,
-  SingleOrMulti extends
-    | PartRef<ObjectHtml, Object>
-    | MultiPartRef<ObjectHtml, Object>,
-> = (
-  input: DeclarativeTestState<
-    HTMLElement,
-    Subject,
-    ObjectHtml,
-    Object,
-    SingleOrMulti
-  >,
+export type DeclarativeTestExtension<Html extends HTMLElement, Type> = (
+  target: MultiPartRef<Html, Type>,
+  input: DeclarativeTestState,
   fixture: NgtxFixture<HTMLElement, any>,
   spyFactory: SpyFactoryFn,
-) => DeclarativeTestState<
-  SubjectHtml,
-  Subject,
-  ObjectHtml,
-  Object,
-  PartRef<ObjectHtml, Object>
->;
+) => DeclarativeTestState;

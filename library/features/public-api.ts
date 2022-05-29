@@ -5,7 +5,7 @@ export {
   EmissionOptions,
   EventsOf,
   ITargetResolver,
-  PartRef,
+  TargetRef,
   TargetResolverFn,
   Token,
 } from './types';
