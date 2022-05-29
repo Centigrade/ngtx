@@ -79,6 +79,24 @@ export const createDeclarativeTestingApi = (
       });
     };
 
+    const expectationApi = {
+      and: createDeclarativeTestingApi(fx, state, spyFactory),
+      expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
+        return {
+          to(...fns: ExtensionFn<Html, Type>[]) {
+            fns.forEach((fn) => {
+              state = {
+                ...state,
+                ...fn(() => asMultiElement(target), state, fx, spyOn),
+              };
+            });
+
+            executeTest();
+          },
+        };
+      },
+    };
+
     const has = (...fns: ExtensionFn<Html, Type>[]) => {
       fns.forEach((fn) => {
         const newState = fn(() => asMultiElement(target), state, fx, spyOn);
@@ -88,23 +106,25 @@ export const createDeclarativeTestingApi = (
         };
       });
 
-      return {
-        and: createDeclarativeTestingApi(fx, state, spyFactory),
-        expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
-          return {
-            to(...fns: ExtensionFn<Html, Type>[]) {
-              fns.forEach((fn) => {
-                state = {
-                  ...state,
-                  ...fn(() => asMultiElement(target), state, fx, spyOn),
-                };
-              });
+      return expectationApi;
+    };
 
-              executeTest();
-            },
-          };
-        },
+    const emits = (fn: ExtensionFn<Html, Type>) => {
+      state = {
+        ...state,
+        ...fn(() => asMultiElement(target), state, fx, spyOn),
       };
+
+      return expectationApi;
+    };
+
+    const calls = (fn: ExtensionFn<Html, Type>) => {
+      state = {
+        ...state,
+        ...fn(() => asMultiElement(target), state, fx, spyOn),
+      };
+
+      return expectationApi;
     };
 
     return {
@@ -116,6 +136,9 @@ export const createDeclarativeTestingApi = (
       do: has,
       gets: has,
       get: has,
+      emits,
+      emit: emits,
+      calls,
     };
   };
 
