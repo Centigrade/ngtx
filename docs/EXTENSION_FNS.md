@@ -12,6 +12,14 @@
 > [Go back to the article "Writing good tests"][goodtests] or
 > [go back to the article "Declarative api documentation"][declarativeapi].
 
+## Prerequisites
+
+Before reading this article, please make sure that you understand the basics of how declarative tests in ngtx work ([see here](./DECLARATIVE_TEST_API.md#api-schema)).
+
+## Extending ngtx' Declarative Api
+
+ngtx comes with several neat `predicates` and `assertions` but there will probably be cases where you need to add custom logic in order to make your test suit your needs. ngtx has several extension points where you can
+
 [api]: ./DOCUMENTATION.md
 [goodtests]: ./GOOD_TESTS.md
 [firststeps]: ./FIRST_STEPS.md
