@@ -69,6 +69,7 @@ export const call =
       }),
     };
   };
+
 export const emit =
   <Html extends HTMLElement, Type>(
     eventName: Events<Html, Type>,

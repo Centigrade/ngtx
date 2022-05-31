@@ -100,7 +100,7 @@ export const createDeclarativeTestingApi = (
       },
     };
 
-    const has = (...fns: ExtensionFn<Html, Type>[]) => {
+    const addPredicate = (...fns: ExtensionFn<Html, Type>[]) => {
       fns.forEach((fn) => {
         const newState = fn(() => asMultiElement(target), state, fx, spyOn);
         state = {
@@ -113,14 +113,14 @@ export const createDeclarativeTestingApi = (
     };
 
     return {
-      has,
-      have: has,
-      is: has,
-      are: has,
-      does: has,
-      do: has,
-      gets: has,
-      get: has,
+      has: addPredicate,
+      have: addPredicate,
+      is: addPredicate,
+      are: addPredicate,
+      does: addPredicate,
+      do: addPredicate,
+      gets: addPredicate,
+      get: addPredicate,
     };
   };
 
