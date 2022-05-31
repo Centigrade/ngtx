@@ -46,13 +46,10 @@ export const createDeclarativeTestingApi = (
       const spiesLeft = spiesToPlace.filter((spy) => !spy.done);
 
       if (spiesLeft.length > 0) {
-        console.log(
-          `[ngtx]: Not all spies could be placed. Spies left:`,
-          spiesLeft.map((s) => `${s.host()?.constructor.name}.${s.methodName}`),
-        );
-        throw new Error(
-          `[ngtx]: Could not place all spies specified. There are ${spiesToPlace.length} unresolved spies.`,
-        );
+        const errorMessage = `[ngtx]: Not all spies could be placed. Spies left: [${spiesLeft
+          .map((s) => `${s.host()?.constructor?.name}.${s.methodName}`)
+          .join(', ')}]`;
+        throw new Error(errorMessage);
       }
     };
 
