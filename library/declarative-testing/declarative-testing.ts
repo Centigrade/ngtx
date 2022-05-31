@@ -18,6 +18,7 @@ export const createDeclarativeTestingApi = (
     assertion: [],
   },
   defaultSpyFactory?: SpyFactoryFn,
+  testExecutor?: () => void,
 ) => {
   let spyFactory = defaultSpyFactory ?? NGTX_GLOBAL_CONFIG.defaultSpyFactory;
 
@@ -29,6 +30,21 @@ export const createDeclarativeTestingApi = (
   ) => {
     let state: DeclarativeTestState = initialTestState;
     const spiesToPlace: SpyRegisterEntry[] = [];
+
+    const defaultTestExecutor = () => {
+      const predicates = state.predicate ?? [];
+      predicates.forEach((predicate) => {
+        // try to place spies as early as possible. If spy-target could not be found, retry before next predicate call
+        tryPlaceSpies();
+        predicate();
+      });
+      const assertions = state.assertion ?? [];
+      assertions.forEach((assertion) => {
+        assertion();
+      });
+    };
+
+    let executeTest = testExecutor ?? defaultTestExecutor;
 
     const spyOn: SpyOnFn = <T>(
       host: () => T,
@@ -66,21 +82,8 @@ export const createDeclarativeTestingApi = (
         });
     };
 
-    const executeTest = () => {
-      const predicates = state.predicate ?? [];
-      predicates.forEach((predicate) => {
-        // try to place spies as early as possible. If spy-target could not be found, retry before next predicate call
-        tryPlaceSpies();
-        predicate();
-      });
-      const assertions = state.assertion ?? [];
-      assertions.forEach((assertion) => {
-        assertion();
-      });
-    };
-
     const expectationApi = {
-      and: createDeclarativeTestingApi(fx, state, spyFactory),
+      and: createDeclarativeTestingApi(fx, state, spyFactory, executeTest),
       expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
         return {
           to(...fns: ExtensionFn<Html, Type>[]) {

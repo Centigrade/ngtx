@@ -103,7 +103,7 @@ export const attributes =
         );
 
         states.forEach((state, index) => {
-          const subject = element.atIndex(index);
+          const subject = target().atIndex(index);
           const props = Object.entries(state) as [string, any][];
 
           props.forEach(([key, value]) => {
@@ -129,7 +129,7 @@ export const state =
         checkAssertionsCountMatchesFoundElementCount('state', states, element);
 
         states.forEach((state, index) => {
-          const subject = element.atIndex(index);
+          const subject = target().atIndex(index);
           const props = Object.entries(state) as [string, any][];
 
           props.forEach(([key, value]) => {
