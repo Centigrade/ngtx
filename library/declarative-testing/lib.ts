@@ -1,4 +1,3 @@
-import { Type } from '@angular/core';
 import { NgtxElement } from '../entities';
 import { ExtensionFn } from './api';
 import {
@@ -8,6 +7,7 @@ import {
   Maybe,
   PropertyState,
   PublicApi,
+  Token,
 } from './types';
 import {
   asArray,
@@ -27,7 +27,7 @@ export const nativeMethod = <T extends HTMLElement>(
 };
 
 export const injected =
-  <T>(type: Type<T>) =>
+  <T>(type: Token<T>) =>
   (element: NgtxElement<HTMLElement, any>): T => {
     return element.injector.get(type);
   };
@@ -47,6 +47,26 @@ export const and = <Html extends HTMLElement, Type>(
     return newState;
   };
 };
+
+export const clicked =
+  <Html extends HTMLElement, Type>(
+    opts: ClickOptions = {},
+  ): ExtensionFn<Html, Type> =>
+  (targets, { predicate }, fixture) => {
+    return {
+      predicate: scheduleFn(predicate, () => {
+        targets().forEach((subject) => {
+          const times = opts.times ?? 1;
+
+          for (let i = 0; i < times; i++) {
+            subject.triggerEvent('click');
+          }
+        });
+
+        fixture.detectChanges();
+      }),
+    };
+  };
 //#endregion
 
 //#region predicate extensions
@@ -59,10 +79,14 @@ export const call =
   (targets, { predicate }, fixture) => {
     return {
       predicate: scheduleFn(predicate, () => {
+        console.log('XXXX');
+
         targets().forEach((target) => {
           const token = resolver(target);
           const method = (token as any)[methodName] as Function;
           method.apply(token, ...args);
+
+          console.log('CALL', method.toString());
         });
 
         fixture.detectChanges();
@@ -153,11 +177,11 @@ export const haveCalled =
   ): ExtensionFn<Html, Component> =>
   (targets, { assertion, negateAssertion }, fx, spyOn) => {
     const resolveTarget = () => {
-      const firstResult = targets().first();
+      const firstResult = targets()?.first?.();
       return firstResult ? resolver(firstResult) : undefined!;
     };
 
-    const spy = spyOn(resolveTarget, methodName);
+    const spy = spyOn(resolveTarget, methodName, opts.whichReturns);
 
     return {
       assertion: scheduleFn(assertion, () => {
@@ -273,6 +297,12 @@ export const haveState =
       }),
     };
   };
+//#endregion
+
+//#region types
+export interface ClickOptions {
+  times?: number;
+}
 //#endregion
 
 // -------------------------------------

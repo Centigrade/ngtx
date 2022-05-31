@@ -1,9 +1,16 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Injectable,
+  Input,
+  Output,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   and,
   attributes,
   call,
+  clicked,
   componentMethod,
   containText,
   emit,
@@ -17,13 +24,25 @@ import {
 } from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
 
+@Injectable()
+abstract class AlertBaseService {
+  abstract show(msg: string): void;
+}
+
+@Injectable()
+class AlertService extends AlertBaseService {
+  show(msg: string): void {
+    console.log(msg);
+  }
+}
+
 @Component({
   selector: 'app-dropdown-item',
   template: `
     <section
       data-ngtx="dropdown-item:content-container"
       [attr.title]="value || null"
-      (click)="activate.emit()"
+      (click)="showDialog()"
     >
       <ng-content></ng-content>
     </section>
@@ -32,6 +51,15 @@ import { ngtx } from '../../ngtx';
 class DropDownItemComponent {
   @Input() value!: string;
   @Output() activate = new EventEmitter<void>();
+
+  constructor(private alert: AlertBaseService) {}
+
+  public showDialog(): void {
+    console.log('SHOW');
+
+    this.alert.show(`You clicked the option "${this.value}"`);
+    this.activate.emit();
+  }
 }
 
 @Component({
@@ -74,6 +102,7 @@ describe(
     beforeEach(async () => {
       await TestBed.configureTestingModule({
         declarations: [DropDownComponent, DropDownItemComponent],
+        providers: [{ provide: AlertBaseService, useClass: AlertService }],
       }).compileComponents();
     });
 
@@ -97,8 +126,11 @@ describe(
           return nth != null ? matches.nth(nth) : matches;
         };
       }
-      static ItemContainers() {
-        return getAll('ngtx_dropdown-item:content-container');
+      static ItemContainers(nth?: number) {
+        return () => {
+          const matches = getAll('ngtx_dropdown-item:content-container');
+          return nth != null ? matches.nth(nth) : matches;
+        };
       }
       static NotExistingTarget() {
         return get('.not-existing');
@@ -115,23 +147,23 @@ describe(
     it('attributes -> haveAttributes', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
-        .and(the.ItemContainers)
+        .and(the.ItemContainers())
         .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
-        .expect(the.ItemContainers)
+        .expect(the.ItemContainers())
         .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
     });
 
     it('haveText', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
-        .expect(the.ItemContainers)
+        .expect(the.ItemContainers())
         .to(haveText(['a', 'b']));
     });
 
     it('containText', () => {
       When(host)
         .has(state({ items: ['item a', 'item b'], opened: true }))
-        .expect(the.ItemContainers)
+        .expect(the.ItemContainers())
         .to(containText(['a', 'b']));
     });
 
@@ -185,10 +217,19 @@ describe(
     it('haveCalled (registerable after first predicate)', () => {
       When(host)
         .has(state({ items: ['a'], opened: true }))
-        .and(the.ItemContainers)
+        .and(the.ItemContainers())
         .does(call(injected(DropDownComponent), 'open'))
-        .expect(the.ItemContainers)
+        .expect(the.ItemContainers())
         .to(haveCalled(injected(DropDownComponent), 'open'));
+    });
+
+    it('haveCalled (abstract provider)', () => {
+      When(host)
+        .has(state({ items: ['a'], opened: true }))
+        .and(the.ItemContainers(1))
+        .gets(clicked())
+        .expect(the.ItemContainers())
+        .to(haveCalled(injected(AlertBaseService), 'show'));
     });
 
     it('should throw if a spy could not be placed correctly', () => {

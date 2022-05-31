@@ -132,7 +132,11 @@ export interface SpyRegisterEntry {
   methodName: string;
   spy: any;
 }
-export type SpyOnFn = <T>(host: () => T, methodName: keyof PublicApi<T>) => any;
+export type SpyOnFn = <T>(
+  host: () => T,
+  methodName: keyof PublicApi<T>,
+  spyReturnValue?: any,
+) => any;
 
 export type ITargetResolver<Html extends HTMLElement, Type, Output> = (
   target: NgtxElement<Html, Type>,
