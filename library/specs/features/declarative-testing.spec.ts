@@ -94,11 +94,14 @@ describe(
       static Items(nth?: number) {
         return () => {
           const matches = getAll(DropDownItemComponent);
-          return nth ? matches.nth(nth) : matches;
+          return nth != null ? matches.nth(nth) : matches;
         };
       }
       static ItemContainers() {
         return getAll('ngtx_dropdown-item:content-container');
+      }
+      static NotExistingTarget() {
+        return get('.not-existing');
       }
     }
 
@@ -186,6 +189,15 @@ describe(
         .does(call(injected(DropDownComponent), 'open'))
         .expect(the.ItemContainers)
         .to(haveCalled(injected(DropDownComponent), 'open'));
+    });
+
+    it('should throw if a spy could not be placed correctly', () => {
+      expect(() =>
+        When(host)
+          .does()
+          .expect(the.NotExistingTarget)
+          .not.to(haveCalled(componentMethod, 'click')),
+      ).toThrowError(/spies/);
     });
   }),
 );

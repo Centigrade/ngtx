@@ -42,6 +42,18 @@ export const createDeclarativeTestingApi = (
       assertions.forEach((assertion) => {
         assertion();
       });
+
+      const spiesLeft = spiesToPlace.filter((spy) => !spy.done);
+
+      if (spiesLeft.length > 0) {
+        console.log(
+          `[ngtx]: Not all spies could be placed. Spies left:`,
+          spiesLeft.map((s) => `${s.host()?.constructor.name}.${s.methodName}`),
+        );
+        throw new Error(
+          `[ngtx]: Could not place all spies specified. There are ${spiesToPlace.length} unresolved spies.`,
+        );
+      }
     };
 
     let executeTest = testExecutor ?? defaultTestExecutor;
@@ -82,21 +94,32 @@ export const createDeclarativeTestingApi = (
         });
     };
 
+    const assertionsApi = <Html extends HTMLElement, Type>(
+      target: TargetRef<Html, Type>,
+    ) => ({
+      to(...fns: ExtensionFn<Html, Type>[]) {
+        fns.forEach((fn) => {
+          state = {
+            ...state,
+            ...fn(() => asMultiElement(target), state, fx, spyOn),
+          };
+        });
+
+        executeTest();
+      },
+    });
+
     const expectationApi = {
       and: createDeclarativeTestingApi(fx, state, spyFactory, executeTest),
       expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
-        return {
-          to(...fns: ExtensionFn<Html, Type>[]) {
-            fns.forEach((fn) => {
-              state = {
-                ...state,
-                ...fn(() => asMultiElement(target), state, fx, spyOn),
-              };
-            });
-
-            executeTest();
-          },
-        };
+        return Object.assign({}, assertionsApi(target), {
+          not: new Proxy(expectationApi, {
+            get: (_: any, propertyName: string) => {
+              state.negateAssertion = !state.negateAssertion;
+              return assertionsApi(target)[propertyName];
+            },
+          }),
+        });
       },
     };
 

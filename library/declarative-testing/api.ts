@@ -44,5 +44,6 @@ export interface ExpectApi {
 }
 
 export interface AssertionApi<Html extends HTMLElement, Component> {
+  not: AssertionApi<Html, Component>;
   to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
 }
