@@ -18,7 +18,7 @@ export class TestEnv {
     return this.testState.negateAssertion;
   }
 
-  constructor(public spyFactory: SpyFactoryFn) {}
+  constructor(private spyFactory: SpyFactoryFn) {}
 
   public spyOn = <T>(
     host: () => T,
@@ -113,9 +113,7 @@ export const createDeclarativeTestingApi = (
   fx: NgtxFixture<any, any>,
   existingTestEnv?: TestEnv,
 ) => {
-  let spyFactory =
-    existingTestEnv?.spyFactory?.bind(existingTestEnv) ??
-    NGTX_GLOBAL_CONFIG.defaultSpyFactory;
+  let spyFactory: SpyFactoryFn | undefined;
 
   const when: Omit<DeclarativeTestingApi, 'setSpyFactory'> = <
     Html extends HTMLElement,
@@ -123,7 +121,9 @@ export const createDeclarativeTestingApi = (
   >(
     target: TargetRef<Html, Type>,
   ) => {
-    const testEnv: TestEnv = existingTestEnv ?? new TestEnv(spyFactory);
+    const testEnv: TestEnv =
+      existingTestEnv ??
+      new TestEnv(spyFactory ?? NGTX_GLOBAL_CONFIG.defaultSpyFactory);
 
     const assertionsApi = <Html extends HTMLElement, Type>(
       target: TargetRef<Html, Type>,

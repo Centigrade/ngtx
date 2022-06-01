@@ -160,7 +160,7 @@ export const haveCalled =
     methodName: keyof PublicApi<Out>,
     opts: EmissionOptions = {},
   ): ExtensionFn<Html, Component> =>
-  (targets, { addAssertion, spyOn, isAssertionNegated }, fx) => {
+  (targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
       const firstResult = targets()?.first?.();
       return firstResult ? resolver(firstResult) : undefined!;
