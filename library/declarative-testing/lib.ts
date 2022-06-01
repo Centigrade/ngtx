@@ -88,12 +88,12 @@ export const call =
 export const emit =
   <Html extends HTMLElement, Type>(
     eventName: Events<Html, Type>,
-    args?: any,
+    arg?: any,
   ): ExtensionFn<Html, Type> =>
   (targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       targets().forEach((subject) => {
-        subject.triggerEvent(eventName as string, args);
+        subject.triggerEvent(eventName as string, arg);
       });
 
       fixture.detectChanges();

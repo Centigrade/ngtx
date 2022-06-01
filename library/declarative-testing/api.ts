@@ -1,6 +1,13 @@
 import { NgtxFixture } from '../entities';
 import type { TestEnv } from './declarative-testing';
-import { ISetSpyFactory, MultiPartRef, TargetRef } from './types';
+import {
+  Events,
+  ISetSpyFactory,
+  ITargetResolver,
+  MultiPartRef,
+  PublicApi,
+  TargetRef,
+} from './types';
 
 export type DeclarativeTestingApi = ISetSpyFactory &
   (<Html extends HTMLElement, Component>(
@@ -8,6 +15,20 @@ export type DeclarativeTestingApi = ISetSpyFactory &
   ) => PredicateApi<Html, Component>);
 
 export interface PredicateApi<Html extends HTMLElement, Component> {
+  emit(eventName: Events<Html, Component>, arg?: any): ExpectApi;
+  emits(eventName: Events<Html, Component>, arg?: any): ExpectApi;
+
+  call<Out>(
+    resolver: ITargetResolver<Html, Component, Out>,
+    methodName: keyof PublicApi<Out>,
+    args?: any[],
+  ): ExpectApi;
+  calls<Out>(
+    resolver: ITargetResolver<Html, Component, Out>,
+    methodName: keyof PublicApi<Out>,
+    args?: any[],
+  ): ExpectApi;
+
   rendered(): ExpectApi;
   has: PredicateFn<Html, Component>;
   have: PredicateFn<Html, Component>;

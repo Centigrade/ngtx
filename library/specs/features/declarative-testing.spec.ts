@@ -13,7 +13,6 @@ import {
   clicked,
   componentMethod,
   containText,
-  emit,
   haveAttributes,
   haveCalled,
   haveState,
@@ -175,7 +174,7 @@ describe(
           }),
         )
         .and(the.Items(2))
-        .does(emit('activate'))
+        .emits('activate')
         .expect(host)
         .to(haveState({ value: 'b' }));
     });
@@ -198,7 +197,7 @@ describe(
       When(host)
         .has(state({ opened: false }))
         .and(the.Toggle)
-        .does(call(nativeMethod, 'click'))
+        .calls(nativeMethod, 'click')
         .expect(host)
         .to(haveState({ opened: true }));
     });
@@ -207,7 +206,7 @@ describe(
       When(host)
         .has(state({ items: ['a'], opened: true }))
         .and(the.Items(1))
-        .does(call(injected(DropDownComponent), 'close'))
+        .calls(injected(DropDownComponent), 'close')
         .expect(host)
         .to(haveState({ opened: false }));
     });
@@ -223,7 +222,7 @@ describe(
       When(host)
         .has(state({ items: ['a'], opened: true }))
         .and(the.ItemContainers())
-        .does(call(injected(DropDownComponent), 'open'))
+        .calls(injected(DropDownComponent), 'open')
         .expect(the.ItemContainers())
         .to(haveCalled(injected(DropDownComponent), 'open'));
     });

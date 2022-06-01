@@ -2,8 +2,11 @@ import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { SpyFactoryFn } from '../types';
 import { DeclarativeTestingApi, ExtensionFn } from './api';
+import { call, emit } from './lib';
 import {
   DeclarativeTestState,
+  Events,
+  ITargetResolver,
   PublicApi,
   SpyRegisterEntry,
   TargetRef,
@@ -60,19 +63,15 @@ export class TestEnv {
     }
   }
 
-  public addAssertion = (
-    fn: (testState: DeclarativeTestState) => void,
-  ): void => {
+  public addAssertion = (fn: () => void): void => {
     this.updateState({
-      assertion: scheduleFn(this.testState.assertion, () => fn(this.testState)),
+      assertion: scheduleFn(this.testState.assertion, () => fn()),
     });
   };
 
-  public addPredicate = (
-    fn: (testState: DeclarativeTestState) => void,
-  ): void => {
+  public addPredicate = (fn: () => void): void => {
     this.updateState({
-      predicate: scheduleFn(this.testState.predicate, () => fn(this.testState)),
+      predicate: scheduleFn(this.testState.predicate, () => fn()),
     });
   };
 
@@ -158,7 +157,22 @@ export const createDeclarativeTestingApi = (
       return expectationApi;
     };
 
+    const callFn = <Out>(
+      resolver: ITargetResolver<Html, Type, Out>,
+      methodName: keyof PublicApi<Out>,
+      args: any[] = [],
+    ) => {
+      return addPredicate(call(resolver, methodName, args));
+    };
+
+    const emitFn = (eventName: Events<Html, Type>, args?: any) =>
+      addPredicate(emit(eventName, args));
+
     return {
+      calls: callFn,
+      call: callFn,
+      emits: emitFn,
+      emit: emitFn,
       rendered: () => expectationApi,
       has: addPredicate,
       have: addPredicate,
