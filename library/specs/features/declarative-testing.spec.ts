@@ -233,7 +233,7 @@ describe(
     it('should throw if a spy could not be placed correctly', () => {
       expect(() =>
         When(host)
-          .does()
+          .rendered()
           .expect(the.NotExistingTarget)
           .not.to(haveCalled(componentMethod, 'click')),
       ).toThrowError(/spies/);

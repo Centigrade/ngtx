@@ -8,6 +8,7 @@ export type DeclarativeTestingApi = ISetSpyFactory &
   ) => PredicateApi<Html, Component>);
 
 export interface PredicateApi<Html extends HTMLElement, Component> {
+  rendered(): ExpectApi;
   has: PredicateFn<Html, Component>;
   have: PredicateFn<Html, Component>;
   does: PredicateFn<Html, Component>;

@@ -159,6 +159,7 @@ export const createDeclarativeTestingApi = (
     };
 
     return {
+      rendered: () => expectationApi,
       has: addPredicate,
       have: addPredicate,
       is: addPredicate,
