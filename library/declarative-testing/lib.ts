@@ -12,7 +12,6 @@ import {
 import {
   asArray,
   checkAssertionsCountMatchesFoundElementCount,
-  scheduleFn,
 } from './utility';
 
 //#region target resolvers
@@ -37,14 +36,12 @@ export const injected =
 export const and = <Html extends HTMLElement, Type>(
   ...fns: ExtensionFn<Html, Type>[]
 ): ExtensionFn<Html, Type> => {
-  return (targets, state, fixture, spyOn) => {
-    let newState = { ...state };
+  return (targets, testEnv, fixture) => {
+    let newState = { ...testEnv };
 
     fns.forEach((fn) => {
-      newState = { ...newState, ...fn(targets, newState, fixture, spyOn) };
+      fn(targets, testEnv, fixture);
     });
-
-    return newState;
   };
 };
 
@@ -52,20 +49,18 @@ export const clicked =
   <Html extends HTMLElement, Type>(
     opts: ClickOptions = {},
   ): ExtensionFn<Html, Type> =>
-  (targets, { predicate }, fixture) => {
-    return {
-      predicate: scheduleFn(predicate, () => {
-        targets().forEach((subject) => {
-          const times = opts.times ?? 1;
+  (targets, { addPredicate }, fixture) => {
+    addPredicate(() => {
+      targets().forEach((subject) => {
+        const times = opts.times ?? 1;
 
-          for (let i = 0; i < times; i++) {
-            subject.triggerEvent('click');
-          }
-        });
+        for (let i = 0; i < times; i++) {
+          subject.triggerEvent('click');
+        }
+      });
 
-        fixture.detectChanges();
-      }),
-    };
+      fixture.detectChanges();
+    });
   };
 //#endregion
 
@@ -76,22 +71,18 @@ export const call =
     methodName: keyof PublicApi<Out>,
     args: any[] = [],
   ): ExtensionFn<Html, Component> =>
-  (targets, { predicate }, fixture) => {
-    return {
-      predicate: scheduleFn(predicate, () => {
-        console.log('XXXX');
+  (targets, { addPredicate }, fixture) => {
+    addPredicate(() => {
+      targets().forEach((target) => {
+        const token = resolver(target);
+        const method = (token as any)[methodName] as Function;
+        method.apply(token, ...args);
 
-        targets().forEach((target) => {
-          const token = resolver(target);
-          const method = (token as any)[methodName] as Function;
-          method.apply(token, ...args);
+        console.log('CALL', method.toString());
+      });
 
-          console.log('CALL', method.toString());
-        });
-
-        fixture.detectChanges();
-      }),
-    };
+      fixture.detectChanges();
+    });
   };
 
 export const emit =
@@ -99,72 +90,66 @@ export const emit =
     eventName: Events<Html, Type>,
     args?: any,
   ): ExtensionFn<Html, Type> =>
-  (target, { predicate }, fixture) => {
-    return {
-      predicate: scheduleFn(predicate, () => {
-        target().forEach((subject) => {
-          subject.triggerEvent(eventName as string, args);
-        });
+  (target, { addPredicate }, fixture) => {
+    addPredicate(() => {
+      target().forEach((subject) => {
+        subject.triggerEvent(eventName as string, args);
+      });
 
-        fixture.detectChanges();
-      }),
-    };
+      fixture.detectChanges();
+    });
   };
 
 export const attributes =
   <Html extends HTMLElement>(
     stateDef: PropertyState<Html> | PropertyState<Html>[],
   ): ExtensionFn<Html, any> =>
-  (target, { predicate }, fixture) => {
-    return {
-      predicate: scheduleFn(predicate, () => {
-        const element = target();
-        const states = asArray(stateDef);
+  (target, { addPredicate }, fixture) => {
+    addPredicate(() => {
+      const element = target();
+      const states = asArray(stateDef);
 
-        checkAssertionsCountMatchesFoundElementCount(
-          'attributes',
-          states,
-          element,
-        );
+      checkAssertionsCountMatchesFoundElementCount(
+        'attributes',
+        states,
+        element,
+      );
 
-        states.forEach((state, index) => {
-          const subject = target().atIndex(index);
-          const props = Object.entries(state) as [string, any][];
+      states.forEach((state, index) => {
+        const subject = target().atIndex(index);
+        const props = Object.entries(state) as [string, any][];
 
-          props.forEach(([key, value]) => {
-            subject.nativeElement[key] = value;
-          });
-
-          fixture.detectChanges();
+        props.forEach(([key, value]) => {
+          subject.nativeElement[key] = value;
         });
-      }),
-    };
+
+        fixture.detectChanges();
+      });
+    });
   };
 
 export const state =
   <T>(
     stateDef: PropertyState<T> | PropertyState<T>[],
   ): ExtensionFn<HTMLElement, T> =>
-  (target, { predicate }, fixture) => {
-    return {
-      predicate: scheduleFn(predicate, () => {
-        const element = target();
-        const states = asArray(stateDef);
+  (target, { addPredicate }, fixture) => {
+    addPredicate(() => {
+      const element = target();
+      const states = asArray(stateDef);
 
-        checkAssertionsCountMatchesFoundElementCount('state', states, element);
+      checkAssertionsCountMatchesFoundElementCount('state', states, element);
 
-        states.forEach((state, index) => {
-          const subject = target().atIndex(index);
-          const props = Object.entries(state) as [string, any][];
+      states.forEach((state, index) => {
+        const subject = target().atIndex(index);
+        const props = Object.entries(state) as [string, any][];
 
-          props.forEach(([key, value]) => {
-            subject.componentInstance[key] = value;
-          });
-
-          fixture.detectChanges();
+        props.forEach(([key, value]) => {
+          subject.componentInstance[key] = value;
         });
-      }),
-    };
+
+        fixture.detectChanges();
+      });
+    });
   };
 //#endregion
 
@@ -175,127 +160,114 @@ export const haveCalled =
     methodName: keyof PublicApi<Out>,
     opts: EmissionOptions = {},
   ): ExtensionFn<Html, Component> =>
-  (targets, { assertion, negateAssertion }, fx, spyOn) => {
+  (targets, { addAssertion, spyOn, isAssertionNegated }, fx) => {
     const resolveTarget = () => {
       const firstResult = targets()?.first?.();
       return firstResult ? resolver(firstResult) : undefined!;
     };
 
     const spy = spyOn(resolveTarget, methodName, opts.whichReturns);
-
-    return {
-      assertion: scheduleFn(assertion, () => {
-        assertEmission(spy, opts, negateAssertion);
-      }),
-    };
+    addAssertion(() => assertEmission(spy, opts, isAssertionNegated));
   };
 
 export const containText =
   (texts: Maybe<string> | Maybe<string>[]): ExtensionFn<HTMLElement, any> =>
-  (target, { assertion, negateAssertion }) => {
-    return {
-      assertion: scheduleFn(assertion, () => {
-        const subject = target();
+  (target, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const subject = target();
 
-        asArray(texts).forEach((text, index) => {
-          const element = subject.atIndex(index);
+      asArray(texts).forEach((text, index) => {
+        const element = subject.atIndex(index);
 
-          if (negateAssertion) {
-            expect(element.textContent()).not.toContain(text);
-          } else {
-            expect(element.textContent()).toContain(text);
-          }
-        });
-      }),
-    };
+        if (isAssertionNegated) {
+          expect(element.textContent()).not.toContain(text);
+        } else {
+          expect(element.textContent()).toContain(text);
+        }
+      });
+    });
   };
 
 export const haveText =
   (texts: Maybe<string> | Maybe<string>[]): ExtensionFn<HTMLElement, any> =>
-  (target, { assertion, negateAssertion }) => {
-    return {
-      assertion: scheduleFn(assertion, () => {
-        const subject = target();
+  (target, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const subject = target();
 
-        asArray(texts).forEach((text, index) => {
-          const element = subject.atIndex(index);
+      asArray(texts).forEach((text, index) => {
+        const element = subject.atIndex(index);
 
-          if (negateAssertion) {
-            expect(element.textContent()).not.toEqual(text);
-          } else {
-            expect(element.textContent()).toEqual(text);
-          }
-        });
-      }),
-    };
+        if (isAssertionNegated) {
+          expect(element.textContent()).not.toEqual(text);
+        } else {
+          expect(element.textContent()).toEqual(text);
+        }
+      });
+    });
   };
 
 export const haveAttributes =
   <Html extends HTMLElement>(
     stateDef: PropertyState<Html> | PropertyState<Html>[],
   ): ExtensionFn<Html, any> =>
-  (target, { assertion, negateAssertion }) => {
-    return {
-      assertion: scheduleFn(assertion, () => {
-        const states = asArray(stateDef);
-        const element = target();
+  (target, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const states = asArray(stateDef);
+      const element = target();
 
-        checkAssertionsCountMatchesFoundElementCount(
-          'haveAttributes',
-          states,
-          element,
-        );
+      checkAssertionsCountMatchesFoundElementCount(
+        'haveAttributes',
+        states,
+        element,
+      );
 
-        states.forEach((state, index) => {
-          const subject = element.atIndex(index);
-          const props = Object.entries(state) as [string, any][];
+      states.forEach((state, index) => {
+        const subject = element.atIndex(index);
+        const props = Object.entries(state) as [string, any][];
 
-          props.forEach(([key, value]) => {
-            const property = subject.attr(key);
+        props.forEach(([key, value]) => {
+          const property = subject.attr(key);
 
-            if (negateAssertion) {
-              expect(property).not.toEqual(value);
-            } else {
-              expect(property).toEqual(value);
-            }
-          });
+          if (isAssertionNegated) {
+            expect(property).not.toEqual(value);
+          } else {
+            expect(property).toEqual(value);
+          }
         });
-      }),
-    };
+      });
+    });
   };
 
 export const haveState =
   <T>(
     stateDef: PropertyState<T> | PropertyState<T>[],
   ): ExtensionFn<HTMLElement, T> =>
-  (target, { assertion, negateAssertion }) => {
-    return {
-      assertion: scheduleFn(assertion, () => {
-        const states = asArray(stateDef);
-        const element = target();
+  (target, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const states = asArray(stateDef);
+      const element = target();
 
-        checkAssertionsCountMatchesFoundElementCount(
-          'haveState',
-          states,
-          element,
-        );
+      checkAssertionsCountMatchesFoundElementCount(
+        'haveState',
+        states,
+        element,
+      );
 
-        states.forEach((state, index) => {
-          const subject = element.atIndex(index);
-          const props = Object.entries(state) as [string, any][];
+      states.forEach((state, index) => {
+        const subject = element.atIndex(index);
+        const props = Object.entries(state) as [string, any][];
 
-          props.forEach(([key, value]) => {
-            const property = subject.componentInstance[key];
+        props.forEach(([key, value]) => {
+          const property = subject.componentInstance[key];
 
-            if (negateAssertion) {
-              expect(property).not.toEqual(value);
-            } else {
-              expect(property).toEqual(value);
-            }
-          });
+          if (isAssertionNegated) {
+            expect(property).not.toEqual(value);
+          } else {
+            expect(property).toEqual(value);
+          }
         });
-      }),
-    };
+      });
+    });
   };
 //#endregion
 
