@@ -6,6 +6,7 @@ import {
   Output,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { allOrNth } from '../../declarative-testing/harnesses';
 import {
   and,
   attributes,
@@ -22,7 +23,6 @@ import {
   state,
 } from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
-
 @Injectable()
 abstract class AlertBaseService {
   abstract show(msg: string): void;
@@ -117,18 +117,11 @@ describe(
       static ItemsContainer() {
         return get('ngtx_dropdown:item-container');
       }
-      static Items(nth?: number) {
-        return () => {
-          const matches = getAll(DropDownItemComponent);
-          return nth != null ? matches.nth(nth) : matches;
-        };
-      }
-      static ItemContainers(nth?: number) {
-        return () => {
-          const matches = getAll('ngtx_dropdown-item:content-container');
-          return nth != null ? matches.nth(nth) : matches;
-        };
-      }
+      static Items = allOrNth(DropDownItemComponent, getAll);
+      static ItemContainers = allOrNth<HTMLElement, HTMLDivElement>(
+        'ngtx_dropdown-item:content-container',
+        getAll,
+      );
       static NotExistingTarget() {
         return get('.not-existing');
       }
