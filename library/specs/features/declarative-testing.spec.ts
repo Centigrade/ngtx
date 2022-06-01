@@ -180,6 +180,13 @@ describe(
         .to(haveState({ value: 'b' }));
     });
 
+    it('clicked', () => {
+      When(the.Toggle)
+        .gets(clicked({ nativeClick: true }))
+        .expect(the.Toggle)
+        .to(haveCalled(nativeMethod, 'click'));
+    });
+
     it('call(componentMethod)', () => {
       When(host)
         .has(state({ opened: false }), and(call(componentMethod, 'open')))

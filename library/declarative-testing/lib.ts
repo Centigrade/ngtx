@@ -53,7 +53,11 @@ export const clicked =
         const times = opts.times ?? 1;
 
         for (let i = 0; i < times; i++) {
-          subject.triggerEvent('click');
+          if (opts.nativeClick) {
+            subject.nativeElement.click();
+          } else {
+            subject.triggerEvent('click');
+          }
         }
       });
 
@@ -270,6 +274,7 @@ export const haveState =
 //#region types
 export interface ClickOptions {
   times?: number;
+  nativeClick?: boolean;
 }
 //#endregion
 
