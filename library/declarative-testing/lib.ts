@@ -37,8 +37,6 @@ export const and = <Html extends HTMLElement, Type>(
   ...fns: ExtensionFn<Html, Type>[]
 ): ExtensionFn<Html, Type> => {
   return (targets, testEnv, fixture) => {
-    let newState = { ...testEnv };
-
     fns.forEach((fn) => {
       fn(targets, testEnv, fixture);
     });
@@ -88,9 +86,9 @@ export const emit =
     eventName: Events<Html, Type>,
     args?: any,
   ): ExtensionFn<Html, Type> =>
-  (target, { addPredicate }, fixture) => {
+  (targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      target().forEach((subject) => {
+      targets().forEach((subject) => {
         subject.triggerEvent(eventName as string, args);
       });
 
@@ -102,9 +100,9 @@ export const attributes =
   <Html extends HTMLElement>(
     stateDef: PropertyState<Html> | PropertyState<Html>[],
   ): ExtensionFn<Html, any> =>
-  (target, { addPredicate }, fixture) => {
+  (targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = target();
+      const element = targets();
       const states = asArray(stateDef);
 
       checkAssertionsCountMatchesFoundElementCount(
@@ -114,7 +112,7 @@ export const attributes =
       );
 
       states.forEach((state, index) => {
-        const subject = target().atIndex(index);
+        const subject = targets().atIndex(index);
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -130,15 +128,15 @@ export const state =
   <T>(
     stateDef: PropertyState<T> | PropertyState<T>[],
   ): ExtensionFn<HTMLElement, T> =>
-  (target, { addPredicate }, fixture) => {
+  (targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = target();
+      const element = targets();
       const states = asArray(stateDef);
 
       checkAssertionsCountMatchesFoundElementCount('state', states, element);
 
       states.forEach((state, index) => {
-        const subject = target().atIndex(index);
+        const subject = targets().atIndex(index);
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -170,9 +168,9 @@ export const haveCalled =
 
 export const containText =
   (texts: Maybe<string> | Maybe<string>[]): ExtensionFn<HTMLElement, any> =>
-  (target, { addAssertion, isAssertionNegated }) => {
+  (targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subject = target();
+      const subject = targets();
 
       asArray(texts).forEach((text, index) => {
         const element = subject.atIndex(index);
@@ -188,9 +186,9 @@ export const containText =
 
 export const haveText =
   (texts: Maybe<string> | Maybe<string>[]): ExtensionFn<HTMLElement, any> =>
-  (target, { addAssertion, isAssertionNegated }) => {
+  (targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subject = target();
+      const subject = targets();
 
       asArray(texts).forEach((text, index) => {
         const element = subject.atIndex(index);
@@ -208,10 +206,10 @@ export const haveAttributes =
   <Html extends HTMLElement>(
     stateDef: PropertyState<Html> | PropertyState<Html>[],
   ): ExtensionFn<Html, any> =>
-  (target, { addAssertion, isAssertionNegated }) => {
+  (targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = target();
+      const element = targets();
 
       checkAssertionsCountMatchesFoundElementCount(
         'haveAttributes',
@@ -240,10 +238,10 @@ export const haveState =
   <T>(
     stateDef: PropertyState<T> | PropertyState<T>[],
   ): ExtensionFn<HTMLElement, T> =>
-  (target, { addAssertion, isAssertionNegated }) => {
+  (targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = target();
+      const element = targets();
 
       checkAssertionsCountMatchesFoundElementCount(
         'haveState',
