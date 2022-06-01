@@ -97,7 +97,6 @@ export class TestEnv {
           const instance = host();
 
           if (instance) {
-            console.log(instance);
             instance[methodName] = entry.spy;
             entry.done = true;
           }

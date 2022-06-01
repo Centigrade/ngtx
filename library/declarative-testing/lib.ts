@@ -77,8 +77,6 @@ export const call =
         const token = resolver(target);
         const method = (token as any)[methodName] as Function;
         method.apply(token, ...args);
-
-        console.log('CALL', method.toString());
       });
 
       fixture.detectChanges();

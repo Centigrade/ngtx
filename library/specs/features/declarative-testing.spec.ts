@@ -55,8 +55,6 @@ class DropDownItemComponent {
   constructor(private alert: AlertBaseService) {}
 
   public showDialog(): void {
-    console.log('SHOW');
-
     this.alert.show(`You clicked the option "${this.value}"`);
     this.activate.emit();
   }
