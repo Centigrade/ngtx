@@ -1,4 +1,5 @@
 export * from './declarative-testing';
+export { allOrNth } from './harnesses';
 export {
   DeclarativeTestExtension,
   DeclarativeTestState,

@@ -130,30 +130,30 @@ describe(
     it('state -> haveState', () => {
       When(host)
         .has(state({ items: ['a', 'b', 'c'], opened: true }))
-        .expect(the.Items())
+        .expect(the.Items)
         .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
     });
 
     it('attributes -> haveAttributes', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
-        .and(the.ItemContainers())
+        .and(the.ItemContainers)
         .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
-        .expect(the.ItemContainers())
+        .expect(the.ItemContainers)
         .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
     });
 
     it('haveText', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
-        .expect(the.ItemContainers())
+        .expect(the.ItemContainers)
         .to(haveText(['a', 'b']));
     });
 
     it('containText', () => {
       When(host)
         .has(state({ items: ['item a', 'item b'], opened: true }))
-        .expect(the.ItemContainers())
+        .expect(the.ItemContainers)
         .to(containText(['a', 'b']));
     });
 
@@ -166,7 +166,7 @@ describe(
             opened: true,
           }),
         )
-        .and(the.Items(2))
+        .and(the.Items.nth(2))
         .emits('activate')
         .expect(host)
         .to(haveState({ value: 'b' }));
@@ -198,7 +198,7 @@ describe(
     it('call(injected)', () => {
       When(host)
         .has(state({ items: ['a'], opened: true }))
-        .and(the.Items(1))
+        .and(the.Items.first)
         .calls(injected(DropDownComponent), 'close')
         .expect(host)
         .to(haveState({ opened: false }));
@@ -214,18 +214,18 @@ describe(
     it('haveCalled (registerable after first predicate)', () => {
       When(host)
         .has(state({ items: ['a'], opened: true }))
-        .and(the.ItemContainers())
+        .and(the.ItemContainers)
         .calls(injected(DropDownComponent), 'open')
-        .expect(the.ItemContainers())
+        .expect(the.ItemContainers)
         .to(haveCalled(injected(DropDownComponent), 'open'));
     });
 
     it('haveCalled (abstract provider)', () => {
       When(host)
         .has(state({ items: ['a'], opened: true }))
-        .and(the.ItemContainers(1))
+        .and(the.ItemContainers.first)
         .gets(clicked())
-        .expect(the.ItemContainers())
+        .expect(the.ItemContainers)
         .to(haveCalled(injected(AlertBaseService), 'show'));
     });
 

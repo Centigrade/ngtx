@@ -1,6 +1,7 @@
 import { Type } from '@angular/core';
 import { NgtxFixture } from '../entities';
 import { QueryTarget } from '../types';
+import { TargetRef } from './types';
 
 /**
  * Creates a harness query that either returns all instances of a given query-target (if no argument is given)
@@ -30,10 +31,32 @@ import { QueryTarget } from '../types';
 export function allOrNth<Html extends HTMLElement, T = any>(
   target: QueryTarget<T>,
   getAll: NgtxFixture<Html, T>['getAll'],
-) {
-  return (nth?: number) => {
-    return nth != null
-      ? () => getAll(target as Type<T>).nth(nth)
-      : () => getAll(target as Type<T>);
+): AllOrNthTarget<Html, T> {
+  const doQuery = () => {
+    return getAll<Html, T>(target as Type<T>);
   };
+
+  return Object.assign(doQuery, {
+    nth: (nth: number) =>
+      (() => {
+        return doQuery().nth(nth);
+      }) as TargetRef<Html, T>,
+    first: () => doQuery().first(),
+    last: () => doQuery().last(),
+    atIndex: (index: number) =>
+      (() => {
+        return doQuery().atIndex(index);
+      }) as TargetRef<Html, T>,
+  }) as AllOrNthTarget<Html, T>;
 }
+
+// ----------------------------
+// internal module types
+// ----------------------------
+
+type AllOrNthTarget<Html extends HTMLElement, T> = TargetRef<Html, T> & {
+  nth(pos: number): TargetRef<Html, T>;
+  first: TargetRef<Html, T>;
+  last: TargetRef<Html, T>;
+  atIndex(index: number): TargetRef<Html, T>;
+};
