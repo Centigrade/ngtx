@@ -287,7 +287,7 @@ export const haveAttributes = <Html extends HTMLElement>(
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
-          const property = subject.attr(key);
+          const property = subject.nativeElement[key];
 
           if (isAssertionNegated) {
             expect(property).not.toEqual(value);
