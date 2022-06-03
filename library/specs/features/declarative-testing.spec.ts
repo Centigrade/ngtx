@@ -209,14 +209,14 @@ describe(
       When(host)
         .has(state({ items: [1], opened: false }))
         .expect(the.Items)
-        .to(beMissing);
+        .to(beMissing());
     });
 
     it('beMissing -> not', () => {
       When(host)
         .has(state({ items: [1], opened: true }))
         .expect(the.Items)
-        .not.to(beMissing);
+        .not.to(beMissing());
     });
 
     it('clicked', () => {

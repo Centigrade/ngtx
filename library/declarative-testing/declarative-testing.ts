@@ -1,7 +1,12 @@
 import { NgtxFixture } from '../entities/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../init-features';
 import { SpyFactoryFn } from '../types';
-import { DeclarativeTestingApi, ExtensionFn } from './api';
+import {
+  DeclarativeTestingApi,
+  ExtensionFn,
+  ExtensionFnMarker,
+  ExtensionFnSignature,
+} from './api';
 import { call, emit } from './lib';
 import {
   DeclarativeTestState,
@@ -204,4 +209,11 @@ export const createDeclarativeTestingApi = (
       spyFactory = spyFt;
     },
   });
+};
+
+export const createExtension = <Html extends HTMLElement, Component>(
+  fn: ExtensionFnSignature<Html, Component>,
+) => {
+  const marker: ExtensionFnMarker = { __ngtxExtensionFn: true };
+  return Object.assign(fn, marker);
 };

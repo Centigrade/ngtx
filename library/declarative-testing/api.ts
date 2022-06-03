@@ -9,6 +9,43 @@ import {
   TargetRef,
 } from './types';
 
+/* 
+  We use ExtensionMarker type to uniquely mark user defined functions as extension functions.
+  This helps preventing confusing factory-functions creating the extension with the extension
+  itself.
+
+  Example:
+
+  Imagine we have the beMissing function factory like that
+  > const beMissing = () => (...) => { addAssertion(...) };
+
+  Now in the tests we use it:
+
+  > When(host)...expect(...).to(beMissing());
+
+  This code will work as expected and of course there are no typing issues. The problem
+  occurs when the user forgets to call the factory function like that:
+
+  > ...expect(...).to(beMissing);
+
+  In this code example typings still work, as () => is assignable to the ExtensionFn type.
+  To prevent this, we mark extension functions with a special symbol, so that typescript error
+  can show the mistake.
+*/
+
+export type ExtensionFnMarker = { __ngtxExtensionFn: true };
+
+export type ExtensionFnSignature<Html extends HTMLElement, Component> = (
+  target: MultiPartRef<Html, Component>,
+  env: NgtxTestEnv,
+  fixture: NgtxFixture<HTMLElement, any>,
+) => void;
+
+export type ExtensionFn<
+  Html extends HTMLElement,
+  Component,
+> = ExtensionFnSignature<Html, Component> & ExtensionFnMarker;
+
 export type DeclarativeTestingApi = ISetSpyFactory &
   (<Html extends HTMLElement, Component>(
     subject: TargetRef<Html, Component>,
@@ -45,12 +82,6 @@ type PredicateFn<Html extends HTMLElement, Component> = (
   // using "keyof Component" can safely use all of them, even keys being optional (e.g. age?: number).
   ...predicates: ExtensionFn<Html, Required<Component>>[]
 ) => ExpectApi;
-
-export type ExtensionFn<Html extends HTMLElement, Component> = (
-  target: MultiPartRef<Html, Component>,
-  env: NgtxTestEnv,
-  fixture: NgtxFixture<HTMLElement, any>,
-) => void;
 
 export interface ExpectApi {
   and: DeclarativeTestingApi;

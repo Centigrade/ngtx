@@ -1,5 +1,6 @@
 import { NgtxElement } from '../entities';
 import { ExtensionFn } from './api';
+import { createExtension } from './declarative-testing';
 import {
   CallBaseOptions,
   CallOptions,
@@ -37,19 +38,17 @@ export const injected =
 //#region convenience extensions
 export const and = <Html extends HTMLElement, Type>(
   ...fns: ExtensionFn<Html, Type>[]
-): ExtensionFn<Html, Type> => {
-  return (targets, testEnv, fixture) => {
+): ExtensionFn<Html, Type> =>
+  createExtension((targets, testEnv, fixture) => {
     fns.forEach((fn) => {
       fn(targets, testEnv, fixture);
     });
-  };
-};
+  });
 
-export const clicked =
-  <Html extends HTMLElement, Type>(
-    opts: ClickOptions = {},
-  ): ExtensionFn<Html, Type> =>
-  (targets, { addPredicate }, fixture) => {
+export const clicked = <Html extends HTMLElement, Type>(
+  opts: ClickOptions = {},
+): ExtensionFn<Html, Type> =>
+  createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       targets().forEach((subject) => {
         const times = opts.times ?? 1;
@@ -65,17 +64,16 @@ export const clicked =
 
       fixture.detectChanges();
     });
-  };
+  });
 //#endregion
 
 //#region predicate extensions
-export const call =
-  <Html extends HTMLElement, Component, Out>(
-    resolver: ITargetResolver<Html, Component, Out>,
-    methodName: keyof PublicApi<Out>,
-    args: any[] = [],
-  ): ExtensionFn<Html, Component> =>
-  (targets, { addPredicate }, fixture) => {
+export const call = <Html extends HTMLElement, Component, Out>(
+  resolver: ITargetResolver<Html, Component, Out>,
+  methodName: keyof PublicApi<Out>,
+  args: any[] = [],
+): ExtensionFn<Html, Component> =>
+  createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       targets().forEach((target) => {
         const token = resolver(target);
@@ -85,14 +83,13 @@ export const call =
 
       fixture.detectChanges();
     });
-  };
+  });
 
-export const emit =
-  <Html extends HTMLElement, Type>(
-    eventName: Events<Html, Type>,
-    arg?: any,
-  ): ExtensionFn<Html, Type> =>
-  (targets, { addPredicate }, fixture) => {
+export const emit = <Html extends HTMLElement, Type>(
+  eventName: Events<Html, Type>,
+  arg?: any,
+): ExtensionFn<Html, Type> =>
+  createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       targets().forEach((subject) => {
         subject.triggerEvent(eventName as string, arg);
@@ -100,13 +97,12 @@ export const emit =
 
       fixture.detectChanges();
     });
-  };
+  });
 
-export const attributes =
-  <Html extends HTMLElement>(
-    stateDef: PropertyState<Html> | PropertyState<Html>[],
-  ): ExtensionFn<Html, any> =>
-  (targets, { addPredicate }, fixture) => {
+export const attributes = <Html extends HTMLElement>(
+  stateDef: PropertyState<Html> | PropertyState<Html>[],
+): ExtensionFn<Html, any> =>
+  createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       const element = targets();
       const states = asArray(stateDef);
@@ -128,13 +124,12 @@ export const attributes =
         fixture.detectChanges();
       });
     });
-  };
+  });
 
-export const state =
-  <T>(
-    stateDef: PropertyState<T> | PropertyState<T>[],
-  ): ExtensionFn<HTMLElement, T> =>
-  (targets, { addPredicate }, fixture) => {
+export const state = <T>(
+  stateDef: PropertyState<T> | PropertyState<T>[],
+): ExtensionFn<HTMLElement, T> =>
+  createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       const element = targets();
       const states = asArray(stateDef);
@@ -152,13 +147,15 @@ export const state =
         fixture.detectChanges();
       });
     });
-  };
+  });
 //#endregion
 
 //#region assertion extensions
-export const beMissing =
-  <Html extends HTMLElement, Component>(): ExtensionFn<Html, Component> =>
-  (targets, { addAssertion, isAssertionNegated }) => {
+export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
+  Html,
+  Component
+> =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const subjects = targets();
       const count = subjects?.length ?? 0;
@@ -169,13 +166,12 @@ export const beMissing =
         expect(count).toBe(0);
       }
     });
-  };
+  });
 
-export const beFound =
-  <Html extends HTMLElement, Component>(
-    opts: FindingOptions = {},
-  ): ExtensionFn<Html, Component> =>
-  (targets, { addAssertion, isAssertionNegated }) => {
+export const beFound = <Html extends HTMLElement, Component>(
+  opts: FindingOptions = {},
+): ExtensionFn<Html, Component> =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const subjects = targets();
       const count = subjects?.length ?? 0;
@@ -194,15 +190,14 @@ export const beFound =
         }
       }
     });
-  };
+  });
 
-export const haveCalled =
-  <Html extends HTMLElement, Component, Out>(
-    resolver: ITargetResolver<Html, Component, Out>,
-    methodName: keyof PublicApi<Out>,
-    opts: CallOptions = {},
-  ): ExtensionFn<Html, Component> =>
-  (targets, { addAssertion, spyOn, isAssertionNegated }) => {
+export const haveCalled = <Html extends HTMLElement, Component, Out>(
+  resolver: ITargetResolver<Html, Component, Out>,
+  methodName: keyof PublicApi<Out>,
+  opts: CallOptions = {},
+): ExtensionFn<Html, Component> =>
+  createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
       const firstResult = targets()?.first?.();
       return firstResult ? resolver(firstResult) : undefined!;
@@ -210,14 +205,13 @@ export const haveCalled =
 
     const spy = spyOn(resolveTarget, methodName, opts.whichReturns);
     addAssertion(() => assertEmission(spy, opts, isAssertionNegated));
-  };
+  });
 
-export const haveEmitted =
-  <Html extends HTMLElement, Component>(
-    eventName: Events<Html, Component>,
-    opts: EmissionOptions = {},
-  ): ExtensionFn<Html, Component> =>
-  (targets, { spyOn, addAssertion, isAssertionNegated }) => {
+export const haveEmitted = <Html extends HTMLElement, Component>(
+  eventName: Events<Html, Component>,
+  opts: EmissionOptions = {},
+): ExtensionFn<Html, Component> =>
+  createExtension((targets, { spyOn, addAssertion, isAssertionNegated }) => {
     const resolve = () => {
       const subject = targets().first();
       const component: any = subject.componentInstance;
@@ -234,11 +228,12 @@ export const haveEmitted =
     const spy = spyOn(resolve, 'ngtx:spyEvent');
 
     addAssertion(() => assertEmission(spy, opts, isAssertionNegated));
-  };
+  });
 
-export const containText =
-  (texts: Maybe<string> | Maybe<string>[]): ExtensionFn<HTMLElement, any> =>
-  (targets, { addAssertion, isAssertionNegated }) => {
+export const containText = (
+  texts: Maybe<string> | Maybe<string>[],
+): ExtensionFn<HTMLElement, any> =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const subject = targets();
 
@@ -252,11 +247,12 @@ export const containText =
         }
       });
     });
-  };
+  });
 
-export const haveText =
-  (texts: Maybe<string> | Maybe<string>[]): ExtensionFn<HTMLElement, any> =>
-  (targets, { addAssertion, isAssertionNegated }) => {
+export const haveText = (
+  texts: Maybe<string> | Maybe<string>[],
+): ExtensionFn<HTMLElement, any> =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const subject = targets();
 
@@ -270,13 +266,12 @@ export const haveText =
         }
       });
     });
-  };
+  });
 
-export const haveAttributes =
-  <Html extends HTMLElement>(
-    stateDef: PropertyState<Html> | PropertyState<Html>[],
-  ): ExtensionFn<Html, any> =>
-  (targets, { addAssertion, isAssertionNegated }) => {
+export const haveAttributes = <Html extends HTMLElement>(
+  stateDef: PropertyState<Html> | PropertyState<Html>[],
+): ExtensionFn<Html, any> =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
       const element = targets();
@@ -302,13 +297,12 @@ export const haveAttributes =
         });
       });
     });
-  };
+  });
 
-export const haveState =
-  <T>(
-    stateDef: PropertyState<T> | PropertyState<T>[],
-  ): ExtensionFn<HTMLElement, T> =>
-  (targets, { addAssertion, isAssertionNegated }) => {
+export const haveState = <T>(
+  stateDef: PropertyState<T> | PropertyState<T>[],
+): ExtensionFn<HTMLElement, T> =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
       const element = targets();
@@ -334,7 +328,7 @@ export const haveState =
         });
       });
     });
-  };
+  });
 //#endregion
 
 //#region types
