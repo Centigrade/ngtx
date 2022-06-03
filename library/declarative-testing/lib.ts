@@ -36,6 +36,16 @@ export const injected =
 //#endregion
 
 //#region convenience extensions
+export const debug = <Html extends HTMLElement, Type>(): ExtensionFn<
+  Html,
+  Type
+> =>
+  createExtension((targets, { addPredicate }, fixture) => {
+    addPredicate(() => {
+      fixture.rootElement.debug();
+    });
+  });
+
 export const and = <Html extends HTMLElement, Type>(
   ...fns: ExtensionFn<Html, Type>[]
 ): ExtensionFn<Html, Type> =>

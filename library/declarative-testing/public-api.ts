@@ -1,5 +1,6 @@
 export {
   createDeclarativeTestingApi,
+  createExtension,
   NgtxTestEnv,
 } from './declarative-testing';
 export { allOrNth } from './harnesses';
