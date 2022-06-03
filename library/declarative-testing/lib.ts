@@ -166,9 +166,12 @@ export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
   Component
 > =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
+    console.log('[debug]:', { fn: targets.toString() });
+
     addAssertion(() => {
       const subjects = targets();
       const count = subjects?.length ?? 0;
+      console.log('[debug]:', { subjects, count });
 
       if (isAssertionNegated) {
         expect(count).not.toBe(0);

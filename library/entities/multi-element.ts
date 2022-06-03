@@ -11,7 +11,9 @@ export class NgtxMultiElement<
     return this.elements.length;
   }
 
-  constructor(private readonly elements: NgtxElement<Html, Component>[]) {}
+  constructor(private readonly elements: NgtxElement<Html, Component>[]) {
+    elements = elements.filter((element) => element != null);
+  }
 
   public get<Html extends HTMLElement, Component = any>(
     cssSelector: string,
