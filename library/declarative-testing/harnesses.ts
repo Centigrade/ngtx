@@ -4,10 +4,11 @@ import { QueryTarget } from '../types';
 import { TargetRef } from './types';
 
 /**
- * Creates a harness query that either returns all instances of a given query-target (if no argument is given)
- * or the nth finding of it (if a position argument of type number is specified).
+ * Creates a harness query that either returns all instances of a given query-target,
+ * or the nth finding of it (if you call `.nth()` on it).
  *
- * Example:
+ * **Example:**
+ *
  * ~~~ts
  * ngtx(({ getAll }) => {
  *   class the {
@@ -18,9 +19,9 @@ import { TargetRef } from './types';
  * ~~~
  * and then use this testing-harness:
  * ~~~ts
- * When(the.DropDownItems(1)) // argument "1" given: returns the first item
+ * When(the.DropDownItems.nth(2)) // returns the second item
  *   .gets(clicked)
- *   .expect(the.Actions()) // no arg, returns all actions
+ *   .expect(the.Actions) // returns all actions
  *   .to(beFound({ times: 3 }));
  * ~~~
  *
