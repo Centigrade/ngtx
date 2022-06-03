@@ -10,6 +10,8 @@ import { allOrNth } from '../../declarative-testing/harnesses';
 import {
   and,
   attributes,
+  beFound,
+  beMissing,
   call,
   clicked,
   componentMethod,
@@ -170,6 +172,48 @@ describe(
         .emits('activate')
         .expect(host)
         .to(haveState({ value: 'b' }));
+    });
+
+    it('beFound', () => {
+      When(host)
+        .has(state({ items: [1, 2, 3], opened: true }))
+        .expect(the.Items)
+        .to(beFound());
+    });
+
+    it('beFound -> count', () => {
+      When(host)
+        .has(state({ items: [1, 2, 3], opened: true }))
+        .expect(the.Items)
+        .to(beFound({ count: 3 }));
+    });
+
+    it('beFound -> not', () => {
+      When(host)
+        .has(state({ items: [1, 2, 3], opened: false }))
+        .expect(the.Items)
+        .not.to(beFound());
+    });
+
+    it('beFound -> not -> count', () => {
+      When(host)
+        .has(state({ items: [1], opened: true }))
+        .expect(the.Items)
+        .not.to(beFound({ count: 3 }));
+    });
+
+    it('beMissing', () => {
+      When(host)
+        .has(state({ items: [1], opened: false }))
+        .expect(the.Items)
+        .to(beMissing);
+    });
+
+    it('beMissing -> not', () => {
+      When(host)
+        .has(state({ items: [1], opened: true }))
+        .expect(the.Items)
+        .not.to(beMissing);
     });
 
     it('clicked', () => {
