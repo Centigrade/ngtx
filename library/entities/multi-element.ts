@@ -7,12 +7,15 @@ export class NgtxMultiElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
 > {
+  private readonly elements: NgtxElement<Html, Component>[];
+
   public get length(): number {
     return this.elements.length;
   }
 
-  constructor(private readonly elements: NgtxElement<Html, Component>[]) {
-    elements = elements.filter((element) => element != null);
+  constructor(ngtxElements: NgtxElement<Html, Component>[]) {
+    // hint: the declarative api might put "null" as item, so ensure only defined items:
+    this.elements = ngtxElements.filter((element) => element != null);
   }
 
   public get<Html extends HTMLElement, Component = any>(
