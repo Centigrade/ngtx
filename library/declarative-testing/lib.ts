@@ -2,6 +2,8 @@ import { NgtxElement } from '../entities';
 import { ExtensionFn } from './api';
 import { NgtxTestEnv } from './declarative-testing';
 import {
+  CallBaseOptions,
+  CallOptions,
   EmissionOptions,
   Events,
   ITargetResolver,
@@ -201,7 +203,7 @@ export const haveCalled =
   <Html extends HTMLElement, Component, Out>(
     resolver: ITargetResolver<Html, Component, Out>,
     methodName: keyof PublicApi<Out>,
-    opts: EmissionOptions = {},
+    opts: CallOptions = {},
   ): ExtensionFn<Html, Component> =>
   (targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
@@ -210,6 +212,30 @@ export const haveCalled =
     };
 
     const spy = spyOn(resolveTarget, methodName, opts.whichReturns);
+    addAssertion(() => assertEmission(spy, opts, isAssertionNegated));
+  };
+
+export const haveEmitted =
+  <Html extends HTMLElement, Component>(
+    eventName: Events<Html, Component>,
+    opts: EmissionOptions = {},
+  ): ExtensionFn<Html, Component> =>
+  (targets, { spyOn, addAssertion, isAssertionNegated }) => {
+    const resolve = () => {
+      const subject = targets().first();
+      const component: any = subject.componentInstance;
+      const nativeElement: any = subject.nativeElement;
+
+      if (typeof component[eventName]?.emit === 'function') {
+        return component[eventName];
+      } else {
+        return nativeElement;
+      }
+    };
+
+    // TODO: refactor magic string!
+    const spy = spyOn(resolve, 'ngtx:spyEvent');
+
     addAssertion(() => assertEmission(spy, opts, isAssertionNegated));
   };
 
@@ -323,6 +349,7 @@ export interface ClickOptions {
 export interface FindingOptions {
   count?: number;
 }
+
 //#endregion
 
 // -------------------------------------
@@ -334,23 +361,41 @@ export function assertEmission(
   opts: EmissionOptions,
   negate?: boolean,
 ) {
-  if (negate) {
-    expect(spy).not.toHaveBeenCalled();
+  assertCallBase(spy, opts, negate);
 
-    if (opts.args) {
-      const value = opts.args;
-      expect(spy).not.toHaveBeenCalledWith(...value);
+  if (opts.arg) {
+    if (negate) {
+      expect(spy).not.toHaveBeenCalledWith(opts.arg);
+    } else {
+      expect(spy).toHaveBeenCalledWith(opts.arg);
     }
+  }
+}
+
+export function assertCall(spy: any, opts: CallOptions, negate?: boolean) {
+  assertCallBase(spy, opts, negate);
+
+  if (opts.args) {
+    if (negate) {
+      expect(spy).not.toHaveBeenCalledWith(...opts.args);
+    } else {
+      expect(spy).toHaveBeenCalledWith(...opts.args);
+    }
+  }
+}
+
+export function assertCallBase(
+  spy: any,
+  opts: CallBaseOptions,
+  negate?: boolean,
+) {
+  if (negate) {
     if (opts.times != null) {
       expect(spy).not.toHaveBeenCalledTimes(opts.times);
+    } else {
+      expect(spy).not.toHaveBeenCalled();
     }
   } else {
-    expect(spy).toHaveBeenCalled();
-
-    if (opts.args) {
-      const value = opts.args;
-      expect(spy).toHaveBeenCalledWith(...value);
-    }
     if (opts.times != null) {
       expect(spy).toHaveBeenCalledTimes(opts.times);
     } else if (opts.times !== null) {

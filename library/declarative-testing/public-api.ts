@@ -5,10 +5,11 @@ export {
 export { allOrNth } from './harnesses';
 export * from './lib';
 export {
+  CallOptions,
   DeclarativeTestExtension,
   DeclarativeTestState,
   EmissionOptions,
-  EventsOf,
+  Events,
   ITargetResolver,
   TargetRef,
   Token,

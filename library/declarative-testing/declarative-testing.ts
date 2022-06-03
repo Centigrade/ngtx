@@ -25,7 +25,8 @@ export class NgtxTestEnv {
 
   public spyOn = <T>(
     host: () => T,
-    methodName: keyof PublicApi<T>,
+    // TODO: remove magic string!
+    methodName: keyof PublicApi<T> | 'ngtx:spyEvent',
     returnValue?: any,
   ) => {
     const spy = this.spyFactory(returnValue);
@@ -94,8 +95,21 @@ export class NgtxTestEnv {
 
         try {
           const instance = host();
+          if (instance == null) {
+            return;
+          }
 
-          if (instance) {
+          // TODO: refactor magic string!
+          if (methodName.startsWith('ngtx:spyEvent')) {
+            const targetIsEventEmitter =
+              typeof instance === 'object' &&
+              typeof instance.emit === 'function';
+
+            if (targetIsEventEmitter) {
+              instance.emit = entry.spy;
+              entry.done = true;
+            }
+          } else {
             instance[methodName] = entry.spy;
             entry.done = true;
           }

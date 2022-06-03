@@ -18,6 +18,7 @@ import {
   containText,
   haveAttributes,
   haveCalled,
+  haveEmitted,
   haveState,
   haveText,
   injected,
@@ -51,13 +52,13 @@ class AlertService extends AlertBaseService {
 })
 class DropDownItemComponent {
   @Input() value!: string;
-  @Output() activate = new EventEmitter<void>();
+  @Output() activate = new EventEmitter<string>();
 
   constructor(private alert: AlertBaseService) {}
 
   public showDialog(): void {
     this.alert.show(`You clicked the option "${this.value}"`);
-    this.activate.emit();
+    this.activate.emit(this.value);
   }
 }
 
@@ -89,9 +90,11 @@ class DropDownComponent {
   }
   public open(): void {
     this.opened = true;
+    this.openedChange.emit(true);
   }
   public close(): void {
     this.opened = false;
+    this.openedChange.emit(false);
   }
 }
 
@@ -271,6 +274,22 @@ describe(
         .gets(clicked())
         .expect(the.ItemContainers)
         .to(haveCalled(injected(AlertBaseService), 'show'));
+    });
+
+    it('haveEmitted (registerable before first predicate)', () => {
+      When(host)
+        .does(call(componentMethod, 'open'))
+        .expect(host)
+        .to(haveEmitted('openedChange', { arg: true }));
+    });
+
+    it('haveEmitted (registerable after first predicate)', () => {
+      When(host)
+        .has(state({ items: ['a'], opened: true }))
+        .and(the.ItemContainers.first)
+        .gets(clicked())
+        .expect(the.Items.first)
+        .to(haveEmitted('activate', { arg: 'a' }));
     });
 
     it('should throw if a spy could not be placed correctly', () => {

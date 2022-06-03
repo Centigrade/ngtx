@@ -13,6 +13,18 @@ export type EventEmitterOf<Type> = {
   [P in keyof Type]: Type[P] extends { emit: Function } ? P : never;
 }[keyof Type];
 
+export interface CallBaseOptions {
+  /** The number of times the spy was called. */
+  times?: number | null;
+}
+
+export interface CallOptions extends CallBaseOptions {
+  /** The values that were passed as arguments to the spy. */
+  args?: any[];
+  /** The return-value that the spy should return when being called. */
+  whichReturns?: any;
+}
+
 /**
  * Defines options what aspects of a spy should be asserted.
  *
@@ -25,13 +37,8 @@ export type EventEmitterOf<Type> = {
  * });
  * ~~~
  */
-export interface EmissionOptions {
-  /** The values that were passed as arguments to the spy. */
-  args?: any[];
-  /** The number of times the spy was called. */
-  times?: number | null;
-  /** The return-value that the spy should return when being called. */
-  whichReturns?: any;
+export interface EmissionOptions extends CallBaseOptions {
+  arg?: any;
 }
 
 /** A function with no parameters returning a `NgtxElement`. */
