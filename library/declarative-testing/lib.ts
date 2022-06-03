@@ -154,6 +154,30 @@ export const state =
 //#endregion
 
 //#region assertion extensions
+export const beFound =
+  <Html extends HTMLElement, Component>(
+    opts: any = {},
+  ): ExtensionFn<Html, Component> =>
+  (targets, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const subjects = targets();
+
+      if (isAssertionNegated) {
+        if (opts?.count) {
+          expect(subjects.length).not.toBe(opts.count);
+        } else {
+          expect(subjects.length).not.toBeGreaterThan(0);
+        }
+      } else {
+        if (opts?.count) {
+          expect(subjects.length).toBe(opts.count);
+        } else {
+          expect(subjects.length).toBeGreaterThan(0);
+        }
+      }
+    });
+  };
+
 export const haveCalled =
   <Html extends HTMLElement, Component, Out>(
     resolver: ITargetResolver<Html, Component, Out>,
