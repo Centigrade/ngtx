@@ -279,10 +279,14 @@ export interface ClickOptions {
 //#endregion
 
 // -------------------------------------
-// Module internals
+// Module helper functions
 // -------------------------------------
 
-function assertEmission(spy: any, opts: EmissionOptions, negate?: boolean) {
+export function assertEmission(
+  spy: any,
+  opts: EmissionOptions,
+  negate?: boolean,
+) {
   if (negate) {
     expect(spy).not.toHaveBeenCalled();
 
