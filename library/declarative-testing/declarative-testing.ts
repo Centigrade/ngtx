@@ -13,7 +13,7 @@ import {
 } from './types';
 import { asMultiElement, scheduleFn } from './utility';
 
-export class TestEnv {
+export class NgtxTestEnv {
   private testState: DeclarativeTestState = {};
   private spyRegistry: SpyRegisterEntry[] = [];
 
@@ -109,7 +109,7 @@ export class TestEnv {
 
 export const createDeclarativeTestingApi = (
   fx: NgtxFixture<any, any>,
-  existingTestEnv?: TestEnv,
+  existingTestEnv?: NgtxTestEnv,
 ) => {
   let spyFactory: SpyFactoryFn | undefined;
 
@@ -119,9 +119,9 @@ export const createDeclarativeTestingApi = (
   >(
     target: TargetRef<Html, Type>,
   ) => {
-    const testEnv: TestEnv =
+    const testEnv: NgtxTestEnv =
       existingTestEnv ??
-      new TestEnv(spyFactory ?? NGTX_GLOBAL_CONFIG.defaultSpyFactory);
+      new NgtxTestEnv(spyFactory ?? NGTX_GLOBAL_CONFIG.defaultSpyFactory);
 
     const assertionsApi = <Html extends HTMLElement, Type>(
       target: TargetRef<Html, Type>,
