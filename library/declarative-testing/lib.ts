@@ -1,6 +1,5 @@
 import { NgtxElement } from '../entities';
 import { ExtensionFn } from './api';
-import { NgtxTestEnv } from './declarative-testing';
 import {
   CallBaseOptions,
   CallOptions,
@@ -8,7 +7,6 @@ import {
   Events,
   ITargetResolver,
   Maybe,
-  MultiPartRef,
   PropertyState,
   PublicApi,
   Token,
@@ -158,21 +156,20 @@ export const state =
 //#endregion
 
 //#region assertion extensions
-export const beMissing = <Html extends HTMLElement, Component>(
-  targets: MultiPartRef<Html, Component>,
-  { addAssertion, isAssertionNegated }: NgtxTestEnv,
-) => {
-  addAssertion(() => {
-    const subjects = targets();
-    const count = subjects?.length ?? 0;
+export const beMissing =
+  <Html extends HTMLElement, Component>(): ExtensionFn<Html, Component> =>
+  (targets, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const subjects = targets();
+      const count = subjects?.length ?? 0;
 
-    if (isAssertionNegated) {
-      expect(count).not.toBe(0);
-    } else {
-      expect(count).toBe(0);
-    }
-  });
-};
+      if (isAssertionNegated) {
+        expect(count).not.toBe(0);
+      } else {
+        expect(count).toBe(0);
+      }
+    });
+  };
 
 export const beFound =
   <Html extends HTMLElement, Component>(
