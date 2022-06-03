@@ -1,5 +1,5 @@
 import { NgtxFixture } from '../entities';
-import type { TestEnv } from './declarative-testing';
+import type { NgtxTestEnv } from './declarative-testing';
 import {
   Events,
   ISetSpyFactory,
@@ -48,7 +48,7 @@ type PredicateFn<Html extends HTMLElement, Component> = (
 
 export type ExtensionFn<Html extends HTMLElement, Component> = (
   target: MultiPartRef<Html, Component>,
-  env: TestEnv,
+  env: NgtxTestEnv,
   fixture: NgtxFixture<HTMLElement, any>,
 ) => void;
 
