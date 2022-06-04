@@ -155,11 +155,25 @@ describe(
         .to(haveText(['a', 'b']));
     });
 
+    it('haveText -> skip', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .expect(the.ItemContainers)
+        .to(haveText([undefined, 'b']));
+    });
+
     it('containText', () => {
       When(host)
         .has(state({ items: ['item a', 'item b'], opened: true }))
         .expect(the.ItemContainers)
         .to(containText(['a', 'b']));
+    });
+
+    it('containText -> skip', () => {
+      When(host)
+        .has(state({ items: ['item a', 'item b'], opened: true }))
+        .expect(the.ItemContainers)
+        .to(containText([undefined, 'b']));
     });
 
     it('emits', () => {
@@ -278,7 +292,7 @@ describe(
 
     it('haveEmitted (registerable before first predicate)', () => {
       When(host)
-        .does(call(componentMethod, 'open'))
+        .calls(componentMethod, 'open')
         .expect(host)
         .to(haveEmitted('openedChange', { arg: true }));
     });

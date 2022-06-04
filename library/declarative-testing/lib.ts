@@ -248,6 +248,9 @@ export const containText = (
       const subject = targets();
 
       asArray(texts).forEach((text, index) => {
+        // allow user to skip items via null or undefined
+        if (text == null) return;
+
         const element = subject.atIndex(index);
 
         if (isAssertionNegated) {
@@ -267,6 +270,9 @@ export const haveText = (
       const subject = targets();
 
       asArray(texts).forEach((text, index) => {
+        // allow user to skip items via null or undefined
+        if (text == null) return;
+
         const element = subject.atIndex(index);
 
         if (isAssertionNegated) {
