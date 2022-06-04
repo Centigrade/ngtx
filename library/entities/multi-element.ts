@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { NgtxEmptySet } from '../features/constants';
+import { NgtxEmptySet } from '../declarative-testing/constants';
 import { ConverterFn, QueryTarget } from '../types';
 import { NgtxElement } from './element';
 
@@ -7,11 +7,16 @@ export class NgtxMultiElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
 > {
+  private readonly elements: NgtxElement<Html, Component>[];
+
   public get length(): number {
     return this.elements.length;
   }
 
-  constructor(private readonly elements: NgtxElement<Html, Component>[]) {}
+  constructor(ngtxElements: NgtxElement<Html, Component>[]) {
+    // hint: the declarative api might put "null" as item, so ensure only defined items:
+    this.elements = ngtxElements.filter((element) => element != null);
+  }
 
   public get<Html extends HTMLElement, Component = any>(
     cssSelector: string,

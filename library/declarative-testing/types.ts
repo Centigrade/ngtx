@@ -2,8 +2,28 @@ import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../entities';
 import { SpyFactoryFn } from '../types';
 
+export type Maybe<T> = T | undefined | null;
 export type PropertyMap<T> = T & Record<keyof T, any>;
 export type Token<T> = Type<T> | Function;
+export type PropertyState<T> = Partial<PropertyMap<T>>;
+export type Events<Html extends HTMLElement, Type> =
+  | EventEmitterOf<Type>
+  | EventsOf<keyof Html>;
+export type EventEmitterOf<Type> = {
+  [P in keyof Type]: Type[P] extends { emit: Function } ? P : never;
+}[keyof Type];
+
+export interface CallBaseOptions {
+  /** The number of times the spy was called. */
+  times?: number | null;
+}
+
+export interface CallOptions extends CallBaseOptions {
+  /** The values that were passed as arguments to the spy. */
+  args?: any[];
+  /** The return-value that the spy should return when being called. */
+  whichReturns?: any;
+}
 
 /**
  * Defines options what aspects of a spy should be asserted.
@@ -17,13 +37,8 @@ export type Token<T> = Type<T> | Function;
  * });
  * ~~~
  */
-export interface EmissionOptions {
-  /** The values that were passed as arguments to the spy. */
-  args?: any[];
-  /** The number of times the spy was called. */
-  times?: number | null;
-  /** The return-value that the spy should return when being called. */
-  whichReturns?: any;
+export interface EmissionOptions extends CallBaseOptions {
+  arg?: any;
 }
 
 /** A function with no parameters returning a `NgtxElement`. */
@@ -36,6 +51,15 @@ export type MultiPartRef<
   Html extends HTMLElement,
   Type,
 > = () => NgtxMultiElement<Html, Type>;
+
+export type UnknownRef<Html extends HTMLElement, Type> = () =>
+  | NgtxElement<Html, Type>
+  | NgtxMultiElement<Html, Type>;
+
+export type TargetRef<Html extends HTMLElement, Type> =
+  | PartRef<Html, Type>
+  | MultiPartRef<Html, Type>
+  | UnknownRef<Html, Type>;
 
 export type EventsOf<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
@@ -53,25 +77,9 @@ export type EventsOf<T extends string | number | Symbol> =
  * This state can be mutated by setting a subject or object to a `PartRef`
  * or by overriding or wrapping the `predicate` or `assertion` function.
  */
-export interface DeclarativeTestState<
-  SubjectHtml extends HTMLElement,
-  Subject,
-  ObjectHtml extends HTMLElement,
-  Object,
-  SingleOrMulti extends
-    | PartRef<ObjectHtml, Object>
-    | MultiPartRef<ObjectHtml, Object>,
-> {
+export interface DeclarativeTestState {
   /** Whether the assertion is preceded by a ".not" and will be negated. */
   negateAssertion?: boolean;
-  /**
-   * The `subject` of the test case that *has* or *does* something.
-   * It will most likely be used in the `predicate` statement that
-   * follows the `When` clause.
-   *
-   * Set the `subject` in the test case for later use in the `predicate`.
-   */
-  subject?: PartRef<SubjectHtml, Subject>;
   /**
    * The `predicate` of the test case that describes what actions has to
    * be done, before assertions can be made. Override or wrap this function
@@ -98,13 +106,7 @@ export interface DeclarativeTestState<
    * When(host).is(disabled).expect(...).to(...);
    * ~~~
    */
-  predicate?: () => void;
-  /**
-   * The `object` of the test case that determines on what target assertions
-   * will be made. This part of the state will most likely be used in the
-   * `assertion` function to make assertions on it.
-   */
-  object?: SingleOrMulti;
+  predicate?: (() => void)[];
   /**
    * The `assertion` part of the test case. Override or wrap this function in
    * order to run expectations on the test's `object`. In traditional (AAA)
@@ -128,50 +130,39 @@ export interface DeclarativeTestState<
    * When(...).has(...).expect(Input).to(haveFocus);
    * ~~~
    */
-  assertion?: () => void;
+  assertion?: (() => void)[];
 }
 
-export type TargetResolverFn<
-  SubjectHtml extends HTMLElement,
-  Subject,
-  ObjectHtml extends HTMLElement,
-  Object,
-  T,
-> = (
-  state: DeclarativeTestState<
-    SubjectHtml,
-    Subject,
-    ObjectHtml,
-    Object,
-    PartRef<ObjectHtml, Object>
-  >,
-) => ITargetResolver<T>;
-export interface ITargetResolver<T> {
-  getInstance(): T;
+export interface SpyRegisterEntry {
+  done: boolean;
+  host: () => any;
+  methodName: string;
+  spy: any;
+}
+export type SpyOnFn = <T>(
+  host: () => T,
+  methodName: keyof PublicApi<T>,
+  spyReturnValue?: any,
+) => any;
+
+export type ITargetResolver<Html extends HTMLElement, Type, Output> = (
+  target: NgtxElement<Html, Type>,
+) => Output;
+export interface ISetSpyFactory {
+  setSpyFactory(fn: any): void;
 }
 
-export type DeclarativeTestExtension<
-  SubjectHtml extends HTMLElement,
-  Subject,
-  ObjectHtml extends HTMLElement,
-  Object,
-  SingleOrMulti extends
-    | PartRef<ObjectHtml, Object>
-    | MultiPartRef<ObjectHtml, Object>,
-> = (
-  input: DeclarativeTestState<
-    HTMLElement,
-    Subject,
-    ObjectHtml,
-    Object,
-    SingleOrMulti
-  >,
+export type DeclarativeTestExtension<Html extends HTMLElement, Type> = (
+  target: MultiPartRef<Html, Type>,
+  input: DeclarativeTestState,
   fixture: NgtxFixture<HTMLElement, any>,
   spyFactory: SpyFactoryFn,
-) => DeclarativeTestState<
-  SubjectHtml,
-  Subject,
-  ObjectHtml,
-  Object,
-  PartRef<ObjectHtml, Object>
->;
+) => DeclarativeTestState;
+
+type AllowType<Base, Type> = {
+  [Key in keyof Base]: Base[Key] extends Type ? Key : never;
+};
+type AllowedNames<Base, Type> = AllowType<Base, Type>[keyof Base];
+type OmitType<Base, Type> = Pick<Base, AllowedNames<Base, Type>>;
+export type PublicApi<T> = OmitType<T, Function>;
+export type PublicMembers<T> = OmitType<T, any>;
