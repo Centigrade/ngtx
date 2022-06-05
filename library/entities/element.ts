@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { NgtxTarget } from '../declarative-testing/api';
 import { NgtxEmptySet } from '../declarative-testing/constants';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
@@ -10,7 +11,12 @@ import { NgtxMultiElement } from './multi-element';
 export class NgtxElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
-> {
+> implements NgtxTarget<Html, Component>
+{
+  public get subjects(): NgtxElement<Html, Component>[] {
+    return [this];
+  }
+
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }

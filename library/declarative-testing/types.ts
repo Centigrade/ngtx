@@ -1,6 +1,7 @@
 import { Type } from '@angular/core';
-import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../entities';
+import { NgtxElement, NgtxFixture } from '../entities';
 import { SpyFactoryFn } from '../types';
+import { NgtxTarget } from './api';
 
 export type Maybe<T> = T | undefined | null;
 export type PropertyMap<T> = T & Record<keyof T, any>;
@@ -41,25 +42,10 @@ export interface EmissionOptions extends CallBaseOptions {
   arg?: any;
 }
 
-/** A function with no parameters returning a `NgtxElement`. */
-export type PartRef<Html extends HTMLElement, Type> = () => NgtxElement<
+export type TargetRef<Html extends HTMLElement, Type> = () => NgtxTarget<
   Html,
   Type
 >;
-
-export type MultiPartRef<
-  Html extends HTMLElement,
-  Type,
-> = () => NgtxMultiElement<Html, Type>;
-
-export type UnknownRef<Html extends HTMLElement, Type> = () =>
-  | NgtxElement<Html, Type>
-  | NgtxMultiElement<Html, Type>;
-
-export type TargetRef<Html extends HTMLElement, Type> =
-  | PartRef<Html, Type>
-  | MultiPartRef<Html, Type>
-  | UnknownRef<Html, Type>;
 
 export type EventsOf<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
@@ -153,7 +139,7 @@ export interface ISetSpyFactory {
 }
 
 export type DeclarativeTestExtension<Html extends HTMLElement, Type> = (
-  target: MultiPartRef<Html, Type>,
+  target: TargetRef<Html, Type>,
   input: DeclarativeTestState,
   fixture: NgtxFixture<HTMLElement, any>,
   spyFactory: SpyFactoryFn,

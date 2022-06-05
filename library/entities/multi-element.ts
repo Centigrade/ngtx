@@ -1,4 +1,5 @@
 import { Type } from '@angular/core';
+import { NgtxTarget } from '../declarative-testing/api';
 import { NgtxEmptySet } from '../declarative-testing/constants';
 import { ConverterFn, QueryTarget } from '../types';
 import { NgtxElement } from './element';
@@ -6,11 +7,17 @@ import { NgtxElement } from './element';
 export class NgtxMultiElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
-> {
+> implements NgtxTarget<Html, Component>
+{
   private readonly elements: NgtxElement<Html, Component>[];
 
   public get length(): number {
     return this.elements.length;
+  }
+
+  public get subjects(): NgtxElement<Html, Component>[] {
+    // hint: a single element can only have exactly one subject, so accessing subjects[0] is safe here:
+    return this.elements.map((element) => element);
   }
 
   constructor(ngtxElements: NgtxElement<Html, Component>[]) {

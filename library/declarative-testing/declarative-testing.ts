@@ -16,7 +16,7 @@ import {
   SpyRegisterEntry,
   TargetRef,
 } from './types';
-import { asMultiElement, scheduleFn } from './utility';
+import { scheduleFn } from './utility';
 
 export class NgtxTestEnv {
   private testState: DeclarativeTestState = {};
@@ -147,7 +147,7 @@ export const createDeclarativeTestingApi = (
     ) => ({
       to(...fns: ExtensionFn<Html, Type>[]) {
         fns.forEach((fn) => {
-          fn(() => asMultiElement(target), testEnv, fx);
+          fn(target, testEnv, fx);
         });
 
         testEnv.executeTest();
@@ -170,7 +170,7 @@ export const createDeclarativeTestingApi = (
 
     const addPredicate = (...fns: ExtensionFn<Html, Type>[]) => {
       fns.forEach((fn) => {
-        fn(() => asMultiElement(target), testEnv, fx);
+        fn(() => target(), testEnv, fx);
       });
 
       return expectationApi;
