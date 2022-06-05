@@ -1,7 +1,6 @@
 import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture } from '../entities';
 import { SpyFactoryFn } from '../types';
-import { NgtxTarget } from './api';
 
 export type Maybe<T> = T | undefined | null;
 export type PropertyMap<T> = T & Record<keyof T, any>;
@@ -42,10 +41,15 @@ export interface EmissionOptions extends CallBaseOptions {
   arg?: any;
 }
 
-export type TargetRef<Html extends HTMLElement, Type> = () => NgtxTarget<
-  Html,
-  Type
->;
+export type NgtxList<T> = T[] & {
+  nth(pos: number): T;
+  first(): T;
+  last(): T;
+};
+
+export type TargetRef<Html extends HTMLElement, Type> = () =>
+  | NgtxElement<Html, Type>
+  | NgtxElement<Html, Type>[];
 
 export type EventsOf<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
