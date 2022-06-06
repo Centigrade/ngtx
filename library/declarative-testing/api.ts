@@ -1,10 +1,9 @@
 import { NgtxElement, NgtxFixture } from '../entities';
-import type { NgtxTestEnv } from './test-env';
+import type { NgtxTestEnv } from './declarative-testing';
 import {
   Events,
   ISetSpyFactory,
   ITargetResolver,
-  NgtxList,
   PublicApi,
   TargetRef,
 } from './types';
@@ -35,7 +34,7 @@ import {
 export type ExtensionFnMarker = { __ngtxExtensionFn: true };
 
 export type ExtensionFnSignature<Html extends HTMLElement, Component> = (
-  target: () => NgtxList<NgtxElement<Html, Component>>,
+  target: TargetRef<Html, Component>,
   env: NgtxTestEnv,
   fixture: NgtxFixture<HTMLElement, any>,
 ) => void;
@@ -49,6 +48,10 @@ export type DeclarativeTestingApi = ISetSpyFactory &
   (<Html extends HTMLElement, Component>(
     subject: TargetRef<Html, Component>,
   ) => PredicateApi<Html, Component>);
+
+export interface NgtxTarget<Html extends HTMLElement, Component> {
+  get subjects(): NgtxElement<Html, Component>[];
+}
 
 export interface PredicateApi<Html extends HTMLElement, Component> {
   emit(eventName: Events<Html, Component>, arg?: any): ExpectApi;

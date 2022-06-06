@@ -1,5 +1,6 @@
 import { SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
+import { NgtxMultiElement } from '.';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
 import { NgtxElement } from './element';
 
@@ -125,16 +126,16 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
 
   public getAll<Html extends HTMLElement, Component = any>(
     cssSelector: string,
-  ): NgtxElement<Html, Component>[];
+  ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends HTMLElement, Component>(
     queryTarget: Type<Component>,
-  ): NgtxElement<Html, Component>[];
+  ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component>[],
-  ): NgtxElement<Html, Component>[];
+  ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
-  ): NgtxElement<Html, Component>[] {
+  ): NgtxMultiElement<Html, Component> {
     this.checkFixture();
 
     return this.root.getAll(queryTarget as any);

@@ -60,7 +60,7 @@ export const clicked = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets().forEach((subject) => {
+      targets().subjects.forEach((subject) => {
         const times = opts.times ?? 1;
 
         for (let i = 0; i < times; i++) {
@@ -85,7 +85,7 @@ export const call = <Html extends HTMLElement, Component, Out>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets().forEach((target) => {
+      targets().subjects.forEach((target) => {
         const token = resolver(target);
         const method = (token as any)[methodName] as Function;
         method.apply(token, ...args);
@@ -101,7 +101,7 @@ export const emit = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets().forEach((subject) => {
+      targets().subjects.forEach((subject) => {
         subject.triggerEvent(eventName as string, arg);
       });
 
@@ -114,7 +114,7 @@ export const attributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets();
+      const element = targets().subjects;
       const states = asArray(stateDef);
 
       checkAssertionsCountMatchesFoundElementCount(
@@ -124,7 +124,7 @@ export const attributes = <Html extends HTMLElement>(
       );
 
       states.forEach((state, index) => {
-        const subject = targets()[index];
+        const subject = targets().subjects[index];
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -141,13 +141,13 @@ export const state = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets();
+      const element = targets().subjects;
       const states = asArray(stateDef);
 
       checkAssertionsCountMatchesFoundElementCount('state', states, element);
 
       states.forEach((state, index) => {
-        const subject = targets()[index];
+        const subject = targets().subjects[index];
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -167,7 +167,7 @@ export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
 > =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets();
+      const subjects = targets()?.subjects;
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -183,7 +183,7 @@ export const beFound = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets();
+      const subjects = targets()?.subjects;
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -209,7 +209,7 @@ export const haveCalled = <Html extends HTMLElement, Component, Out>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
-      const subject = targets()?.first();
+      const subject = targets()?.subjects[0];
       return subject ? resolver(subject) : undefined!;
     };
 
@@ -223,9 +223,9 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { spyOn, addAssertion, isAssertionNegated }) => {
     const resolve = () => {
-      const subject = targets()?.first();
-      const component: any = subject?.componentInstance;
-      const nativeElement: any = subject?.nativeElement;
+      const subject = targets().subjects[0];
+      const component: any = subject.componentInstance;
+      const nativeElement: any = subject.nativeElement;
 
       if (typeof component[eventName]?.emit === 'function') {
         return component[eventName];
@@ -251,7 +251,7 @@ export const containText = (
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = subject[index];
+        const element = subject.subjects[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toContain(text);
@@ -273,7 +273,7 @@ export const haveText = (
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = target[index];
+        const element = target.subjects[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toEqual(text);
@@ -290,7 +290,7 @@ export const haveAttributes = <Html extends HTMLElement>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = targets();
+      const element = targets().subjects;
 
       checkAssertionsCountMatchesFoundElementCount(
         'haveAttributes',
@@ -321,7 +321,7 @@ export const haveState = <T>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = targets();
+      const element = targets().subjects;
 
       checkAssertionsCountMatchesFoundElementCount(
         'haveState',

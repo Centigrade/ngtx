@@ -38,17 +38,16 @@ export function allOrNth<Html extends HTMLElement, T = any>(
   };
 
   return Object.assign(doQuery, {
-    nth: (nth: number) => () => {
-      return doQuery()[nth - 1];
-    },
-    first: () => doQuery()[0],
-    last: () => {
-      const results = doQuery();
-      return results[results.length - 1];
-    },
-    atIndex: (index: number) => () => {
-      return doQuery()[index];
-    },
+    nth: (nth: number) =>
+      (() => {
+        return doQuery().nth(nth);
+      }) as TargetRef<Html, T>,
+    first: () => doQuery().first(),
+    last: () => doQuery().last(),
+    atIndex: (index: number) =>
+      (() => {
+        return doQuery().atIndex(index);
+      }) as TargetRef<Html, T>,
   }) as AllOrNthTarget<Html, T>;
 }
 

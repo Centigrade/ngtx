@@ -1,14 +1,22 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { NgtxTarget } from '../declarative-testing/api';
+import { NgtxEmptySet } from '../declarative-testing/constants';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
+import { NgtxMultiElement } from './multi-element';
 
 export class NgtxElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
-> {
+> implements NgtxTarget<Html, Component>
+{
+  public get subjects(): NgtxElement<Html, Component>[] {
+    return [this];
+  }
+
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
@@ -64,16 +72,16 @@ export class NgtxElement<
 
   public getAll<Html extends HTMLElement, Component = any>(
     cssSelector: string,
-  ): NgtxElement<Html, Component>[];
+  ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends HTMLElement, Component>(
     queryTarget: Type<Component>,
-  ): NgtxElement<Html, Component>[];
+  ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component>[],
-  ): NgtxElement<Html, Component>[];
+  ): NgtxMultiElement<Html, Component>;
   public getAll<Html extends HTMLElement, Component>(
     queryTarget: QueryTarget<Component> | QueryTarget<Component>[],
-  ): NgtxElement<Html, Component>[] {
+  ): NgtxMultiElement<Html, Component> {
     const results: NgtxElement<Html, Component>[] = [];
     const queries = Array.isArray(queryTarget) ? queryTarget : [queryTarget];
 
@@ -85,7 +93,9 @@ export class NgtxElement<
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();
-    return results.length > 0 ? removeDuplicates(results) : null!;
+    return results.length > 0
+      ? new NgtxMultiElement(removeDuplicates(results))
+      : (NgtxEmptySet as any);
   }
 
   /**
