@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { NgtxEmptySet } from '../../core/constants';
-import { ngtx } from '../../ngtx';
-import { Expect } from '../shared/expect';
-import { configureTestModule } from '../shared/util';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { NgtxEmptySet } from '../core/constants';
+import { ngtx } from '../ngtx';
+import { Expect } from './shared/expect';
 
 @Component({
   template: `
@@ -10,9 +11,9 @@ import { configureTestModule } from '../shared/util';
     <h2 class="headline">Sub Headline</h2>
 
     <app-list>
-      <app-list-item>Item 1</app-list-item>
-      <app-list-item>Item 2</app-list-item>
-      <app-list-item>
+      <app-list-item data-ngtx="test:item.1">Item 1</app-list-item>
+      <app-list-item data-ngtx="test:item.2">Item 2</app-list-item>
+      <app-list-item data-ngtx="test:item.3">
         <span>Item 3.1</span>
         <span>Item 3.2</span>
         <span>Item 3.3</span>
@@ -44,8 +45,17 @@ class NotExistingComponent {}
 describe(
   'Feature: NgtxElement.get',
   ngtx(({ useFixture, get }) => {
-    configureTestModule(GetTestComponent, useFixture, {
-      declarations: [ListComponent, ListItemComponent],
+    let fixture: ComponentFixture<GetTestComponent> = undefined!;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        declarations: [ListComponent, ListItemComponent, GetTestComponent],
+      }).compileComponents();
+    });
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(GetTestComponent);
+      useFixture(fixture);
     });
 
     it.each(['h1', '.headline'])(
@@ -67,6 +77,19 @@ describe(
         Expect.element(cmp).toBeComponent(componentType);
       },
     );
+
+    it('should get elements by ngtx attribute', () => {
+      // arrange, act
+      const all = fixture.debugElement.queryAll(By.css('[data-ngtx]'));
+      const first = get('ngtx_test:item.1');
+      const second = get('ngtx_test:item.2');
+      const withoutId = get('ngtx_test:item');
+
+      // assert
+      expect(first.debugElement).toEqual(all[0]);
+      expect(withoutId.debugElement).toEqual(all[0]);
+      expect(second.debugElement).toEqual(all[1]);
+    });
 
     it.each(['.not-existing', NotExistingComponent])(
       'should return null if nothing could be found',
@@ -113,8 +136,17 @@ describe(
 describe(
   'Feature: NgtxElement.getAll',
   ngtx(({ useFixture, getAll }) => {
-    configureTestModule(GetTestComponent, useFixture, {
-      declarations: [ListComponent, ListItemComponent],
+    let fixture: ComponentFixture<GetTestComponent> = undefined!;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        declarations: [ListComponent, ListItemComponent, GetTestComponent],
+      }).compileComponents();
+    });
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(GetTestComponent);
+      useFixture(fixture);
     });
 
     it('should get all elements by css selector ".headline"', () => {
@@ -132,6 +164,19 @@ describe(
       const result = getAll('.not-existing');
       // assert
       expect(result).toBe(NgtxEmptySet);
+    });
+
+    it('should get elements by ngtx attribute', () => {
+      // arrange, act
+      const all = fixture.debugElement.queryAll(By.css('[data-ngtx]'));
+      const first = getAll('ngtx_test:item.1');
+      const second = getAll('ngtx_test:item.2');
+      const withoutId = getAll('ngtx_test:item');
+
+      // assert
+      expect(first.first().debugElement).toEqual(all[0]);
+      expect(second.first().debugElement).toEqual(all[1]);
+      expect(withoutId.map((x) => x.debugElement)).toEqual(all);
     });
 
     it('should be chainable', () => {

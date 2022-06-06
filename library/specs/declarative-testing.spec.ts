@@ -6,7 +6,7 @@ import {
   Output,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { allOrNth } from '../../declarative-testing/harnesses';
+import { allOrNth } from '../declarative-testing/harnesses';
 import {
   and,
   attributes,
@@ -24,8 +24,8 @@ import {
   injected,
   nativeMethod,
   state,
-} from '../../declarative-testing/lib';
-import { ngtx } from '../../ngtx';
+} from '../declarative-testing/lib';
+import { ngtx } from '../ngtx';
 @Injectable()
 abstract class AlertBaseService {
   abstract show(msg: string): void;
