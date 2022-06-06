@@ -4,5 +4,4 @@ export {
   NgtxSuite,
   QueryTarget,
   SpyFactoryFn,
-  TypedDebugElement,
 } from './index';

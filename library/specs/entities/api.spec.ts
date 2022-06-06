@@ -1,4 +1,4 @@
-import { NgtxApi } from '../../entities/api';
+import { NgtxApi } from '../../core/api.decorator';
 
 describe('TestApi', () => {
   it('should auto-rename static methods', () => {

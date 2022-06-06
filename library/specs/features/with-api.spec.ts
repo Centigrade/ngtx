@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NgtxApi, NgtxElement, NgtxMultiElement } from '../../entities';
+import { NgtxApi, NgtxElement, NgtxMultiElement } from '../../core';
 import { ngtx } from '../../ngtx';
 import { Expect } from '../shared/expect';
 import { configureTestModule } from '../shared/util';

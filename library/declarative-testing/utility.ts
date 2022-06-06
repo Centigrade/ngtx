@@ -2,7 +2,7 @@ export function asArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
-export function checkAssertionsCountMatchesFoundElementCount(
+export function checkListsHaveSameSize(
   fnName: string,
   expectations: { length: number },
   matches: { length: number },

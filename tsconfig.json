@@ -7,6 +7,7 @@
     "allowSyntheticDefaultImports": true,
     "suppressImplicitAnyIndexErrors": true,
     "forceConsistentCasingInFileNames": true,
+    "removeComments": true,
     "sourceMap": true,
     "declaration": true,
     "importHelpers": true,
@@ -17,14 +18,14 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true
   },
-  "include": ["library"],
+  "include": ["library", "library/specs"],
   "exclude": [
     "node_modules",
     "dist",
     "setupAngularTestEnv.ts",
+    "library/specs",
     "library/**/*.spec.ts"
   ],
-  "files": ["library/index.ts"],
   "compileOnSave": false,
   "buildOnSave": false
 }

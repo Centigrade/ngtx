@@ -1,7 +1,13 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
-import { DeclarativeTestingApi } from '../declarative-testing/api';
-import { NgtxElement, NgtxFixture } from '../entities';
+import { NgtxElement, NgtxFixture } from '../core';
+import { DeclarativeTestingApi } from '../declarative-testing/types';
+
+export interface NgtxGlobalConfig {
+  defaultSpyFactory: SpyFactoryFn;
+}
+
+export type Maybe<T> = T | undefined | null;
 
 export type NgtxSuite<T> = Omit<
   NgtxFixture<any, any>,

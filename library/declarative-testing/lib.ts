@@ -1,21 +1,18 @@
-import { NgtxElement } from '../entities';
-import { ExtensionFn } from './api';
+import { NgtxElement } from '../core';
+import { Maybe } from '../types';
 import { createExtension } from './declarative-testing';
 import {
   CallBaseOptions,
   CallOptions,
   EmissionOptions,
   Events,
-  ITargetResolver,
-  Maybe,
+  ExtensionFn,
   PropertyState,
   PublicApi,
+  TargetResolver,
   Token,
 } from './types';
-import {
-  asArray,
-  checkAssertionsCountMatchesFoundElementCount,
-} from './utility';
+import { asArray, checkListsHaveSameSize } from './utility';
 
 //#region target resolvers
 export const componentMethod = <T>(element: NgtxElement<HTMLElement, T>) => {
@@ -79,7 +76,7 @@ export const clicked = <Html extends HTMLElement, Type>(
 
 //#region predicate extensions
 export const call = <Html extends HTMLElement, Component, Out>(
-  resolver: ITargetResolver<Html, Component, Out>,
+  resolver: TargetResolver<Html, Component, Out>,
   methodName: keyof PublicApi<Out>,
   args: any[] = [],
 ): ExtensionFn<Html, Component> =>
@@ -117,11 +114,7 @@ export const attributes = <Html extends HTMLElement>(
       const element = targets().subjects;
       const states = asArray(stateDef);
 
-      checkAssertionsCountMatchesFoundElementCount(
-        'attributes',
-        states,
-        element,
-      );
+      checkListsHaveSameSize('attributes', states, element);
 
       states.forEach((state, index) => {
         const subject = targets().subjects[index];
@@ -144,7 +137,7 @@ export const state = <T>(
       const element = targets().subjects;
       const states = asArray(stateDef);
 
-      checkAssertionsCountMatchesFoundElementCount('state', states, element);
+      checkListsHaveSameSize('state', states, element);
 
       states.forEach((state, index) => {
         const subject = targets().subjects[index];
@@ -203,7 +196,7 @@ export const beFound = <Html extends HTMLElement, Component>(
   });
 
 export const haveCalled = <Html extends HTMLElement, Component, Out>(
-  resolver: ITargetResolver<Html, Component, Out>,
+  resolver: TargetResolver<Html, Component, Out>,
   methodName: keyof PublicApi<Out>,
   opts: CallOptions = {},
 ): ExtensionFn<Html, Component> =>
@@ -245,13 +238,16 @@ export const containText = (
 ): ExtensionFn<HTMLElement, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subject = targets();
+      const target = targets();
+      const textArray = asArray(texts);
 
-      asArray(texts).forEach((text, index) => {
+      checkListsHaveSameSize('containText', textArray, target.subjects);
+
+      textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = subject.subjects[index];
+        const element = target.subjects[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toContain(text);
@@ -268,8 +264,11 @@ export const haveText = (
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const target = targets();
+      const textArray = asArray(texts);
 
-      asArray(texts).forEach((text, index) => {
+      checkListsHaveSameSize('haveText', textArray, target.subjects);
+
+      textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
@@ -292,11 +291,7 @@ export const haveAttributes = <Html extends HTMLElement>(
       const states = asArray(stateDef);
       const element = targets().subjects;
 
-      checkAssertionsCountMatchesFoundElementCount(
-        'haveAttributes',
-        states,
-        element,
-      );
+      checkListsHaveSameSize('haveAttributes', states, element);
 
       states.forEach((state, index) => {
         const subject = element[index];
@@ -323,11 +318,7 @@ export const haveState = <T>(
       const states = asArray(stateDef);
       const element = targets().subjects;
 
-      checkAssertionsCountMatchesFoundElementCount(
-        'haveState',
-        states,
-        element,
-      );
+      checkListsHaveSameSize('haveState', states, element);
 
       states.forEach((state, index) => {
         const subject = element[index];

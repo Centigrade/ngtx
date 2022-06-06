@@ -1,4 +1,4 @@
-import { asSelf } from '../converter';
+import { asSelf } from '../core/converter';
 import { Fn } from '../types';
 
 export function convert<T = any[], R = any>(

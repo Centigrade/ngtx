@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { NgtxElement } from '../../entities';
+import { NgtxElement } from '../../core';
 
 export class Expect {
   static element(ngtxElement: NgtxElement) {

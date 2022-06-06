@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ngtx } from '../..';
-import { NgtxEmptySet } from '../../declarative-testing/constants';
+import { NgtxEmptySet } from '../../core/constants';
+import { ngtx } from '../../ngtx';
 import { Expect } from '../shared/expect';
 import { configureTestModule } from '../shared/util';
 

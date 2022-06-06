@@ -1,6 +1,4 @@
-export * from './converter/public-api';
+export * from './core/public-api';
 export * from './declarative-testing/public-api';
-export * from './entities/public-api';
-export * from './init-features';
 export * from './ngtx';
 export * from './types/public-api';

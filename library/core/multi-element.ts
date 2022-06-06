@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
-import { NgtxTarget } from '../declarative-testing/api';
-import { NgtxEmptySet } from '../declarative-testing/constants';
+import { NgtxTarget } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget } from '../types';
+import { NgtxEmptySet } from './constants';
 import { NgtxElement } from './element';
 
 export class NgtxMultiElement<

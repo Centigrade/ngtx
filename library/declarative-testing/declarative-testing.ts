@@ -1,20 +1,18 @@
-import { NgtxFixture } from '../entities/fixture';
-import { NGTX_GLOBAL_CONFIG } from '../init-features';
+import { NgtxFixture } from '../core/fixture';
+import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { SpyFactoryFn } from '../types';
+import { call, emit } from './lib';
 import {
   DeclarativeTestingApi,
+  DeclarativeTestState,
+  Events,
   ExtensionFn,
   ExtensionFnMarker,
   ExtensionFnSignature,
-} from './api';
-import { call, emit } from './lib';
-import {
-  DeclarativeTestState,
-  Events,
-  ITargetResolver,
   PublicApi,
   SpyRegisterEntry,
   TargetRef,
+  TargetResolver,
 } from './types';
 import { scheduleFn } from './utility';
 
@@ -177,7 +175,7 @@ export const createDeclarativeTestingApi = (
     };
 
     const callFn = <Out>(
-      resolver: ITargetResolver<Html, Type, Out>,
+      resolver: TargetResolver<Html, Type, Out>,
       methodName: keyof PublicApi<Out>,
       args: any[] = [],
     ) => {

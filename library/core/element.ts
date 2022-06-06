@@ -1,11 +1,11 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { NgtxTarget } from '../declarative-testing/api';
-import { NgtxEmptySet } from '../declarative-testing/constants';
+import { NgtxTarget } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
+import { NgtxEmptySet } from './constants';
 import { NgtxMultiElement } from './multi-element';
 
 export class NgtxElement<

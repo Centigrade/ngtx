@@ -6,12 +6,18 @@ export {
 export { allOrNth } from './harnesses';
 export * from './lib';
 export {
+  AssertionApi,
   CallOptions,
-  DeclarativeTestExtension,
-  DeclarativeTestState,
+  DeclarativeTestingApi,
   EmissionOptions,
   Events,
-  ITargetResolver,
+  ExpectApi,
+  ExtensionFn,
+  ExtensionFnSignature,
+  NgtxTarget,
+  PredicateApi,
+  SpyOnFn,
   TargetRef,
+  TargetResolver as ITargetResolver,
   Token,
 } from './types';

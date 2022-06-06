@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { NgtxFixture } from '../entities';
+import { NgtxFixture } from '../core';
 import { QueryTarget } from '../types';
 import { TargetRef } from './types';
 
@@ -27,7 +27,7 @@ import { TargetRef } from './types';
  *
  * @param target The query-target to search for.
  * @param getAll The getAll function from your ngtx test-env.
- * @returns A function that either finds and returns all instances of a query-target, or - if a position was given - the nth item of the found instances.
+ * @returns A function that either finds and returns all instances of a query-target, or - if specified - a wanted item of the found instances.
  */
 export function allOrNth<Html extends HTMLElement, T = any>(
   target: QueryTarget<T>,

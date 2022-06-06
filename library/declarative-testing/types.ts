@@ -1,15 +1,117 @@
 import { Type } from '@angular/core';
-import { NgtxElement, NgtxFixture } from '../entities';
-import { SpyFactoryFn } from '../types';
-import { NgtxTarget } from './api';
+import { NgtxElement, NgtxFixture } from '../core';
+import type { NgtxTestEnv } from './declarative-testing';
 
-export type Maybe<T> = T | undefined | null;
-export type PropertyMap<T> = T & Record<keyof T, any>;
+//#region internal types
+type PredicateFn<Html extends HTMLElement, Component> = (
+  // hint: Required<Component> to normalize Component's type, so that extension-fns
+  // using "keyof Component" can safely use all of them, even keys being optional (e.g. age?: number).
+  ...predicates: ExtensionFn<Html, Required<Component>>[]
+) => ExpectApi;
+
+type PropertyMap<T> = T & Record<keyof T, any>;
+type AllowType<Base, Type> = {
+  [Key in keyof Base]: Base[Key] extends Type ? Key : never;
+};
+type AllowedNames<Base, Type> = AllowType<Base, Type>[keyof Base];
+type OmitType<Base, Type> = Pick<Base, AllowedNames<Base, Type>>;
+//#endregion
+
+/* 
+  We use ExtensionMarker type to uniquely mark user defined functions as extension functions.
+  This helps preventing confusing factory-functions creating the extension with the extension
+  itself.
+
+  Example:
+
+  Imagine we have the beMissing function factory like that
+  > const beMissing = () => (...) => { addAssertion(...) };
+
+  Now in the tests we use it:
+
+  > When(host)...expect(...).to(beMissing());
+
+  This code will work as expected and of course there are no typing issues. The problem
+  occurs when the user forgets to call the factory function like that:
+
+  > ...expect(...).to(beMissing);
+
+  In this code example typings still work, as () => is assignable to the ExtensionFn type.
+  To prevent this, we mark extension functions with a special symbol, so that typescript error
+  can show the mistake.
+*/
+export type ExtensionFnMarker = { __ngtxExtensionFn: true };
+export type ExtensionFnSignature<Html extends HTMLElement, Component> = (
+  target: TargetRef<Html, Component>,
+  env: NgtxTestEnv,
+  fixture: NgtxFixture<HTMLElement, any>,
+) => void;
+export type ExtensionFn<
+  Html extends HTMLElement,
+  Component,
+> = ExtensionFnSignature<Html, Component> & ExtensionFnMarker;
+
+export type TargetResolver<Html extends HTMLElement, Type, Output> = (
+  target: NgtxElement<Html, Type>,
+) => Output;
+
+export interface SpyFactorySetter {
+  setSpyFactory(fn: any): void;
+}
+
+export type DeclarativeTestingApi = SpyFactorySetter &
+  (<Html extends HTMLElement, Component>(
+    subject: TargetRef<Html, Component>,
+  ) => PredicateApi<Html, Component>);
+
+export interface NgtxTarget<Html extends HTMLElement, Component> {
+  get subjects(): NgtxElement<Html, Component>[];
+}
+
+export interface PredicateApi<Html extends HTMLElement, Component> {
+  emit(eventName: Events<Html, Component>, arg?: any): ExpectApi;
+  emits(eventName: Events<Html, Component>, arg?: any): ExpectApi;
+
+  call<Out>(
+    resolver: TargetResolver<Html, Component, Out>,
+    methodName: keyof PublicApi<Out>,
+    args?: any[],
+  ): ExpectApi;
+  calls<Out>(
+    resolver: TargetResolver<Html, Component, Out>,
+    methodName: keyof PublicApi<Out>,
+    args?: any[],
+  ): ExpectApi;
+
+  rendered(): ExpectApi;
+  has: PredicateFn<Html, Component>;
+  have: PredicateFn<Html, Component>;
+  does: PredicateFn<Html, Component>;
+  do: PredicateFn<Html, Component>;
+  gets: PredicateFn<Html, Component>;
+  get: PredicateFn<Html, Component>;
+  is: PredicateFn<Html, Component>;
+  are: PredicateFn<Html, Component>;
+}
+
+export interface ExpectApi {
+  and: DeclarativeTestingApi;
+  expect<Html extends HTMLElement, Component>(
+    object: TargetRef<Html, Component>,
+  ): AssertionApi<Html, Component>;
+}
+
+export interface AssertionApi<Html extends HTMLElement, Component> {
+  not: AssertionApi<Html, Component>;
+  to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
+}
+
 export type Token<T> = Type<T> | Function;
+
 export type PropertyState<T> = Partial<PropertyMap<T>>;
 export type Events<Html extends HTMLElement, Type> =
   | EventEmitterOf<Type>
-  | EventsOf<keyof Html>;
+  | HtmlEvents<keyof Html>;
 export type EventEmitterOf<Type> = {
   [P in keyof Type]: Type[P] extends { emit: Function } ? P : never;
 }[keyof Type];
@@ -47,7 +149,7 @@ export type TargetRef<Html extends HTMLElement, Type> = () => NgtxTarget<
   Type
 >;
 
-export type EventsOf<T extends string | number | Symbol> =
+export type HtmlEvents<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
 
 /**
@@ -131,24 +233,5 @@ export type SpyOnFn = <T>(
   spyReturnValue?: any,
 ) => any;
 
-export type ITargetResolver<Html extends HTMLElement, Type, Output> = (
-  target: NgtxElement<Html, Type>,
-) => Output;
-export interface ISetSpyFactory {
-  setSpyFactory(fn: any): void;
-}
-
-export type DeclarativeTestExtension<Html extends HTMLElement, Type> = (
-  target: TargetRef<Html, Type>,
-  input: DeclarativeTestState,
-  fixture: NgtxFixture<HTMLElement, any>,
-  spyFactory: SpyFactoryFn,
-) => DeclarativeTestState;
-
-type AllowType<Base, Type> = {
-  [Key in keyof Base]: Base[Key] extends Type ? Key : never;
-};
-type AllowedNames<Base, Type> = AllowType<Base, Type>[keyof Base];
-type OmitType<Base, Type> = Pick<Base, AllowedNames<Base, Type>>;
 export type PublicApi<T> = OmitType<T, Function>;
 export type PublicMembers<T> = OmitType<T, any>;
