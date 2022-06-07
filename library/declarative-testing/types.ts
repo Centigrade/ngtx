@@ -9,7 +9,6 @@ type PredicateFn<Html extends HTMLElement, Component> = (
   ...predicates: ExtensionFn<Html, Required<Component>>[]
 ) => ExpectApi<Html, Component>;
 
-type PropertyMap<T> = T & Record<keyof T, any>;
 type AllowType<Base, Type> = {
   [Key in keyof Base]: Base[Key] extends Type ? Key : never;
 };
@@ -120,7 +119,7 @@ export type IHaveLifeCycleHook = {
 };
 
 export type Token<T> = Type<T> | Function;
-export type PropertyState<T> = Partial<PropertyMap<T>>;
+export type PropertiesOf<T> = Partial<T & Record<keyof T, any>>;
 export type Events<Html extends HTMLElement, Type> =
   | EventEmitterOf<Type>
   | HtmlEvents<keyof Html>;

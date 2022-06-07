@@ -10,7 +10,7 @@ import {
   Events,
   ExtensionFn,
   IHaveLifeCycleHook,
-  PropertyState,
+  PropertiesOf,
   PublicApi,
   TargetResolver,
   Token,
@@ -148,7 +148,7 @@ export const emit = <Html extends HTMLElement, Type>(
   });
 
 export const attributes = <Html extends HTMLElement>(
-  stateDef: PropertyState<Html> | PropertyState<Html>[],
+  stateDef: PropertiesOf<Html> | PropertiesOf<Html>[],
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
@@ -171,7 +171,7 @@ export const attributes = <Html extends HTMLElement>(
   });
 
 export const state = <T>(
-  stateDef: PropertyState<T> | PropertyState<T>[],
+  stateDef: PropertiesOf<T> | PropertiesOf<T>[],
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
@@ -351,9 +351,9 @@ export const haveText = (
     });
   });
 
-export const haveAttributes = <Html extends HTMLElement>(
-  stateDef: PropertyState<Html> | PropertyState<Html>[],
-): ExtensionFn<Html, any> =>
+export const haveAttributes = <Html extends HTMLElement, Component>(
+  stateDef: PropertiesOf<Html> | PropertiesOf<Html>[],
+): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
@@ -379,7 +379,7 @@ export const haveAttributes = <Html extends HTMLElement>(
   });
 
 export const haveState = <T>(
-  stateDef: PropertyState<T> | PropertyState<T>[],
+  stateDef: PropertiesOf<T> | PropertiesOf<T>[],
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
@@ -418,7 +418,7 @@ export interface FindingOptions {
 
 export interface LifeCycleHookCalls<T> {
   ngOnInit?: boolean;
-  ngOnChanges?: boolean | PropertyState<T>;
+  ngOnChanges?: boolean | PropertiesOf<T>;
   ngAfterViewInit?: boolean;
   ngOnDestroy?: boolean;
 }
