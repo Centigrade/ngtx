@@ -121,11 +121,8 @@ export type IHaveLifeCycleHook = {
 export type Token<T> = Type<T> | Function;
 export type PropertiesOf<T> = Partial<T & Record<keyof T, any>>;
 export type Events<Html extends HTMLElement, Type> =
-  | EventEmitterOf<Type>
+  | keyof Type
   | HtmlEvents<keyof Html>;
-export type EventEmitterOf<Type> = {
-  [P in keyof Type]: Type[P] extends { emit: Function } ? P : never;
-}[keyof Type];
 
 export interface CallBaseOptions {
   /** The number of times the spy was called. */

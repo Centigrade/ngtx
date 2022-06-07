@@ -351,9 +351,9 @@ export const haveText = (
     });
   });
 
-export const haveAttributes = <Html extends HTMLElement, Component>(
+export const haveAttributes = <Html extends HTMLElement>(
   stateDef: PropertiesOf<Html> | PropertiesOf<Html>[],
-): ExtensionFn<Html, Component> =>
+): ExtensionFn<Html, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
