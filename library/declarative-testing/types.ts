@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture } from '../core';
-import type { NgtxTestEnv } from './declarative-testing';
+import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
 type PredicateFn<Html extends HTMLElement, Component> = (

@@ -1,10 +1,10 @@
 export {
   createDeclarativeTestingApi,
   createExtension,
-  NgtxTestEnv,
 } from './declarative-testing';
 export { allOrNth } from './harnesses';
 export * from './lib';
+export { NgtxTestEnv } from './test-env';
 export {
   AssertionApi,
   CallOptions,
