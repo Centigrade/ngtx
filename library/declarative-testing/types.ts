@@ -65,7 +65,7 @@ export type DeclarativeTestingApi = SpyFactorySetter &
   ) => PredicateApi<Html, Component>);
 
 export interface NgtxTarget<Html extends HTMLElement, Component> {
-  get subjects(): NgtxElement<Html, Component>[];
+  subjects: NgtxElement<Html, Component>[];
 }
 
 export interface PredicateApi<Html extends HTMLElement, Component> {
@@ -80,12 +80,12 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
 
   call<Out>(
     resolver: TargetResolver<Html, Component, Out>,
-    methodName: keyof PublicApi<Out>,
+    methodName: keyof Out,
     args?: any[],
   ): ExpectApi<Html, Component>;
   calls<Out>(
     resolver: TargetResolver<Html, Component, Out>,
-    methodName: keyof PublicApi<Out>,
+    methodName: keyof Out,
     args?: any[],
   ): ExpectApi<Html, Component>;
 
