@@ -2,6 +2,16 @@ export function asArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
+export function ensureArrayWithLength<T>(length: number, value: T | T[]): T[] {
+  const array = asArray(value);
+
+  if (array.length === length) {
+    return array;
+  }
+
+  return new Array(length).fill(array[0]);
+}
+
 export function checkListsHaveSameSize(
   fnName: string,
   expectations: { length: number },

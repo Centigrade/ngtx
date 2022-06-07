@@ -14,7 +14,11 @@ import {
   TargetResolver,
   Token,
 } from './types';
-import { asArray, checkListsHaveSameSize } from './utility';
+import {
+  asArray,
+  checkListsHaveSameSize,
+  ensureArrayWithLength,
+} from './utility';
 
 //#region target resolvers
 export const componentMethod = <T>(element: NgtxElement<HTMLElement, T>) => {
@@ -170,10 +174,9 @@ export const haveCssClass = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const classArray = asArray(cssClasses);
       const subjects = targets().subjects;
-
-      checkListsHaveSameSize('haveCssClass', classArray, subjects);
+      // hint: if single class is given as input, it will be expanded to be checked on all subjects:
+      const classArray = ensureArrayWithLength(subjects.length, cssClasses);
 
       classArray.forEach((cssClass, index) => {
         // hint: allow user to manually skip items by passing null or undefined

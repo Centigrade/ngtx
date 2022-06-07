@@ -173,6 +173,13 @@ describe(
         .to(haveCssClass([undefined, ['item', 'selected']]));
     });
 
+    it('haveCssClass -> single argument', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
+        .expect(the.Items)
+        .to(haveCssClass('item'));
+    });
+
     it('haveText', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
