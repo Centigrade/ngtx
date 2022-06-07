@@ -5,6 +5,7 @@ import { createExtension } from './declarative-testing';
 import {
   CallBaseOptions,
   CallOptions,
+  CssClass,
   EmissionOptions,
   Events,
   ExtensionFn,
@@ -164,6 +165,34 @@ export const state = <T>(
 //#endregion
 
 //#region assertion extensions
+export const haveCssClass = <Html extends HTMLElement, Component>(
+  cssClasses: CssClass | (CssClass | string[])[],
+): ExtensionFn<Html, Component> =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const classArray = asArray(cssClasses);
+      const subjects = targets().subjects;
+
+      checkListsHaveSameSize('haveCssClass', classArray, subjects);
+
+      classArray.forEach((cssClass, index) => {
+        // hint: allow user to manually skip items by passing null or undefined
+        if (cssClass == null) return;
+
+        const subject = subjects[index];
+        const classes = asArray(cssClass);
+
+        classes.forEach((className) => {
+          if (isAssertionNegated) {
+            expect(subject.nativeElement.classList).not.toContain(className);
+          } else {
+            expect(subject.nativeElement.classList).toContain(className);
+          }
+        });
+      });
+    });
+  });
+
 export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
   Html,
   Component

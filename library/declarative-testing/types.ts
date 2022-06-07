@@ -51,6 +51,7 @@ export type ExtensionFn<
   Component,
 > = ExtensionFnSignature<Html, Component> & ExtensionFnMarker;
 
+export type CssClass = string | undefined;
 export type TargetResolver<Html extends HTMLElement, Type, Output> = (
   target: NgtxElement<Html, Type>,
 ) => Output;

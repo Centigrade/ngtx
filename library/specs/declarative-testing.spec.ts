@@ -18,6 +18,7 @@ import {
   containText,
   haveAttributes,
   haveCalled,
+  haveCssClass,
   haveEmitted,
   haveState,
   haveText,
@@ -71,6 +72,8 @@ class DropDownItemComponent {
     <section *ngIf="opened" data-ngtx="dropdown:item-container">
       <app-dropdown-item
         *ngFor="let item of items"
+        class="item"
+        [class.selected]="item === value"
         [value]="item"
         (activate)="value = item"
       >
@@ -154,6 +157,20 @@ describe(
         .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
         .expect(the.ItemContainers)
         .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
+    });
+
+    it('haveCssClass', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
+        .expect(the.Items)
+        .to(haveCssClass(['item', ['item', 'selected']]));
+    });
+
+    it('haveCssClass -> skip', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
+        .expect(the.Items)
+        .to(haveCssClass([undefined, ['item', 'selected']]));
     });
 
     it('haveText', () => {
