@@ -43,7 +43,20 @@ export const createDeclarativeTestingApi = (
     });
 
     const expectationApi = {
-      and: createDeclarativeTestingApi(fx, testEnv),
+      and: <Html extends HTMLElement, Type>(
+        first: TargetRef<Html, Type> | ExtensionFn<Html, Type>,
+        ...others: any[]
+      ) => {
+        const isExtensionFn = isExtension<Html, Type>(first);
+
+        if (isExtensionFn) {
+          return addPredicate(...[first, ...others]);
+        } else {
+          return (
+            createDeclarativeTestingApi(fx, testEnv) as DeclarativeTestingApi
+          )(first);
+        }
+      },
       expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
         return Object.assign({}, assertionsApi(target), {
           not: new Proxy(expectationApi, {
@@ -105,3 +118,9 @@ export const createExtension = <Html extends HTMLElement, Component>(
   const marker: ExtensionFnMarker = { __ngtxExtensionFn: true };
   return Object.assign(fn, marker);
 };
+
+function isExtension<Html extends HTMLElement, Type>(
+  value: TargetRef<Html, Type> | ExtensionFn<Html, Type>,
+): value is ExtensionFn<Html, Type> {
+  return (value as ExtensionFn<Html, Type>).__ngtxExtensionFn === true;
+}

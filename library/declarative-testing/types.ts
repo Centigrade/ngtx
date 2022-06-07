@@ -7,7 +7,7 @@ type PredicateFn<Html extends HTMLElement, Component> = (
   // hint: Required<Component> to normalize Component's type, so that extension-fns
   // using "keyof Component" can safely use all of them, even keys being optional (e.g. age?: number).
   ...predicates: ExtensionFn<Html, Required<Component>>[]
-) => ExpectApi;
+) => ExpectApi<Html, Component>;
 
 type PropertyMap<T> = T & Record<keyof T, any>;
 type AllowType<Base, Type> = {
@@ -69,21 +69,27 @@ export interface NgtxTarget<Html extends HTMLElement, Component> {
 }
 
 export interface PredicateApi<Html extends HTMLElement, Component> {
-  emit(eventName: Events<Html, Component>, arg?: any): ExpectApi;
-  emits(eventName: Events<Html, Component>, arg?: any): ExpectApi;
+  emit(
+    eventName: Events<Html, Component>,
+    arg?: any,
+  ): ExpectApi<Html, Component>;
+  emits(
+    eventName: Events<Html, Component>,
+    arg?: any,
+  ): ExpectApi<Html, Component>;
 
   call<Out>(
     resolver: TargetResolver<Html, Component, Out>,
     methodName: keyof PublicApi<Out>,
     args?: any[],
-  ): ExpectApi;
+  ): ExpectApi<Html, Component>;
   calls<Out>(
     resolver: TargetResolver<Html, Component, Out>,
     methodName: keyof PublicApi<Out>,
     args?: any[],
-  ): ExpectApi;
+  ): ExpectApi<Html, Component>;
 
-  rendered(): ExpectApi;
+  rendered(): ExpectApi<Html, Component>;
   has: PredicateFn<Html, Component>;
   have: PredicateFn<Html, Component>;
   does: PredicateFn<Html, Component>;
@@ -94,8 +100,8 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
   are: PredicateFn<Html, Component>;
 }
 
-export interface ExpectApi {
-  and: DeclarativeTestingApi;
+export interface ExpectApi<Html extends HTMLElement, Component> {
+  and: DeclarativeTestingApi & PredicateFn<Html, Component>;
   expect<Html extends HTMLElement, Component>(
     object: TargetRef<Html, Component>,
   ): AssertionApi<Html, Component>;

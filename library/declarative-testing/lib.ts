@@ -1,3 +1,4 @@
+import { tick } from '@angular/core/testing';
 import { NgtxElement } from '../core';
 import { Maybe } from '../types';
 import { createExtension } from './declarative-testing';
@@ -75,6 +76,15 @@ export const clicked = <Html extends HTMLElement, Type>(
 //#endregion
 
 //#region predicate extensions
+export const waitFakeAsync = (durationOrMs: 'animationFrame' | number = 0) =>
+  createExtension((targets, { addPredicate }, fx) => {
+    addPredicate(() => {
+      const duration = durationOrMs === 'animationFrame' ? 16 : durationOrMs;
+      tick(duration);
+      fx.detectChanges();
+    });
+  });
+
 export const call = <Html extends HTMLElement, Component, Out>(
   resolver: TargetResolver<Html, Component, Out>,
   methodName: keyof PublicApi<Out>,

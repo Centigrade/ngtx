@@ -132,6 +132,14 @@ describe(
       }
     }
 
+    it('and(...extensions)', () => {
+      When(host)
+        .rendered()
+        .and(state({ items: ['a', 'b', 'c'], opened: true }))
+        .expect(the.Items)
+        .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
+    });
+
     it('state -> haveState', () => {
       When(host)
         .has(state({ items: ['a', 'b', 'c'], opened: true }))
