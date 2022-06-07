@@ -9,6 +9,7 @@ import {
   EmissionOptions,
   Events,
   ExtensionFn,
+  IHaveLifeCycleHook,
   PropertyState,
   PublicApi,
   TargetResolver,
@@ -81,6 +82,31 @@ export const clicked = <Html extends HTMLElement, Type>(
 //#endregion
 
 //#region predicate extensions
+export const callLifeCycleHook = <Html extends HTMLElement, Component>(
+  hooks: LifeCycleHookCalls<Component>,
+): ExtensionFn<Html, Component> =>
+  createExtension((targets, { addPredicate }) => {
+    addPredicate(() => {
+      targets().subjects.forEach((subject) => {
+        const host = subject.componentInstance as unknown as IHaveLifeCycleHook;
+
+        if (hooks.ngOnChanges) {
+          const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
+          host.ngOnChanges!(args);
+        }
+        if (hooks.ngOnInit) {
+          host.ngOnInit!();
+        }
+        if (hooks.ngAfterViewInit) {
+          host.ngAfterViewInit!();
+        }
+        if (hooks.ngOnDestroy) {
+          host.ngOnDestroy!();
+        }
+      });
+    });
+  });
+
 export const waitFakeAsync = (durationOrMs: 'animationFrame' | number = 0) =>
   createExtension((targets, { addPredicate }, fx) => {
     addPredicate(() => {
@@ -390,6 +416,12 @@ export interface FindingOptions {
   count?: number;
 }
 
+export interface LifeCycleHookCalls<T> {
+  ngOnInit?: boolean;
+  ngOnChanges?: boolean | PropertyState<T>;
+  ngAfterViewInit?: boolean;
+  ngOnDestroy?: boolean;
+}
 //#endregion
 
 // -------------------------------------

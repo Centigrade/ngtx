@@ -13,6 +13,7 @@ import {
   beFound,
   beMissing,
   call,
+  callLifeCycleHook,
   clicked,
   componentMethod,
   containText,
@@ -88,6 +89,11 @@ class DropDownComponent {
   @Input() opened = false;
   @Output() openedChange = new EventEmitter<boolean>();
 
+  ngOnInit = jest.fn();
+  ngOnDestroy = jest.fn();
+  ngAfterViewInit = jest.fn();
+  ngOnChanges = jest.fn();
+
   public toggle(): void {
     this.opened = !this.opened;
   }
@@ -141,6 +147,28 @@ describe(
         .and(state({ items: ['a', 'b', 'c'], opened: true }))
         .expect(the.Items)
         .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
+    });
+
+    it('callLifeCycleHook', () => {
+      When(host)
+        .rendered()
+        .and(
+          callLifeCycleHook({
+            ngOnInit: true,
+            ngOnChanges: {
+              value: 42,
+            },
+            ngAfterViewInit: true,
+            ngOnDestroy: true,
+          }),
+        )
+        .expect(host)
+        .to(
+          haveCalled(componentMethod, 'ngOnInit'),
+          haveCalled(componentMethod, 'ngOnChanges', { args: [{ value: 42 }] }),
+          haveCalled(componentMethod, 'ngAfterViewInit'),
+          haveCalled(componentMethod, 'ngOnDestroy'),
+        );
     });
 
     it('state -> haveState', () => {

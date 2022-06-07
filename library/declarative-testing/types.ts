@@ -112,9 +112,14 @@ export interface AssertionApi<Html extends HTMLElement, Component> {
   not: AssertionApi<Html, Component>;
   to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
 }
+export type IHaveLifeCycleHook = {
+  ngAfterViewInit?: Function;
+  ngOnInit?: Function;
+  ngOnChanges?: Function;
+  ngOnDestroy?: Function;
+};
 
 export type Token<T> = Type<T> | Function;
-
 export type PropertyState<T> = Partial<PropertyMap<T>>;
 export type Events<Html extends HTMLElement, Type> =
   | EventEmitterOf<Type>
