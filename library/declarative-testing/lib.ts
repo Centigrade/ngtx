@@ -7,6 +7,7 @@ import {
   CallOptions,
   CssClass,
   EmissionOptions,
+  EventResolver,
   Events,
   ExtensionFn,
   IHaveLifeCycleHook,
@@ -21,6 +22,13 @@ import {
 } from './utility';
 
 //#region target resolvers
+export const nativeEvent =
+  <Html extends HTMLElement>(eventName: Events<Html, unknown>) =>
+  (subject: NgtxElement<Html, any>, eventType?: Event) => {
+    const event = eventType ?? new Event(eventName);
+    subject.nativeElement.dispatchEvent(event);
+  };
+
 export const componentMethod = <T>(element: NgtxElement<HTMLElement, T>) => {
   return element.componentInstance;
 };
@@ -140,7 +148,7 @@ export const call = <Html extends HTMLElement, Component, Out>(
   });
 
 export const emit = <Html extends HTMLElement, Type>(
-  eventName: Events<Html, Type>,
+  eventNameOrResolver: Events<Html, Type> | EventResolver,
   arg?: any,
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
@@ -148,7 +156,11 @@ export const emit = <Html extends HTMLElement, Type>(
       targets()
         .subjects()
         .forEach((subject) => {
-          subject.triggerEvent(eventName as string, arg);
+          if (typeof eventNameOrResolver === 'function') {
+            eventNameOrResolver(subject);
+          } else {
+            subject.triggerEvent(eventNameOrResolver as string, arg);
+          }
         });
 
       fixture.detectChanges();
@@ -283,7 +295,7 @@ export const haveCalled = <Html extends HTMLElement, Component, Out>(
     };
 
     const spy = spyOn(resolveTarget, methodName, opts.whichReturns);
-    addAssertion(() => assertEmission(spy, opts, isAssertionNegated));
+    addAssertion(() => assertCall(spy, opts, isAssertionNegated));
   });
 
 export const haveEmitted = <Html extends HTMLElement, Component>(

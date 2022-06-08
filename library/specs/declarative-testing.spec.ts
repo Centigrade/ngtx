@@ -24,6 +24,7 @@ import {
   haveState,
   haveText,
   injected,
+  nativeEvent,
   nativeMethod,
   state,
 } from '../declarative-testing/lib';
@@ -249,6 +250,13 @@ describe(
         .emits('activate')
         .expect(host)
         .to(haveState({ value: 'b' }));
+    });
+
+    it('emits -> nativeEvent', () => {
+      When(the.Toggle)
+        .emits(nativeEvent<HTMLElement>('click'))
+        .expect(host)
+        .to(haveCalled(componentMethod, 'toggle'));
     });
 
     it('beFound', () => {

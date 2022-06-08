@@ -68,26 +68,26 @@ export interface NgtxTarget<Html extends HTMLElement, Component> {
   subjects(): NgtxElement<Html, Component>[];
 }
 
-export interface PredicateApi<Html extends HTMLElement, Component> {
-  emit(
-    eventName: Events<Html, Component>,
-    arg?: any,
-  ): ExpectApi<Html, Component>;
-  emits(
-    eventName: Events<Html, Component>,
-    arg?: any,
-  ): ExpectApi<Html, Component>;
+export type EventResolver = <Html extends HTMLElement, Component>(
+  subject: NgtxElement<Html, Component>,
+) => void;
 
-  call<Out>(
-    resolver: TargetResolver<Html, Component, Out>,
-    methodName: keyof Out,
-    args?: any[],
-  ): ExpectApi<Html, Component>;
-  calls<Out>(
-    resolver: TargetResolver<Html, Component, Out>,
-    methodName: keyof Out,
-    args?: any[],
-  ): ExpectApi<Html, Component>;
+interface EmitPredicate<Html extends HTMLElement, Component> {
+  (resolver: EventResolver, arg?: any): ExpectApi<Html, Component>;
+  (eventName: Events<Html, Component>, arg?: any): ExpectApi<Html, Component>;
+}
+type CallPredicate<Html extends HTMLElement, Component> = <Out>(
+  resolver: TargetResolver<Html, Component, Out>,
+  methodName: keyof Out,
+  args?: any[],
+) => ExpectApi<Html, Component>;
+
+export interface PredicateApi<Html extends HTMLElement, Component> {
+  emit: EmitPredicate<Html, Component>;
+  emits: EmitPredicate<Html, Component>;
+
+  call: CallPredicate<Html, Component>;
+  calls: CallPredicate<Html, Component>;
 
   rendered(): ExpectApi<Html, Component>;
   has: PredicateFn<Html, Component>;
