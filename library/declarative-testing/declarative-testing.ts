@@ -9,7 +9,6 @@ import {
   ExtensionFn,
   ExtensionFnMarker,
   ExtensionFnSignature,
-  PublicApi,
   TargetRef,
   TargetResolver,
 } from './types';
@@ -79,7 +78,7 @@ export const createDeclarativeTestingApi = (
 
     const callFn = <Out>(
       resolver: TargetResolver<Html, Type, Out>,
-      methodName: keyof PublicApi<Out>,
+      methodName: keyof Out,
       args: any[] = [],
     ) => {
       return addPredicate(call(resolver, methodName, args));

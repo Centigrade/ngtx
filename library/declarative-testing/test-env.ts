@@ -1,5 +1,5 @@
 import { SpyFactoryFn } from '../types';
-import { DeclarativeTestState, PublicApi, SpyRegisterEntry } from './types';
+import { DeclarativeTestState, SpyRegisterEntry } from './types';
 import { scheduleFn } from './utility';
 
 export class NgtxTestEnv {
@@ -15,7 +15,7 @@ export class NgtxTestEnv {
   public spyOn = <T>(
     host: () => T,
     // TODO: remove magic string!
-    methodName: keyof PublicApi<T> | 'ngtx:spyEvent',
+    methodName: keyof T | 'ngtx:spyEvent',
     returnValue?: any,
   ) => {
     const spy = this.spyFactory(returnValue);

@@ -65,7 +65,7 @@ export type DeclarativeTestingApi = SpyFactorySetter &
   ) => PredicateApi<Html, Component>);
 
 export interface NgtxTarget<Html extends HTMLElement, Component> {
-  subjects: NgtxElement<Html, Component>[];
+  subjects(): NgtxElement<Html, Component>[];
 }
 
 export interface PredicateApi<Html extends HTMLElement, Component> {
@@ -237,7 +237,7 @@ export interface SpyRegisterEntry {
 }
 export type SpyOnFn = <T>(
   host: () => T,
-  methodName: keyof PublicApi<T>,
+  methodName: keyof T,
   spyReturnValue?: any,
 ) => any;
 

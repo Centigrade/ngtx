@@ -13,7 +13,7 @@ export class NgtxElement<
   Component = any,
 > implements NgtxTarget<Html, Component>
 {
-  public get subjects(): NgtxElement<Html, Component>[] {
+  public subjects(): NgtxElement<Html, Component>[] {
     return [this];
   }
 

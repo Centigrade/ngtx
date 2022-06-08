@@ -11,7 +11,6 @@ import {
   ExtensionFn,
   IHaveLifeCycleHook,
   PropertiesOf,
-  PublicApi,
   TargetResolver,
   Token,
 } from './types';
@@ -64,17 +63,19 @@ export const clicked = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets().subjects.forEach((subject) => {
-        const times = opts.times ?? 1;
+      targets()
+        .subjects()
+        .forEach((subject) => {
+          const times = opts.times ?? 1;
 
-        for (let i = 0; i < times; i++) {
-          if (opts.nativeClick) {
-            subject.nativeElement.click();
-          } else {
-            subject.triggerEvent('click');
+          for (let i = 0; i < times; i++) {
+            if (opts.nativeClick) {
+              subject.nativeElement.click();
+            } else {
+              subject.triggerEvent('click');
+            }
           }
-        }
-      });
+        });
 
       fixture.detectChanges();
     });
@@ -87,23 +88,26 @@ export const callLifeCycleHook = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addPredicate }) => {
     addPredicate(() => {
-      targets().subjects.forEach((subject) => {
-        const host = subject.componentInstance as unknown as IHaveLifeCycleHook;
+      targets()
+        .subjects()
+        .forEach((subject) => {
+          const host =
+            subject.componentInstance as unknown as IHaveLifeCycleHook;
 
-        if (hooks.ngOnChanges) {
-          const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
-          host.ngOnChanges!(args);
-        }
-        if (hooks.ngOnInit) {
-          host.ngOnInit!();
-        }
-        if (hooks.ngAfterViewInit) {
-          host.ngAfterViewInit!();
-        }
-        if (hooks.ngOnDestroy) {
-          host.ngOnDestroy!();
-        }
-      });
+          if (hooks.ngOnChanges) {
+            const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
+            host.ngOnChanges!(args);
+          }
+          if (hooks.ngOnInit) {
+            host.ngOnInit!();
+          }
+          if (hooks.ngAfterViewInit) {
+            host.ngAfterViewInit!();
+          }
+          if (hooks.ngOnDestroy) {
+            host.ngOnDestroy!();
+          }
+        });
     });
   });
 
@@ -118,16 +122,18 @@ export const waitFakeAsync = (durationOrMs: 'animationFrame' | number = 0) =>
 
 export const call = <Html extends HTMLElement, Component, Out>(
   resolver: TargetResolver<Html, Component, Out>,
-  methodName: keyof PublicApi<Out>,
+  methodName: keyof Out,
   args: any[] = [],
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets().subjects.forEach((target) => {
-        const token = resolver(target);
-        const method = (token as any)[methodName] as Function;
-        method.apply(token, ...args);
-      });
+      targets()
+        .subjects()
+        .forEach((target) => {
+          const token = resolver(target);
+          const method = (token as any)[methodName] as Function;
+          method.apply(token, ...args);
+        });
 
       fixture.detectChanges();
     });
@@ -139,9 +145,11 @@ export const emit = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets().subjects.forEach((subject) => {
-        subject.triggerEvent(eventName as string, arg);
-      });
+      targets()
+        .subjects()
+        .forEach((subject) => {
+          subject.triggerEvent(eventName as string, arg);
+        });
 
       fixture.detectChanges();
     });
@@ -152,13 +160,13 @@ export const attributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets().subjects;
+      const element = targets().subjects();
       const states = asArray(stateDef);
 
       checkListsHaveSameSize('attributes', states, element);
 
       states.forEach((state, index) => {
-        const subject = targets().subjects[index];
+        const subject = targets().subjects()[index];
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -175,13 +183,13 @@ export const state = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets().subjects;
+      const element = targets().subjects();
       const states = asArray(stateDef);
 
       checkListsHaveSameSize('state', states, element);
 
       states.forEach((state, index) => {
-        const subject = targets().subjects[index];
+        const subject = element[index];
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -200,7 +208,7 @@ export const haveCssClass = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets().subjects;
+      const subjects = targets().subjects();
       // hint: if single class is given as input, it will be expanded to be checked on all subjects:
       const classArray = ensureArrayWithLength(subjects.length, cssClasses);
 
@@ -228,7 +236,7 @@ export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
 > =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets()?.subjects;
+      const subjects = targets()?.subjects?.();
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -244,7 +252,7 @@ export const beFound = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets()?.subjects;
+      const subjects = targets()?.subjects?.();
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -265,12 +273,12 @@ export const beFound = <Html extends HTMLElement, Component>(
 
 export const haveCalled = <Html extends HTMLElement, Component, Out>(
   resolver: TargetResolver<Html, Component, Out>,
-  methodName: keyof PublicApi<Out>,
+  methodName: keyof Out,
   opts: CallOptions = {},
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
-      const subject = targets()?.subjects[0];
+      const subject = targets()?.subjects()[0];
       return subject ? resolver(subject) : undefined!;
     };
 
@@ -284,7 +292,7 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { spyOn, addAssertion, isAssertionNegated }) => {
     const resolve = () => {
-      const subject = targets().subjects[0];
+      const subject = targets().subjects()[0];
       const component: any = subject.componentInstance;
       const nativeElement: any = subject.nativeElement;
 
@@ -309,13 +317,13 @@ export const containText = (
       const target = targets();
       const textArray = asArray(texts);
 
-      checkListsHaveSameSize('containText', textArray, target.subjects);
+      checkListsHaveSameSize('containText', textArray, target.subjects());
 
       textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = target.subjects[index];
+        const element = target.subjects()[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toContain(text);
@@ -334,13 +342,13 @@ export const haveText = (
       const target = targets();
       const textArray = asArray(texts);
 
-      checkListsHaveSameSize('haveText', textArray, target.subjects);
+      checkListsHaveSameSize('haveText', textArray, target.subjects());
 
       textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = target.subjects[index];
+        const element = target.subjects()[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toEqual(text);
@@ -357,7 +365,7 @@ export const haveAttributes = <Html extends HTMLElement>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = targets().subjects;
+      const element = targets().subjects();
 
       checkListsHaveSameSize('haveAttributes', states, element);
 
@@ -384,7 +392,7 @@ export const haveState = <T>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = targets().subjects;
+      const element = targets().subjects();
 
       checkListsHaveSameSize('haveState', states, element);
 
