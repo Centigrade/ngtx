@@ -186,6 +186,13 @@ describe(
         .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
     });
 
+    it('state -> haveState (function)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b', 'c'], opened: true }))
+        .expect(the.Items)
+        .to(haveState((index) => ({ value: 'abc'[index] })));
+    });
+
     it('attributes -> haveAttributes (single)', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
@@ -202,6 +209,15 @@ describe(
         .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
         .expect(the.ItemContainers)
         .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
+    });
+
+    it('attributes -> haveAttributes (function)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .and(the.ItemContainers)
+        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
+        .expect(the.ItemContainers)
+        .to(haveAttributes((index) => ({ title: 'title ' + 'ab'[index] })));
     });
 
     it('haveCssClass', () => {

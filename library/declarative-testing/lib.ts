@@ -368,7 +368,10 @@ export const haveText = (
   });
 
 export const haveAttributes = <Html extends HTMLElement>(
-  stateDef: PropertiesOf<Html> | PropertiesOf<Html>[],
+  stateDef:
+    | PropertiesOf<Html>
+    | PropertiesOf<Html>[]
+    | ((index: number) => PropertiesOf<Html>),
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
@@ -377,7 +380,9 @@ export const haveAttributes = <Html extends HTMLElement>(
 
       states.forEach((state, index) => {
         const subject = element[index];
-        const props = Object.entries(state) as [string, any][];
+        const resolvedState =
+          typeof state === 'function' ? state(index) : state;
+        const props = Object.entries(resolvedState) as [string, any][];
 
         props.forEach(([key, value]) => {
           const property = subject.nativeElement[key];
@@ -393,7 +398,10 @@ export const haveAttributes = <Html extends HTMLElement>(
   });
 
 export const haveState = <T>(
-  stateDef: PropertiesOf<T> | PropertiesOf<T>[],
+  stateDef:
+    | PropertiesOf<T>
+    | PropertiesOf<T>[]
+    | ((index: number) => PropertiesOf<T>),
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
@@ -402,7 +410,9 @@ export const haveState = <T>(
 
       states.forEach((state, index) => {
         const subject = element[index];
-        const props = Object.entries(state) as [string, any][];
+        const resolvedState =
+          typeof state === 'function' ? state(index) : state;
+        const props = Object.entries(resolvedState) as [string, any][];
 
         props.forEach(([key, value]) => {
           const property = subject.componentInstance[key];
