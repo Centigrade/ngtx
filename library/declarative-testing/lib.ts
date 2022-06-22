@@ -173,9 +173,7 @@ export const attributes = <Html extends HTMLElement>(
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       const element = targets().subjects();
-      const states = asArray(stateDef);
-
-      checkListsHaveSameSize('attributes', states, element);
+      const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = targets().subjects()[index];
@@ -196,9 +194,7 @@ export const state = <T>(
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       const element = targets().subjects();
-      const states = asArray(stateDef);
-
-      checkListsHaveSameSize('state', states, element);
+      const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];
@@ -376,10 +372,8 @@ export const haveAttributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const states = asArray(stateDef);
       const element = targets().subjects();
-
-      checkListsHaveSameSize('haveAttributes', states, element);
+      const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];
@@ -403,10 +397,8 @@ export const haveState = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const states = asArray(stateDef);
       const element = targets().subjects();
-
-      checkListsHaveSameSize('haveState', states, element);
+      const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];

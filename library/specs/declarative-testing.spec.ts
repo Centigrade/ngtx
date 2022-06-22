@@ -172,14 +172,30 @@ describe(
         );
     });
 
-    it('state -> haveState', () => {
+    it('state -> haveState (single)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b', 'c'], opened: true }))
+        .expect(the.Items)
+        .to(haveState({ value: expect.any(String) }));
+    });
+
+    it('state -> haveState (multiple)', () => {
       When(host)
         .has(state({ items: ['a', 'b', 'c'], opened: true }))
         .expect(the.Items)
         .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
     });
 
-    it('attributes -> haveAttributes', () => {
+    it('attributes -> haveAttributes (single)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .and(the.ItemContainers)
+        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
+        .expect(the.ItemContainers)
+        .to(haveAttributes({ title: expect.stringContaining('title ') }));
+    });
+
+    it('attributes -> haveAttributes (multiple)', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
         .and(the.ItemContainers)
