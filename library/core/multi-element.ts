@@ -16,7 +16,6 @@ export class NgtxMultiElement<
   }
 
   public subjects(): NgtxElement<Html, Component>[] {
-    // hint: a single element can only have exactly one subject, so accessing subjects[0] is safe here:
     return [...this.elements];
   }
 
