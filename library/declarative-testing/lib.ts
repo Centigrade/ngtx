@@ -19,6 +19,7 @@ import {
   asArray,
   checkListsHaveSameSize,
   ensureArrayWithLength,
+  tryResolveTarget,
 } from './utility';
 
 //#region target resolvers
@@ -51,7 +52,7 @@ export const debug = <Html extends HTMLElement, Type>(): ExtensionFn<
   Html,
   Type
 > =>
-  createExtension((targets, { addPredicate }, fixture) => {
+  createExtension((_, { addPredicate }, fixture) => {
     addPredicate(() => {
       fixture.rootElement.debug();
     });
@@ -71,19 +72,17 @@ export const clicked = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets()
-        .subjects()
-        .forEach((subject) => {
-          const times = opts.times ?? 1;
+      tryResolveTarget(targets, 'clicked').forEach((subject) => {
+        const times = opts.times ?? 1;
 
-          for (let i = 0; i < times; i++) {
-            if (opts.nativeClick) {
-              subject.nativeElement.click();
-            } else {
-              subject.triggerEvent('click');
-            }
+        for (let i = 0; i < times; i++) {
+          if (opts.nativeClick) {
+            subject.nativeElement.click();
+          } else {
+            subject.triggerEvent('click');
           }
-        });
+        }
+      });
 
       fixture.detectChanges();
     });
@@ -96,31 +95,28 @@ export const callLifeCycleHook = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addPredicate }) => {
     addPredicate(() => {
-      targets()
-        .subjects()
-        .forEach((subject) => {
-          const host =
-            subject.componentInstance as unknown as IHaveLifeCycleHook;
+      tryResolveTarget(targets, 'callLifeCycleHook').forEach((subject) => {
+        const host = subject.componentInstance as unknown as IHaveLifeCycleHook;
 
-          if (hooks.ngOnChanges) {
-            const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
-            host.ngOnChanges!(args);
-          }
-          if (hooks.ngOnInit) {
-            host.ngOnInit!();
-          }
-          if (hooks.ngAfterViewInit) {
-            host.ngAfterViewInit!();
-          }
-          if (hooks.ngOnDestroy) {
-            host.ngOnDestroy!();
-          }
-        });
+        if (hooks.ngOnChanges) {
+          const args = hooks.ngOnChanges === true ? {} : hooks.ngOnChanges;
+          host.ngOnChanges!(args);
+        }
+        if (hooks.ngOnInit) {
+          host.ngOnInit!();
+        }
+        if (hooks.ngAfterViewInit) {
+          host.ngAfterViewInit!();
+        }
+        if (hooks.ngOnDestroy) {
+          host.ngOnDestroy!();
+        }
+      });
     });
   });
 
 export const waitFakeAsync = (durationOrMs: 'animationFrame' | number = 0) =>
-  createExtension((targets, { addPredicate }, fx) => {
+  createExtension((_, { addPredicate }, fx) => {
     addPredicate(() => {
       const duration = durationOrMs === 'animationFrame' ? 16 : durationOrMs;
       tick(duration);
@@ -135,13 +131,11 @@ export const call = <Html extends HTMLElement, Component, Out>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets()
-        .subjects()
-        .forEach((target) => {
-          const token = resolver(target);
-          const method = (token as any)[methodName] as Function;
-          method.apply(token, ...args);
-        });
+      tryResolveTarget(targets, 'call/calls').forEach((target) => {
+        const token = resolver(target);
+        const method = (token as any)[methodName] as Function;
+        method.apply(token, ...args);
+      });
 
       fixture.detectChanges();
     });
@@ -153,15 +147,13 @@ export const emit = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      targets()
-        .subjects()
-        .forEach((subject) => {
-          if (typeof eventNameOrResolver === 'function') {
-            eventNameOrResolver(subject);
-          } else {
-            subject.triggerEvent(eventNameOrResolver as string, arg);
-          }
-        });
+      tryResolveTarget(targets, 'emit/emits').forEach((subject) => {
+        if (typeof eventNameOrResolver === 'function') {
+          eventNameOrResolver(subject);
+        } else {
+          subject.triggerEvent(eventNameOrResolver as string, arg);
+        }
+      });
 
       fixture.detectChanges();
     });
@@ -172,7 +164,7 @@ export const attributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets().subjects();
+      const element = tryResolveTarget(targets, 'attributes');
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
@@ -193,7 +185,7 @@ export const state = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets().subjects();
+      const element = tryResolveTarget(targets, 'state');
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
@@ -216,7 +208,7 @@ export const haveCssClass = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets().subjects();
+      const subjects = tryResolveTarget(targets, 'haveCssClass');
       // hint: if single class is given as input, it will be expanded to be checked on all subjects:
       const classArray = ensureArrayWithLength(subjects.length, cssClasses);
 
@@ -244,6 +236,7 @@ export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
 > =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
+      // hint: we do not use "tryResolveTarget" here, as this assertion must allow for not-found-targets:
       const subjects = targets()?.subjects?.();
       const count = subjects?.length ?? 0;
 
@@ -260,6 +253,7 @@ export const beFound = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
+      // hint: we do not use "tryResolveTarget" here, as the negated assertion must allow for not-found-targets:
       const subjects = targets()?.subjects?.();
       const count = subjects?.length ?? 0;
 
@@ -286,7 +280,8 @@ export const haveCalled = <Html extends HTMLElement, Component, Out>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
-      const subject = targets()?.subjects()[0];
+      // hint: we do not use "tryResolveTarget" here, as the negated assertion must allow for not-found-targets:
+      const subject = targets()?.subjects()?.[0];
       return subject ? resolver(subject) : undefined!;
     };
 
@@ -300,7 +295,8 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { spyOn, addAssertion, isAssertionNegated }) => {
     const resolve = () => {
-      const subject = targets().subjects()[0];
+      // hint: we do not use "tryResolveTarget" here, as this resolver must allow for not-found-targets:
+      const subject = targets()?.subjects()?.[0];
       const component: any = subject.componentInstance;
       const nativeElement: any = subject.nativeElement;
 
@@ -322,16 +318,16 @@ export const containText = (
 ): ExtensionFn<HTMLElement, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const target = targets();
+      const subjects = tryResolveTarget(targets, 'containText');
       const textArray = asArray(texts);
 
-      checkListsHaveSameSize('containText', textArray, target.subjects());
+      checkListsHaveSameSize('containText', textArray, subjects);
 
       textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = target.subjects()[index];
+        const element = subjects[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toContain(text);
@@ -347,16 +343,16 @@ export const haveText = (
 ): ExtensionFn<HTMLElement, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const target = targets();
+      const subjects = tryResolveTarget(targets, 'haveText');
       const textArray = asArray(texts);
 
-      checkListsHaveSameSize('haveText', textArray, target.subjects());
+      checkListsHaveSameSize('haveText', textArray, subjects);
 
       textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = target.subjects()[index];
+        const element = subjects[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toEqual(text);
@@ -375,7 +371,7 @@ export const haveAttributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const element = targets().subjects();
+      const element = tryResolveTarget(targets, 'haveAttributes');
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
@@ -405,7 +401,7 @@ export const haveState = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const element = targets().subjects();
+      const element = tryResolveTarget(targets, 'haveState');
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
@@ -444,6 +440,7 @@ export interface LifeCycleHookCalls<T> {
   ngAfterViewInit?: boolean;
   ngOnDestroy?: boolean;
 }
+
 //#endregion
 
 // -------------------------------------
