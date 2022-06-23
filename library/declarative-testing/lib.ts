@@ -123,7 +123,7 @@ export const detectChanges = (opts: DetectChangesOptions = {}) =>
 export const callLifeCycleHook = <Html extends HTMLElement, Component>(
   hooks: LifeCycleHookCalls<Component>,
 ): ExtensionFn<Html, Component> =>
-  createExtension((targets, { addPredicate }) => {
+  createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       tryResolveTarget(targets, 'callLifeCycleHook').forEach((subject) => {
         const host = subject.componentInstance as unknown as IHaveLifeCycleHook;
@@ -141,6 +141,9 @@ export const callLifeCycleHook = <Html extends HTMLElement, Component>(
         if (hooks.ngOnDestroy) {
           host.ngOnDestroy!();
         }
+
+        // due to hook-calls there could be changes in state
+        fixture.detectChanges();
       });
     });
   });

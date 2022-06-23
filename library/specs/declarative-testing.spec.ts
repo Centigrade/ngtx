@@ -5,7 +5,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { allOrNth } from '../declarative-testing/harnesses';
 import {
   and,
@@ -111,6 +111,8 @@ class DropDownComponent {
 describe(
   'Declarative Tests',
   ngtx<DropDownComponent>(({ useFixture, When, host, get, getAll }) => {
+    let fixture: ComponentFixture<DropDownComponent>;
+
     beforeEach(async () => {
       await TestBed.configureTestingModule({
         declarations: [DropDownComponent, DropDownItemComponent],
@@ -119,7 +121,7 @@ describe(
     });
 
     beforeEach(() => {
-      const fixture = TestBed.createComponent(DropDownComponent);
+      fixture = TestBed.createComponent(DropDownComponent);
       useFixture(fixture, {
         spyFactory: (retValue) => jest.fn(() => retValue),
       });
@@ -151,6 +153,8 @@ describe(
     });
 
     it('callLifeCycleHook', () => {
+      fixture.detectChanges = jest.fn();
+
       When(host)
         .rendered()
         .and(
@@ -170,6 +174,8 @@ describe(
           haveCalled(componentMethod, 'ngAfterViewInit'),
           haveCalled(componentMethod, 'ngOnDestroy'),
         );
+
+      expect(fixture.detectChanges).toHaveBeenCalledTimes(1);
     });
 
     it('callLifeCycleHook (target not found)', () => {
