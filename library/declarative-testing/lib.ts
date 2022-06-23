@@ -13,6 +13,7 @@ import {
   ExtensionFn,
   IHaveLifeCycleHook,
   PropertiesOf,
+  TargetRef,
   TargetResolver,
   Token,
 } from './types';
@@ -49,13 +50,28 @@ export const injected =
 //#endregion
 
 //#region convenience extensions
-export const debug = <Html extends HTMLElement, Type>(): ExtensionFn<
-  Html,
-  Type
-> =>
+export const debug = <Html extends HTMLElement, Type>(
+  opts: DebugOptions = {},
+): ExtensionFn<Html, Type> =>
   createExtension((_, { addPredicate }, fixture) => {
     addPredicate(() => {
       fixture.rootElement.debug();
+
+      if (opts.stateOf) {
+        const targets = tryResolveTarget(opts.stateOf, 'debug');
+
+        targets.forEach((target, index) => {
+          const props = stripAngularMetaProperties(target.componentInstance);
+          console.log(
+            `------- State of ${target.componentInstance.constructor.name} #${
+              index + 1
+            } --------`,
+            '\n\n',
+            props,
+            '\n\n',
+          );
+        });
+      }
     });
   });
 
@@ -439,6 +455,10 @@ export const haveState = <T>(
 //#endregion
 
 //#region types
+export interface DebugOptions {
+  stateOf?: TargetRef<HTMLElement, any>;
+}
+
 export interface DetectChangesOptions {
   viaChangeDetectorRef?: boolean;
 }
@@ -493,11 +513,7 @@ export function assertCall(spy: any, opts: CallOptions, negate?: boolean) {
   }
 }
 
-export function assertCallBase(
-  spy: any,
-  opts: CallBaseOptions,
-  negate?: boolean,
-) {
+function assertCallBase(spy: any, opts: CallBaseOptions, negate?: boolean) {
   if (negate) {
     if (opts.times != null) {
       expect(spy).not.toHaveBeenCalledTimes(opts.times);
@@ -511,4 +527,18 @@ export function assertCallBase(
       expect(spy).toHaveBeenCalledTimes(1);
     }
   }
+}
+
+function stripAngularMetaProperties(target: any) {
+  const properties = Object.entries(target).filter(
+    ([key]) => key !== '__ngContext__',
+  );
+  const props = properties.reduce(
+    (previous, [key, value]) => ({
+      ...previous,
+      [key]: value,
+    }),
+    {},
+  );
+  return props;
 }
