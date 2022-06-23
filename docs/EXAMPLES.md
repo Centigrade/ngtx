@@ -32,13 +32,20 @@ This article will only show examples where ngtx is used in a "standalone" way, w
 > ngtx can be used in several different ways, but we think the best way is along with test-component-harnesses, which are small APIs abstracting the test-cases from breaking changes of the component under test. If you want to know more about it, and how to use it with ngtx, have a look into our ["writing good tests"-guide][good-tests].
 
 ```ts
-import { ngtx, asBool } from '@centigrade/ngtx';
+import {
+  ngtx,
+  clicked,
+  haveEmitted,
+  state,
+  haveState,
+  asBool,
+} from '@centigrade/ngtx';
 
 const DIALOG_CANCEL = 'Cancel';
 
 describe(
   'Some random tests as basic examples',
-  ngtx(({ useFixture, detectChanges, get, getAll }) => {
+  ngtx(({ useFixture, When, host, get, getAll }) => {
     let component: AnyComponent;
     let fixture: ComponentFixture<AnyComponent>;
 
@@ -54,73 +61,65 @@ describe(
       useFixture(fixture);
     });
 
+    // Component Testing Harness:
+    class the {
+      static FinishButton() {
+        return getAll<HTMLElement>(['.btn-primary', '.btn-secondary']).find(
+          (button) => button.textContent().includes(DIALOG_CANCEL),
+        );
+      }
+      static TabItems() {
+        return getAll(TabComponent);
+      }
+      static Wizard() {
+        return get(WizardComponent);
+      }
+      static Input() {
+        return get<HTMLInputElement>('input');
+      }
+      static DropDownLabel() {
+        return get('.drop-down-label');
+      }
+    }
+
     it('[Wizard] should emit the finish-event when clicking on cancel button', () => {
-      // arrange
-      spyOn(component.finish, 'emit');
-
-      // act
-      const finishButton = getAll<HTMLElement>([
-        '.btn-primary',
-        '.btn-secondary',
-      ]).find((button) => button.textContent().includes(DIALOG_CANCEL));
-
-      finishButton.triggerEvent('click');
-
-      // assert
       const userAction: WizardResult = 'canceled';
-      expect(component.finish.emit).toHaveBeenCalledTimes(1);
-      expect(component.finish.emit).toHaveBeenCalledWith(userAction);
+
+      When(the.FinishButton)
+        .gets(clicked())
+        .expect(host)
+        .to(haveEmitted('finish', { arg: userAction }));
     });
 
-    it('[TabsComponent] should pass through translation', () => {
-      // arrange
-      component.translate = true;
-      // act
-      detectChanges();
-      // assert
-      const { componentInstance: tabs } = getAll(TabComponent);
-      expect(tabs.translateLabel).toBe(true);
+    it('[TabsComponent] should pass through translation to all tab items', () => {
+      When(host)
+        .has(state({ translate: true }))
+        .expect(the.TabItems)
+        .to(haveState({ translateLabel: true }));
     });
 
     it('[Dialog] should emit closeDialog event on finishWizard event', () => {
-      // arrange
-      spyOn(component.closeDialog, 'emit');
-
-      // act
-      get(WizardComponent).triggerEvent('finishWizard');
-
-      // assert
-      expect(component.closeDialog.emit).toHaveBeenCalledTimes(1);
+      When(the.Wizard)
+        .emits('finishWizard')
+        .expect(host)
+        .to(haveEmitted('closeDialog'));
     });
 
     it('[TextField] should pass the readonly attribute', () => {
-      // arrange
-      const expectedValue = true;
-
-      // pre-condition
-      expect(get('input').attr('readOnly', asBool)).not.toBe(expectedValue);
-
-      // act
-      component.readonly = expectedValue;
-      detectChanges();
-
-      // assert
-      expect(get('input').attr('readOnly', asBool)).toBe(expectedValue);
+      When(host)
+        .has(state({ readonly: true }))
+        .expect(the.Input)
+        .to(haveAttribute<HTMLInputElement>({ readOnly: 'true' }));
     });
 
     it('[SomeView] should show a drop down with the currently selected item', () => {
-      // arrange
       const expectedValue = 'selected item';
-      component.selectedItem = expectedValue;
 
-      // act
-      // passing "component" to "detectChanges"
-      // additionally runs ngOnChanges and ngOnInit
-      // on the component, if they are defined:
-      detectChanges(component);
-
-      // assert
-      expect(get('.drop-down-label').textContent()).toContain(expectedValue);
+      When(host)
+        .has(state({ selectedItem: expectedValue }))
+        .and(callLifeCycleHooks({ ngOnChanges: { selectedItem: true } }))
+        .expect(the.DropDownLabel)
+        .to(haveText(expectedValue));
     });
   }),
 );
