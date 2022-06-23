@@ -1,3 +1,4 @@
+import { ChangeDetectorRef } from '@angular/core';
 import { tick } from '@angular/core/testing';
 import { NgtxElement } from '../core';
 import { Maybe } from '../types';
@@ -90,6 +91,19 @@ export const clicked = <Html extends HTMLElement, Type>(
 //#endregion
 
 //#region predicate extensions
+export const detectChanges = (opts: DetectChangesOptions = {}) =>
+  createExtension((targets, { addPredicate }, fx) => {
+    addPredicate(() => {
+      tryResolveTarget(targets, 'detectChanges').forEach((subject) => {
+        if (opts.viaChangeDetectorRef) {
+          subject.injector.get(ChangeDetectorRef).detectChanges();
+        } else {
+          fx.detectChanges();
+        }
+      });
+    });
+  });
+
 export const callLifeCycleHook = <Html extends HTMLElement, Component>(
   hooks: LifeCycleHookCalls<Component>,
 ): ExtensionFn<Html, Component> =>
@@ -425,6 +439,10 @@ export const haveState = <T>(
 //#endregion
 
 //#region types
+export interface DetectChangesOptions {
+  viaChangeDetectorRef?: boolean;
+}
+
 export interface ClickOptions {
   times?: number;
   nativeClick?: boolean;
