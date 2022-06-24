@@ -70,7 +70,7 @@ export const createDeclarativeTestingApi = (
 
     const addPredicate = (...fns: ExtensionFn<Html, Type>[]) => {
       fns.forEach((fn) => {
-        fn(() => target(), testEnv, fx);
+        fn(target, testEnv, fx);
       });
 
       return expectationApi;
