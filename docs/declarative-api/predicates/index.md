@@ -1,4 +1,4 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Helpers][index] &nbsp; → &nbsp; Predicates
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][index] &nbsp; → &nbsp; Predicates
 
 [home]: ../README.md
 [index]: ../index.md
