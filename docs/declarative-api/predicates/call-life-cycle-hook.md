@@ -1,9 +1,9 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][index] &nbsp;→ &nbsp; [Predicates][index] &nbsp; → &nbsp; `callLifeCycleHook`
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp;→ &nbsp; [Predicates][index] &nbsp; → &nbsp; `callLifeCycleHook`
 
 [home]: ../README.md
 [index]: ./index.md
 [docs]: ../DOCUMENTATION.md
-[declarative]: ../DECLARATIVE_TEST_API.md
+[declarative]: ../index.md
 [attributes]: ./attributes.md
 [calllifecyclehook]: ./call-life-cycle-hook.md
 [call]: ./call.md
