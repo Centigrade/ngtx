@@ -1,23 +1,15 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { NgtxTarget } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';
-import { List } from '../utility/list';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
-import { NgtxEmptySet } from './constants';
 import { NgtxMultiElement } from './multi-element';
 
 export class NgtxElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
-> implements NgtxTarget<Html, Component>
-{
-  public ngtxElements(): List<NgtxElement<Html, Component>> {
-    return new List([this]);
-  }
-
+> {
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
@@ -96,7 +88,7 @@ export class NgtxElement<
     // this allows tests like: expect(Get.ListItems()).toBeNull();
     return results.length > 0
       ? new NgtxMultiElement(removeDuplicates(results))
-      : (NgtxEmptySet as any);
+      : null!;
   }
 
   /**

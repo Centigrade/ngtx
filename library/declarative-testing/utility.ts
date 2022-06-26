@@ -1,5 +1,7 @@
-import { isTargetNotFound } from '../utility';
-import { TargetRef } from './types';
+import { NgtxElement, NgtxMultiElement } from '../core';
+import { List } from '../types';
+import { isTargetFound } from '../utility';
+import { ElementList, ElementListRef, TargetRef } from './types';
 
 export function asArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
@@ -16,18 +18,41 @@ export function ensureArrayWithLength<T>(length: number, value: T | T[]): T[] {
 }
 
 export function tryResolveTarget<Html extends HTMLElement, Type>(
-  targets: TargetRef<Html, Type>,
+  targets: ElementListRef<Html, Type>,
   callerName: string,
 ) {
   const resolved = targets();
 
-  if (isTargetNotFound(resolved)) {
+  if (!isTargetFound(resolved)) {
     throw new Error(
       `[${callerName}] Expected the target "${targets.name}" to exist, but it wasn't found.`,
     );
   }
 
-  return resolved.ngtxElements();
+  return resolved;
+}
+
+export function asElementList<Html extends HTMLElement, Type>(
+  value: NgtxElement<Html, Type> | NgtxMultiElement<Html, Type>,
+): List<NgtxElement<Html, Type>> {
+  const elements = value instanceof NgtxMultiElement ? value.unwrap() : [value];
+  return new List(elements);
+}
+
+export function asNgtxElementListRef<Html extends HTMLElement, Type>(
+  target: TargetRef<Html, Type>,
+): ElementListRef<Html, Type> {
+  // hint: need to dynamically create function via object [nameVar]: () => {} syntax
+  // in order to "copy" the name of target as name of the wrapping function.
+  // overriding fn.toString() did not work for some reason, so this was the only way
+  // to apply the target.name to our wrapping function:
+  const fnName = target.name;
+  return {
+    [fnName]: (): ElementList<Html, Type> => {
+      const targets = target();
+      return isTargetFound(targets) ? asElementList(targets) : null!;
+    },
+  }[fnName];
 }
 
 export function checkListsHaveSameSize(

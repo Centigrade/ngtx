@@ -12,6 +12,7 @@ import {
   TargetRef,
   TargetResolver,
 } from './types';
+import { asNgtxElementListRef } from './utility';
 
 export const createDeclarativeTestingApi = (
   fx: NgtxFixture<any, any>,
@@ -33,8 +34,10 @@ export const createDeclarativeTestingApi = (
       target: TargetRef<Html, Type>,
     ) => ({
       to(...fns: ExtensionFn<Html, Type>[]) {
+        const elementListRef = asNgtxElementListRef<Html, Type>(target);
+
         fns.forEach((fn) => {
-          fn(target, testEnv, fx);
+          fn(elementListRef, testEnv, fx);
         });
 
         testEnv.executeTest();
@@ -69,8 +72,13 @@ export const createDeclarativeTestingApi = (
     };
 
     const addPredicate = (...fns: ExtensionFn<Html, Type>[]) => {
+      // hint: targetRef could resolve to NgtxElement or NgtxMultiElement. To simplify extension fn implementations, we
+      // unify the result to become a List<NgtxElement>. This way extension functions only need to handle the "plural" case,
+      // where multiple items were targeted. If a single element was targeted, it is simply the single element in that list.
+      const elementListRef = asNgtxElementListRef<Html, Type>(target);
+
       fns.forEach((fn) => {
-        fn(target, testEnv, fx);
+        fn(elementListRef, testEnv, fx);
       });
 
       return expectationApi;

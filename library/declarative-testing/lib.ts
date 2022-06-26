@@ -19,6 +19,7 @@ import {
 } from './types';
 import {
   asArray,
+  asNgtxElementListRef,
   checkListsHaveSameSize,
   ensureArrayWithLength,
   tryResolveTarget,
@@ -58,7 +59,10 @@ export const debug = <Html extends HTMLElement, Type>(
       fixture.rootElement.debug();
 
       if (opts.stateOf) {
-        const targets = tryResolveTarget(opts.stateOf, 'debug');
+        const targets = tryResolveTarget(
+          asNgtxElementListRef(opts.stateOf),
+          'debug',
+        );
 
         targets.forEach((target, index) => {
           const props = stripAngularMetaProperties(target.componentInstance);
@@ -89,7 +93,7 @@ export const clicked = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      tryResolveTarget(targets, 'clicked').forEach((subject) => {
+      tryResolveTarget(targets, clicked.name).forEach((subject) => {
         const times = opts.times ?? 1;
 
         for (let i = 0; i < times; i++) {
@@ -110,7 +114,7 @@ export const clicked = <Html extends HTMLElement, Type>(
 export const detectChanges = (opts: DetectChangesOptions = {}) =>
   createExtension((targets, { addPredicate }, fx) => {
     addPredicate(() => {
-      tryResolveTarget(targets, 'detectChanges').forEach((subject) => {
+      tryResolveTarget(targets, detectChanges.name).forEach((subject) => {
         if (opts.viaChangeDetectorRef) {
           subject.injector.get(ChangeDetectorRef).detectChanges();
         } else {
@@ -125,7 +129,7 @@ export const callLifeCycleHook = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      tryResolveTarget(targets, 'callLifeCycleHook').forEach((subject) => {
+      tryResolveTarget(targets, callLifeCycleHook.name).forEach((subject) => {
         const host = subject.componentInstance as unknown as IHaveLifeCycleHook;
 
         if (hooks.ngOnChanges) {
@@ -201,7 +205,7 @@ export const attributes = <Html extends HTMLElement>(
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
-        const subject = targets().ngtxElements()[index];
+        const subject = targets().atIndex(index);
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -270,7 +274,7 @@ export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       // hint: we do not use "tryResolveTarget" here, as this assertion must allow for not-found-targets:
-      const subjects = targets()?.ngtxElements?.();
+      const subjects = targets();
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -287,7 +291,7 @@ export const beFound = <Html extends HTMLElement, Component>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       // hint: we do not use "tryResolveTarget" here, as the negated assertion must allow for not-found-targets:
-      const subjects = targets()?.ngtxElements?.();
+      const subjects = targets();
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -314,7 +318,7 @@ export const haveCalled = <Html extends HTMLElement, Component, Out>(
   createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
       // hint: we do not use "tryResolveTarget" here, as the negated assertion must allow for not-found-targets:
-      const subject = targets()?.ngtxElements()?.first();
+      const subject = targets()?.first();
       return subject ? resolver(subject) : undefined!;
     };
 
@@ -329,7 +333,7 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
   createExtension((targets, { spyOn, addAssertion, isAssertionNegated }) => {
     const resolve = () => {
       // hint: we do not use "tryResolveTarget" here, as this resolver must allow for not-found-targets:
-      const subject = targets()?.ngtxElements()?.first()!;
+      const subject = targets()?.first()!;
       const component: any = subject.componentInstance;
 
       if (typeof component[eventName]?.emit === 'function') {

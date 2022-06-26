@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
-import { NgtxElement, NgtxFixture } from '../core';
-import { List } from '../utility/list';
+import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
+import { List } from '../types';
 import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
@@ -42,7 +42,7 @@ type OmitType<Base, Type> = Pick<Base, AllowedNames<Base, Type>>;
 */
 export type ExtensionFnMarker = { __ngtxExtensionFn: true };
 export type ExtensionFnSignature<Html extends HTMLElement, Component> = (
-  target: TargetRef<Html, Component>,
+  target: ElementListRef<Html, Component>,
   env: NgtxTestEnv,
   fixture: NgtxFixture<HTMLElement, any>,
 ) => void;
@@ -64,10 +64,6 @@ export type DeclarativeTestingApi = SpyFactorySetter &
   (<Html extends HTMLElement, Component>(
     subject: TargetRef<Html, Component>,
   ) => PredicateApi<Html, Component>);
-
-export interface NgtxTarget<Html extends HTMLElement, Component> {
-  ngtxElements(): List<NgtxElement<Html, Component>>;
-}
 
 export type EventResolver = <Html extends HTMLElement, Component>(
   subject: NgtxElement<Html, Component>,
@@ -119,6 +115,15 @@ export type IHaveLifeCycleHook = {
   ngOnDestroy?: Function;
 };
 
+export type ElementList<Html extends HTMLElement, Component> = List<
+  NgtxElement<Html, Component>
+>;
+
+export type ElementListRef<
+  Html extends HTMLElement,
+  Component,
+> = () => ElementList<Html, Component>;
+
 export type Token<T> = Type<T> | Function;
 export type PropertiesOf<T> = Partial<T & Record<keyof T, any>>;
 export type Events<Html extends HTMLElement, Type> =
@@ -153,10 +158,9 @@ export interface EmissionOptions extends CallBaseOptions {
   arg?: any;
 }
 
-export type TargetRef<Html extends HTMLElement, Type> = () => NgtxTarget<
-  Html,
-  Type
->;
+export type TargetRef<Html extends HTMLElement, Type> = () =>
+  | NgtxElement<Html, Type>
+  | NgtxMultiElement<Html, Type>;
 
 export type HtmlEvents<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;

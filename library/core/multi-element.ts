@@ -1,23 +1,15 @@
 import { Type } from '@angular/core';
-import { NgtxTarget } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget } from '../types';
-import { List } from '../utility/list';
-import { NgtxEmptySet } from './constants';
 import { NgtxElement } from './element';
 
 export class NgtxMultiElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
-> implements NgtxTarget<Html, Component>
-{
+> {
   private readonly elements: NgtxElement<Html, Component>[];
 
   public get length(): number {
     return this.elements.length;
-  }
-
-  public ngtxElements(): List<NgtxElement<Html, Component>> {
-    return new List([...this.elements]);
   }
 
   constructor(ngtxElements: NgtxElement<Html, Component>[]) {
@@ -68,9 +60,7 @@ export class NgtxMultiElement<
 
     // only provide ngtx element if query could actually find something.
     // this allows tests like: expect(Get.ListItems()).toBeNull();
-    return results.length > 0
-      ? new NgtxMultiElement(results)
-      : (NgtxEmptySet as any);
+    return results.length > 0 ? new NgtxMultiElement(results) : null!;
   }
 
   public forEach(

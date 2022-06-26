@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { NgtxFixture } from '../core';
+import { NgtxFixture, NgtxMultiElement } from '../core';
 import { QueryTarget } from '../types';
 import { TargetRef } from './types';
 
@@ -33,20 +33,20 @@ export function allOrNth<Html extends HTMLElement, T = any>(
   target: QueryTarget<T> | QueryTarget<T>[],
   getAll: NgtxFixture<Html, T>['getAll'],
 ): AllOrNthTarget<Html, T> {
-  const doQuery = () => {
+  const allOrNthQuery: () => NgtxMultiElement<Html, T> = () => {
     return getAll<Html, T>(target as Type<T>);
   };
 
-  return Object.assign(doQuery, {
+  return Object.assign(allOrNthQuery, {
     nth: (nth: number) =>
       (() => {
-        return doQuery().nth(nth);
+        return allOrNthQuery().nth(nth);
       }) as TargetRef<Html, T>,
-    first: () => doQuery().first(),
-    last: () => doQuery().last(),
+    first: () => allOrNthQuery().first(),
+    last: () => allOrNthQuery().last(),
     atIndex: (index: number) =>
       (() => {
-        return doQuery().atIndex(index);
+        return allOrNthQuery().atIndex(index);
       }) as TargetRef<Html, T>,
   }) as AllOrNthTarget<Html, T>;
 }
