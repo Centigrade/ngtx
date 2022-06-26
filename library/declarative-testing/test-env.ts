@@ -88,20 +88,8 @@ export class NgtxTestEnv {
             return;
           }
 
-          // TODO: refactor magic string!
-          if (methodName.startsWith('ngtx:spyEvent')) {
-            const targetIsEventEmitter =
-              typeof instance === 'object' &&
-              typeof instance.emit === 'function';
-
-            if (targetIsEventEmitter) {
-              instance.emit = entry.spy;
-              entry.done = true;
-            }
-          } else {
-            instance[methodName] = entry.spy;
-            entry.done = true;
-          }
+          instance[methodName] = entry.spy;
+          entry.done = true;
         } catch {
           // ignore if host cannot be resolved and try after next tick
           return;

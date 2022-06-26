@@ -331,18 +331,13 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
       // hint: we do not use "tryResolveTarget" here, as this resolver must allow for not-found-targets:
       const subject = targets()?.ngtxElements()?.first()!;
       const component: any = subject.componentInstance;
-      const nativeElement: any = subject.nativeElement;
 
       if (typeof component[eventName]?.emit === 'function') {
         return component[eventName];
-      } else {
-        return nativeElement;
       }
     };
 
-    // TODO: refactor magic string!
-    const spy = spyOn(resolve, 'ngtx:spyEvent');
-
+    const spy = spyOn(resolve, 'emit');
     addAssertion(() => assertEmission(spy, opts, isAssertionNegated));
   });
 
