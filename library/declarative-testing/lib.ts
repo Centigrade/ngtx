@@ -79,15 +79,6 @@ export const debug = <Html extends HTMLElement, Type>(
     });
   });
 
-export const and = <Html extends HTMLElement, Type>(
-  ...fns: ExtensionFn<Html, Type>[]
-): ExtensionFn<Html, Type> =>
-  createExtension((targets, testEnv, fixture) => {
-    fns.forEach((fn) => {
-      fn(targets, testEnv, fixture);
-    });
-  });
-
 export const clicked = <Html extends HTMLElement, Type>(
   opts: ClickOptions = {},
 ): ExtensionFn<Html, Type> =>

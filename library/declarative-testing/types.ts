@@ -98,7 +98,7 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
 }
 
 export interface ExpectApi<Html extends HTMLElement, Component> {
-  and: DeclarativeTestingApi & PredicateFn<Html, Component>;
+  and: PredicateFn<Html, Component> & DeclarativeTestingApi;
   expect<Html extends HTMLElement, Component>(
     object: TargetRef<Html, Component>,
   ): AssertionApi<Html, Component>;

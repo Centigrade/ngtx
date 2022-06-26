@@ -8,7 +8,6 @@ import {
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { allOrNth } from '../declarative-testing/harnesses';
 import {
-  and,
   attributes,
   beFound,
   beMissing,
@@ -444,7 +443,8 @@ describe(
 
       it('call(componentMethod)', () => {
         When(host)
-          .has(state({ opened: false }), and(call(componentMethod, 'open')))
+          .has(state({ opened: false }))
+          .and(call(componentMethod, 'open'))
           .expect(host)
           .to(haveState({ opened: true }));
       });
