@@ -99,3 +99,7 @@ it('[ExpanderComponent] should toggle its open property on title click', () => {
 > expect the expander to have the open property toggled to `true`.
 
 This test case is just an example. ngtx provides many built-in `predicates` and `assertions` for your convenience. If there are cases that are not possible to test with existing APIs, there are also extension points for custom `predicates` and `assertions`.
+
+---
+
+Read further about this topic: &nbsp; [Predicates] ・ [Assertions] ・ [Write Custom Extensions][extensions]
