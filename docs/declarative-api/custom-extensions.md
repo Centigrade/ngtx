@@ -1,9 +1,15 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][index] &nbsp; → &nbsp; Write Custom Extensions
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; Write Custom Extensions
+
+Quick Navigation: &nbsp; [Predicates] ・ [Assertions] ・ Write Custom Extensions
+
+---
 
 [home]: ../README.md
-[index]: ../index.md
-[docs]: ../../DOCUMENTATION.md
-[declarative]: ../DECLARATIVE_TEST_API.md
+[docs]: ../DOCUMENTATION.md
+[declarative]: ./index.md
+[predicates]: ./predicates/index.md
+[assertions]: ./assertions/index.md
+[extensions]: ./custom-extensions.md
 
 > ## 🚧 &nbsp; Coming soon!
 >
