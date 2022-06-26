@@ -96,7 +96,7 @@ If you know and like ngtx we would love for you to contribute by either giving u
 [api]: ./docs/API.md
 [contributing]: ./CONTRIBUTING.md
 [codeofconduct]: ./CODE_OF_CONDUCT.md
-[declarativetesting]: ./docs/DECLARATIVE_TEST_API.md
+[declarativetesting]: ./docs/declarative-api/index.md
 [documentation]: ./docs/DOCUMENTATION.md
 [examples]: ./docs/EXAMPLES.md
 [features]: ./docs/FEATURES.md
