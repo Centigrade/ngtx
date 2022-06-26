@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture } from '../core';
+import { List } from '../utility/list';
 import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
@@ -65,7 +66,7 @@ export type DeclarativeTestingApi = SpyFactorySetter &
   ) => PredicateApi<Html, Component>);
 
 export interface NgtxTarget<Html extends HTMLElement, Component> {
-  subjects(): NgtxElement<Html, Component>[];
+  ngtxElements(): List<NgtxElement<Html, Component>>;
 }
 
 export type EventResolver = <Html extends HTMLElement, Component>(

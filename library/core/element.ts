@@ -4,6 +4,7 @@ import { NgtxTarget } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';
+import { List } from '../utility/list';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxEmptySet } from './constants';
 import { NgtxMultiElement } from './multi-element';
@@ -13,8 +14,8 @@ export class NgtxElement<
   Component = any,
 > implements NgtxTarget<Html, Component>
 {
-  public subjects(): NgtxElement<Html, Component>[] {
-    return [this];
+  public ngtxElements(): List<NgtxElement<Html, Component>> {
+    return new List([this]);
   }
 
   public get nativeElement(): Html {

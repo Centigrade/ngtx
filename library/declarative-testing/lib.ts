@@ -72,7 +72,7 @@ export const clicked = <Html extends HTMLElement, Type>(
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       targets()
-        .subjects()
+        .ngtxElements()
         .forEach((subject) => {
           const times = opts.times ?? 1;
 
@@ -97,7 +97,7 @@ export const callLifeCycleHook = <Html extends HTMLElement, Component>(
   createExtension((targets, { addPredicate }) => {
     addPredicate(() => {
       targets()
-        .subjects()
+        .ngtxElements()
         .forEach((subject) => {
           const host =
             subject.componentInstance as unknown as IHaveLifeCycleHook;
@@ -136,7 +136,7 @@ export const call = <Html extends HTMLElement, Component, Out>(
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       targets()
-        .subjects()
+        .ngtxElements()
         .forEach((target) => {
           const token = resolver(target);
           const method = (token as any)[methodName] as Function;
@@ -154,7 +154,7 @@ export const emit = <Html extends HTMLElement, Type>(
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       targets()
-        .subjects()
+        .ngtxElements()
         .forEach((subject) => {
           if (typeof eventNameOrResolver === 'function') {
             eventNameOrResolver(subject);
@@ -172,13 +172,13 @@ export const attributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets().subjects();
+      const element = targets().ngtxElements();
       const states = asArray(stateDef);
 
       checkListsHaveSameSize('attributes', states, element);
 
       states.forEach((state, index) => {
-        const subject = targets().subjects()[index];
+        const subject = targets().ngtxElements()[index];
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -195,7 +195,7 @@ export const state = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = targets().subjects();
+      const element = targets().ngtxElements();
       const states = asArray(stateDef);
 
       checkListsHaveSameSize('state', states, element);
@@ -220,7 +220,7 @@ export const haveCssClass = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets().subjects();
+      const subjects = targets().ngtxElements();
       // hint: if single class is given as input, it will be expanded to be checked on all subjects:
       const classArray = ensureArrayWithLength(subjects.length, cssClasses);
 
@@ -248,7 +248,7 @@ export const beMissing = <Html extends HTMLElement, Component>(): ExtensionFn<
 > =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets()?.subjects?.();
+      const subjects = targets()?.ngtxElements?.();
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -264,7 +264,7 @@ export const beFound = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = targets()?.subjects?.();
+      const subjects = targets()?.ngtxElements?.();
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
@@ -290,7 +290,7 @@ export const haveCalled = <Html extends HTMLElement, Component, Out>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
-      const subject = targets()?.subjects()[0];
+      const subject = targets()?.ngtxElements()[0];
       return subject ? resolver(subject) : undefined!;
     };
 
@@ -304,7 +304,7 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { spyOn, addAssertion, isAssertionNegated }) => {
     const resolve = () => {
-      const subject = targets().subjects()[0];
+      const subject = targets().ngtxElements()[0];
       const component: any = subject.componentInstance;
       const nativeElement: any = subject.nativeElement;
 
@@ -329,13 +329,13 @@ export const containText = (
       const target = targets();
       const textArray = asArray(texts);
 
-      checkListsHaveSameSize('containText', textArray, target.subjects());
+      checkListsHaveSameSize('containText', textArray, target.ngtxElements());
 
       textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = target.subjects()[index];
+        const element = target.ngtxElements()[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toContain(text);
@@ -354,13 +354,13 @@ export const haveText = (
       const target = targets();
       const textArray = asArray(texts);
 
-      checkListsHaveSameSize('haveText', textArray, target.subjects());
+      checkListsHaveSameSize('haveText', textArray, target.ngtxElements());
 
       textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
         if (text == null) return;
 
-        const element = target.subjects()[index];
+        const element = target.ngtxElements()[index];
 
         if (isAssertionNegated) {
           expect(element.textContent()).not.toEqual(text);
@@ -377,7 +377,7 @@ export const haveAttributes = <Html extends HTMLElement>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = targets().subjects();
+      const element = targets().ngtxElements();
 
       checkListsHaveSameSize('haveAttributes', states, element);
 
@@ -404,7 +404,7 @@ export const haveState = <T>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const states = asArray(stateDef);
-      const element = targets().subjects();
+      const element = targets().ngtxElements();
 
       checkListsHaveSameSize('haveState', states, element);
 

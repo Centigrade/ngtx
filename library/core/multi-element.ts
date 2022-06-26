@@ -1,6 +1,7 @@
 import { Type } from '@angular/core';
 import { NgtxTarget } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget } from '../types';
+import { List } from '../utility/list';
 import { NgtxEmptySet } from './constants';
 import { NgtxElement } from './element';
 
@@ -15,9 +16,8 @@ export class NgtxMultiElement<
     return this.elements.length;
   }
 
-  public subjects(): NgtxElement<Html, Component>[] {
-    // hint: a single element can only have exactly one subject, so accessing subjects[0] is safe here:
-    return [...this.elements];
+  public ngtxElements(): List<NgtxElement<Html, Component>> {
+    return new List([...this.elements]);
   }
 
   constructor(ngtxElements: NgtxElement<Html, Component>[]) {
