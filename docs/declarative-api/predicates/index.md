@@ -4,6 +4,7 @@
 [index]: ../index.md
 [docs]: ../../DOCUMENTATION.md
 [declarative]: ../DECLARATIVE_TEST_API.md
+[extensionfns]: ../custom-extensions.md
 [attributes]: ./attributes.md
 [calllifecyclehook]: ./call-life-cycle-hook.md
 [call]: ./call.md
@@ -16,7 +17,7 @@
 
 ## List of all built-in Predicates
 
-A predicate is a function that executes an operation on a given target. A test case can contain an arbitrary number of predicates that will be executed in the order they appear. The following list shows an overview on all built-in predicates. Please note that you can also write your own predicates, if there is a use case that is not covered by the built-in predicates.
+A predicate is a function that executes an operation on a given target. A test case can contain an arbitrary number of predicates that will be executed in the order they appear. The following list shows an overview on all built-in predicates. Please note that you can also [write your own predicates][extensionfns], if there is a use case that is not covered by the built-in predicates.
 
 > ### [attributes]
 >

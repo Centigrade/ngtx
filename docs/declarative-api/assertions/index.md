@@ -1,6 +1,7 @@
 ## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; Assertions
 
 [home]: ../README.md
+[extensionfns]: ../custom-extensions.md
 [docs]: ../../DOCUMENTATION.md
 [declarative]: ../index.md
 [befound]: ./be-found.md
@@ -17,7 +18,7 @@
 
 ## List of all built-in Assertions
 
-An assertion is a function that runs checks on a given target. A test case can contain an arbitrary number of assertions that will be executed in the order they appear. If one of the checks fail, the test case will fail, too. The following list shows an overview on all built-in assertions. Please note that you can also write your own ones, if there is a use case that is not covered by the built-in assertions.
+An assertion is a function that runs checks on a given target. A test case can contain an arbitrary number of assertions that will be executed in the order they appear. If one of the checks fail, the test case will fail, too. The following list shows an overview on all built-in assertions. Please note that you can also [write your own ones][extensionfns], if there is a use case that is not covered by the built-in assertions.
 
 > ### [beFound]
 >
