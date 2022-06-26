@@ -133,6 +133,17 @@ Provides APIs to describe start situations for your test cases:
 > ```ts
 > rendered(): AfterPredicateApi
 > ```
+>
+> **Example:**
+>
+> ```ts
+> it('should have open set to false initially', () => {
+>   When(host)
+>     .rendered()
+>     .expect(host)
+>     .to(haveState({ open: false }));
+> });
+> ```
 
 > #### `calls(method, ...args)`
 >
@@ -141,55 +152,124 @@ Provides APIs to describe start situations for your test cases:
 > ```ts
 > calls(method: keyof Subject, ...callArgs: any[]): AfterPredicateApi
 > ```
+>
+> **Example:**
+>
+> ```ts
+> import { componentMethod, nativeMethod, injected } from '@centigrade/ngtx';
+>
+> const Expander = () => get(ExpanderComponent);
+> const NativeInput = () => get('input');
+> const DialogView = () => get(DialogViewComponent);
+>
+> // calls the "toggle"-method on the expander's component instance
+> When(Expander).calls(componentMethod, 'toggle').expect(...).to(...);
+> // calls the "focus"-method on the input's native element
+> When(NativeInput).calls(nativeMethod, 'focus').expect(...).to(...);
+> // calls the "close"-method on the DialogService, resolved using the expander's injector
+> When(DialogView).calls(injected(DialogService), 'close').expect(...).to(...);
+> ```
 
 > #### `emits(eventName, arg?)`
 >
 > Sets up an event emission on the **subject** (optionally with the passed argument) and then returns the `AfterPredicateApi`.
 >
 > ```ts
-> emits(eventName: keyof Subject, eventArg?: any): AfterPredicateApi
+> emits(eventName: keyof Subject, eventArg?: any): AfterPredicateApi;
+> emits(eventDispatcher: () => void): AfterPredicateApi;
+> ```
+>
+> **Example:**
+>
+> ```ts
+> import { nativeEvent } from '@centigrade/ngtx';
+>
+> // emits the click event on the button via Angular's `triggerEventHandler` debugElement function
+> When(Button).emits('click').expect(...).to(...);
+> // emits the selectionChange event with argument "Item 1" on DropDown component
+> When(DropDown).emits('selectionChange', 'Item 1').expect(...).to(...);
+> // emits an "input"-event on the input-element via nativeElement.dispatchEvent(...) on the NativeInput
+> When(NativeInput).emits(nativeEvent('input', new KeyboardEvent({ key: 'x' }))).expect(...).to(...);
 > ```
 
-> #### `hasAttributes(attrMap)`
+> #### `attributes(attrMap)`
 >
 > Sets up the **subject** to have the attributes passed as object-map on its `nativeElement` and then returns the `AfterPredicateApi`.
 >
 > **Signature:**
 >
 > ```ts
-> hasAttributes(attrMap: Record<keyof Subject, any>): AfterPredicateApi
+> attributes(attrMap: Record<keyof Subject, any>): AfterPredicateApi
 > ```
 >
 > **Example:**
 >
 > ```ts
 > const NativeInput = () => get<HTMLInputElement, unknown>('input');
-> When(NativeInput).hasAttributes({ disabled: true, value: 'some text' }) ...
+> When(NativeInput).has(attributes({ disabled: true, value: 'some text' })) ...
 > ```
 
-> #### `hasState(propMap)`
+> #### `state(propMap)`
 >
 > Sets up the **subject** to have the properties passed as object-map on the `componentInstance` and then returns the `AfterPredicateApi`.
 >
 > ```ts
-> hasState(propMap: Record<keyof Subject, any>): AfterPredicateApi
+> state(propMap: Record<keyof Subject, any>): AfterPredicateApi
 > ```
 >
 > **Example:**
 >
 > ```ts
 > const Expander = () => get(ExpanderComponent);
-> When(Expander).hasState({ open: false }) ...
+> When(Expander).has(state({ open: false })) ...
 > ```
 
 > #### `does(extensionFn)`
 >
 > Allows to add custom logic to the test case via [extension functions][extensionfns].
 >
-> **aliases**: `gets`, `has`, `is`
+> **aliases**: `get`, `gets`, `have`, `has`, `are`, `is`
 >
 > ```ts
 > does(extensionFn: DeclarativeTestExtension): AfterPredicateApi
+> ```
+>
+> **Example:**
+>
+> ```ts
+> import { ExtensionFn, haveEmitted } from '@centigrade/ngtx';
+>
+> // custom extension function for ngtx, used in the test case below with "does"
+> const pressKey =
+>   (pressedKey: string): ExtensionFn<HTMLElement, unknown> =>
+>   (targets, { addPredicate }, fixture) => {
+>     addPredicate(() => {
+>       /* 
+>         the targets given to our extension function could be ...
+>           1) either a single target -> get(SomeComponent),
+>           2) or multiple targets -> getAll(SomeComponent)
+>         
+>         to unify this, ngtx always passes a list of targets to extension functions,
+>         even if only a single target has been passed. This way ngtx simplifies the
+>         the implementation of extension function by avoiding the need to check
+>         for the target type (singular or plural):
+>       */
+>       targets()
+>         .subjects()
+>         .forEach((subject) => {
+>           const keyEvent = new KeyboardEvent('keypress', { key: pressedKey });
+>           subject.nativeElement.dispatchEvent(keyEvent);
+>         });
+>
+>       fixture.detectChanges();
+>     });
+>   };
+>
+> it('should emit the close event on escape key press', () => {
+>   // "does" could be swapped with has/have, is/are and gets/get;
+>   //  all of them would work, but "does" matches the semantics of the sentence best:
+>   When(host).does(pressKey('escape')).expect(host).to(haveEmitted('close'));
+> });
 > ```
 
 ---
@@ -218,7 +298,7 @@ Allows to specify the **object** of your test case or add additional custom logi
 
 ### Expectations API
 
-Allows to describe the expected effect that should have happened on the test case's **object**.
+Allows to define assertions that should be run on the `object` at the end of the test case and to negate them via `not`.
 
 > #### `not`
 >
@@ -232,15 +312,15 @@ Allows to describe the expected effect that should have happened on the test cas
 >
 > ```ts
 > // expects the host to be present:
-> ...expect(host).not.toBeMissing();
+> ...expect(host).not.to(beMissing());
 > ```
 
-> #### `toHaveCalled(targetResolver, method, emissionOpts?)`
+> #### `haveCalled(targetResolver, method, emissionOpts?)`
 >
 > Expects that the test case's **object** has called the specified `method` on the resolved target. Optionally takes `EmissionOptions` allowing to specify additional aspects for the function-spy check.
 >
 > ```ts
-> toHaveCalled(targetResolver: TargetResolverFn, method: keyof Object, emissionOpts?: EmissionOptions): void
+> haveCalled(targetResolver: TargetResolverFn, method: keyof Object, emissionOpts?: EmissionOptions): void
 > ```
 >
 > **Example**:
@@ -248,39 +328,42 @@ Allows to describe the expected effect that should have happened on the test cas
 > ```ts
 > import { ngtx, injected, componentMethod, nativeMethod } from '@centigrade/ngtx';
 >  // expects object to have called a method on an object's service.
-> ...expect(host).toHaveCalled(injected(SomeService), 'someMethod');
+> ...expect(host).to(haveCalled(injected(SomeService), 'someMethod'));
 >  // expects object to have called a method on its componentInstance.
-> ...expect(host).toHaveCalled(componentMethod, 'someInstanceMethod');
+> ...expect(host).to(haveCalled(componentMethod, 'someInstanceMethod'));
 >  // expects object to have called a method on its nativeElement.
-> ...expect(host).toHaveCalled(nativeMethod, 'someElementMethod');
+> ...expect(host).to(haveCalled(nativeMethod, 'someElementMethod'));
 >  // specifies additional parameters:
-> ...expect(host).toHaveCalled(nativeMethod, 'scrollIntoView', {
+> ...expect(host).to(haveCalled(nativeMethod, 'scrollIntoView', {
 >   args: { behavior: 'smooth' },
->   times: 1,
-> });
+>   times: 2,
+> }));
 > ```
 
-> #### `toHaveCssClass(...classNames)`
+> #### `haveCssClass(classNames)`
 >
 > Expects that the test case's **object** has the specified css classes present on its nativeElement's class list.
 >
 > ```ts
-> toHaveCssClass(...classNames: string[]): void
+> haveCssClass(classNames: (string | string[] | undefined)[]): void
 > ```
 >
 > **Example**:
 >
 > ```ts
+> const Items = () => getAll('.drop-down-item');
 > // expects the CuT to have the css classes "focused" and "selected":
-> ...expect(host).toHaveCssClass('focused', 'selected');
+> ...expect(host).to(haveCssClass('selected'));
+> // if e.g. the first item is irrelevant, you can skip it by passing undefined:
+> ...expect(Items).to(haveCssClass([undefined, 'selected', undefined]))
 > ```
 
-> #### `toBePresent()`
+> #### `beFound(opts?)`
 >
-> Expects that the test case's **object** is present (i.e. can be found) in the CuT's html template.
+> Expects that the test case's **object** can be found in the CuT's html template.
 >
 > ```ts
-> toBePresent(): void
+> beFound(opts?: FindingOptions): void
 > ```
 >
 > **Example**:
@@ -289,7 +372,7 @@ Allows to describe the expected effect that should have happened on the test cas
 > // expects the CloseButton to be findable in CuT's html template:
 > // e.g. when its *ngIf evaluates to "true":
 > const CloseButton = () => get('.btn.close');
-> ...expect(CloseButton).toBePresent();
+> ...expect(CloseButton).beFound();
 > ```
 
 > #### `toBeMissing()`
