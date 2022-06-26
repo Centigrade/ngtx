@@ -164,7 +164,7 @@ export const call = <Html extends HTMLElement, Component, Out>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      tryResolveTarget(targets, 'call/calls').forEach((target) => {
+      tryResolveTarget(targets, call.name).forEach((target) => {
         const token = resolver(target);
         const method = (token as any)[methodName] as Function;
         method.apply(token, ...args);
@@ -180,7 +180,7 @@ export const emit = <Html extends HTMLElement, Type>(
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      tryResolveTarget(targets, 'emit/emits').forEach((subject) => {
+      tryResolveTarget(targets, emit.name).forEach((subject) => {
         if (typeof eventNameOrResolver === 'function') {
           eventNameOrResolver(subject);
         } else {
@@ -197,7 +197,7 @@ export const attributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = tryResolveTarget(targets, 'attributes');
+      const element = tryResolveTarget(targets, attributes.name);
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
@@ -218,7 +218,7 @@ export const state = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = tryResolveTarget(targets, 'state');
+      const element = tryResolveTarget(targets, state.name);
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
@@ -241,7 +241,7 @@ export const haveCssClass = <Html extends HTMLElement, Component>(
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = tryResolveTarget(targets, 'haveCssClass');
+      const subjects = tryResolveTarget(targets, haveCssClass.name);
       // hint: if single class is given as input, it will be expanded to be checked on all subjects:
       const classArray = ensureArrayWithLength(subjects.length, cssClasses);
 
@@ -351,7 +351,7 @@ export const containText = (
 ): ExtensionFn<HTMLElement, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = tryResolveTarget(targets, 'containText');
+      const subjects = tryResolveTarget(targets, containText.name);
       const textArray = asArray(texts);
 
       checkListsHaveSameSize('containText', textArray, subjects);
@@ -376,7 +376,7 @@ export const haveText = (
 ): ExtensionFn<HTMLElement, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const subjects = tryResolveTarget(targets, 'haveText');
+      const subjects = tryResolveTarget(targets, haveText.name);
       const textArray = asArray(texts);
 
       checkListsHaveSameSize('haveText', textArray, subjects);
@@ -404,7 +404,7 @@ export const haveAttributes = <Html extends HTMLElement>(
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const element = tryResolveTarget(targets, 'haveAttributes');
+      const element = tryResolveTarget(targets, haveAttributes.name);
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
@@ -434,7 +434,7 @@ export const haveState = <T>(
 ): ExtensionFn<HTMLElement, T> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const element = tryResolveTarget(targets, 'haveState');
+      const element = tryResolveTarget(targets, haveState.name);
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
