@@ -5,7 +5,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { allOrNth } from '../declarative-testing/harnesses';
 import {
   and,
@@ -111,6 +111,8 @@ class DropDownComponent {
 describe(
   'Declarative Tests',
   ngtx<DropDownComponent>(({ useFixture, When, host, get, getAll }) => {
+    let fixture: ComponentFixture<DropDownComponent>;
+
     beforeEach(async () => {
       await TestBed.configureTestingModule({
         declarations: [DropDownComponent, DropDownItemComponent],
@@ -119,7 +121,7 @@ describe(
     });
 
     beforeEach(() => {
-      const fixture = TestBed.createComponent(DropDownComponent);
+      fixture = TestBed.createComponent(DropDownComponent);
       useFixture(fixture, {
         spyFactory: (retValue) => jest.fn(() => retValue),
       });
@@ -151,6 +153,8 @@ describe(
     });
 
     it('callLifeCycleHook', () => {
+      fixture.detectChanges = jest.fn();
+
       When(host)
         .rendered()
         .and(
@@ -170,22 +174,107 @@ describe(
           haveCalled(componentMethod, 'ngAfterViewInit'),
           haveCalled(componentMethod, 'ngOnDestroy'),
         );
+
+      expect(fixture.detectChanges).toHaveBeenCalledTimes(1);
     });
 
-    it('state -> haveState', () => {
+    it('callLifeCycleHook (target not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(the.NotExistingTarget)
+          .does(
+            callLifeCycleHook({
+              ngOnInit: true,
+              ngOnChanges: {
+                value: 42,
+              },
+              ngAfterViewInit: true,
+              ngOnDestroy: true,
+            }) as any,
+          )
+          .expect(host)
+          .to(),
+      );
+    });
+
+    it('state -> haveState (single)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b', 'c'], opened: true }))
+        .expect(the.Items)
+        .to(haveState({ value: expect.any(String) }));
+    });
+
+    it('state -> haveState (multiple)', () => {
       When(host)
         .has(state({ items: ['a', 'b', 'c'], opened: true }))
         .expect(the.Items)
         .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
     });
 
-    it('attributes -> haveAttributes', () => {
+    it('state -> haveState (function)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b', 'c'], opened: true }))
+        .expect(the.Items)
+        .to(haveState((index) => ({ value: 'abc'[index] })));
+    });
+
+    it('haveState (target not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(host).rendered().expect(the.NotExistingTarget).to(haveState({})),
+      );
+    });
+
+    it('attributes -> haveAttributes (single)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .and(the.ItemContainers)
+        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
+        .expect(the.ItemContainers)
+        .to(haveAttributes({ title: expect.stringContaining('title ') }));
+    });
+
+    it('attributes -> haveAttributes (multiple)', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
         .and(the.ItemContainers)
         .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
         .expect(the.ItemContainers)
         .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
+    });
+
+    it('attributes -> haveAttributes (function)', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .and(the.ItemContainers)
+        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
+        .expect(the.ItemContainers)
+        .to(haveAttributes((index) => ({ title: 'title ' + 'ab'[index] })));
+    });
+
+    it('haveAttributes (target not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(host)
+          .rendered()
+          .expect(the.NotExistingTarget)
+          .to(haveAttributes({})),
+      );
+    });
+
+    it('attributes (not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(the.NotExistingTarget)
+          .has(attributes({ title: 'title' }))
+          .expect(the.ItemContainers)
+          .to(haveAttributes((index) => ({ title: 'title ' + 'ab'[index] }))),
+      );
+    });
+
+    it('attributes -> haveAttributes (not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(host)
+          .rendered()
+          .expect(the.NotExistingTarget)
+          .to(haveAttributes({})),
+      );
     });
 
     it('haveCssClass', () => {
@@ -209,6 +298,15 @@ describe(
         .to(haveCssClass('item'));
     });
 
+    it('haveCssClass -> target not found', () => {
+      expectToThrowNotFoundError(() =>
+        When(host)
+          .rendered()
+          .expect(the.NotExistingTarget)
+          .to(haveCssClass('item')),
+      );
+    });
+
     it('haveText', () => {
       When(host)
         .has(state({ items: ['a', 'b'], opened: true }))
@@ -223,6 +321,15 @@ describe(
         .to(haveText([undefined, 'b']));
     });
 
+    it('haveText -> target not found', () => {
+      expectToThrowNotFoundError(() =>
+        When(host)
+          .rendered()
+          .expect(the.NotExistingTarget)
+          .to(haveText([undefined])),
+      );
+    });
+
     it('containText', () => {
       When(host)
         .has(state({ items: ['item a', 'item b'], opened: true }))
@@ -235,6 +342,12 @@ describe(
         .has(state({ items: ['item a', 'item b'], opened: true }))
         .expect(the.ItemContainers)
         .to(containText([undefined, 'b']));
+    });
+
+    it('containText -> target not found', () => {
+      expectToThrowNotFoundError(() =>
+        When(host).rendered().expect(the.NotExistingTarget).to(containText('')),
+      );
     });
 
     it('emits', () => {
@@ -257,6 +370,12 @@ describe(
         .emits(nativeEvent<HTMLElement>('click'))
         .expect(host)
         .to(haveCalled(componentMethod, 'toggle'));
+    });
+
+    it('emits (target not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(the.NotExistingTarget).emits('').expect(host).to(haveState({})),
+      );
     });
 
     it('beFound', () => {
@@ -308,6 +427,15 @@ describe(
         .to(haveCalled(nativeMethod, 'click'));
     });
 
+    it('clicked (not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(the.NotExistingTarget)
+          .gets(clicked({ nativeClick: true }))
+          .expect(the.Toggle)
+          .to(haveCalled(nativeMethod, 'click')),
+      );
+    });
+
     it('call(componentMethod)', () => {
       When(host)
         .has(state({ opened: false }), and(call(componentMethod, 'open')))
@@ -331,6 +459,15 @@ describe(
         .calls(injected(DropDownComponent), 'close')
         .expect(host)
         .to(haveState({ opened: false }));
+    });
+
+    it('call (target not found)', () => {
+      expectToThrowNotFoundError(() =>
+        When(the.NotExistingTarget)
+          .calls(injected(AlertService), 'show')
+          .expect(host)
+          .to(haveState({ opened: true })),
+      );
     });
 
     it('haveCalled (registerable before first predicate)', () => {
@@ -380,7 +517,12 @@ describe(
           .rendered()
           .expect(the.NotExistingTarget)
           .not.to(haveCalled(componentMethod, 'click')),
-      ).toThrowError(/spies/);
+      ).toThrow(/spies/);
     });
   }),
 );
+
+// --------------------- utility ------------------
+function expectToThrowNotFoundError(fn: Function): void {
+  expect(fn).toThrow(/wasn\'t found/i);
+}

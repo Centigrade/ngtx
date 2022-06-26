@@ -30,7 +30,7 @@ import { TargetRef } from './types';
  * @returns A function that either finds and returns all instances of a query-target, or - if specified - a wanted item of the found instances.
  */
 export function allOrNth<Html extends HTMLElement, T = any>(
-  target: QueryTarget<T>,
+  target: QueryTarget<T> | QueryTarget<T>[],
   getAll: NgtxFixture<Html, T>['getAll'],
 ): AllOrNthTarget<Html, T> {
   const doQuery = () => {

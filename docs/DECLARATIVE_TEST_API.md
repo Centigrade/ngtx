@@ -38,7 +38,13 @@ ngtx provides an easy to read, declarative testing API for Angular tests. This a
 The API follows a schema that is similar to a classic, human-language sentence:
 
 ```
-When <subject> <predicate> expect <object> to <assertion>
+When <subject> <predicate> [and <subject>? <predicate>]* expect <object> not? to <assertion>
+
+Legend:
+-----------------------
+[ ... ]: group
+*: 0 - arbitrary times
+?: optional
 ```
 
 where `<subject>` and `<object>` are references to sub-components located in the template of the component-under-test ("CuT") or even the CuT itself and the `<predicate>` is an action on the `<subject>` triggering an effect on the object, that then will be checked by the `<assertion>`.
@@ -47,19 +53,19 @@ To foster your understanding of this scheme, consider following examples:
 
 ```
 When <the ExpanderComponent> <is open> expect <the ng-content> to <be present>
-     ~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~        ~~~~~~~~~~~~~~~      ~~~~~~~~~~~~
-     subject                  predicate        object              assertion
+     ~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~        ~~~~~~~~~~~~~~~~    ~~~~~~~~~~~~
+     subject                 predicate        object              assertion
 
 When <the ClearButton> <gets clicked> expect <the SearchBox> to <have no text>.
 When <the NativeInput> <emits change event> expect <the CuT> to <emit textChange>.
 ```
 
-Let's see a more advanced test schema:
+Let's see a more advanced test:
 
 ```
-When <the CuT> <is disabled> and <gets clicked> expect <the CuT> to <not toggle openState>.
-     ~~~~~~~~~ ~~~~~~~~~~~~~     ~~~~~~~~~~~~~~        ~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~
-     subject   predicate-1       predicate-2           object       assertion
+When <the DropDown> <is disabled> and <gets clicked> expect <the DropDown> not to <toggle openState>.
+     ~~~~~~~~~~~~~~ ~~~~~~~~~~~~~     ~~~~~~~~~~~~~~        ~~~~~~~~~      ~~~    ~~~~~~~~~~~~~~~~~~~
+     subject        predicate-1       predicate-2           object     negation   assertion
 ```
 
 The power of this scheme is that it can express anything in a pretty natural and human-readable way. It is precise and easy to understand at the same time.
@@ -69,7 +75,7 @@ The power of this scheme is that it can express anything in a pretty natural and
 **In order to set up ngtx' declarative API...**
 
 1. add ngtx to your test suite,
-2. import the `useFixture`-, `When`-, `host`- and `get`-helper and
+2. import the `useFixture`-, `When`-, `host`-, `get`- and/or `getAll`-helper and
 3. add the CuT component type as a generic argument to the ngtx function call
 
 ```ts
@@ -84,29 +90,33 @@ describe(
 Once we have done this, you can create your declarative tests by using the `When` function and a [component test harness][harnesses] class:
 
 ```ts
-import { ngtx, then } from '@centigrade/ngtx';
+import { ngtx, state, haveState, clicked } from '@centigrade/ngtx';
 
-class Expanders {
+// component test harness:
+class the {
   static Title() {
-    // set unknown as ComponentType to improve typing in declarative api later...
-    return get<HTMLSpanElement, unknown>('span.title');
+    return get<HTMLSpanElement>('span.title');
   }
 }
 
+// test case using ngtx' declarative testing api
 it('[ExpanderComponent] should toggle its open property on title click', () => {
-  When(host) // note: "host" is the component-under-test
-    .hasState({ open: false })
-    .and(then(Expanders.Title).emits('click'))
-    .expect(host)
-    .toHaveState({ open: true });
+  // note: "host" is the component-under-test (the expander)
+  When(host) // subject 1
+    .has(state({ open: false })) // predicate operating on subject 1
+    .and(the.Title) // subject 2
+    .gets(clicked()) // predicate operating on subject 2
+    .expect(host) // object
+    .to(haveState({ open: true })); // assertion checking the object
 });
 ```
 
-This test case is complete and works just by describing the starting situation (`subject` and `hasState(...)`) an `predicate` triggering the `object` (`host`) to react with a state change (`toHaveState(...)`).
+> ### The test translates to:
+>
+> When the expander has its class-property `open` set to `false`, and then the title gets clicked,
+> expect the expander to have the open property toggled to `true`.
 
 This test case is just an example. ngtx provides many built-in `predicates` and `assertions` for your convenience. If there are cases that are not possible to test with existing APIs, there are also extension points for custom `predicates` and `assertions`.
-
-In fact you already saw one: the imported `then` function is an `DeclarativeTestExtension` function that is coming with the default ngtx package. But if you want to learn more about extensibility, please take a look at the [extension functions][extensionfns] page.
 
 ## Formal API Documentation
 
@@ -114,15 +124,15 @@ In fact you already saw one: the imported `then` function is an `DeclarativeTest
 >
 > Entry point for ngtx' declarative testing API returning the `DeclarativeTestingApi`.
 >
-> It expects a `PartRef` as only argument. A `PartRef` is a function without parameters that returns a `NgtxElement` (`NgtxMultiElement`s are currently not supported). This `NgtxElement` will be stored as **subject** of the test case.
+> It expects a `TargetRef` as only argument. A `TargetRef` is a function without parameters that returns a `NgtxTarget` (either `NgtxElement` or `NgtxMultiElement`). This `NgtxTarget` will be passed the predicate(s) following in the sentence.
 >
 > ```ts
-> When(subjectRef: PartRef): DeclarativeTestingApi
+> When(subjectRef: TargetRef): DeclarativeTestingApi
 > ```
 
 ---
 
-### DeclarativeTestingApi
+### Declarative Testing API
 
 Provides APIs to describe start situations for your test cases:
 
@@ -145,12 +155,41 @@ Provides APIs to describe start situations for your test cases:
 > });
 > ```
 
-> #### `calls(method, ...args)`
+> #### `calls(targetResolver, methodOnTarget, ...args)`
 >
-> Sets up a call to the specified method on the **subject** (optionally with the passed arguments) and then returns the `AfterPredicateApi`.
+> Sets up a call to the specified method on the target that the target-resolver-function resolved from the **subject** (optionally with the passed arguments) and then returns the `AfterPredicateApi`.
 >
 > ```ts
-> calls(method: keyof Subject, ...callArgs: any[]): AfterPredicateApi
+> calls(resolver: (subject: Subject) => Target, method: keyof Target, ...callArgs: any[]): AfterPredicateApi
+> ```
+>
+> Example
+>
+> ```ts
+> import {
+>   componentMethod,
+>   nativeMethod,
+>   injected /*...*/,
+> } from '@centigrade/ngtx';
+>
+> const DropDown = () => get(DropDownComponent);
+> const Header = () => get(HeaderComponent);
+> const Title = () => get('span.title');
+>
+> When(DropDown)
+>   .calls(componentMethod, 'setOpen', [true])
+>   .expect(DropDown)
+>   .to(haveState({ open: true }));
+>
+> When(DropDown)
+>   .calls(nativeMethod, 'click')
+>   .expect(DropDown)
+>   .to(haveState({ open: true }));
+>
+> When(Header)
+>   .calls(injected(LanguageService), 'setLanguage', ['en-US'])
+>   .expect(Title)
+>   .to(haveText('Welcome!'));
 > ```
 >
 > **Example:**
@@ -170,7 +209,7 @@ Provides APIs to describe start situations for your test cases:
 > When(DialogView).calls(injected(DialogService), 'close').expect(...).to(...);
 > ```
 
-> #### `emits(eventName, arg?)`
+> #### `emits(eventName, arg?)` | `emits(eventDispatcher)`
 >
 > Sets up an event emission on the **subject** (optionally with the passed argument) and then returns the `AfterPredicateApi`.
 >
@@ -206,7 +245,17 @@ Provides APIs to describe start situations for your test cases:
 >
 > ```ts
 > const NativeInput = () => get<HTMLInputElement, unknown>('input');
+>
+> When(NativeInput)
+>   .has(attributes({ value: 'some text' }))
+>   .and(host)
+>   .calls(componentMethod, 'clearText')
+>   .expect(NativeInput)
+>   .to(haveAttribute({ value: '' }));
+> <<<<<<< HEAD
 > When(NativeInput).has(attributes({ disabled: true, value: 'some text' })) ...
+> =======
+> >>>>>> 19876ccc6f31020da115271cea5413d24a06b7fc
 > ```
 
 > #### `state(propMap)`
@@ -221,7 +270,17 @@ Provides APIs to describe start situations for your test cases:
 >
 > ```ts
 > const Expander = () => get(ExpanderComponent);
+>
+> When(Expander)
+>   .has(state({ open: false }))
+>   .and(Expander)
+>   .gets(clicked())
+>   .expect(Expander)
+>   .to(haveState({ open: true }));
+> <<<<<<< HEAD
 > When(Expander).has(state({ open: false })) ...
+> =======
+> >>>>>> 19876ccc6f31020da115271cea5413d24a06b7fc
 > ```
 
 > #### `does(extensionFn)`
@@ -231,7 +290,7 @@ Provides APIs to describe start situations for your test cases:
 > **aliases**: `get`, `gets`, `have`, `has`, `are`, `is`
 >
 > ```ts
-> does(extensionFn: DeclarativeTestExtension): AfterPredicateApi
+> does(extensionFn: ExtensionFn): AfterPredicateApi
 > ```
 >
 > **Example:**
@@ -255,10 +314,10 @@ Provides APIs to describe start situations for your test cases:
 >         for the target type (singular or plural):
 >       */
 >       targets()
->         .subjects()
->         .forEach((subject) => {
+>         .ngtxElements()
+>         .forEach((element) => {
 >           const keyEvent = new KeyboardEvent('keypress', { key: pressedKey });
->           subject.nativeElement.dispatchEvent(keyEvent);
+>           element.nativeElement.dispatchEvent(keyEvent);
 >         });
 >
 >       fixture.detectChanges();
@@ -274,16 +333,16 @@ Provides APIs to describe start situations for your test cases:
 
 ---
 
-### AfterPredicateApi
+### After Predicate API
 
 Allows to specify the **object** of your test case or add additional custom logic to it via the `and` API. The object will always be the thing that will be checked for effects done by the **subject and predicate**. If the assertions on the object fail, your test fails.
 
 > #### `expect(object)`
 >
-> Takes a `PartRef` as a single argument, that will be stored as **object** of the test case. **Objects** are tested against the assertions specified via the `Expectations`-API.
+> Takes a `TargetRef` as a single argument, that will be stored as **object** of the test case. **Objects** are tested against the assertions specified via the `Expectations`-API.
 >
 > ```ts
-> expect(object: PartRef): Expectations
+> expect(object: TargetRef): Expectations
 > ```
 
 > #### `and(extensionFn)`
@@ -291,7 +350,7 @@ Allows to specify the **object** of your test case or add additional custom logi
 > Takes an arbitrary number of extension functions being able to change the internal test state of the current test and returns the `Expectations`. To learn more about extensibility, please refer to the [extension functions][extensionfns] page.
 >
 > ```ts
-> and(...extensionFns: DeclarativeTestExtension[]): Expectations
+> and(...extensionFns: ExtensionFn[]): Expectations
 > ```
 
 ---
@@ -482,7 +541,7 @@ Allows to define assertions that should be run on the `object` at the end of the
 > Allows to add custom (assertion) logic to the test case by allowing to edit its internal state. If you like to learn more on how to extend ngtx, please have a look on the [extension functions][extensionfns] page.
 >
 > ```ts
-> to(extensionFn: DeclarativeTestExtension): void
+> to(extensionFn: ExtensionFn): void
 > ```
 
 ---

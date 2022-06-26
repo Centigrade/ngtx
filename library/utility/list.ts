@@ -3,11 +3,11 @@ export class List<T> extends Array<T> {
     super(...source);
   }
 
-  first(): T | undefined {
-    return this.source[0];
+  first(orDefault?: T): T | undefined {
+    return this.source[0] ?? orDefault;
   }
-  last(): T | undefined {
-    return this.source[this.source.length - 1];
+  last(orDefault?: T): T | undefined {
+    return this.source[this.source.length - 1] ?? orDefault;
   }
   nth(pos: number): T | undefined {
     return this.source[pos - 1];
