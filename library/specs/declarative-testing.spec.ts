@@ -110,78 +110,55 @@ class DropDownComponent {
 
 describe(
   'Declarative Tests',
-  ngtx<DropDownComponent>(({ useFixture, When, host, get, getAll }) => {
-    let fixture: ComponentFixture<DropDownComponent>;
+  ngtx<DropDownComponent>(
+    ({ useFixture, When, host, get, getAll, triggerEvent }) => {
+      let fixture: ComponentFixture<DropDownComponent>;
 
-    beforeEach(async () => {
-      await TestBed.configureTestingModule({
-        declarations: [DropDownComponent, DropDownItemComponent],
-        providers: [{ provide: AlertBaseService, useClass: AlertService }],
-      }).compileComponents();
-    });
-
-    beforeEach(() => {
-      fixture = TestBed.createComponent(DropDownComponent);
-      useFixture(fixture, {
-        spyFactory: (retValue) => jest.fn(() => retValue),
+      beforeEach(async () => {
+        await TestBed.configureTestingModule({
+          declarations: [DropDownComponent, DropDownItemComponent],
+          providers: [{ provide: AlertBaseService, useClass: AlertService }],
+        }).compileComponents();
       });
-    });
 
-    class the {
-      static Toggle() {
-        return get('ngtx_dropdown:toggle');
-      }
-      static ItemsContainer() {
-        return get('ngtx_dropdown:item-container');
-      }
-      static Items = allOrNth(DropDownItemComponent, getAll);
-      static ItemContainers = allOrNth<HTMLElement, HTMLDivElement>(
-        'ngtx_dropdown-item:content-container',
-        getAll,
-      );
-      static NotExistingTarget() {
-        return get('.not-existing');
-      }
-    }
+      beforeEach(() => {
+        fixture = TestBed.createComponent(DropDownComponent);
+        useFixture(fixture, {
+          spyFactory: (retValue) => jest.fn(() => retValue),
+        });
+      });
 
-    it('and(...extensions)', () => {
-      When(host)
-        .rendered()
-        .and(state({ items: ['a', 'b', 'c'], opened: true }))
-        .expect(the.Items)
-        .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
-    });
-
-    it('callLifeCycleHook', () => {
-      fixture.detectChanges = jest.fn();
-
-      When(host)
-        .rendered()
-        .and(
-          callLifeCycleHook({
-            ngOnInit: true,
-            ngOnChanges: {
-              value: 42,
-            },
-            ngAfterViewInit: true,
-            ngOnDestroy: true,
-          }),
-        )
-        .expect(host)
-        .to(
-          haveCalled(componentMethod, 'ngOnInit'),
-          haveCalled(componentMethod, 'ngOnChanges', { args: [{ value: 42 }] }),
-          haveCalled(componentMethod, 'ngAfterViewInit'),
-          haveCalled(componentMethod, 'ngOnDestroy'),
+      class the {
+        static Toggle() {
+          return get('ngtx_dropdown:toggle');
+        }
+        static ItemsContainer() {
+          return get('ngtx_dropdown:item-container');
+        }
+        static Items = allOrNth(DropDownItemComponent, getAll);
+        static ItemContainers = allOrNth<HTMLElement, HTMLDivElement>(
+          'ngtx_dropdown-item:content-container',
+          getAll,
         );
+        static NotExistingTarget() {
+          return get('.not-existing');
+        }
+      }
 
-      expect(fixture.detectChanges).toHaveBeenCalledTimes(1);
-    });
+      it('and(...extensions)', () => {
+        When(host)
+          .rendered()
+          .and(state({ items: ['a', 'b', 'c'], opened: true }))
+          .expect(the.Items)
+          .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
+      });
 
-    it('callLifeCycleHook (target not found)', () => {
-      expectToThrowNotFoundError(() =>
-        When(the.NotExistingTarget)
-          .does(
+      it('callLifeCycleHook', () => {
+        fixture.detectChanges = jest.fn();
+
+        When(host)
+          .rendered()
+          .and(
             callLifeCycleHook({
               ngOnInit: true,
               ngOnChanges: {
@@ -189,337 +166,367 @@ describe(
               },
               ngAfterViewInit: true,
               ngOnDestroy: true,
-            }) as any,
+            }),
           )
           .expect(host)
-          .to(),
-      );
-    });
+          .to(
+            haveCalled(componentMethod, 'ngOnInit'),
+            haveCalled(componentMethod, 'ngOnChanges', {
+              args: [{ value: 42 }],
+            }),
+            haveCalled(componentMethod, 'ngAfterViewInit'),
+            haveCalled(componentMethod, 'ngOnDestroy'),
+          );
 
-    it('state -> haveState (single)', () => {
-      When(host)
-        .has(state({ items: ['a', 'b', 'c'], opened: true }))
-        .expect(the.Items)
-        .to(haveState({ value: expect.any(String) }));
-    });
+        expect(fixture.detectChanges).toHaveBeenCalledTimes(1);
+      });
 
-    it('state -> haveState (multiple)', () => {
-      When(host)
-        .has(state({ items: ['a', 'b', 'c'], opened: true }))
-        .expect(the.Items)
-        .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
-    });
+      it('callLifeCycleHook (target not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(the.NotExistingTarget)
+            .does(
+              callLifeCycleHook({
+                ngOnInit: true,
+                ngOnChanges: {
+                  value: 42,
+                },
+                ngAfterViewInit: true,
+                ngOnDestroy: true,
+              }) as any,
+            )
+            .expect(host)
+            .to(),
+        );
+      });
 
-    it('state -> haveState (function)', () => {
-      When(host)
-        .has(state({ items: ['a', 'b', 'c'], opened: true }))
-        .expect(the.Items)
-        .to(haveState((index) => ({ value: 'abc'[index] })));
-    });
-
-    it('haveState (target not found)', () => {
-      expectToThrowNotFoundError(() =>
-        When(host).rendered().expect(the.NotExistingTarget).to(haveState({})),
-      );
-    });
-
-    it('attributes -> haveAttributes (single)', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], opened: true }))
-        .and(the.ItemContainers)
-        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
-        .expect(the.ItemContainers)
-        .to(haveAttributes({ title: expect.stringContaining('title ') }));
-    });
-
-    it('attributes -> haveAttributes (multiple)', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], opened: true }))
-        .and(the.ItemContainers)
-        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
-        .expect(the.ItemContainers)
-        .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
-    });
-
-    it('attributes -> haveAttributes (function)', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], opened: true }))
-        .and(the.ItemContainers)
-        .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
-        .expect(the.ItemContainers)
-        .to(haveAttributes((index) => ({ title: 'title ' + 'ab'[index] })));
-    });
-
-    it('haveAttributes (target not found)', () => {
-      expectToThrowNotFoundError(() =>
+      it('state -> haveState (single)', () => {
         When(host)
-          .rendered()
-          .expect(the.NotExistingTarget)
-          .to(haveAttributes({})),
-      );
-    });
+          .has(state({ items: ['a', 'b', 'c'], opened: true }))
+          .expect(the.Items)
+          .to(haveState({ value: expect.any(String) }));
+      });
 
-    it('attributes (not found)', () => {
-      expectToThrowNotFoundError(() =>
-        When(the.NotExistingTarget)
-          .has(attributes({ title: 'title' }))
+      it('state -> haveState (multiple)', () => {
+        When(host)
+          .has(state({ items: ['a', 'b', 'c'], opened: true }))
+          .expect(the.Items)
+          .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
+      });
+
+      it('state -> haveState (function)', () => {
+        When(host)
+          .has(state({ items: ['a', 'b', 'c'], opened: true }))
+          .expect(the.Items)
+          .to(haveState((index) => ({ value: 'abc'[index] })));
+      });
+
+      it('haveState (target not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(host).rendered().expect(the.NotExistingTarget).to(haveState({})),
+        );
+      });
+
+      it('attributes -> haveAttributes (single)', () => {
+        When(host)
+          .has(state({ items: ['a', 'b'], opened: true }))
+          .and(the.ItemContainers)
+          .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
           .expect(the.ItemContainers)
-          .to(haveAttributes((index) => ({ title: 'title ' + 'ab'[index] }))),
-      );
-    });
+          .to(haveAttributes({ title: expect.stringContaining('title ') }));
+      });
 
-    it('attributes -> haveAttributes (not found)', () => {
-      expectToThrowNotFoundError(() =>
+      it('attributes -> haveAttributes (multiple)', () => {
         When(host)
-          .rendered()
-          .expect(the.NotExistingTarget)
-          .to(haveAttributes({})),
-      );
-    });
+          .has(state({ items: ['a', 'b'], opened: true }))
+          .and(the.ItemContainers)
+          .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
+          .expect(the.ItemContainers)
+          .to(haveAttributes([{ title: 'title a' }, { title: 'title b' }]));
+      });
 
-    it('haveCssClass', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
-        .expect(the.Items)
-        .to(haveCssClass(['item', ['item', 'selected']]));
-    });
-
-    it('haveCssClass -> skip', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
-        .expect(the.Items)
-        .to(haveCssClass([undefined, ['item', 'selected']]));
-    });
-
-    it('haveCssClass -> single argument', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
-        .expect(the.Items)
-        .to(haveCssClass('item'));
-    });
-
-    it('haveCssClass -> target not found', () => {
-      expectToThrowNotFoundError(() =>
+      it('attributes -> haveAttributes (function)', () => {
         When(host)
-          .rendered()
-          .expect(the.NotExistingTarget)
-          .to(haveCssClass('item')),
-      );
-    });
+          .has(state({ items: ['a', 'b'], opened: true }))
+          .and(the.ItemContainers)
+          .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
+          .expect(the.ItemContainers)
+          .to(haveAttributes((index) => ({ title: 'title ' + 'ab'[index] })));
+      });
 
-    it('haveText', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], opened: true }))
-        .expect(the.ItemContainers)
-        .to(haveText(['a', 'b']));
-    });
+      it('haveAttributes (target not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(host)
+            .rendered()
+            .expect(the.NotExistingTarget)
+            .to(haveAttributes({})),
+        );
+      });
 
-    it('haveText -> skip', () => {
-      When(host)
-        .has(state({ items: ['a', 'b'], opened: true }))
-        .expect(the.ItemContainers)
-        .to(haveText([undefined, 'b']));
-    });
+      it('attributes (not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(the.NotExistingTarget)
+            .has(attributes({ title: 'title' }))
+            .expect(the.ItemContainers)
+            .to(haveAttributes((index) => ({ title: 'title ' + 'ab'[index] }))),
+        );
+      });
 
-    it('haveText -> target not found', () => {
-      expectToThrowNotFoundError(() =>
+      it('attributes -> haveAttributes (not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(host)
+            .rendered()
+            .expect(the.NotExistingTarget)
+            .to(haveAttributes({})),
+        );
+      });
+
+      it('haveCssClass', () => {
         When(host)
-          .rendered()
-          .expect(the.NotExistingTarget)
-          .to(haveText([undefined])),
-      );
-    });
+          .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
+          .expect(the.Items)
+          .to(haveCssClass(['item', ['item', 'selected']]));
+      });
 
-    it('containText', () => {
-      When(host)
-        .has(state({ items: ['item a', 'item b'], opened: true }))
-        .expect(the.ItemContainers)
-        .to(containText(['a', 'b']));
-    });
+      it('haveCssClass -> skip', () => {
+        When(host)
+          .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
+          .expect(the.Items)
+          .to(haveCssClass([undefined, ['item', 'selected']]));
+      });
 
-    it('containText -> skip', () => {
-      When(host)
-        .has(state({ items: ['item a', 'item b'], opened: true }))
-        .expect(the.ItemContainers)
-        .to(containText([undefined, 'b']));
-    });
+      it('haveCssClass -> single argument', () => {
+        When(host)
+          .has(state({ items: ['a', 'b'], value: 'b', opened: true }))
+          .expect(the.Items)
+          .to(haveCssClass('item'));
+      });
 
-    it('containText -> target not found', () => {
-      expectToThrowNotFoundError(() =>
-        When(host).rendered().expect(the.NotExistingTarget).to(containText('')),
-      );
-    });
+      it('haveCssClass -> target not found', () => {
+        expectToThrowNotFoundError(() =>
+          When(host)
+            .rendered()
+            .expect(the.NotExistingTarget)
+            .to(haveCssClass('item')),
+        );
+      });
 
-    it('emits', () => {
-      When(host)
-        .has(
-          state({
-            value: undefined,
-            items: ['a', 'b', 'c'],
-            opened: true,
-          }),
-        )
-        .and(the.Items.nth(2))
-        .emits('activate')
-        .expect(host)
-        .to(haveState({ value: 'b' }));
-    });
+      it('haveText', () => {
+        When(host)
+          .has(state({ items: ['a', 'b'], opened: true }))
+          .expect(the.ItemContainers)
+          .to(haveText(['a', 'b']));
+      });
 
-    it('emits -> nativeEvent', () => {
-      When(the.Toggle)
-        .emits(nativeEvent<HTMLElement>('click'))
-        .expect(host)
-        .to(haveCalled(componentMethod, 'toggle'));
-    });
+      it('haveText -> skip', () => {
+        When(host)
+          .has(state({ items: ['a', 'b'], opened: true }))
+          .expect(the.ItemContainers)
+          .to(haveText([undefined, 'b']));
+      });
 
-    it('emits (target not found)', () => {
-      expectToThrowNotFoundError(() =>
-        When(the.NotExistingTarget).emits('').expect(host).to(haveState({})),
-      );
-    });
+      it('haveText -> target not found', () => {
+        expectToThrowNotFoundError(() =>
+          When(host)
+            .rendered()
+            .expect(the.NotExistingTarget)
+            .to(haveText([undefined])),
+        );
+      });
 
-    it('beFound', () => {
-      When(host)
-        .has(state({ items: [1, 2, 3], opened: true }))
-        .expect(the.Items)
-        .to(beFound());
-    });
+      it('containText', () => {
+        When(host)
+          .has(state({ items: ['item a', 'item b'], opened: true }))
+          .expect(the.ItemContainers)
+          .to(containText(['a', 'b']));
+      });
 
-    it('beFound -> count', () => {
-      When(host)
-        .has(state({ items: [1, 2, 3], opened: true }))
-        .expect(the.Items)
-        .to(beFound({ count: 3 }));
-    });
+      it('containText -> skip', () => {
+        When(host)
+          .has(state({ items: ['item a', 'item b'], opened: true }))
+          .expect(the.ItemContainers)
+          .to(containText([undefined, 'b']));
+      });
 
-    it('beFound -> not', () => {
-      When(host)
-        .has(state({ items: [1, 2, 3], opened: false }))
-        .expect(the.Items)
-        .not.to(beFound());
-    });
+      it('containText -> target not found', () => {
+        expectToThrowNotFoundError(() =>
+          When(host)
+            .rendered()
+            .expect(the.NotExistingTarget)
+            .to(containText('')),
+        );
+      });
 
-    it('beFound -> not -> count', () => {
-      When(host)
-        .has(state({ items: [1], opened: true }))
-        .expect(the.Items)
-        .not.to(beFound({ count: 3 }));
-    });
+      it('emits', () => {
+        When(host)
+          .has(
+            state({
+              value: undefined,
+              items: ['a', 'b', 'c'],
+              opened: true,
+            }),
+          )
+          .and(the.Items.nth(2))
+          .emits('activate')
+          .expect(host)
+          .to(haveState({ value: 'b' }));
+      });
 
-    it('beMissing', () => {
-      When(host)
-        .has(state({ items: [1], opened: false }))
-        .expect(the.Items)
-        .to(beMissing());
-    });
+      it('emits -> nativeEvent', () => {
+        When(the.Toggle)
+          .emits(nativeEvent<HTMLElement>('click'))
+          .expect(host)
+          .to(haveCalled(componentMethod, 'toggle'));
+      });
 
-    it('beMissing -> not', () => {
-      When(host)
-        .has(state({ items: [1], opened: true }))
-        .expect(the.Items)
-        .not.to(beMissing());
-    });
+      it('emits (target not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(the.NotExistingTarget).emits('').expect(host).to(haveState({})),
+        );
+      });
 
-    it('clicked', () => {
-      When(the.Toggle)
-        .gets(clicked({ nativeClick: true }))
-        .expect(the.Toggle)
-        .to(haveCalled(nativeMethod, 'click'));
-    });
+      it('beFound', () => {
+        When(host)
+          .has(state({ items: [1, 2, 3], opened: true }))
+          .expect(the.Items)
+          .to(beFound());
+      });
 
-    it('clicked (not found)', () => {
-      expectToThrowNotFoundError(() =>
-        When(the.NotExistingTarget)
+      it('beFound -> times', () => {
+        When(host)
+          .has(state({ items: [1, 2, 3], opened: true }))
+          .expect(the.Items)
+          .to(beFound({ times: 3 }));
+      });
+
+      it('beFound -> not', () => {
+        When(host)
+          .has(state({ items: [1, 2, 3], opened: false }))
+          .expect(the.Items)
+          .not.to(beFound());
+      });
+
+      it('beFound -> not -> times', () => {
+        When(host)
+          .has(state({ items: [1], opened: true }))
+          .expect(the.Items)
+          .not.to(beFound({ times: 3 }));
+      });
+
+      it('beMissing', () => {
+        When(host)
+          .has(state({ items: [1], opened: false }))
+          .expect(the.Items)
+          .to(beMissing());
+      });
+
+      it('beMissing -> not', () => {
+        When(host)
+          .has(state({ items: [1], opened: true }))
+          .expect(the.Items)
+          .not.to(beMissing());
+      });
+
+      it('clicked', () => {
+        When(the.Toggle)
           .gets(clicked({ nativeClick: true }))
           .expect(the.Toggle)
-          .to(haveCalled(nativeMethod, 'click')),
-      );
-    });
+          .to(haveCalled(nativeMethod, 'click'));
+      });
 
-    it('call(componentMethod)', () => {
-      When(host)
-        .has(state({ opened: false }), and(call(componentMethod, 'open')))
-        .expect(host)
-        .to(haveState({ opened: true }));
-    });
+      it('clicked (not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(the.NotExistingTarget)
+            .gets(clicked({ nativeClick: true }))
+            .expect(the.Toggle)
+            .to(haveCalled(nativeMethod, 'click')),
+        );
+      });
 
-    it('call(nativeMethod)', () => {
-      When(host)
-        .has(state({ opened: false }))
-        .and(the.Toggle)
-        .calls(nativeMethod, 'click')
-        .expect(host)
-        .to(haveState({ opened: true }));
-    });
-
-    it('call(injected)', () => {
-      When(host)
-        .has(state({ items: ['a'], opened: true }))
-        .and(the.Items.first)
-        .calls(injected(DropDownComponent), 'close')
-        .expect(host)
-        .to(haveState({ opened: false }));
-    });
-
-    it('call (target not found)', () => {
-      expectToThrowNotFoundError(() =>
-        When(the.NotExistingTarget)
-          .calls(injected(AlertService), 'show')
-          .expect(host)
-          .to(haveState({ opened: true })),
-      );
-    });
-
-    it('haveCalled (registerable before first predicate)', () => {
-      When(host)
-        .does(call(componentMethod, 'open'))
-        .expect(host)
-        .to(haveCalled(componentMethod, 'open'));
-    });
-
-    it('haveCalled (registerable after first predicate)', () => {
-      When(host)
-        .has(state({ items: ['a'], opened: true }))
-        .and(the.ItemContainers)
-        .calls(injected(DropDownComponent), 'open')
-        .expect(the.ItemContainers)
-        .to(haveCalled(injected(DropDownComponent), 'open'));
-    });
-
-    it('haveCalled (abstract provider)', () => {
-      When(host)
-        .has(state({ items: ['a'], opened: true }))
-        .and(the.ItemContainers.first)
-        .gets(clicked())
-        .expect(the.ItemContainers)
-        .to(haveCalled(injected(AlertBaseService), 'show'));
-    });
-
-    it('haveEmitted (registerable before first predicate)', () => {
-      When(host)
-        .calls(componentMethod, 'open')
-        .expect(host)
-        .to(haveEmitted('openedChange', { arg: true }));
-    });
-
-    it('haveEmitted (registerable after first predicate)', () => {
-      When(host)
-        .has(state({ items: ['a'], opened: true }))
-        .and(the.ItemContainers.first)
-        .gets(clicked())
-        .expect(the.Items.first)
-        .to(haveEmitted('activate', { arg: 'a' }));
-    });
-
-    it('should throw if a spy could not be placed correctly', () => {
-      expect(() =>
+      it('call(componentMethod)', () => {
         When(host)
-          .rendered()
-          .expect(the.NotExistingTarget)
-          .not.to(haveCalled(componentMethod, 'click')),
-      ).toThrow(/spies/);
-    });
-  }),
+          .has(state({ opened: false }), and(call(componentMethod, 'open')))
+          .expect(host)
+          .to(haveState({ opened: true }));
+      });
+
+      it('call(nativeMethod)', () => {
+        When(host)
+          .has(state({ opened: false }))
+          .and(the.Toggle)
+          .calls(nativeMethod, 'click')
+          .expect(host)
+          .to(haveState({ opened: true }));
+      });
+
+      it('call(injected)', () => {
+        When(host)
+          .has(state({ items: ['a'], opened: true }))
+          .and(the.Items.first)
+          .calls(injected(DropDownComponent), 'close')
+          .expect(host)
+          .to(haveState({ opened: false }));
+      });
+
+      it('call (target not found)', () => {
+        expectToThrowNotFoundError(() =>
+          When(the.NotExistingTarget)
+            .calls(injected(AlertService), 'show')
+            .expect(host)
+            .to(haveState({ opened: true })),
+        );
+      });
+
+      it('haveCalled (registerable before first predicate)', () => {
+        When(host)
+          .does(call(componentMethod, 'open'))
+          .expect(host)
+          .to(haveCalled(componentMethod, 'open'));
+      });
+
+      it('haveCalled (registerable after first predicate)', () => {
+        When(host)
+          .has(state({ items: ['a'], opened: true }))
+          .and(the.ItemContainers)
+          .calls(injected(DropDownComponent), 'open')
+          .expect(the.ItemContainers)
+          .to(haveCalled(injected(DropDownComponent), 'open'));
+      });
+
+      it('haveCalled (abstract provider)', () => {
+        When(host)
+          .has(state({ items: ['a'], opened: true }))
+          .and(the.ItemContainers.first)
+          .gets(clicked())
+          .expect(the.ItemContainers)
+          .to(haveCalled(injected(AlertBaseService), 'show'));
+      });
+
+      it('haveEmitted (registerable before first predicate)', () => {
+        When(host)
+          .calls(componentMethod, 'open')
+          .expect(host)
+          .to(haveEmitted('openedChange', { arg: true }));
+      });
+
+      it('haveEmitted (registerable after first predicate)', () => {
+        When(host)
+          .has(state({ items: ['a'], opened: true }))
+          .and(the.ItemContainers.first)
+          .gets(clicked())
+          .expect(the.Items.first)
+          .to(haveEmitted('activate', { arg: 'a' }));
+      });
+
+      it('should throw if a spy could not be placed correctly', () => {
+        expect(() =>
+          When(host)
+            .rendered()
+            .expect(the.NotExistingTarget)
+            .not.to(haveCalled(componentMethod, 'click')),
+        ).toThrow(/spies/);
+      });
+    },
+  ),
 );
 
 // --------------------- utility ------------------

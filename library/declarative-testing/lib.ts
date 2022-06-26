@@ -295,14 +295,14 @@ export const beFound = <Html extends HTMLElement, Component>(
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
-        if (opts?.count) {
-          expect(count).not.toBe(opts.count);
+        if (opts?.times) {
+          expect(count).not.toBe(opts.times);
         } else {
           expect(count).not.toBeGreaterThan(0);
         }
       } else {
-        if (opts?.count) {
-          expect(count).toBe(opts.count);
+        if (opts?.times) {
+          expect(count).toBe(opts.times);
         } else {
           expect(count).toBeGreaterThan(0);
         }
@@ -471,7 +471,7 @@ export interface ClickOptions {
 }
 
 export interface FindingOptions {
-  count?: number;
+  times?: number;
 }
 
 export interface LifeCycleHookCalls<T> {
