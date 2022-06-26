@@ -1,7 +1,7 @@
 ## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; [Assertions][index] &nbsp; → &nbsp; `haveCalled`
 
 [home]: ../README.md
-[docs]: ../DOCUMENTATION.md
+[docs]: ../../DOCUMENTATION.md
 [declarative]: ../index.md
 [index]: ./index.md
 [befound]: ./be-found.md

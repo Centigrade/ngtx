@@ -2,7 +2,7 @@
 
 [home]: ../README.md
 [index]: ./index.md
-[docs]: ../DOCUMENTATION.md
+[docs]: ../../DOCUMENTATION.md
 [declarative]: ../index.md
 [attributes]: ./attributes.md
 [calllifecyclehook]: ./call-life-cycle-hook.md

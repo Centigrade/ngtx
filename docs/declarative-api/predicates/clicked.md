@@ -1,7 +1,7 @@
 ## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][index] &nbsp;→ &nbsp; [Predicates][index] &nbsp; → &nbsp; `clicked`
 
 [home]: ../README.md
-[docs]: ../DOCUMENTATION.md
+[docs]: ../../DOCUMENTATION.md
 [declarative]: ../DECLARATIVE_TEST_API.md
 [index]: ./index.md
 
