@@ -47,9 +47,9 @@ Legend:
 ?: optional
 ```
 
-where `<subject>` and `<object>` are references to sub-components located in the template of the component-under-test ("CuT") or even the CuT itself and the `<predicate>` is an action on the `<subject>` triggering an effect on the object, that then will be checked by the `<assertion>`.
+... where the `<subject>`s and `<object>` are references to parts (such as child-components or HTML elements) located in the template of the component-under-test ("CuT") or the CuT itself; and the `<predicate>` is are actions that get executed on their respective `<subject>`s triggering an effect on the object, that then will be checked by the `<assertion>`.
 
-To foster your understanding of this scheme, consider following examples:
+This might sound a bit abstract, so to foster your understanding of this scheme, consider following examples:
 
 ```
 When <the ExpanderComponent> <is open> expect <the ng-content> to <be present>
@@ -66,6 +66,9 @@ Let's see a more advanced test:
 When <the DropDown> <is disabled> and <gets clicked> expect <the DropDown> not to <toggle openState>.
      ~~~~~~~~~~~~~~ ~~~~~~~~~~~~~     ~~~~~~~~~~~~~~        ~~~~~~~~~      ~~~    ~~~~~~~~~~~~~~~~~~~
      subject        predicate-1       predicate-2           object     negation   assertion
+
+When <the Form> <has errors> and <the OkButton> <gets clicked> expect <CuT> not to <emit close event>.
+When <the CuT> <is disabled> and <NativeInput> <emits input event> expect <CuT> to <have initial text>.
 ```
 
 The power of this scheme is that it can express anything in a pretty natural and human-readable way. It is precise and easy to understand at the same time.

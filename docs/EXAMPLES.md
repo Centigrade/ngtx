@@ -117,7 +117,7 @@ describe(
 
       When(host)
         .has(state({ selectedItem: expectedValue }))
-        .and(callLifeCycleHooks({ ngOnChanges: { selectedItem: true } }))
+        .and(callLifeCycleHook({ ngOnChanges: { selectedItem: true } }))
         .expect(the.DropDownLabel)
         .to(haveText(expectedValue));
     });

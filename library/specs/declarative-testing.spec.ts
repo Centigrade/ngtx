@@ -28,6 +28,7 @@ import {
   state,
 } from '../declarative-testing/lib';
 import { ngtx } from '../ngtx';
+
 @Injectable()
 abstract class AlertBaseService {
   abstract show(msg: string): void;

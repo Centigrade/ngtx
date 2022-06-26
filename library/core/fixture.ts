@@ -141,6 +141,12 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
     return this.root.getAll(queryTarget as any);
   }
 
+  /**
+   * Triggers the specified event on the fixture's root debug-element.
+   * @param name The event name to be dispatched.
+   * @param eventArgs (Optional) The event args to emit.
+   * @deprecated Consider using ngtx' [declarative api](https://github.com/Centigrade/ngtx/blob/experimental/effect-testing-api/docs/DECLARATIVE_TEST_API.md) instead of imperatively calling this helper.
+   */
   public triggerEvent(name: string, eventArgs?: any): void {
     this.checkFixture();
 
