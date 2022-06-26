@@ -65,12 +65,12 @@ export type DeclarativeTestingApi = SpyFactorySetter &
     subject: TargetRef<Html, Component>,
   ) => PredicateApi<Html, Component>);
 
-export type EventResolver = <Html extends HTMLElement, Component>(
+export type EventDispatcher = <Html extends HTMLElement, Component>(
   subject: NgtxElement<Html, Component>,
 ) => void;
 
 interface EmitPredicate<Html extends HTMLElement, Component> {
-  (resolver: EventResolver, arg?: any): ExpectApi<Html, Component>;
+  (resolver: EventDispatcher, arg?: any): ExpectApi<Html, Component>;
   (eventName: Events<Html, Component>, arg?: any): ExpectApi<Html, Component>;
 }
 type CallPredicate<Html extends HTMLElement, Component> = <Out>(

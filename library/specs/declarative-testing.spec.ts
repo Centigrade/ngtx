@@ -135,7 +135,7 @@ describe(
           return get('ngtx_dropdown:item-container');
         }
         static Items = allOrNth(DropDownItemComponent, getAll);
-        static ItemContainers = allOrNth<HTMLElement, HTMLDivElement>(
+        static ItemContainers = allOrNth<HTMLDivElement, unknown>(
           'ngtx_dropdown-item:content-container',
           getAll,
         );

@@ -8,7 +8,7 @@ import {
   CallOptions,
   CssClass,
   EmissionOptions,
-  EventResolver,
+  EventDispatcher,
   Events,
   ExtensionFn,
   IHaveLifeCycleHook,
@@ -170,16 +170,16 @@ export const call = <Html extends HTMLElement, Component, Out>(
   });
 
 export const emit = <Html extends HTMLElement, Type>(
-  eventNameOrResolver: Events<Html, Type> | EventResolver,
+  eventNameOrDispatcher: Events<Html, Type> | EventDispatcher,
   arg?: any,
 ): ExtensionFn<Html, Type> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       tryResolveTarget(targets, emit.name).forEach((subject) => {
-        if (typeof eventNameOrResolver === 'function') {
-          eventNameOrResolver(subject);
+        if (typeof eventNameOrDispatcher === 'function') {
+          eventNameOrDispatcher(subject);
         } else {
-          subject.triggerEvent(eventNameOrResolver as string, arg);
+          subject.triggerEvent(eventNameOrDispatcher as string, arg);
         }
       });
 
