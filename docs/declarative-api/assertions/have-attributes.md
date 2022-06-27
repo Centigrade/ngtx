@@ -23,8 +23,10 @@ This assertion checks if its associated target(s) have the specified attributes 
 ## Signature
 
 ```ts
-haveAttributes(expectedSubstring: string);
+haveAttributes(attrMap: PropertiesOf<Html> | PropertiesOf<Html>[]);
 ```
+
+> where the type constraint `Html` is referring to the HTML-type of the object associated with this assertion.
 
 ## Examples
 
