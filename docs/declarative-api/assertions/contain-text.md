@@ -45,12 +45,12 @@ it('[DropDownLabel] should contain the current value as text', () => {
     .to(containText('Credit'));
 });
 
-it('[DropDownItems] should all contain the word "Items"', () => {
+it('[DropDownItems] should all contain the word "Item"', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
     .to(containText('Item')); // checking for 1 item -> do the single check for all items found -> ok!
-  // checks all found drop-down-items if they contain "Items"
+  // checks all found drop-down-items if they contain "Item"
 });
 
 it('[DropDownItems] should contain their specific identifiers', () => {
