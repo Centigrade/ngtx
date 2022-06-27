@@ -4,6 +4,17 @@
 [docs]: ../../DOCUMENTATION.md
 [declarative]: ../DECLARATIVE_TEST_API.md
 [index]: ./index.md
+[attributes]: ./attributes.md
+[calllifecyclehook]: ./call-life-cycle-hook.md
+[call]: ./call.md
+[clicked]: ./clicked.md
+[debug]: ./debug.md
+[detectchanges]: ./detect-changes.md
+[emit]: ./emit.md
+[state]: ./state.md
+[waitfakeasync]: ./wait-fake-async.md
+
+Quick Navigation: &nbsp; [attributes] ・ [callLifeCycleHook] ・[call] ・clicked ・[debug] ・[detectChanges] ・[emit] ・[state] ・[waitFakeAsync]
 
 ---
 
