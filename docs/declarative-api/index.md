@@ -3,11 +3,9 @@
 [home]: ../README.md
 [docs]: ../DOCUMENTATION.md
 [declarative]: ./built-in.md
-[predicates]: ./predicates/index.md
-[assertions]: ./assertions/index.md
 [extensions]: ./custom-extensions.md
 
-Quick Navigation: &nbsp; [Predicates] ・ [Assertions] ・ [Write Custom Extensions][extensions]
+Quick Navigation: &nbsp; [Built-In Predicates and Assertions][declarative] ・ [Write Custom Extensions][extensions]
 
 ---
 
