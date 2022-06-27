@@ -3,7 +3,7 @@
 [home]: ../README.md
 [index]: ../index.md
 [docs]: ../../DOCUMENTATION.md
-[declarative]: ../DECLARATIVE_TEST_API.md
+[declarative]: ./index.md
 [extensionfns]: ../custom-extensions.md
 
 <!--  -->
