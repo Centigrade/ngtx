@@ -21,7 +21,7 @@ import {
   asArray,
   asNgtxElementListRef,
   checkListsHaveSameSize,
-  ensureArrayWithLength,
+  expandValueToArrayWithLength,
   tryResolveTarget,
 } from './utility';
 
@@ -193,7 +193,7 @@ export const attributes = <Html extends HTMLElement>(
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       const element = tryResolveTarget(targets, attributes.name);
-      const states = ensureArrayWithLength(element.length, stateDef);
+      const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = targets()[index];
@@ -214,7 +214,7 @@ export const state = <T>(
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
       const element = tryResolveTarget(targets, state.name);
-      const states = ensureArrayWithLength(element.length, stateDef);
+      const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];
@@ -238,7 +238,10 @@ export const haveCssClass = <Html extends HTMLElement, Component>(
     addAssertion(() => {
       const subjects = tryResolveTarget(targets, haveCssClass.name);
       // hint: if single class is given as input, it will be expanded to be checked on all subjects:
-      const classArray = ensureArrayWithLength(subjects.length, cssClasses);
+      const classArray = expandValueToArrayWithLength(
+        subjects.length,
+        cssClasses,
+      );
 
       classArray.forEach((cssClass, index) => {
         // hint: allow user to manually skip items by passing null or undefined
@@ -342,9 +345,7 @@ export const containText = (
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const subjects = tryResolveTarget(targets, containText.name);
-      const textArray = asArray(texts);
-
-      checkListsHaveSameSize('containText', textArray, subjects);
+      const textArray = expandValueToArrayWithLength(subjects.length, texts);
 
       textArray.forEach((text, index) => {
         // allow user to skip items via null or undefined
@@ -395,7 +396,7 @@ export const haveAttributes = <Html extends HTMLElement>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const element = tryResolveTarget(targets, haveAttributes.name);
-      const states = ensureArrayWithLength(element.length, stateDef);
+      const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];
@@ -425,7 +426,7 @@ export const haveState = <T>(
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const element = tryResolveTarget(targets, haveState.name);
-      const states = ensureArrayWithLength(element.length, stateDef);
+      const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];
