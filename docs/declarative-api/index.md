@@ -105,4 +105,4 @@ This test case is just an example. ngtx provides many built-in `predicates` and 
 
 ---
 
-Read further about this topic: &nbsp; [Predicates] ・ [Assertions] ・ [Write Custom Extensions][extensions]
+Read further about this topic: &nbsp; [Built-In Predicates and Assertions][declarative] ・ [Write Custom Extensions][extensions]
