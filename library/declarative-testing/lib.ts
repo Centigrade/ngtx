@@ -196,7 +196,7 @@ export const attributes = <Html extends HTMLElement>(
       const states = ensureArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
-        const subject = targets().atIndex(index);
+        const subject = targets()[index];
         const props = Object.entries(state) as [string, any][];
 
         props.forEach(([key, value]) => {
@@ -309,7 +309,7 @@ export const haveCalled = <Html extends HTMLElement, Component, Out>(
   createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
     const resolveTarget = () => {
       // hint: we do not use "tryResolveTarget" here, as the negated assertion must allow for not-found-targets:
-      const subject = targets()?.first();
+      const subject = targets()?.[0];
       return subject ? resolver(subject) : undefined!;
     };
 
@@ -324,7 +324,7 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
   createExtension((targets, { spyOn, addAssertion, isAssertionNegated }) => {
     const resolve = () => {
       // hint: we do not use "tryResolveTarget" here, as this resolver must allow for not-found-targets:
-      const subject = targets()?.first()!;
+      const subject = targets()?.[0];
       const component: any = subject.componentInstance;
 
       if (typeof component[eventName]?.emit === 'function') {

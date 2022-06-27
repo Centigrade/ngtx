@@ -1,5 +1,4 @@
 import { NgtxElement, NgtxMultiElement } from '../core';
-import { List } from '../types';
 import { isTargetFound } from '../utility';
 import { ElementList, ElementListRef, TargetRef } from './types';
 
@@ -34,9 +33,9 @@ export function tryResolveTarget<Html extends HTMLElement, Type>(
 
 export function asElementList<Html extends HTMLElement, Type>(
   value: NgtxElement<Html, Type> | NgtxMultiElement<Html, Type>,
-): List<NgtxElement<Html, Type>> {
+): ElementList<Html, Type> {
   const elements = value instanceof NgtxMultiElement ? value.unwrap() : [value];
-  return new List(elements);
+  return elements;
 }
 
 export function asNgtxElementListRef<Html extends HTMLElement, Type>(

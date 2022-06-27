@@ -1,6 +1,5 @@
 import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
-import { List } from '../types';
 import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
@@ -115,9 +114,10 @@ export type IHaveLifeCycleHook = {
   ngOnDestroy?: Function;
 };
 
-export type ElementList<Html extends HTMLElement, Component> = List<
-  NgtxElement<Html, Component>
->;
+export type ElementList<Html extends HTMLElement, Component> = NgtxElement<
+  Html,
+  Component
+>[];
 
 export type ElementListRef<
   Html extends HTMLElement,
