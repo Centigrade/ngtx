@@ -1,8 +1,8 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][index] &nbsp;→ &nbsp; [Predicates][index] &nbsp; → &nbsp; `clicked`
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp;→ &nbsp; [Predicates][index] &nbsp; → &nbsp; `clicked`
 
 [home]: ../README.md
 [docs]: ../../DOCUMENTATION.md
-[declarative]: ../DECLARATIVE_TEST_API.md
+[declarative]: ../index.md
 [index]: ./index.md
 [attributes]: ./attributes.md
 [calllifecyclehook]: ./call-life-cycle-hook.md

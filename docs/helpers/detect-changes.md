@@ -2,7 +2,7 @@
 
 [home]: ../README.md
 [docs]: ../DOCUMENTATION.md
-[declarative]: ../DECLARATIVE_TEST_API.md
+[declarative]: ../index.md
 [helpers]: ../helpers/index.md
 [get]: ../helpers/get.md
 [get-all]: ../helpers/get-all.md
