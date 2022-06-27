@@ -2,6 +2,7 @@
 
 [home]: ../README.md
 [docs]: ../DOCUMENTATION.md
+[declarative]: ./built-in.md
 [predicates]: ./predicates/index.md
 [assertions]: ./assertions/index.md
 [extensions]: ./custom-extensions.md
@@ -51,6 +52,10 @@ When <the CuT> <is disabled> and <NativeInput> <emits input event> expect <CuT> 
 ```
 
 The power of this scheme is that it can express anything in a pretty natural and human-readable way. It is precise and easy to understand at the same time.
+
+> ## Tip
+>
+> To see what predicates and assertions are built into ngtx, you can have a look at the [built-in functionality overview][declarative].
 
 ## Getting Started
 

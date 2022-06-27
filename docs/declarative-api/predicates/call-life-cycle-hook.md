@@ -1,7 +1,7 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp;→ &nbsp; [Predicates][index] &nbsp; → &nbsp; `callLifeCycleHook`
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp;→ &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `callLifeCycleHook`
 
 [home]: ../README.md
-[index]: ./index.md
+[index]: ../built-in.md
 [docs]: ../../DOCUMENTATION.md
 [declarative]: ../index.md
 [attributes]: ./attributes.md
@@ -14,7 +14,7 @@
 [state]: ./state.md
 [waitfakeasync]: ./wait-fake-async.md
 
-Quick Navigation: &nbsp; [attributes] ・ callLifeCycleHook ・[call] ・[clicked] ・[debug] ・[detectChanges] ・[emit] ・[state] ・[waitFakeAsync]
+Other Predicates: &nbsp; [attributes] ・ callLifeCycleHook ・[call] ・[clicked] ・[debug] ・[detectChanges] ・[emit] ・[state] ・[waitFakeAsync]
 
 ---
 
