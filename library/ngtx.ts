@@ -25,9 +25,7 @@ import { NgtxSuite, UseFixtureOptions } from './types';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-export function ngtx<T = any>(
-  suite: (ngtx: NgtxSuite<T>, ngtxForReference: NgtxSuite<T>) => void,
-) {
+export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   const ngtxFixture = new NgtxFixture();
   const When = createDeclarativeTestingApi(ngtxFixture);
 
@@ -56,5 +54,5 @@ export function ngtx<T = any>(
     triggerEvent: ngtxFixture.triggerEvent.bind(ngtxFixture),
   };
 
-  return () => suite(ngtxImpl, ngtxImpl);
+  return () => suite(ngtxImpl);
 }
