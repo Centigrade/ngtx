@@ -25,35 +25,36 @@ import { NgtxSuite, UseFixtureOptions } from './types';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
+export function ngtx<T = any>(
+  suite: (ngtx: NgtxSuite<T>, ngtxForReference: NgtxSuite<T>) => void,
+) {
   const ngtxFixture = new NgtxFixture();
   const When = createDeclarativeTestingApi(ngtxFixture);
 
-  return () =>
-    suite({
-      useFixture: <Html extends HTMLElement = HTMLElement, T = any>(
-        fixture: ComponentFixture<T>,
-        opts: UseFixtureOptions | boolean = {},
-      ): NgtxFixture<Html, T> => {
-        const options: UseFixtureOptions =
-          typeof opts === 'boolean'
-            ? { skipInitialChangeDetection: opts }
-            : opts;
+  const ngtxImpl = {
+    useFixture: <Html extends HTMLElement = HTMLElement, T = any>(
+      fixture: ComponentFixture<T>,
+      opts: UseFixtureOptions | boolean = {},
+    ): NgtxFixture<Html, T> => {
+      const options: UseFixtureOptions =
+        typeof opts === 'boolean' ? { skipInitialChangeDetection: opts } : opts;
 
-        if (options.spyFactory) {
-          When.setSpyFactory(options.spyFactory);
-        }
+      if (options.spyFactory) {
+        When.setSpyFactory(options.spyFactory);
+      }
 
-        return ngtxFixture.useFixture(
-          fixture,
-          options.skipInitialChangeDetection,
-        ) as NgtxFixture<Html, T>;
-      },
-      When: When as DeclarativeTestingApi,
-      host: () => ngtxFixture.rootElement as NgtxElement<HTMLElement, T>,
-      detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
-      get: ngtxFixture.get.bind(ngtxFixture),
-      getAll: ngtxFixture.getAll.bind(ngtxFixture),
-      triggerEvent: ngtxFixture.triggerEvent.bind(ngtxFixture),
-    });
+      return ngtxFixture.useFixture(
+        fixture,
+        options.skipInitialChangeDetection,
+      ) as NgtxFixture<Html, T>;
+    },
+    When: When as DeclarativeTestingApi,
+    host: () => ngtxFixture.rootElement as NgtxElement<HTMLElement, T>,
+    detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
+    get: ngtxFixture.get.bind(ngtxFixture),
+    getAll: ngtxFixture.getAll.bind(ngtxFixture),
+    triggerEvent: ngtxFixture.triggerEvent.bind(ngtxFixture),
+  };
+
+  return () => suite(ngtxImpl, ngtxImpl);
 }
