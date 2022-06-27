@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { NgtxEmptySet } from '../core/constants';
 import { ngtx } from '../ngtx';
 import { Expect } from './shared/expect';
 
@@ -160,11 +159,11 @@ describe(
       );
     });
 
-    it('should return NgtxEmptySet if nothing could be found', () => {
+    it('should return null if nothing could be found', () => {
       // arrange, act
       const result = getAll('.not-existing');
       // assert
-      expect(result).toBe(NgtxEmptySet);
+      expect(result).toBe(null);
     });
 
     it('should get elements by ngtx attribute', () => {
@@ -190,7 +189,7 @@ describe(
 
       // assert
       expect(spans.length).toBe(3);
-      expect(unreachableFromChild).toBe(NgtxEmptySet);
+      expect(unreachableFromChild).toBe(null);
       Expect.element(reachableFromRoot.first()).toBeComponent(ListComponent);
     });
 
@@ -231,11 +230,9 @@ describe(
       expect(result3.length).toBe(result1.length);
     });
 
-    it('should return NgtxEmptySet if nothing matches', () => {
+    it('should return null if nothing matches', () => {
       // arrange, act, assert
-      expect(getAll(['.not-existing', NotExistingComponent])).toBe(
-        NgtxEmptySet,
-      );
+      expect(getAll(['.not-existing', NotExistingComponent])).toBe(null);
     });
   }),
 );
