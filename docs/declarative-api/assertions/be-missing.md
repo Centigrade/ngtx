@@ -17,3 +17,28 @@
 Other Assertions: &nbsp; [beFound] ・ beMissing ・ [containText] ・ [haveAttributes] ・ [haveCalled] ・ [haveCssClass] ・ [haveEmitted] ・ [haveState] ・ [haveText]
 
 ---
+
+This assertion checks if its associated target(s) are not to be found in the template of the component-under-test.
+
+## Signature
+
+```ts
+beMissing();
+```
+
+## Example
+
+```ts
+class the {
+  static AdminPanel() {
+    return get(AdminPanelComponent);
+  }
+}
+
+it('should hide the admin-panel if the current user is no admin', () => {
+  When(host)
+    .has(state({ user: { role: 'user' } }))
+    .expect(the.AdminPanel)
+    .to(beMissing());
+});
+```
