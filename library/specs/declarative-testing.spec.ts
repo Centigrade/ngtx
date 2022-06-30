@@ -340,6 +340,13 @@ describe(
           .to(containText(['a', 'b']));
       });
 
+      it('containText -> single', () => {
+        When(host)
+          .has(state({ items: ['item a', 'item b'], opened: true }))
+          .expect(the.ItemContainers)
+          .to(containText('item'));
+      });
+
       it('containText -> skip', () => {
         When(host)
           .has(state({ items: ['item a', 'item b'], opened: true }))
