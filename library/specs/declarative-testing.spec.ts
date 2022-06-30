@@ -1,6 +1,5 @@
 import {
   Component,
-  Directive,
   EventEmitter,
   Injectable,
   Input,
@@ -42,11 +41,6 @@ class AlertService extends AlertBaseService {
   }
 }
 
-@Directive({ selector: '[testDirective]' })
-class TestDirective {
-  @Input('testDirective') text = '';
-}
-
 @Component({
   selector: 'app-dropdown-item',
   template: `
@@ -74,19 +68,13 @@ class DropDownItemComponent {
 @Component({
   selector: 'app-dropdown',
   template: `
-    <section
-      testDirective="hello test!"
-      data-ngtx="dropdown:toggle"
-      (click)="toggle()"
-    >
+    <section (click)="toggle()" data-ngtx="dropdown:toggle">
       {{ value }}
     </section>
-
     <section *ngIf="opened" data-ngtx="dropdown:item-container">
       <app-dropdown-item
         *ngFor="let item of items"
         class="item"
-        [testDirective]="item"
         [class.selected]="item === value"
         [value]="item"
         (activate)="value = item"
@@ -128,11 +116,7 @@ describe(
 
       beforeEach(async () => {
         await TestBed.configureTestingModule({
-          declarations: [
-            DropDownComponent,
-            DropDownItemComponent,
-            TestDirective,
-          ],
+          declarations: [DropDownComponent, DropDownItemComponent],
           providers: [{ provide: AlertBaseService, useClass: AlertService }],
         }).compileComponents();
       });
@@ -145,41 +129,21 @@ describe(
       });
 
       class the {
+        static Toggle() {
+          return get('ngtx_dropdown:toggle');
+        }
+        static ItemsContainer() {
+          return get('ngtx_dropdown:item-container');
+        }
         static Items = allOrNth(DropDownItemComponent, getAll);
         static ItemContainers = allOrNth<HTMLDivElement, unknown>(
           'ngtx_dropdown-item:content-container',
           getAll,
         );
-        static Toggle() {
-          return get('ngtx_dropdown:toggle');
-        }
-        static TestDirective() {
-          return the.Toggle().read(TestDirective);
-        }
-        static ItemTestDirectives() {
-          return the.Items().read(TestDirective);
-        }
-        static ItemsContainer() {
-          return get('ngtx_dropdown:item-container');
-        }
         static NotExistingTarget() {
           return get('.not-existing');
         }
       }
-
-      it('read(Directive) (singular)', () => {
-        When(host)
-          .rendered()
-          .expect(the.TestDirective)
-          .to(haveState({ text: 'hello test!' }));
-      });
-
-      it('read(Directive) (plural)', () => {
-        When(host)
-          .has(state({ items: ['a', 'b', 'c'], opened: true }))
-          .expect(the.ItemTestDirectives)
-          .to(haveState([{ text: 'a' }, { text: 'b' }, { text: 'c' }]));
-      });
 
       it('and(...extensions)', () => {
         When(host)

@@ -1,5 +1,4 @@
 import { Type } from '@angular/core';
-import { Token } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget } from '../types';
 import { NgtxElement } from './element';
 
@@ -109,12 +108,6 @@ export class NgtxMultiElement<
   public last(): NgtxElement<Html, Component> {
     const itemCount = this.elements.length;
     return this.elements[itemCount - 1] ?? null;
-  }
-
-  public read<Type>(type: Token<Type>): NgtxMultiElement<Html, Type> {
-    return new NgtxMultiElement(
-      this.elements.map((element) => element.read(type)),
-    );
   }
 
   /**
