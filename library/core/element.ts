@@ -1,8 +1,10 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { Token } from '../declarative-testing/types';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';
+import { OverridableDebugElement } from '../utility/overridable-debug-element';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
 
@@ -130,7 +132,18 @@ export class NgtxElement<
     return trim ? text.trim() : text;
   }
 
-  debug(): void {
+  public read<Type>(type: Token<Type>): NgtxElement<Html, Type> {
+    const instance = this.injector.get(type);
+
+    const debugElement = new OverridableDebugElement<Html, Type>(
+      this.debugElement.nativeNode,
+      instance,
+    );
+
+    return new NgtxElement(debugElement);
+  }
+
+  public debug(): void {
     console.log(printHtml(this.debugElement.nativeElement));
   }
 }
