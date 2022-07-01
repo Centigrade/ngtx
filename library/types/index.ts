@@ -25,13 +25,7 @@ export type NgtxSuite<T> = Omit<
    * component under test with the result of `TestBed.createComponent(TheComponentUnderTest)`.
    * @param fixture The test fixture created by calling `TestBed.createComponent(...)`.
    * @param skipInitialChangeDetection Whether to skip the initial `fixture.detectChanges()` call.
-   * @deprecated Please pass an options-object as second parameter. Passing a boolean is deprecated and will be removed in a future major version.
-   *
-   * Rather use:
-   *
-   * ~~~ts
-   * useFixture(fixture, { skipInitialChangeDetection: true });
-   * ~~~
+   * @deprecated Please pass an options-object as second parameter. Passing a boolean is deprecated and will be removed in a future major version. Rather use: `useFixture(fixture, { skipInitialChangeDetection: true })`
    */
   useFixture(
     fixture: ComponentFixture<T>,
