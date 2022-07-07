@@ -69,7 +69,7 @@ class DropDownItemComponent {
 @Component({
   selector: 'app-dropdown',
   template: `
-    <section (click)="toggle()" data-ngtx="dropdown:toggle">
+    <section (click)="toggle($event)" data-ngtx="dropdown:toggle">
       {{ value }}
     </section>
     <section *ngIf="opened" data-ngtx="dropdown:item-container">
@@ -103,7 +103,13 @@ class DropDownComponent {
   ngAfterViewInit = jest.fn();
   ngOnChanges = jest.fn();
 
-  public toggle(): void {
+  public sideEffect = false;
+
+  public toggle(triggerSideEffect?: boolean): void {
+    if (triggerSideEffect) {
+      this.sideEffect = true;
+    }
+
     this.opened = !this.opened;
   }
   public open(): void {
@@ -472,6 +478,24 @@ describe(
       });
 
       it('clicked', () => {
+        expect(host().componentInstance.opened).toBe(false);
+
+        When(the.Toggle)
+          .gets(clicked())
+          .expect(host)
+          .to(haveState({ opened: true }));
+      });
+
+      it('clicked -> eventArgs', () => {
+        expect(host().componentInstance.sideEffect).toBe(false);
+
+        When(the.Toggle)
+          .gets(clicked({ eventArgs: true }))
+          .expect(host)
+          .to(haveState({ sideEffect: true }));
+      });
+
+      it('clicked -> nativeClick', () => {
         When(the.Toggle)
           .gets(clicked({ nativeClick: true }))
           .expect(the.Toggle)

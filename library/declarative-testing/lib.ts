@@ -97,7 +97,7 @@ export const clicked = <Html extends HTMLElement, Type>(
           if (opts.nativeClick) {
             subject.nativeElement.click();
           } else {
-            subject.triggerEvent('click');
+            subject.triggerEvent('click', opts.eventArgs);
           }
         }
       });
@@ -488,8 +488,17 @@ export interface DetectChangesOptions {
 }
 
 export interface ClickOptions {
+  /** The number of click-events to emit. */
   times?: number;
+  /** Whether to call the nativeElement's click method. Defaults to `false`. */
   nativeClick?: boolean;
+  /**
+   * The event-argument emitted by the click event. Defaults to `undefined` (none).
+   *
+   * ---
+   * **Please Note:** Only takes effect when `nativeClick` has the value `false`.
+   */
+  eventArgs?: any;
 }
 
 export interface FindingOptions {
