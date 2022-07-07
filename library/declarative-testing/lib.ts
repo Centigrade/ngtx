@@ -27,9 +27,15 @@ import {
 
 //#region target resolvers
 export const nativeEvent =
-  <Html extends HTMLElement>(eventName: Events<Html, unknown>) =>
-  (subject: NgtxElement<Html, any>, eventType?: Event) => {
-    const event = eventType ?? new Event(eventName);
+  <Html extends HTMLElement>(
+    eventNameOrInstance: Events<Html, unknown> | Event,
+  ) =>
+  (subject: NgtxElement<Html, any>) => {
+    const event =
+      typeof eventNameOrInstance === 'string'
+        ? new Event(eventNameOrInstance)
+        : eventNameOrInstance;
+
     subject.nativeElement.dispatchEvent(event);
   };
 

@@ -1,6 +1,7 @@
 import {
   Component,
   EventEmitter,
+  HostListener,
   Injectable,
   Input,
   Output,
@@ -89,6 +90,13 @@ class DropDownComponent {
   @Input() items: string[] = [];
   @Input() opened = false;
   @Output() openedChange = new EventEmitter<boolean>();
+
+  @HostListener('keydown', ['$event'])
+  onKeyDown(e: KeyboardEvent): void {
+    if (e.ctrlKey && e.key === 'Enter') {
+      this.toggle();
+    }
+  }
 
   ngOnInit = jest.fn();
   ngOnDestroy = jest.fn();
@@ -383,6 +391,36 @@ describe(
           .emits(nativeEvent<HTMLElement>('click'))
           .expect(host)
           .to(haveCalled(componentMethod, 'toggle'));
+      });
+
+      it('emits -> nativeEvent(EventType)', () => {
+        When(the.Toggle)
+          .emits(
+            nativeEvent<HTMLElement>(
+              new KeyboardEvent('keydown', {
+                ctrlKey: true,
+                key: 'Enter',
+                bubbles: true,
+              }),
+            ),
+          )
+          .expect(host)
+          .to(haveCalled(componentMethod, 'toggle'));
+      });
+
+      it('emits -> nativeEvent(EventType) -> fail', () => {
+        When(the.Toggle)
+          .emits(
+            nativeEvent<HTMLElement>(
+              new KeyboardEvent('keydown', {
+                ctrlKey: true,
+                key: 'p',
+                bubbles: true,
+              }),
+            ),
+          )
+          .expect(host)
+          .not.to(haveCalled(componentMethod, 'toggle'));
       });
 
       it('emits (target not found)', () => {
