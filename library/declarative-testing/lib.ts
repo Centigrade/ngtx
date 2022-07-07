@@ -310,20 +310,44 @@ export const beFound = <Html extends HTMLElement, Component>(
     });
   });
 
-export const haveCalled = <Html extends HTMLElement, Component, Out>(
-  resolver: TargetResolver<Html, Component, Out>,
-  methodName: keyof Out,
+interface haveCalledFn {
+  <Html extends HTMLElement, Component, Out>(
+    resolver: TargetResolver<Html, Component, Out>,
+    methodName: keyof Out,
+    opts?: CallOptions,
+  ): ExtensionFn<Html, Component>;
+  <T extends {}>(spy: T, opts?: CallOptions): ExtensionFn<HTMLElement, any>;
+}
+
+export const haveCalled: haveCalledFn = <
+  Html extends HTMLElement,
+  Component,
+  Out,
+  Spy extends {},
+>(
+  resolver: TargetResolver<Html, Component, Out> | Spy,
+  methodName: keyof Out | CallOptions | undefined,
   opts: CallOptions = {},
 ): ExtensionFn<Html, Component> =>
   createExtension((targets, { addAssertion, spyOn, isAssertionNegated }) => {
-    const resolveTarget = () => {
-      // hint: we do not use "tryResolveTarget" here, as the negated assertion must allow for not-found-targets:
-      const subject = targets()?.[0];
-      return subject ? resolver(subject) : undefined!;
-    };
+    // signature: resolver, methodName, opts
+    if (typeof methodName === 'string') {
+      const resolverFn = resolver as Function;
+      const resolveTarget = () => {
+        // hint: we do not use "tryResolveTarget" here, as the negated assertion must allow for not-found-targets:
+        const subject = targets()?.[0];
+        return subject ? resolverFn(subject) : undefined!;
+      };
 
-    const spy = spyOn(resolveTarget, methodName, opts.whichReturns);
-    addAssertion(() => assertCall(spy, opts, isAssertionNegated));
+      const spy = spyOn(resolveTarget, methodName, opts.whichReturns);
+      addAssertion(() => assertCall(spy, opts, isAssertionNegated));
+    }
+    // signature: spy-instance, opts
+    else {
+      const spy = resolver as any;
+      const opts = (methodName as {}) ?? {};
+      addAssertion(() => assertCall(spy, opts, isAssertionNegated));
+    }
   });
 
 export const haveEmitted = <Html extends HTMLElement, Component>(

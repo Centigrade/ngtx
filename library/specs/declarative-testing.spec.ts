@@ -547,6 +547,17 @@ describe(
           .to(haveCalled(injected(AlertBaseService), 'show'));
       });
 
+      it('haveCalled (spy-instance)', () => {
+        const spy = jest.fn();
+
+        When(host)
+          .has(state({ toggle: spy }))
+          .and(call(componentMethod, 'toggle'))
+          .and(call(componentMethod, 'toggle'))
+          .expect(host)
+          .to(haveCalled(spy, { times: 2 }));
+      });
+
       it('haveEmitted (registerable before first predicate)', () => {
         When(host)
           .calls(componentMethod, 'open')
