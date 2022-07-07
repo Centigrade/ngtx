@@ -136,6 +136,9 @@ export const callLifeCycleHook = <Html extends HTMLElement, Component>(
         if (hooks.ngOnInit) {
           host.ngOnInit!();
         }
+        if (hooks.ngAfterContentInit) {
+          host.ngAfterContentInit!();
+        }
         if (hooks.ngAfterViewInit) {
           host.ngAfterViewInit!();
         }
@@ -509,6 +512,7 @@ export interface LifeCycleHookCalls<T> {
   ngOnInit?: boolean;
   ngOnChanges?: boolean | PropertiesOf<T>;
   ngAfterViewInit?: boolean;
+  ngAfterContentInit?: boolean;
   ngOnDestroy?: boolean;
 }
 

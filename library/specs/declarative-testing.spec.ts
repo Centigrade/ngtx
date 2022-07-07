@@ -100,6 +100,7 @@ class DropDownComponent {
 
   ngOnInit = jest.fn();
   ngOnDestroy = jest.fn();
+  ngAfterContentInit = jest.fn();
   ngAfterViewInit = jest.fn();
   ngOnChanges = jest.fn();
 
@@ -175,9 +176,8 @@ describe(
           .and(
             callLifeCycleHook({
               ngOnInit: true,
-              ngOnChanges: {
-                value: 42,
-              },
+              ngOnChanges: { value: 42 },
+              ngAfterContentInit: true,
               ngAfterViewInit: true,
               ngOnDestroy: true,
             }),
@@ -188,6 +188,7 @@ describe(
             haveCalled(componentMethod, 'ngOnChanges', {
               args: [{ value: 42 }],
             }),
+            haveCalled(componentMethod, 'ngAfterContentInit'),
             haveCalled(componentMethod, 'ngAfterViewInit'),
             haveCalled(componentMethod, 'ngOnDestroy'),
           );

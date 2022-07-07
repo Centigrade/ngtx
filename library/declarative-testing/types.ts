@@ -109,6 +109,7 @@ export interface AssertionApi<Html extends HTMLElement, Component> {
 }
 export type IHaveLifeCycleHook = {
   ngAfterViewInit?: Function;
+  ngAfterContentInit?: Function;
   ngOnInit?: Function;
   ngOnChanges?: Function;
   ngOnDestroy?: Function;
