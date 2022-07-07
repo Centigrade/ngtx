@@ -538,6 +538,13 @@ describe(
           .to(haveState({ opened: false }));
       });
 
+      it('call(withArgs)', () => {
+        When(host)
+          .calls(componentMethod, 'close', [1, 2, 3])
+          .expect(host)
+          .to(haveCalled(componentMethod, 'close', { args: [1, 2, 3] }));
+      });
+
       it('call (target not found)', () => {
         expectToThrowNotFoundError(() =>
           When(the.NotExistingTarget)

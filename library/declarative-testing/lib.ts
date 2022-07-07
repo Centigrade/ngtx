@@ -171,7 +171,7 @@ export const call = <Html extends HTMLElement, Component, Out>(
       tryResolveTarget(targets, call.name).forEach((target) => {
         const token = resolver(target);
         const method = (token as any)[methodName] as Function;
-        method.apply(token, ...args);
+        method.apply(token, args);
       });
 
       fixture.detectChanges();
