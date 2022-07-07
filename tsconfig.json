@@ -7,7 +7,6 @@
     "allowSyntheticDefaultImports": true,
     "suppressImplicitAnyIndexErrors": true,
     "forceConsistentCasingInFileNames": true,
-    "removeComments": true,
     "sourceMap": true,
     "declaration": true,
     "importHelpers": true,
