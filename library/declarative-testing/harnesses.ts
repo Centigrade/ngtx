@@ -1,9 +1,7 @@
 import { Type } from '@angular/core';
-import { plural } from 'pluralize';
 import { NgtxFixture, NgtxMultiElement } from '../core';
 import { QueryTarget } from '../types';
 import { TargetRef } from './types';
-import { fnWithName } from './utility';
 
 /**
  * Creates a harness query that either returns all instances of a given query-target,
@@ -35,32 +33,21 @@ export function allOrNth<Html extends HTMLElement, T = any>(
   target: QueryTarget<T> | QueryTarget<T>[],
   getAll: NgtxFixture<Html, T>['getAll'],
 ): AllOrNthTarget<Html, T> {
-  const subject = Array.isArray(target) ? target[0] : target;
-
-  const singularName = subject.constructor.name;
-  const pluralName = plural(singularName);
-
-  const queryNow: () => NgtxMultiElement<Html, T> = () => {
+  const allOrNthQuery: () => NgtxMultiElement<Html, T> = () => {
     return getAll<Html, T>(target as Type<T>);
   };
 
-  return Object.assign(fnWithName(pluralName, queryNow), {
-    nth: fnWithName(
-      'nth ' + singularName,
-      (nth: number) =>
-        (() => {
-          return queryNow().nth(nth);
-        }) as TargetRef<Html, T>,
-    ),
-    first: fnWithName('first ' + singularName, () => queryNow().first()),
-    last: fnWithName('last' + singularName, () => queryNow().last()),
-    atIndex: fnWithName(
-      singularName + 'at given index',
-      (index: number) =>
-        (() => {
-          return queryNow().atIndex(index);
-        }) as TargetRef<Html, T>,
-    ),
+  return Object.assign(allOrNthQuery, {
+    nth: (nth: number) =>
+      (() => {
+        return allOrNthQuery().nth(nth);
+      }) as TargetRef<Html, T>,
+    first: () => allOrNthQuery().first(),
+    last: () => allOrNthQuery().last(),
+    atIndex: (index: number) =>
+      (() => {
+        return allOrNthQuery().atIndex(index);
+      }) as TargetRef<Html, T>,
   }) as AllOrNthTarget<Html, T>;
 }
 
