@@ -109,3 +109,11 @@ export function scheduleFn(
 
   return [...fnArray, fn];
 }
+
+export function fnWithName<T extends (...args: unknown[]) => unknown>(
+  name: string,
+  original: T,
+): T {
+  original.toString = () => name;
+  return original;
+}
