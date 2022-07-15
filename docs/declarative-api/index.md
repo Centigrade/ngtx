@@ -11,6 +11,44 @@ Quick Navigation: &nbsp; [Built-In Predicates and Assertions][declarative] ・ [
 
 ngtx provides a powerful, yet easy to read, declarative testing API for Angular tests. This api is the next logical step helping us to create short, precise and most of all DRY tests.
 
+### Quick Example
+
+```ts
+import { ngtx, NgtxApi, state, clicked, haveState } from '@centigrade/ngtx';
+
+describe(
+  'ExpanderComponent',
+  ngtx<ExpanderComponent>(({ useFixture, When, host, get }) => {
+    let fixture: ComponentFixture<ExpanderComponent>;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule(/*...*/).compileComponents();
+    });
+
+    beforeEach(async () => {
+      fixture = TestBed.createComponent(ExpanderComponent);
+      useFixture(fixture);
+    });
+
+    @NgtxApi()
+    class the {
+      static ExpanderArrow() {
+        return get('.arrow.btn');
+      }
+    }
+
+    it(`[${the.ExpanderArrow}] should toggle the expander's open state on click`, () => {
+      When(host)
+        .has(state({ open: false }))
+        .and(the.ExpanderArrow)
+        .gets(clicked())
+        .expect(host)
+        .to(haveState({ open: true }));
+    });
+  }),
+);
+```
+
 ### API Schema
 
 The API follows a schema that is similar to a classic, human-language sentence:
