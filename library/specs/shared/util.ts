@@ -1,22 +1,20 @@
 import { NgModule, Type } from '@angular/core';
-import { TestBed, waitForAsync } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 export function configureTestModule(
   component: Type<any>,
   useFixture: Function,
   module?: NgModule,
 ): void {
-  beforeEach(
-    waitForAsync(() => {
-      const definedModule = module ?? {};
-      const definedDeclarations = definedModule.declarations ?? [];
+  beforeEach(async () => {
+    const definedModule = module ?? {};
+    const definedDeclarations = definedModule.declarations ?? [];
 
-      TestBed.configureTestingModule({
-        ...definedModule,
-        declarations: [...definedDeclarations, component],
-      }).compileComponents();
-    }),
-  );
+    await TestBed.configureTestingModule({
+      ...definedModule,
+      declarations: [...definedDeclarations, component],
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     const fixture = TestBed.createComponent(component);

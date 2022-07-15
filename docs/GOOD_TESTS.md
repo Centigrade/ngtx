@@ -5,11 +5,15 @@
 
 > ### First Steps
 >
-> You may want to visit our [first steps page][firststeps].
+> Learn how to integrate ngtx into your test cases step by step. The [first steps page][firststeps] is the perfect starting point, when you never worked with ngtx before.
 >
-> ### API Documentation
+> ### Component Test Harnesses
 >
-> You may want to visit our [API documentation][api].
+> Understand what [Component Test Harnesses][harnesses] are and how you can utilize them to become more DRY in your tests.
+>
+> ### Declarative Testing API Documentation
+>
+> Formal documentation of the [declarative testing api][declarativetests].
 
 ---
 
@@ -17,7 +21,7 @@
 
 &nbsp;
 
-This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be many situations where another approach is also perfectly fine, or even better.
+This article explains to you what we have learnt about testing Angular components. It's a recommendation which we draw from our experience; but it is probably not "the answer to everything" (which is 42 anyway). There may be situations where another approach is also perfectly fine.
 
 > ### Any Ideas?
 >
@@ -30,114 +34,423 @@ This article explains to you what we have learnt about testing Angular component
 >
 > Please create an issue telling us about the points above and how you would like to utilize ngtx.
 
-## Use Component Test-APIs (aka "Component Harnesses")
+## TL;DR
 
-Although being "DRY" is something absolutely normal in production code, this is often not true in testing code. But fact is, the same reasons behind us writing DRY code in production, should urge us to maintaining DRY in testing code as well.
+In order to write good, maintainable tests...
 
-ngtx is featuring a concept that is also known as `Component Harnesses`. Harnesses are an abstraction of the component-under-test against the test suite that actually performs the tests. This way tests use a well-defined API rather than search the component's template for semantic stuff that might change in future.
+- use [Component Test Harnesses][harnesses] and
+- use ngtx' [declarative testing api][declarativetests]
 
-When the component evolves, the tests can stay the same and only the component harness needs to be adapted to the component's change. Moreover, this approach makes your code automatically DRY, since each test-case uses a common API rather than reformulating its search-queries for semantic parts of your component under test.
+That's all you need to do :) If you like to learn more details, just read on. We are going to write our first tests from complete, default Angular tests to using declarative testing.
 
-### Example
+## Prerequisites
 
-Say we have an table component listing some persons and providing basic actions:
+Before you continue with this article, you should have a basic understanding of ngtx' features and a good understanding of component-test harnesses.
+
+If you're unsure about these topics, we recommend you to read these two articles before:
+
+- [Basic knowledge about unit testing in Angular][unittests]
+- [Basic knowledge about ngtx' features][firststeps]
+- [A solid understanding of component test-harnesses][harnesses]
+
+Everybody else should be good to go!
+
+## What You will Learn
+
+- How to create and use component-testing-harnesses in your tests,
+- How to work with ngtx' declarative test api and component test harnesses
+
+At the end of this article you will be able to understand the benefit of declarative tests with ngtx and test-component harnesses. You will also have a proper mental model of declarative test cases and a **basic** understanding of the inner workings.
+
+## Starting from Scratch
+
+In order to know where you want to go, you first need to understand where you come from. That's why our road-map looks like this:
+
+1. introduction of the component to test
+2. writing the tests the good old angular way
+3. adding ngtx and component test harnesses to become more DRY
+4. moving on to declarative test api to get rid of the remaining WET code
+
+## A Simple Expander Component
+
+For out test cases we use a simple expander component. We got the following specs from our designer:
+
+- It has a header section with a customizable title
+- The header section also contains arrow-icon showing the current open or collapsed state.
+- Clicking the header section will toggle the expander's open state
+- When open, the expander's content will be visible; otherwise it should be hidden
+
+> ### Expander Design
+>
+> ![expander in closed state](./media/expander-closed.jpg) > ![expander in opened state](./media/expander-opened.jpg)
+
+### The Component Code
+
+So let's jump right in. To fulfill the requirements, we created the following simple expander component:
+
+```html
+<section class="header" (click)="toggle()">
+  <span>{{ title }}</span>
+  <app-icon [name]="icon"></app-icon>
+</section>
+
+<section *ngIf="open" class="content">
+  <ng-content></ng-content>
+</section>
+```
 
 ```ts
 @Component({
-  template: `
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Age</th>
-        <th>Actions</th>
-      </tr>
-      <tr *ngFor="let person of persons" data-ngtx="item-row">
-        <td>{{ person.name }}</td>
-        <td>{{ person.age }}</td>
-        <td>
-          <button>Edit</button>
-          <button>Delete</button>
-        </td>
-      </tr>
-    </table>
-  `,
+  /* selector, templateUrl, ... */
 })
-class MyTableComponent {
-  @Input() persons: Person[] = [];
+export class ExpanderComponent {
+  @Input() title?: string;
+  @Input() open = false;
+  @Output() openChange = new EventEmitter<boolean>();
+
+  public icon = 'arrow-down';
+
+  public toggle(): void {
+    this.open = !this.open;
+    this.openChange.emit(this.open);
+    this.icon = this.open ? 'arrow-up' : 'arrow-down';
+  }
 }
 ```
 
-When testing this component, the simplest approach is to let the test cases search for their own:
+Easy going. Now we're going to test our component to make sure it's working like we expect it to work. In the first step we will only use Angular's built-in testing features.
+
+> Although we only use Angular testing-features for now, please note that we are using [jest][jest] as testing framework, to make our life just a little bit more comfortable.
+
+Let's have a look on a very basic test suite, that only ensures that the `ExpanderComponent` can be created and rendered without runtime errors occurring:
 
 ```ts
-// BAD: Don't do it that way
-it('should show correct details of a person', () => {
-  // arrange
-  table.items = [{ name: 'Ann', age: 27 }];
+import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { ExpanderComponent } from './expander.component';
+import { IconComponent } from '../icon/icon.component';
 
-  // act
-  detectChanges();
+describe('ExpanderComponent', () => {
+  let fixture: ComponentFixture<ExpanderComponent>;
+  let component: ExpanderComponent;
 
-  // assert
-  const row = get('ngtx_item-row');
-  const name = row.get('td:nth-child(1)').textContent();
-  const age = row.get('td:nth-child(2)').textContent();
-  expect(name).toEqual('Ann');
-  expect(age).toEqual('27');
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [ExpanderComponent, IconComponent],
+    }).compileComponents();
+  });
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ExpanderComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 });
 ```
 
-This would surely work, but we have a problem here. Whenever the component-template changes – let's say, we reorder the columns for some reason – we need to go through **all the tests** and change `td:nth-child(1)` into `td:nth-child(2)` and vice versa.
+In this testing suite we setup the Angular TestBed as usual and only check that the component could be build without any runtime errors. This initial, default test is also known as "smoke test". It simply ensures that there are not major, structural code problems.
 
-Also the css query selectors are everything but semantic. If you read the test case, it's quite hard to parse what the test is really doing here. It's basically a bunch of `magic numbers and strings` put together to get this test running.
+Now we need to test the behavior of our expander component. Let's start testing the out expander component:
 
-All this might not be a big deal for a small number of test-cases, but for medium- to large-sized application this quickly becomes a huge mess being impossible to maintain. But of course we can do better:
+### Tests written with Angular built-in Functionality
 
 ```ts
-// BETTER: Do it that way:
-@NgtxApi()
-class Get {
-  static Row() {
-    return get('ngtx_item-row').withApi(RowApi);
-  }
-}
+describe('ExpanderComponent', () => {
+  // skipping already shown code ...
 
-@NgtxApi()
-class RowApi extends NgtxElement {
-  NameColumn() {
-    return this.get('td:nth-child(1)');
-  }
-  AgeColumn() {
-    return this.get('td:nth-child(2)');
-  }
-}
+  it('should not render the title span when no title was set', () => {
+    // arrange, act
+    component.title = undefined;
+    fixture.detectChanges();
+    // assert
+    const titleSpan = fixture.debugElement.query(By.css('span'));
+    expect(titleSpan).toBeFalsy(); // element not found
+  });
 
-it('should show correct details of a person', () => {
-  // arrange
-  table.items = [{ name: 'Ann', age: 27 }];
+  it('should render the correct title', () => {
+    // arrange
+    const expectedTitle = 'some title';
+    // act
+    component.title = expectedTitle;
+    fixture.detectChanges();
+    // assert
+    const titleSpan = fixture.debugElement.query(By.css('span')).nativeElement;
+    expect(titleSpan.textContent).toContain(expectedTitle);
+  });
 
-  // act
-  detectChanges();
+  it.each([
+    { open: false, icon: 'arrow-down' },
+    { open: true, icon: 'arrow-up' },
+  ])('should have the "$icon"-icon when open is $open', ({ open, icon }) => {
+    // arrange
+    component.open = open;
+    // act
+    fixture.detectChanges();
+    // assert
+    const icon = fixture.debugElement.query(By.directive(IconComponent));
+    expect(icon.name).toBe(icon);
+  });
 
-  // assert
-  const row = Get.Row();
-  const name = row.NameColumn().textContent();
-  const age = row.AgeColumn().textContent();
-  expect(name).toEqual('Ann');
-  expect(age).toEqual('27');
+  it.each([false, true])(
+    'should toggle the open state when clicking the header',
+    (open) => {
+      // arrange
+      component.open = open;
+      // act
+      const header = fixture.debugElement.query(By.css('.header'));
+      header.nativeElement.click();
+      // assert
+      expect(component.open).toBe(!open);
+    },
+  );
 });
 ```
 
-### What's happening in the code above?
+Although incomplete, it's already enough to analyze the tests and find out how we can improve them, to be more stable and readable. So let's have a closer look on these tests: In the **arrange** parts, we set up everything to have a proper starting situation. In the **act** part, we are doing some action that triggers a change, enabling us to check for some result in the **assert** part.
 
-- We're creating a harness class `Get` and provide static query methods in it.
-- In our case we only have a single API `static Row()` yet, but you can easily extend it when other tests need access to further parts of the template.
-- Additionally we create a `RowApi` class, that provides further custom query functions that can be called on the result of the `Row()` call. We attach the `RowApi` to the `static Row()` result by using the `withApi` feature of ngtx.
+So far so good. But did you spot the duplicated code lines across the tests? There are typical occurrences of duplicated code in test cases, such as retrieving references to elements (`debugElement.query(...)`), or `fixture.detectChanges()` calls to apply the changes made in the **arrange** part of the test.
 
-This way we only need to adjust very few lines of code whenever we reorder columns. Also other structural or semantical changes to the component can be handled better since we have a clear overview about the needed APIs for our tests.
+To improve the tests, let's add ngtx to our tests.
 
-It may seem to be overhead to some, but it is really worth it. Of course you need to spend some time in writing the test API, but it saves you far more time when it comes to component changes. Thus our strong recommendation is to follow this pattern, even for smaller components being tested.
+```diff
++ import { ngtx } from '@centigrade/ngtx';
+
+- describe('ExpanderComponent', () => {
++ describe('ExpanderComponent', ngtx(({ useFixture }) => {
+   beforeEach(async () => {
+     // skipping unchanged code as seen in first code listing ...
+   });
+
+   beforeEach(() => {
+     let fixture = TestBed.createComponent(ExpanderComponent);
+     component = fixture.componentInstance;
+-    fixture.detectChanges();
++    useFixture(fixture);
+   });
+
+   it('should create', () => {
+     // ...
+   });
+
+   // ...
+- });
++ }));
+```
+
+Without going into details, the code listing above shows how to initialize ngtx for usage in your test cases.
+
+> If you need more information on setting up ngtx, please refer to the [ngtx: first steps page][firststeps].
+
+After passing the `fixture` to ngtx via the "imported" `useFixture` helper, ngtx is ready to help you with testing. In the next code listing we will rewrite our tests and utilize component test-harnesses to get more DRY:
+
+```diff
+- describe('ExpanderComponent', ngtx(({ useFixture }) => {
++ describe('ExpanderComponent', ngtx(({ useFixture, get, detectChanges }) => {
+  // skipping already shown code ...
+
++ // this is our component testing harness,
++ // we'll use it later inside the tests:
++ class Get {
++   static Header() {
++     return get('.header');
++   }
++   static Title() {
++     return get('span');
++   }
++   static Icon() {
++     return get(IconComponent);
++   }
++ }
+
+  it('should not render the title span when no title was set', () => {
+    // arrange, act
+    component.title = undefined;
+-   fixture.detectChanges();
++   detectChanges();
+    // assert
+-   const titleSpan = fixture.debugElement.query(By.css('span'));
++   const titleSpan = Get.Title();
+    expect(titleSpan).toBeFalsy(); // element not found
+  });
+
+  it('should render the correct title', () => {
+    // arrange
+    const expectedTitle = 'some title';
+    // act
+    component.title = expectedTitle;
+-   fixture.detectChanges();
++   detectChanges();
+    // assert
+-   const titleSpan = fixture.debugElement.query(By.css('span'));
++   const titleSpan = Get.Title();
+    expect(titleSpan.textContent).toContain(expectedTitle);
+  });
+
+  it.each([
+    { open: false, icon: 'arrow-down' },
+    { open: true, icon: 'arrow-up' },
+  ])('should have the "$icon"-icon when open is $open', ({ open, icon }) => {
+    // arrange
+    component.open = open;
+    // act
+-   fixture.detectChanges();
++   detectChanges();
+    // assert
+-   const icon = fixture.debugElement.query(By.directive(IconComponent));
++   const icon = Get.Icon();
+    expect(icon.name).toBe(icon);
+  });
+
+  it.each([false, true])(
+    'should toggle the open state when clicking the header',
+    (open) => {
+      // arrange
+      component.open = open;
+      // act
+-     const header = fixture.debugElement.query(By.css('.header'));
+-     header.nativeElement.click();
++     Get.Icon().nativeElement.click();
+      // assert
+      expect(component.open).toBe(!open);
+    },
+  );
+}));
+```
+
+It's already a bit better. We eliminated the repeating code lines getting us references to some parts of our expander's template and replaced them with calls to our component-testing-harness class. Whenever the HTML of the expander gets restructured, we now just need to change the testing harness class. The tests theirselves can stay exactly the same. This automatically brings you more robust tests.
+
+Also we saved some keystrokes by using ngtx' `detectChanges` helper. It's not a huge difference, but it removes some unnecessary noise from our tests, which is great.
+
+### There's more to improve ...
+
+Currently the tests are written in an imperative coding style. You need to write quite some boilerplate to get the testing state right, then trigger some stuff and then expecting something to have happened.
+
+The problem with this is, that you cannot read the tests as a story. You cannot simply scan over one test and parse its intention right away. You need to read, think and figure out what behavior is actually tested. Also remember: The tests we have seen so far are one of the easier examples. Usual tests contain:
+
+- setting initial state
+- triggering some event
+- expecting something to happen
+
+Written in imperative style, this will quickly bloat your test. So how to fix it?
+
+### The Mental Model (... and why declarative code is cool)
+
+The common `AAA` pattern (arrange, act, assert) is useful when writing imperative tests, as it provides a good code-structure for unit tests. But this only works well for imperative testing-code; such code exactly describes **how to do things** while declarative code focuses on **what to do, not how to do it**.
+
+When we try to move away from `AAA` and think of an unit test more like a short story, another schema becomes useful: `subject predicate object assertion`. It's the same structure human-language sentences have (except the "assertion" part, of course). And that's why it is useful in declarative test contexts: You can express any fact with it, and it feels natural when reading it:
+
+Some examples:
+
+```
+When the expander is open, expect the icon.name to be "arrow-up".
+     ~~~~~~~~~~~~  ~~~~~~~        ~~~~~~~~~~~~~    ~~~~~~~~~~~~~~~
+     subject       predicate      object           assertion
+
+When the clear-button gets clicked, expect the text-field to be empty.
+When the native input emits a change event, expect the host to emit a textChange event.
+...
+```
+
+### Using ngtx' Declarative Testing API
+
+Let's have a look on how to utilize ngtx to move from imperative, repeating code to pretty DRY and extremely readable code:
+
+```diff
+- import { ngtx } from '@centigrade/ngtx';
++ import { ngtx, then } from '@centigrade/ngtx';
+
+- describe('ExpanderComponent', ngtx(({ useFixture, get, detectChanges }) => {
++ describe('ExpanderComponent', ngtx<ExpanderComponent>(
++  ({ useFixture, get, When, host }) => {
+    // skipping already shown code ...
+
+    class Get {
+      static Header() {
+        return get('.header');
+      }
+      static Title() {
+        return get('span');
+      }
+      static Icon() {
+        return get(IconComponent);
+      }
+    }
+
+    it('should not render the title span when no title was set', () => {
+-     // arrange, act
+-     component.title = undefined;
+-     detectChanges();
+-     // assert
+-     const titleSpan = Get.Title();
+-     expect(titleSpan).toBeFalsy(); // element not found
++     When(host)
++       .hasState({ title: undefined })
++       .expect(Get.Title)
++       .toBeMissing(); // element not found
+    });
+
+    it('should render the correct title', () => {
+-     // arrange
+-     const expectedTitle = 'some title';
+-     // act
+-     component.title = expectedTitle;
+-     detectChanges();
+-     // assert
+-     const titleSpan = Get.Title();
+-     expect(titleSpan.textContent).toContain(expectedTitle);
++     const expectedTitle = 'some title';
++     When(host)
++       .hasState({ title: expectedTitle })
++       .expect(Get.Title)
++       .toContainText(expectedTitle);
+    });
+
+    it.each([
+      { open: false, icon: 'arrow-down' },
+      { open: true, icon: 'arrow-up' },
+    ])('should have the "$icon"-icon when open is $open', ({ open, icon }) => {
+-     // arrange
+-     component.open = open;
+-     // act
+-     detectChanges();
+-     // assert
+-     const icon = Get.Icon();
+-     expect(icon.name).toBe(icon);
++     When(host)
++       .hasState({ open: open })
++       .expect(Get.Icon)
++       .toHaveState({ name: icon });
+    });
+
+    it.each([false, true])(
+      'should toggle the open state when clicking the header',
+      (open) => {
+-       // arrange
+-       component.open = open;
+-       // act
+-       const header = fixture.debugElement.query(By.css('.header'));
+-       Get.Icon().nativeElement.click();
+-       // assert
+-       expect(component.open).toBe(!open);
++       When(host)
++         .hasState({ open: open })
++         // please note: "then" function imported from '@centigrade/ngtx' package
++         .and(then(Get.Icon).emits("click"))
++         .expect(host)
++         .toHaveState({ open: !open });
+    }),
+}));
+```
+
+That's much better. Now every test reads just like a short story! There is not much to think about, it's simple and clear. If you want to see a full documentation of ngtx' declarative testing API, please refer to [declarative testing api][declarativetests].
 
 [api]: ./DOCUMENTATION.md
+[harnesses]: ./HARNESSES.md
 [firststeps]: ./FIRST_STEPS.md
 [home]: ../README.md
+[declarativetests]: ./DECLARATIVE_TEST_API.md
+[jest]: https://jestjs.io/
+[unittests]: https://angular.io/guide/testing

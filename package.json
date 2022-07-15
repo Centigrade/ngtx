@@ -1,6 +1,6 @@
 {
   "name": "@centigrade/ngtx",
-  "version": "2.0.5",
+  "version": "2.1.4-alpha.94",
   "description": "The Angular Testing Extensions is a small set of functions, aiming to make your life easier, when testing Angular components.",
   "scripts": {
     "clean": "shx rm -rf dist",
@@ -9,15 +9,17 @@
     "build:umd": "tsc -p tsconfig-cjs.json",
     "build": "shx cp package.json dist/package.json && shx cp README.md dist/README.md && node buildhelper/package-json-preparer.js package.json dist/package.json",
     "start": "npx http-server -o projects/showcase/index.html",
-    "pretest": "npm run build",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "test:pattern": "jest --testPathPattern",
     "test:clear-cache": "jest --clear-cache",
     "lint": "tslint -c tslint.json 'projects/**/*.ts'",
     "lint:format": "prettier --check \"projects/**/*.{ts,scss,html}\" ",
     "format": "prettier --write \"projects/**/*.{ts,scss,html}\"",
-    "publish": "npm run test && npm run build && cd dist && npm publish",
-    "publish:alpha": "npm run build && cd dist && npm publish --tag alpha",
+    "prepublish": "npm run build",
+    "prepublish:alpha": "npm run build",
+    "publish": "npm run test && cd dist && npm publish",
+    "publish:alpha": "npm run test && cd dist && npm publish --tag alpha",
     "publish:preview": "shx mkdir -p ./out && cd dist && npm pack && shx mv -f *.tgz ../out/"
   },
   "contributors": [
@@ -31,24 +33,18 @@
     }
   ],
   "peerDependencies": {
-    "rxjs": ">=6.0.0",
     "@angular/common": ">9.0.0",
     "@angular/compiler": ">9.0.0",
     "@angular/core": ">9.0.0",
     "@angular/platform-browser": ">9.0.0",
-    "@angular/platform-browser-dynamic": ">9.0.0"
+    "rxjs": ">=6.0.0"
   },
   "devDependencies": {
-    "chalk": "^4.1.2",
-    "rxjs": "^7.3.0",
-    "shx": "^0.3.3",
-    "tslint": "^6.1.3",
-    "prettier": "^2.4.1",
     "@angular/common": "^13.0.0",
     "@angular/compiler": "^13.0.0",
     "@angular/core": "^13.0.0",
     "@angular/platform-browser": "^13.0.0",
-    "@angular/platform-browser-dynamic": "^13.0.0",
+    "@angular/platform-browser-dynamic": "^13.3.5",
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-typescript": "^7.15.0",
@@ -56,7 +52,11 @@
     "babel-jest": "^27.2.4",
     "jest": "^27.2.4",
     "jest-preset-angular": "^11.0.0",
+    "prettier": "^2.4.1",
+    "rxjs": "^7.3.0",
+    "shx": "^0.3.3",
     "ts-node": "^10.2.1",
+    "tslint": "^6.1.3",
     "typescript": "^4.4.3",
     "zone.js": "^0.11.4"
   },

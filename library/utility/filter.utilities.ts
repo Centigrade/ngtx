@@ -1,4 +1,4 @@
-import { NgtxElement } from '../entities';
+import { NgtxElement } from '../core';
 
 export function removeDuplicates<T extends NgtxElement>(array: T[]): T[] {
   return array.filter(

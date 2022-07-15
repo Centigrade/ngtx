@@ -3,12 +3,10 @@
 - [ ] Your code builds clean without any errors or (new) warnings
 - [ ] Relevant tests have been written and all tests pass.
 - [ ] You followed the [code rules][rules]
-  - Your commit messages follows the [conventional commit format][commit-format]
   - Breaking changes has been marked as such in respective commits
   - No linting errors or warnings occur
   - All code is formatted by prettier
 - [ ] You have made corresponding changes to the documentation
-- [ ] Any dependent changes have been merged and published in downstream modules
 - [ ] Your PR states all changes made in the project
 
 # Description
@@ -26,5 +24,8 @@ Please delete options that are not relevant.
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] This change requires a documentation update
 
-[commit-format]: https://www.conventionalcommits.org/en/v1.0.0/
+## Screenshots / Gif of Changes (Optional)
+
+-
+
 [rules]: ../CONTRIBUTING.md#a-id%22overview%22a-required-tooling-and-conventions

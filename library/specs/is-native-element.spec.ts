@@ -1,8 +1,8 @@
-import { isNativeElement } from '../type-guards/is-native-element';
+import { isNativeElement } from '../utility/type-guards';
 
 describe('isNativeElement: Environments without HTMLElement type definition', () => {
   beforeEach(() => {
-    window.HTMLElement = undefined;
+    window.HTMLElement = undefined!;
   });
 
   it('should return true for an object with shape { nodeType: 1, nodeName: string }', () => {
@@ -24,7 +24,7 @@ describe('isNativeElement: Environments without HTMLElement type definition', ()
     };
 
     // act
-    window.HTMLElement = undefined;
+    window.HTMLElement = undefined!;
 
     // assert
     expect(isNativeElement(value)).toEqual(false);
@@ -37,7 +37,7 @@ describe('isNativeElement: Environments without HTMLElement type definition', ()
     };
 
     // act
-    window.HTMLElement = undefined;
+    window.HTMLElement = undefined!;
 
     // assert
     expect(isNativeElement(value)).toEqual(false);

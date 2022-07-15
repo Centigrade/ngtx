@@ -4,6 +4,7 @@ const PATHS = {
   mjs: './mjs',
   cjs: './cjs',
 };
+
 class PackageJsonPreparer {
   prepare(input, output) {
     const packageJson = JSON.parse(fs.readFileSync(input, 'utf8'));

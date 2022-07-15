@@ -3,6 +3,8 @@
   "compilerOptions": {
     "module": "UMD",
     "outDir": "dist/cjs",
-    "target": "es5"
+    "target": "es5",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

@@ -2,19 +2,29 @@
   "compilerOptions": {
     "rootDir": "library",
     "moduleResolution": "node",
-    "lib": ["es2018", "dom"],
-    "target": "ES2018",
+    "lib": ["esnext", "dom"],
+    "target": "esnext",
     "allowSyntheticDefaultImports": true,
     "suppressImplicitAnyIndexErrors": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "declaration": true,
+    "importHelpers": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictNullChecks": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true
   },
-  "include": ["library"],
-  "exclude": ["node_modules", "dist", "setupAngularTestEnv.ts"],
-  "files": ["library/index.ts"],
+  "include": ["library", "library/specs"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "setupAngularTestEnv.ts",
+    "library/specs",
+    "library/**/*.spec.ts"
+  ],
   "compileOnSave": false,
   "buildOnSave": false
 }

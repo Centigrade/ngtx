@@ -1,8 +1,7 @@
 export {
-  Chainable,
   ConverterFn,
   LifeCycleHooks,
   NgtxSuite,
   QueryTarget,
-  TypedDebugElement,
+  SpyFactoryFn,
 } from './index';
