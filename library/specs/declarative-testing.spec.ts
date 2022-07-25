@@ -160,6 +160,31 @@ describe(
         }
       }
 
+      it('and (chaining - 1)', () => {
+        const setItems = When(host).has(state({ items: [1, 2, 3] }));
+
+        When(host)
+          .rendered()
+          .and(setItems)
+          .expect(host)
+          .to(haveState({ items: [1, 2, 3] }));
+      });
+
+      it('and (chaining - 2)', () => {
+        const setItems = When(host)
+          .has(state({ items: [1, 2, 3] }))
+          .and(call(componentMethod, 'open'));
+
+        When(host)
+          .rendered()
+          .and(setItems)
+          .expect(host)
+          .to(
+            haveState({ items: [1, 2, 3] }),
+            haveCalled(componentMethod, 'open'),
+          );
+      });
+
       it('and(...extensions)', () => {
         When(host)
           .rendered()

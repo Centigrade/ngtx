@@ -1,13 +1,26 @@
 import { SpyFactoryFn } from '../types';
-import { DeclarativeTestState, SpyRegisterEntry } from './types';
+import { DeclarativeTestState } from './types';
 import { scheduleFn } from './utility';
 
 export class NgtxTestEnv {
-  private testState: DeclarativeTestState = {};
-  private spyRegistry: SpyRegisterEntry[] = [];
+  private testState: DeclarativeTestState = {
+    assertion: [],
+    predicate: [],
+    spyRegistry: [],
+  };
 
   public get isAssertionNegated() {
     return this.testState.negateAssertion;
+  }
+
+  public getEnvState() {
+    return { ...this.testState };
+  }
+
+  public importEnvState(state: DeclarativeTestState): void {
+    this.testState.assertion.push(...state.assertion);
+    this.testState.predicate.push(...state.predicate);
+    this.testState.spyRegistry.push(...state.spyRegistry);
   }
 
   constructor(private spyFactory: SpyFactoryFn) {}
@@ -20,7 +33,7 @@ export class NgtxTestEnv {
   ) => {
     const spy = this.spyFactory(returnValue);
 
-    this.spyRegistry.push({
+    this.testState.spyRegistry.push({
       host,
       methodName: methodName as string,
       done: false,
@@ -43,7 +56,7 @@ export class NgtxTestEnv {
       assertion();
     });
 
-    const spiesLeft = this.spyRegistry.filter((spy) => !spy.done);
+    const spiesLeft = this.testState.spyRegistry.filter((spy) => !spy.done);
 
     if (spiesLeft.length > 0) {
       const errorMessage = `[ngtx]: Not all spies could be placed. Spies left: [${spiesLeft
@@ -65,7 +78,7 @@ export class NgtxTestEnv {
     });
   };
 
-  public updateState = (newState: DeclarativeTestState): void => {
+  public updateState = (newState: Partial<DeclarativeTestState>): void => {
     this.testState = {
       ...this.testState,
       ...newState,
@@ -77,7 +90,7 @@ export class NgtxTestEnv {
   };
 
   private tryPlaceSpies() {
-    this.spyRegistry
+    this.testState.spyRegistry
       .filter((entry) => !entry.done)
       .forEach((entry) => {
         const { host, methodName } = entry;
