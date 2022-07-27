@@ -177,6 +177,15 @@ export type TargetRef<Html extends HTMLElement, Type> = () =>
   | NgtxElement<Html, Type>
   | NgtxMultiElement<Html, Type>;
 
+export type NgtxElementRef<Html extends HTMLElement, Type> = () => NgtxElement<
+  Html,
+  Type
+>;
+export type NgtxMultiElementRef<
+  Html extends HTMLElement,
+  Type,
+> = () => NgtxMultiElement<Html, Type>;
+
 export type HtmlEvents<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
 
