@@ -1,6 +1,6 @@
 {
   "name": "@centigrade/ngtx",
-  "version": "2.1.4-alpha.97",
+  "version": "2.1.4-alpha.98",
   "description": "The Angular Testing Extensions is a small set of functions, aiming to make your life easier, when testing Angular components.",
   "scripts": {
     "clean": "shx rm -rf dist",
