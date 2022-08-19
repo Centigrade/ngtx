@@ -23,7 +23,7 @@ export function queryAllNgtxMarker<Html extends HTMLElement, Component>(
   debugElement: DebugElement,
 ): TypedDebugElement<Html, Component>[] {
   const queryTarget = stripNgtxMarker(query);
-  return debugElement.queryAll(By.css(`[data-ngtx^="${queryTarget}"]`));
+  return debugElement.queryAll(By.css(`[data-ngtx="${queryTarget}"]`));
 }
 
 // -----------------------------------
