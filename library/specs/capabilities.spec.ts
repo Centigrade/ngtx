@@ -100,5 +100,44 @@ describe(
       const items = ['a', 'b', 'c'];
       When(host).has(state({ items })).expect(the.Items.toHaveValue(items));
     });
+
+    it('should work for nth item', () => {
+      const items = ['a', 'b', 'c'];
+      When(host)
+        .has(state({ items }))
+        .expect(the.Items.nth(1).toHaveValue('a'));
+    });
+
+    it('should work for first item', () => {
+      const items = ['a', 'b', 'c'];
+      When(host)
+        .has(state({ items }))
+        .expect(the.Items.first().toHaveValue('a'));
+    });
+
+    it('should work for last item', () => {
+      const items = ['a', 'b', 'c'];
+      When(host)
+        .has(state({ items }))
+        .expect(the.Items.last().toHaveValue('c'));
+    });
+
+    it('should work for where clauses', () => {
+      const items = ['a', 'b', 'c'];
+      When(host)
+        .has(state({ items }))
+        .expect(
+          the.Items.where(
+            (item) => item.componentInstance.value === 'c',
+          ).toHaveValue('c'),
+        );
+    });
+
+    it('should work for negated assertions', () => {
+      const items = ['a', 'b', 'c'];
+      When(host)
+        .has(state({ items }))
+        .expect(the.Items.nth(1).not.toHaveValue('b'));
+    });
   }),
 );
