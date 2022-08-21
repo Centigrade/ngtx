@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
+import { NgtxTestState } from './symbols';
 import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
@@ -59,10 +60,20 @@ export interface SpyFactorySetter {
   setSpyFactory(fn: any): void;
 }
 
+export type SubjectSetterFn = <Html extends HTMLElement, Component>(
+  subject: TargetRef<Html, Component>,
+) => PredicateApi<Html, Component>;
+
+export type DeclarativeExpressionReceiver = <
+  Html extends HTMLElement,
+  Component,
+>(
+  testExpression: ExpectApi<Html, Component>,
+) => ExpectApi<Html, Component>;
+
 export type DeclarativeTestingApi = SpyFactorySetter &
-  (<Html extends HTMLElement, Component>(
-    subject: TargetRef<Html, Component>,
-  ) => PredicateApi<Html, Component>);
+  SubjectSetterFn &
+  DeclarativeExpressionReceiver;
 
 export type EventDispatcher = <Html extends HTMLElement, Component>(
   subject: NgtxElement<Html, Component>,
@@ -97,15 +108,18 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
 }
 
 export interface ExpectApi<Html extends HTMLElement, Component> {
+  [NgtxTestState]: () => DeclarativeTestState;
   and: PredicateFn<Html, Component> & DeclarativeTestingApi;
   expect<Html extends HTMLElement, Component>(
     object: TargetRef<Html, Component>,
   ): AssertionApi<Html, Component>;
+  expect<Html extends HTMLElement, Component>(assertion: NgtxTestEnv): void;
 }
 
 export interface AssertionApi<Html extends HTMLElement, Component> {
   not: AssertionApi<Html, Component>;
   to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
+  will(...assertions: ExtensionFn<Html, Required<Component>>[]): NgtxTestEnv;
 }
 export type IHaveLifeCycleHook = {
   ngAfterViewInit?: Function;

@@ -614,6 +614,16 @@ describe(
             .not.to(haveCalled(componentMethod, 'click')),
         ).toThrow(/spies/);
       });
+
+      it('should allow plugin chaining', () => {
+        const hostHasValueAbc = When(host).has(state({ value: 'abc' }));
+        const hostToHaveValueAbc = When(host)
+          .rendered()
+          .expect(host)
+          .will(haveState({ value: 'abc' }));
+
+        When(hostHasValueAbc).expect(hostToHaveValueAbc);
+      });
     },
   ),
 );

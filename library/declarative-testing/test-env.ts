@@ -54,22 +54,44 @@ export class NgtxTestEnv {
   }
 
   public addAssertion = (fn: () => void): void => {
-    this.updateState({
+    this.overrideState({
       assertion: scheduleFn(this.testState.assertion, () => fn()),
     });
   };
 
   public addPredicate = (fn: () => void): void => {
-    this.updateState({
+    this.overrideState({
       predicate: scheduleFn(this.testState.predicate, () => fn()),
     });
   };
 
-  public updateState = (newState: DeclarativeTestState): void => {
+  /** Takes a test state and uses it to override the internal test state. */
+  public overrideState = (newState: DeclarativeTestState): void => {
     this.testState = {
       ...this.testState,
       ...newState,
     };
+  };
+
+  /**
+   * Takes a test state and adds its contents to the current internal test-state.
+   * Be aware: It will override the internal test state's `negateAssertion` property, though.
+   */
+  public importState(newState: DeclarativeTestState) {
+    this.testState.negateAssertion = newState.negateAssertion;
+
+    if (newState.predicate) {
+      this.testState.predicate = this.testState.predicate ?? [];
+      this.testState.predicate.push(...newState.predicate);
+    }
+    if (newState.assertion) {
+      this.testState.assertion = this.testState.assertion ?? [];
+      this.testState.assertion.push(...newState.assertion);
+    }
+  }
+
+  public getState = (): DeclarativeTestState => {
+    return { ...this.testState };
   };
 
   public negateAssertion = (): void => {

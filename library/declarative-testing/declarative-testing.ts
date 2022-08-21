@@ -2,10 +2,12 @@ import { NgtxFixture } from '../core/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { SpyFactoryFn } from '../types';
 import { call, emit } from './lib';
+import { NgtxTestState } from './symbols';
 import { NgtxTestEnv } from './test-env';
 import {
   DeclarativeTestingApi,
   Events,
+  ExpectApi,
   ExtensionFn,
   ExtensionFnMarker,
   ExtensionFnSignature,
@@ -24,27 +26,42 @@ export const createDeclarativeTestingApi = (
     Html extends HTMLElement,
     Type,
   >(
-    target: TargetRef<Html, Type>,
+    target: TargetRef<Html, Type> | ExpectApi<Html, Type>,
   ) => {
     const testEnv: NgtxTestEnv =
       existingTestEnv ??
       new NgtxTestEnv(spyFactory ?? NGTX_GLOBAL_CONFIG.defaultSpyFactory);
 
     const assertionsApi = <Html extends HTMLElement, Type>(
-      target: TargetRef<Html, Type>,
-    ) => ({
-      to(...fns: ExtensionFn<Html, Type>[]) {
+      target: TargetRef<Html, Type> | NgtxTestEnv,
+    ) => {
+      if (target instanceof NgtxTestEnv) {
+        testEnv.importState(target.getState());
+        return testEnv.executeTest();
+      }
+
+      const addAssertions = (fns: ExtensionFn<Html, Type>[]) => {
         const elementListRef = asNgtxElementListRef<Html, Type>(target);
 
         fns.forEach((fn) => {
           fn(elementListRef, testEnv, fx);
         });
+      };
 
-        testEnv.executeTest();
-      },
-    });
+      return {
+        to(...fns: ExtensionFn<Html, Type>[]): void {
+          addAssertions(fns);
+          testEnv.executeTest();
+        },
+        will(...fns: ExtensionFn<Html, Type>[]): NgtxTestEnv {
+          addAssertions(fns);
+          return testEnv;
+        },
+      };
+    };
 
     const expectationApi = {
+      [NgtxTestState]: testEnv.getState,
       and: <Html extends HTMLElement, Type>(
         first: TargetRef<Html, Type> | ExtensionFn<Html, Type>,
         ...others: any[]
@@ -64,7 +81,7 @@ export const createDeclarativeTestingApi = (
           not: new Proxy(expectationApi, {
             get: (_: any, propertyName: string) => {
               testEnv.negateAssertion();
-              return assertionsApi(target)[propertyName];
+              return assertionsApi(target)?.[propertyName];
             },
           }),
         });
@@ -72,6 +89,10 @@ export const createDeclarativeTestingApi = (
     };
 
     const addPredicate = (...fns: ExtensionFn<Html, Type>[]) => {
+      if (isExpectApi(target)) {
+        return;
+      }
+
       // hint: targetRef could resolve to NgtxElement or NgtxMultiElement. To simplify extension fn implementations, we
       // unify the result to become a List<NgtxElement>. This way extension functions only need to handle the "plural" case,
       // where multiple items were targeted. If a single element was targeted, it is simply the single element in that list.
@@ -94,6 +115,12 @@ export const createDeclarativeTestingApi = (
 
     const emitFn = (eventName: Events<Html, Type>, args?: any) =>
       addPredicate(emit(eventName, args));
+
+    if (isExpectApi(target)) {
+      const testState = target[NgtxTestState];
+      testEnv.importState(testState());
+      return expectationApi;
+    }
 
     return {
       calls: callFn,
@@ -130,4 +157,15 @@ function isExtension<Html extends HTMLElement, Type>(
   value: TargetRef<Html, Type> | ExtensionFn<Html, Type>,
 ): value is ExtensionFn<Html, Type> {
   return (value as ExtensionFn<Html, Type>).__ngtxExtensionFn === true;
+}
+
+function isExpectApi<Html extends HTMLElement, Component>(
+  value: unknown,
+): value is ExpectApi<Html, Component> {
+  return (
+    typeof value === 'object' &&
+    value != null &&
+    'expect' in value &&
+    'and' in value
+  );
 }
