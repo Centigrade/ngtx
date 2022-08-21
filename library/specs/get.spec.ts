@@ -171,12 +171,10 @@ describe(
       const all = fixture.debugElement.queryAll(By.css('[data-ngtx]'));
       const first = getAll('ngtx_test:item.1');
       const second = getAll('ngtx_test:item.2');
-      const withoutId = getAll('ngtx_test:item');
 
       // assert
       expect(first.first().debugElement).toEqual(all[0]);
       expect(second.first().debugElement).toEqual(all[1]);
-      expect(withoutId.map((x) => x.debugElement)).toEqual(all);
     });
 
     it('should be chainable', () => {

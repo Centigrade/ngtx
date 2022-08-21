@@ -1,9 +1,14 @@
 import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
-import { NgtxTestState } from './symbols';
+import { NgtxDeclarativeApi } from './symbols';
 import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
+
+type WhenChainImport<Html extends HTMLElement, Component> = (
+  chainPart: NgtxDeclarativeApiStatement,
+) => ExpectApi<Html, Component>;
+
 type PredicateFn<Html extends HTMLElement, Component> = (
   // hint: Required<Component> to normalize Component's type, so that extension-fns
   // using "keyof Component" can safely use all of them, even keys being optional (e.g. age?: number).
@@ -50,6 +55,9 @@ export type ExtensionFn<
   Html extends HTMLElement,
   Component,
 > = ExtensionFnSignature<Html, Component> & ExtensionFnMarker;
+export type NgtxDeclarativeApiStatement = {
+  [NgtxDeclarativeApi]: NgtxTestEnv;
+};
 
 export type CssClass = string | undefined;
 export type TargetResolver<Html extends HTMLElement, Type, Output> = (
@@ -89,7 +97,8 @@ type CallPredicate<Html extends HTMLElement, Component> = <Out>(
   args?: any[],
 ) => ExpectApi<Html, Component>;
 
-export interface PredicateApi<Html extends HTMLElement, Component> {
+export interface PredicateApi<Html extends HTMLElement, Component>
+  extends NgtxDeclarativeApiStatement {
   emit: EmitPredicate<Html, Component>;
   emits: EmitPredicate<Html, Component>;
 
@@ -107,16 +116,19 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
   are: PredicateFn<Html, Component>;
 }
 
-export interface ExpectApi<Html extends HTMLElement, Component> {
-  [NgtxTestState]: () => DeclarativeTestState;
-  and: PredicateFn<Html, Component> & DeclarativeTestingApi;
+export interface ExpectApi<Html extends HTMLElement, Component>
+  extends NgtxDeclarativeApiStatement {
+  and: PredicateFn<Html, Component> &
+    WhenChainImport<Html, Component> &
+    DeclarativeTestingApi;
   expect<Html extends HTMLElement, Component>(
     object: TargetRef<Html, Component>,
   ): AssertionApi<Html, Component>;
   expect<Html extends HTMLElement, Component>(assertion: NgtxTestEnv): void;
 }
 
-export interface AssertionApi<Html extends HTMLElement, Component> {
+export interface AssertionApi<Html extends HTMLElement, Component>
+  extends NgtxDeclarativeApiStatement {
   not: AssertionApi<Html, Component>;
   to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
   will(...assertions: ExtensionFn<Html, Required<Component>>[]): NgtxTestEnv;
@@ -177,6 +189,15 @@ export type TargetRef<Html extends HTMLElement, Type> = () =>
   | NgtxElement<Html, Type>
   | NgtxMultiElement<Html, Type>;
 
+export type NgtxElementRef<Html extends HTMLElement, Type> = () => NgtxElement<
+  Html,
+  Type
+>;
+export type NgtxMultiElementRef<
+  Html extends HTMLElement,
+  Type,
+> = () => NgtxMultiElement<Html, Type>;
+
 export type HtmlEvents<T extends string | number | Symbol> =
   T extends `on${infer Suffix}` ? Suffix : never;
 
@@ -222,7 +243,7 @@ export interface DeclarativeTestState {
    * When(host).is(disabled).expect(...).to(...);
    * ~~~
    */
-  predicate?: (() => void)[];
+  predicate: (() => void)[];
   /**
    * The `assertion` part of the test case. Override or wrap this function in
    * order to run expectations on the test's `object`. In traditional (AAA)
@@ -246,7 +267,8 @@ export interface DeclarativeTestState {
    * When(...).has(...).expect(Input).to(haveFocus);
    * ~~~
    */
-  assertion?: (() => void)[];
+  assertion: (() => void)[];
+  spyRegistry: SpyRegisterEntry[];
 }
 
 export interface SpyRegisterEntry {
