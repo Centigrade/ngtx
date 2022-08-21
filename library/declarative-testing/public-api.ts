@@ -1,3 +1,4 @@
+export { Capabilities } from './capabilities';
 export {
   createDeclarativeTestingApi,
   createExtension,
