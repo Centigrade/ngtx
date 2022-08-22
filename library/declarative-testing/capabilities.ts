@@ -1,6 +1,6 @@
 import { NgtxElement, NgtxMultiElement } from '../core';
-import { beFound, FindingOptions } from './lib';
-import { DeclarativeTestingApi, TargetRef } from './types';
+import { beFound, FindingOptions, haveEmitted, haveState, state } from './lib';
+import { DeclarativeTestingApi, EmissionOptions, TargetRef } from './types';
 import { asNgtxElementListRef } from './utility';
 
 export class Capabilities<T> {
@@ -17,7 +17,7 @@ export class Capabilities<T> {
   }
 
   constructor(
-    protected _when: DeclarativeTestingApi,
+    private _when: DeclarativeTestingApi,
     private _components: TargetRef<HTMLElement, T>,
   ) {}
 
@@ -25,6 +25,34 @@ export class Capabilities<T> {
     this.negate = !this.negate;
     return this;
   }
+
+  protected prop = {
+    setter: <P extends keyof T = keyof T>(name: P, defaultValue?: T[P]) => {
+      return (value: T[P] = defaultValue!) =>
+        this.whenComponents.has(state({ [name]: value }));
+    },
+    assertion: <P extends keyof T = keyof T>(name: P) => {
+      return (value: T[P] | T[P][]) => {
+        const valuesToCheck = Array.isArray(value)
+          ? value.map((x) => ({ [name]: x }))
+          : { [name]: value };
+        return this.expectComponents.will(haveState(valuesToCheck));
+      };
+    },
+  };
+
+  protected event = {
+    emitter: <P extends keyof T>(name: P) => {
+      return (arg?: any) => {
+        return this.whenComponents.emits(name, arg);
+      };
+    },
+    assertion: <P extends keyof T = keyof T>(name: P) => {
+      return (opts: EmissionOptions = {}) => {
+        return this.expectComponents.will(haveEmitted(name, opts));
+      };
+    },
+  };
 
   public first() {
     return this.atIndex(0);

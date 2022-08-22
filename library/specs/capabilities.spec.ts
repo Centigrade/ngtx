@@ -3,8 +3,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Capabilities } from '../declarative-testing/capabilities';
 import {
   beFound,
+  classMember,
+  componentMethod,
   detectChanges,
-  haveEmitted,
+  haveCalled,
   haveState,
   state,
 } from '../declarative-testing/lib';
@@ -46,27 +48,17 @@ class ListComponent {
 }
 
 class ItemCapabilities extends Capabilities<ItemComponent> {
-  public hasValue(value: string) {
-    return this.whenComponents.have(state({ value }));
-  }
-  public toHaveValue(value: string | string[]) {
-    const check = Array.isArray(value)
-      ? value.map((x) => ({ value: x }))
-      : { value };
-    return this.expectComponents.will(haveState(check));
-  }
-  public activates() {
-    return this.whenComponents.emit('activate');
-  }
-  public toHaveBeenActivated() {
-    return this.expectComponents.will(haveEmitted('activate'));
-  }
+  public hasValue = this.prop.setter('value', '');
+  public toHaveValue = this.prop.assertion('value');
+  public activates = this.event.emitter('activate');
+  public toHaveBeenActivated = this.event.assertion('activate');
 }
 
 describe(
   'Capabilities',
-  ngtx<ListComponent>(({ useFixture, When, host, getAll }) => {
+  ngtx<ListComponent>(({ useFixture, When, host, get, getAll }) => {
     let fixture: ComponentFixture<ListComponent>;
+    const FirstItem = () => get(ItemComponent);
 
     beforeEach(async () => {
       await TestBed.configureTestingModule({
@@ -111,7 +103,7 @@ describe(
       const items = ['a', 'b', 'c'];
       When(host)
         .has(state({ items }))
-        .expect(the.Items.nth(1).toHaveValue('a'));
+        .expect(the.Items.first().toHaveValue('a'));
     });
 
     it('should work for first item', () => {
@@ -143,14 +135,48 @@ describe(
       const items = ['a', 'b', 'c'];
       When(host)
         .has(state({ items }))
-        .expect(the.Items.nth(1).not.toHaveValue('b'));
+        .expect(the.Items.first().not.toHaveValue('b'));
     });
 
     it('should work for negated assertions', () => {
-      When(the.Items.nth(1).activates())
+      When(the.Items.first().activates())
         .and(detectChanges({ viaChangeDetectorRef: true }))
         .expect(host)
         .to(beFound());
+    });
+
+    it('should work for prop setter', () => {
+      When(the.Items.first().hasValue('test'))
+        .and(detectChanges({ viaChangeDetectorRef: true }))
+        .expect(FirstItem)
+        .to(haveState({ value: 'test' }));
+    });
+
+    it('should work for prop assertions', () => {
+      When(FirstItem)
+        .has(state({ value: 'test' }))
+        .and(detectChanges({ viaChangeDetectorRef: true }))
+        .expect(the.Items.first().toHaveValue('test'));
+    });
+
+    it('should work for event emitter', () => {
+      When(the.Items.first().activates('eventArg'))
+        .expect(host)
+        .to(
+          haveCalled(componentMethod, 'select', {
+            args: ['eventArg'],
+          }),
+        );
+    });
+
+    it('should work for event emission assertions', () => {
+      When(FirstItem)
+        .calls(classMember('activate'), 'emit', ['42'])
+        .expect(
+          the.Items.first().toHaveBeenActivated({
+            arg: '42',
+          }),
+        );
     });
   }),
 );

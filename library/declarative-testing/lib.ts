@@ -43,6 +43,12 @@ export const componentMethod = <T>(element: NgtxElement<HTMLElement, T>) => {
   return element.componentInstance;
 };
 
+export const classMember =
+  <T, P extends keyof T = keyof T>(name: P) =>
+  (element: NgtxElement<HTMLElement, T>) => {
+    return element.componentInstance[name];
+  };
+
 export const nativeMethod = <T extends HTMLElement>(
   element: NgtxElement<T, any>,
 ) => {
