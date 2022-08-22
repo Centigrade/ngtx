@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
-import { NgtxDeclarativeApi } from './symbols';
+import { NgtxTestState } from './symbols';
 import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
@@ -56,7 +56,7 @@ export type ExtensionFn<
   Component,
 > = ExtensionFnSignature<Html, Component> & ExtensionFnMarker;
 export type NgtxDeclarativeApiStatement = {
-  [NgtxDeclarativeApi]: NgtxTestEnv;
+  [NgtxTestState]: NgtxTestEnv;
 };
 
 export type CssClass = string | undefined;

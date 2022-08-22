@@ -2,7 +2,7 @@ import { NgtxFixture } from '../core/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { SpyFactoryFn } from '../types';
 import { call, emit } from './lib';
-import { NgtxDeclarativeApi } from './symbols';
+import { NgtxTestState } from './symbols';
 import { NgtxTestEnv } from './test-env';
 import {
   DeclarativeTestingApi,
@@ -62,7 +62,7 @@ export const createDeclarativeTestingApi = (
     };
 
     const expectationApi = {
-      [NgtxDeclarativeApi]: testEnv,
+      [NgtxTestState]: testEnv,
       and: <Html extends HTMLElement, Type>(
         first: TargetRef<Html, Type> | ExtensionFn<Html, Type>,
         ...others: any[]
@@ -73,7 +73,7 @@ export const createDeclarativeTestingApi = (
           return addPredicate(...[first, ...others]);
         } else if (isDeclarativeStatement(first)) {
           // hint: applying all the predicates and assertions from the statement into the current test:
-          const statementTestState = first[NgtxDeclarativeApi].getState();
+          const statementTestState = first[NgtxTestState].getState();
           testEnv.importState(statementTestState);
 
           return addPredicate();
@@ -85,7 +85,7 @@ export const createDeclarativeTestingApi = (
       },
       expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
         return Object.assign(
-          { [NgtxDeclarativeApi]: testEnv },
+          { [NgtxTestState]: testEnv },
           assertionsApi(target),
           {
             not: new Proxy(expectationApi, {
@@ -128,7 +128,7 @@ export const createDeclarativeTestingApi = (
       addPredicate(emit(eventName, args));
 
     if (isExpectApi(target)) {
-      const testState = target[NgtxDeclarativeApi].getState();
+      const testState = target[NgtxTestState].getState();
       testEnv.importState(testState);
       return expectationApi;
     }
@@ -173,7 +173,7 @@ function isExtension<Html extends HTMLElement, Type>(
 function isDeclarativeStatement(
   value: any,
 ): value is NgtxDeclarativeApiStatement {
-  return value != null && value[NgtxDeclarativeApi] instanceof NgtxTestEnv;
+  return value != null && value[NgtxTestState] instanceof NgtxTestEnv;
 }
 
 function isExpectApi<Html extends HTMLElement, Component>(
