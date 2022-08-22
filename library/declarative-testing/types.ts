@@ -72,12 +72,9 @@ export type SubjectSetterFn = <Html extends HTMLElement, Component>(
   subject: TargetRef<Html, Component>,
 ) => PredicateApi<Html, Component>;
 
-export type DeclarativeExpressionReceiver = <
-  Html extends HTMLElement,
-  Component,
->(
-  testExpression: ExpectApi<Html, Component>,
-) => ExpectApi<Html, Component>;
+export type DeclarativeExpressionReceiver = (
+  testExpression: ExpectApi<HTMLElement, any>,
+) => ExpectApi<HTMLElement, unknown>;
 
 export type DeclarativeTestingApi = SpyFactorySetter &
   SubjectSetterFn &

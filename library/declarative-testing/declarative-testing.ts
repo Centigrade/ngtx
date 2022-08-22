@@ -100,14 +100,20 @@ export const createDeclarativeTestingApi = (
     };
 
     const addPredicate = (...fns: ExtensionFn<Html, Type>[]) => {
-      if (isExpectApi(target)) {
-        return;
-      }
+      // for chained expressions ( When(the.Button.getsClicked()) ) we need to ensure that a valid target is given,
+      // as chained expressions do not expose their internal targets to our current test-state.
+      //    When(the.Button.getsClicked()).and(detectChanges())
+      //      no target would be existing here ^^^^^^^^^^^^^^^ without this line:
+      const predicateTarget: TargetRef<HTMLElement, any> = isExpectApi(target)
+        ? () => fx.rootElement
+        : target;
 
       // hint: targetRef could resolve to NgtxElement or NgtxMultiElement. To simplify extension fn implementations, we
       // unify the result to become a List<NgtxElement>. This way extension functions only need to handle the "plural" case,
       // where multiple items were targeted. If a single element was targeted, it is simply the single element in that list.
-      const elementListRef = asNgtxElementListRef<Html, Type>(target);
+      const elementListRef = asNgtxElementListRef<Html, Type>(
+        predicateTarget as any,
+      );
 
       fns.forEach((fn) => {
         fn(elementListRef, testEnv, fx);

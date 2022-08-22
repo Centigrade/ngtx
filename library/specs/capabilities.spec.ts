@@ -1,7 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Capabilities } from '../declarative-testing/capabilities';
-import { haveEmitted, haveState, state } from '../declarative-testing/lib';
+import {
+  beFound,
+  detectChanges,
+  haveEmitted,
+  haveState,
+  state,
+} from '../declarative-testing/lib';
 import { ngtx } from '../ngtx';
 
 @Component({
@@ -138,6 +144,13 @@ describe(
       When(host)
         .has(state({ items }))
         .expect(the.Items.nth(1).not.toHaveValue('b'));
+    });
+
+    it('should work for negated assertions', () => {
+      When(the.Items.nth(1).activates())
+        .and(detectChanges({ viaChangeDetectorRef: true }))
+        .expect(host)
+        .to(beFound());
     });
   }),
 );
