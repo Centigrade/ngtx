@@ -3,7 +3,7 @@ import { beFound, FindingOptions, haveEmitted, haveState, state } from './lib';
 import { DeclarativeTestingApi, EmissionOptions, TargetRef } from './types';
 import { asNgtxElementListRef } from './utility';
 
-export class Capabilities<T> {
+export class Capabilities<Component> {
   private negate = false;
 
   protected get whenComponents() {
@@ -18,7 +18,7 @@ export class Capabilities<T> {
 
   constructor(
     private _when: DeclarativeTestingApi,
-    private _components: TargetRef<HTMLElement, T>,
+    private _components: TargetRef<HTMLElement, Component>,
   ) {}
 
   public get not() {
@@ -28,12 +28,17 @@ export class Capabilities<T> {
 
   protected templates = {
     prop: {
-      setter: <P extends keyof T = keyof T>(name: P, defaultValue?: T[P]) => {
-        return (value: T[P] = defaultValue!) =>
+      setter: <PropertyKey extends keyof Component = keyof Component>(
+        name: PropertyKey,
+        defaultValue?: Component[PropertyKey],
+      ) => {
+        return (value: Component[PropertyKey] = defaultValue!) =>
           this.whenComponents.has(state({ [name]: value }));
       },
-      assertion: <P extends keyof T = keyof T>(name: P) => {
-        return (value: T[P] | T[P][]) => {
+      assertion: <PropertyKey extends keyof Component = keyof Component>(
+        name: PropertyKey,
+      ) => {
+        return (value: Component[PropertyKey] | Component[PropertyKey][]) => {
           const valuesToCheck = Array.isArray(value)
             ? value.map((x) => ({ [name]: x }))
             : { [name]: value };
@@ -42,12 +47,14 @@ export class Capabilities<T> {
       },
     },
     event: {
-      emitter: <P extends keyof T>(name: P) => {
+      emitter: <PropertyKey extends keyof Component>(name: PropertyKey) => {
         return (arg?: any) => {
           return this.whenComponents.emits(name, arg);
         };
       },
-      assertion: <P extends keyof T = keyof T>(name: P) => {
+      assertion: <PropertyKey extends keyof Component = keyof Component>(
+        name: PropertyKey,
+      ) => {
         return (opts: EmissionOptions = {}) => {
           return this.expectComponents.will(haveEmitted(name, opts));
         };
@@ -74,7 +81,7 @@ export class Capabilities<T> {
     return this.createCapabilities(() => this.getTargetRefs()[index]);
   }
 
-  public where(filter: (e: NgtxElement<HTMLElement, T>) => boolean) {
+  public where(filter: (e: NgtxElement<HTMLElement, Component>) => boolean) {
     return this.createCapabilities(() => {
       const refs = this.getTargetRefs();
       return new NgtxMultiElement(refs.filter(filter));
@@ -89,7 +96,7 @@ export class Capabilities<T> {
     return asNgtxElementListRef(this._components)();
   }
 
-  private createCapabilities(ref: TargetRef<HTMLElement, T>): this {
+  private createCapabilities(ref: TargetRef<HTMLElement, Component>): this {
     // TODO: we should really find a better way to construct the specialized capabilities class at runtime:
     const thisSubClassConstructor: any = this.constructor;
     return new thisSubClassConstructor(this._when, ref);
