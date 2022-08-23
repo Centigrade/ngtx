@@ -47,10 +47,10 @@ class ListComponent {
 }
 
 class ItemCapabilities extends Capabilities<ItemComponent> {
-  public hasValue = this.prop.setter('value', '');
-  public toHaveValue = this.prop.assertion('value');
-  public activates = this.event.emitter('activate');
-  public toHaveBeenActivated = this.event.assertion('activate');
+  public hasValue = this.templates.prop.setter('value', '');
+  public toHaveValue = this.templates.prop.assertion('value');
+  public activates = this.templates.event.emitter('activate');
+  public toHaveBeenActivated = this.templates.event.assertion('activate');
 }
 
 describe(

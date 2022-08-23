@@ -26,31 +26,32 @@ export class Capabilities<T> {
     return this;
   }
 
-  protected prop = {
-    setter: <P extends keyof T = keyof T>(name: P, defaultValue?: T[P]) => {
-      return (value: T[P] = defaultValue!) =>
-        this.whenComponents.has(state({ [name]: value }));
+  protected templates = {
+    prop: {
+      setter: <P extends keyof T = keyof T>(name: P, defaultValue?: T[P]) => {
+        return (value: T[P] = defaultValue!) =>
+          this.whenComponents.has(state({ [name]: value }));
+      },
+      assertion: <P extends keyof T = keyof T>(name: P) => {
+        return (value: T[P] | T[P][]) => {
+          const valuesToCheck = Array.isArray(value)
+            ? value.map((x) => ({ [name]: x }))
+            : { [name]: value };
+          return this.expectComponents.will(haveState(valuesToCheck));
+        };
+      },
     },
-    assertion: <P extends keyof T = keyof T>(name: P) => {
-      return (value: T[P] | T[P][]) => {
-        const valuesToCheck = Array.isArray(value)
-          ? value.map((x) => ({ [name]: x }))
-          : { [name]: value };
-        return this.expectComponents.will(haveState(valuesToCheck));
-      };
-    },
-  };
-
-  protected event = {
-    emitter: <P extends keyof T>(name: P) => {
-      return (arg?: any) => {
-        return this.whenComponents.emits(name, arg);
-      };
-    },
-    assertion: <P extends keyof T = keyof T>(name: P) => {
-      return (opts: EmissionOptions = {}) => {
-        return this.expectComponents.will(haveEmitted(name, opts));
-      };
+    event: {
+      emitter: <P extends keyof T>(name: P) => {
+        return (arg?: any) => {
+          return this.whenComponents.emits(name, arg);
+        };
+      },
+      assertion: <P extends keyof T = keyof T>(name: P) => {
+        return (opts: EmissionOptions = {}) => {
+          return this.expectComponents.will(haveEmitted(name, opts));
+        };
+      },
     },
   };
 
