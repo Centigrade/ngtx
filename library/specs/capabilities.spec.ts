@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Capabilities } from '../declarative-testing/capabilities';
 import {
-  beFound,
   classMember,
   componentMethod,
   detectChanges,
@@ -136,13 +135,6 @@ describe(
       When(host)
         .has(state({ items }))
         .expect(the.Items.first().not.toHaveValue('b'));
-    });
-
-    it('should work for negated assertions', () => {
-      When(the.Items.first().activates())
-        .and(detectChanges({ viaChangeDetectorRef: true }))
-        .expect(host)
-        .to(beFound());
     });
 
     it('should work for prop setter', () => {
