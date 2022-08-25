@@ -36,19 +36,19 @@ export class Capabilities<Component> {
     prop: {
       setter: <PropertyKey extends keyof Component = keyof Component>({
         name,
-        defaultSetterValue: defaultValue,
+        defaultSetterValue,
       }: PropertyValueDescriptor<Component, PropertyKey>) => {
-        return (value: Component[PropertyKey] = defaultValue!) =>
+        return (value: Component[PropertyKey] = defaultSetterValue!) =>
           this.whenComponents.has(state({ [name]: value }));
       },
       assertion: <PropertyKey extends keyof Component = keyof Component>({
         name,
-        defaultSetterValue: defaultValue,
+        defaultAssertionValue,
       }: PropertyValueDescriptor<Component, PropertyKey>) => {
         return (value?: Component[PropertyKey] | Component[PropertyKey][]) => {
           const valuesToCheck = Array.isArray(value)
             ? value.map((x) => ({ [name]: x }))
-            : { [name]: value ?? defaultValue };
+            : { [name]: value ?? defaultAssertionValue };
 
           return this.expectComponents.will(haveState(valuesToCheck));
         };
@@ -57,10 +57,10 @@ export class Capabilities<Component> {
     event: {
       emitter: <PropertyKey extends keyof Component>({
         name,
-        defaultSetterValue: defaultValue,
+        defaultSetterValue,
       }: PropertyValueDescriptor<Component, PropertyKey>) => {
         return (arg?: any) => {
-          return this.whenComponents.emits(name, arg ?? defaultValue);
+          return this.whenComponents.emits(name, arg ?? defaultSetterValue);
         };
       },
       assertion: <PropertyKey extends keyof Component = keyof Component>({
