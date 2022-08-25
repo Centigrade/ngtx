@@ -64,6 +64,20 @@ export type TargetResolver<Html extends HTMLElement, Type, Output> = (
   target: NgtxElement<Html, Type>,
 ) => Output;
 
+export interface PropertyDescriptor<
+  Component,
+  PropertyKey extends keyof Component,
+> {
+  name: PropertyKey;
+}
+export interface PropertyValueDescriptor<
+  Component,
+  PropertyKey extends keyof Component,
+> extends PropertyDescriptor<Component, PropertyKey> {
+  name: PropertyKey;
+  defaultValue?: Component[PropertyKey];
+}
+
 export interface SpyFactorySetter {
   setSpyFactory(fn: any): void;
 }

@@ -19,6 +19,8 @@ export {
   ExtensionFn,
   ExtensionFnSignature,
   PredicateApi,
+  PropertyDescriptor,
+  PropertyValueDescriptor,
   SpyOnFn,
   TargetRef,
   TargetResolver,
