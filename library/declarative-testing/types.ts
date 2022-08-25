@@ -75,7 +75,8 @@ export interface PropertyValueDescriptor<
   PropertyKey extends keyof Component,
 > extends PropertyDescriptor<Component, PropertyKey> {
   name: PropertyKey;
-  defaultValue?: Component[PropertyKey];
+  defaultSetterValue?: Component[PropertyKey];
+  defaultAssertionValue?: Component[PropertyKey];
 }
 
 export interface SpyFactorySetter {

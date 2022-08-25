@@ -49,7 +49,8 @@ class ListComponent {
 class ItemCapabilities extends Capabilities<ItemComponent> {
   public hasValue = this.templates.prop.setter({
     name: 'value',
-    defaultValue: '',
+    defaultSetterValue: '',
+    defaultAssertionValue: expect.any(String),
   });
   public toHaveValue = this.templates.prop.assertion({ name: 'value' });
   public activates = this.templates.event.emitter({ name: 'activate' });
