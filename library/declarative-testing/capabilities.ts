@@ -39,16 +39,17 @@ export class Capabilities<Component> {
         defaultSetterValue,
       }: PropertyValueDescriptor<Component, PropertyKey>) => {
         return (value: Component[PropertyKey] = defaultSetterValue!) =>
-          this.whenComponents.has(state({ [name]: value }));
+          this.whenComponents.has(state({ [name as PropertyKey]: value }));
       },
       assertion: <PropertyKey extends keyof Component = keyof Component>({
         name,
         defaultAssertionValue,
       }: PropertyValueDescriptor<Component, PropertyKey>) => {
         return (value?: Component[PropertyKey] | Component[PropertyKey][]) => {
+          const propName = name as PropertyKey;
           const valuesToCheck = Array.isArray(value)
-            ? value.map((x) => ({ [name]: x }))
-            : { [name]: value ?? defaultAssertionValue };
+            ? value.map((x) => ({ [propName]: x }))
+            : { [propName]: value ?? defaultAssertionValue };
 
           return this.expectComponents.will(haveState(valuesToCheck));
         };
@@ -60,14 +61,19 @@ export class Capabilities<Component> {
         defaultSetterValue,
       }: PropertyValueDescriptor<Component, PropertyKey>) => {
         return (arg?: any) => {
-          return this.whenComponents.emits(name, arg ?? defaultSetterValue);
+          return this.whenComponents.emits(
+            name as PropertyKey,
+            arg ?? defaultSetterValue,
+          );
         };
       },
       assertion: <PropertyKey extends keyof Component = keyof Component>({
         name,
       }: PropertyDescriptor<Component, PropertyKey>) => {
         return (opts: EmissionOptions = {}) => {
-          return this.expectComponents.will(haveEmitted(name, opts));
+          return this.expectComponents.will(
+            haveEmitted(name as PropertyKey, opts),
+          );
         };
       },
     },
