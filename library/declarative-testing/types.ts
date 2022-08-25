@@ -68,13 +68,13 @@ export interface PropertyDescriptor<
   Component,
   PropertyKey extends keyof Component,
 > {
-  name: PropertyKey;
+  name: Partial<PropertyKey>;
 }
 export interface PropertyValueDescriptor<
   Component,
   PropertyKey extends keyof Component,
 > extends PropertyDescriptor<Component, PropertyKey> {
-  name: PropertyKey;
+  name: Partial<PropertyKey>;
   defaultSetterValue?: Component[PropertyKey];
   defaultAssertionValue?: Component[PropertyKey];
 }
