@@ -9,6 +9,7 @@ import {
   haveState,
   state,
 } from '../declarative-testing/lib';
+import { PropertyValueDescriptor } from '../declarative-testing/types';
 import { ngtx } from '../ngtx';
 
 @Component({
@@ -25,6 +26,7 @@ import { ngtx } from '../ngtx';
 })
 class ItemComponent {
   @Input() value!: string;
+  @Input() tags: string[] = [];
   @Output() activate = new EventEmitter<string>();
 }
 
@@ -46,16 +48,24 @@ class ListComponent {
   }
 }
 
+const valueProperty: PropertyValueDescriptor<{ value: string }, 'value'> = {
+  name: 'value',
+  defaultSetterValue: '',
+  defaultAssertionValue: expect.any(String),
+};
+
 class ItemCapabilities extends Capabilities<ItemComponent> {
-  public hasValue = this.templates.prop.setter({
-    name: 'value',
-    defaultSetterValue: '',
-    defaultAssertionValue: expect.any(String),
-  });
+  public hasValue = this.templates.prop.setter(valueProperty);
   public toHaveValue = this.templates.prop.assertion({ name: 'value' });
   public activates = this.templates.event.emitter({ name: 'activate' });
   public toHaveBeenActivated = this.templates.event.assertion({
     name: 'activate',
+  });
+  public hasTags = this.templates.prop.setter({ name: 'tags' });
+  public toHaveTags = this.templates.prop.assertion({
+    name: 'tags',
+    isArrayProperty: true,
+    defaultAssertionValue: expect.any(Array),
   });
 }
 
@@ -175,6 +185,22 @@ describe(
             arg: '42',
           }),
         );
+    });
+
+    it('should assert array property correctly (single state for all)', () => {
+      When(the.Items.hasTags(['a', 'b', 'c'])).expect(
+        the.Items.toHaveTags(['a', 'b', 'c']),
+      );
+    });
+
+    it('should assert array property correctly (specific state for each item)', () => {
+      When(the.Items.nth(1).hasTags(['a']))
+        .and(the.Items.nth(2).hasTags(['b', 'c']))
+        .expect(the.Items.toHaveTags([['a'], ['b', 'c'], []]));
+    });
+
+    it('should assert array property correctly (default value)', () => {
+      When(the.Items.nth(1).hasTags(['a'])).expect(the.Items.toHaveTags());
     });
   }),
 );

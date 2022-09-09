@@ -9,6 +9,33 @@ import {
 } from './types';
 import { asNgtxElementListRef } from './utility';
 
+const getStatesToAssert = (
+  expectedStateOrStates: any,
+  defaultValue: any,
+  propName: string,
+  isArrayProperty: boolean,
+): any => {
+  if (isArrayProperty) {
+    // hint: value could also be "expect.any(Array)", which is no array
+    const isArray = Array.isArray(expectedStateOrStates);
+    const isNestedArray = isArray && Array.isArray(expectedStateOrStates[0]);
+
+    // we pass multiple prop states
+    if (isNestedArray) {
+      return expectedStateOrStates.map((propState: any[]) => {
+        return { [propName]: propState };
+      });
+    }
+
+    // we only pass one prop state, so check this one for all found matches in template
+    return { [propName]: expectedStateOrStates ?? defaultValue };
+  }
+
+  return Array.isArray(expectedStateOrStates)
+    ? expectedStateOrStates.map((x) => ({ [propName]: x }))
+    : { [propName]: expectedStateOrStates ?? defaultValue };
+};
+
 export class Capabilities<Component> {
   private negate = false;
 
@@ -44,14 +71,19 @@ export class Capabilities<Component> {
       assertion: <PropertyKey extends keyof Component = keyof Component>({
         name,
         defaultAssertionValue,
+        isArrayProperty,
       }: PropertyValueDescriptor<Component, PropertyKey>) => {
         return (value?: Component[PropertyKey] | Component[PropertyKey][]) => {
           const propName = name as PropertyKey;
-          const valuesToCheck = Array.isArray(value)
-            ? value.map((x) => ({ [propName]: x }))
-            : { [propName]: value ?? defaultAssertionValue };
 
-          return this.expectComponents.will(haveState(valuesToCheck));
+          const statesToCheck = getStatesToAssert(
+            value,
+            defaultAssertionValue,
+            propName as string,
+            isArrayProperty ?? false,
+          );
+
+          return this.expectComponents.will(haveState(statesToCheck));
         };
       },
     },
