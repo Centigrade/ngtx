@@ -65,20 +65,16 @@ class ItemCapabilities extends Capabilities<ItemComponent> {
     .setProperty(valueProperty)
     .and(testExtension)
     .done();
-  public toHaveValue = this.assert.property(valueProperty).done();
+  public toHaveValue = this.assert.property(valueProperty);
   public activates = this.actions.emitEvent({ name: 'activate' }).done();
-  public toHaveBeenActivated = this.assert
-    .eventEmission({ name: 'activate' })
-    .done();
+  public toHaveBeenActivated = this.assert.eventEmission({ name: 'activate' });
 
   public hasTags = this.actions.setProperty({ name: 'tags' }).done();
-  public toHaveTags = this.assert
-    .property({
-      name: 'tags',
-      isArrayProperty: true,
-      defaultAssertionValue: expect.any(Array),
-    })
-    .done();
+  public toHaveTags = this.assert.property({
+    name: 'tags',
+    isArrayProperty: true,
+    defaultAssertionValue: expect.any(Array),
+  });
 }
 
 describe(
@@ -205,11 +201,7 @@ describe(
     it('should work for event emission assertions', () => {
       When(FirstItem)
         .calls(classMember('activate'), 'emit', ['42'])
-        .expect(
-          the.Items.first().toHaveBeenActivated({
-            arg: '42',
-          }),
-        );
+        .expect(the.Items.first().toHaveBeenActivated({ arg: '42' }));
     });
 
     it('should assert array property correctly (single state for all)', () => {

@@ -161,10 +161,18 @@ export class Capabilities<Component> {
   }
 }
 
-type TestBaseStatement<Component> = (
-  v?: any,
-) => ExpectApi<HTMLElement, Component>;
+// --------------------------------------
+// module internals
+// --------------------------------------
 
+//#region types
+type Callable<T> = T & Function;
+type TestBaseStatement<Component> = (
+  value?: any,
+) => ExpectApi<HTMLElement, Component>;
+//#endregion
+
+//#region entities
 class ActionBuilder<Component> {
   protected statement: TestBaseStatement<Component> = () =>
     this.whenComponents.rendered();
@@ -225,7 +233,11 @@ class ActionBuilder<Component> {
 }
 
 class AssertionBuilder<Component> {
-  private assertion?: Callable<AssertionStatement<Component>>;
+  private get expectTargets() {
+    return this.negated
+      ? this.when(this.target).rendered().expect(this.target).not
+      : this.when(this.target).rendered().expect(this.target);
+  }
 
   constructor(
     private readonly when: DeclarativeTestingApi,
@@ -238,71 +250,24 @@ class AssertionBuilder<Component> {
     defaultAssertionValue,
     isArrayProperty,
   }: PropertyValueDescriptor<Partial<Component>, K>) {
-    const assertion = new AssertionStatement(
-      this.when,
-      this.target,
-      this.negated,
-    );
+    return (value?: Component[K] | Component[K][]) => {
+      const statesToCheck = getStatesToAssert(
+        value,
+        defaultAssertionValue,
+        name as string,
+        isArrayProperty ?? false,
+      );
 
-    this.assertion = assertion.create(
-      (value?: Component[K] | Component[K][]) => {
-        const statesToCheck = getStatesToAssert(
-          value,
-          defaultAssertionValue,
-          name as string,
-          isArrayProperty ?? false,
-        );
-
-        return [haveState(statesToCheck)];
-      },
-    );
-
-    return this;
+      return this.expectTargets.will(haveState(statesToCheck));
+    };
   }
 
   eventEmission<K extends keyof Component = keyof Component>({
     name,
   }: PropertyDescriptor<Component, K>) {
-    const assertion = new AssertionStatement(
-      this.when,
-      this.target,
-      this.negated,
-    );
-
-    this.assertion = assertion.create((opts: EmissionOptions = {}) => {
-      return [haveEmitted(name as K, opts)];
-    });
-
-    return this;
-  }
-
-  done() {
-    const current = this.assertion;
-    this.assertion = undefined;
-    return current!;
+    return (opts: EmissionOptions = {}) =>
+      this.expectTargets.will(haveEmitted(name as K, opts));
   }
 }
 
-class AssertionStatement<Component = any> {
-  private get expectTargets() {
-    return this.negate
-      ? this.when(this.targets).rendered().expect(this.targets).not
-      : this.when(this.targets).rendered().expect(this.targets);
-  }
-
-  constructor(
-    private when: DeclarativeTestingApi,
-    private targets: TargetRef<HTMLElement, Component>,
-    private negate: boolean,
-  ) {}
-
-  public create<Input>(
-    assertions: (v?: Input) => ExtensionFn<HTMLElement, Component>[],
-  ): Callable<this> {
-    return Object.assign((value?: any) => {
-      return this.expectTargets.will(...assertions(value));
-    }, this);
-  }
-}
-
-type Callable<T> = T & Function;
+//#endregion
