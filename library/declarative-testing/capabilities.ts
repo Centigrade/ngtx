@@ -3,6 +3,7 @@ import { beFound, FindingOptions, haveEmitted, haveState, state } from './lib';
 import {
   DeclarativeTestingApi,
   EmissionOptions,
+  ExtensionFn,
   PropertyDescriptor,
   PropertyValueDescriptor,
   TargetRef,
@@ -38,6 +39,7 @@ const getStatesToAssert = (
 
 export class Capabilities<Component> {
   private negate = false;
+  protected assert: AssertionBuilder<Component>;
 
   protected get whenComponents() {
     return this._when(this._components);
@@ -52,7 +54,9 @@ export class Capabilities<Component> {
   constructor(
     private _when: DeclarativeTestingApi,
     private _components: TargetRef<HTMLElement, Component>,
-  ) {}
+  ) {
+    this.assert = new AssertionBuilder(_when, _components);
+  }
 
   public get not() {
     this.negate = !this.negate;
@@ -64,7 +68,7 @@ export class Capabilities<Component> {
       setter: <PropertyKey extends keyof Component = keyof Component>({
         name,
         defaultSetterValue,
-      }: PropertyValueDescriptor<Component, PropertyKey>) => {
+      }: PropertyValueDescriptor<Partial<Component>, PropertyKey>) => {
         return (value: Component[PropertyKey] = defaultSetterValue!) =>
           this.whenComponents.has(state({ [name as PropertyKey]: value }));
       },
@@ -151,3 +155,78 @@ export class Capabilities<Component> {
     return new thisSubClassConstructor(this._when, ref);
   }
 }
+
+class AssertionBuilder<Component> {
+  private assertion?: Callable<AssertionStatement<Component>>;
+
+  constructor(
+    private when: DeclarativeTestingApi,
+    private target: TargetRef<HTMLElement, Component>,
+  ) {}
+
+  property<K extends keyof Component = keyof Component>({
+    name,
+    defaultAssertionValue,
+    isArrayProperty,
+  }: PropertyValueDescriptor<Partial<Component>, K>) {
+    const assertion = new AssertionStatement(this.when, this.target);
+    this.assertion = assertion.create(
+      (value?: Component[K] | Component[K][]) => {
+        const statesToCheck = getStatesToAssert(
+          value,
+          defaultAssertionValue,
+          name as string,
+          isArrayProperty ?? false,
+        );
+
+        return [haveState(statesToCheck)];
+      },
+    );
+
+    return this;
+  }
+
+  create() {
+    const current = this.assertion;
+    this.assertion = undefined;
+    return current!;
+  }
+}
+
+class AssertionStatement<Component = any> {
+  //#region negation
+  private negate = false;
+  public readonly not = new Proxy(
+    {},
+    {
+      get: () => {
+        this.negate = !this.negate;
+        return this;
+      },
+    },
+  );
+  //#endregion
+
+  private get expectTargets() {
+    console.warn(this.negate);
+
+    return this.negate
+      ? this.when(this.targets).rendered().expect(this.targets).not
+      : this.when(this.targets).rendered().expect(this.targets);
+  }
+
+  constructor(
+    private when: DeclarativeTestingApi,
+    private targets: TargetRef<HTMLElement, Component>,
+  ) {}
+
+  public create<Input>(
+    assertions: (v?: Input) => ExtensionFn<HTMLElement, Component>[],
+  ): Callable<this> {
+    return Object.assign((value?: any) => {
+      return this.expectTargets.will(...assertions(value));
+    }, this);
+  }
+}
+
+export type Callable<T> = T & Function;

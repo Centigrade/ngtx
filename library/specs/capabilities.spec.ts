@@ -56,7 +56,8 @@ const valueProperty: PropertyValueDescriptor<{ value: string }, 'value'> = {
 
 class ItemCapabilities extends Capabilities<ItemComponent> {
   public hasValue = this.templates.prop.setter(valueProperty);
-  public toHaveValue = this.templates.prop.assertion({ name: 'value' });
+  // public toHaveValue = this.templates.prop.assertion({ name: 'value' });
+  public toHaveValue = this.assert.property(valueProperty).create();
   public activates = this.templates.event.emitter({ name: 'activate' });
   public toHaveBeenActivated = this.templates.event.assertion({
     name: 'activate',
@@ -151,6 +152,19 @@ describe(
       When(host)
         .has(state({ items }))
         .expect(the.Items.first().not.toHaveValue('b'));
+    });
+
+    fit('negation should be stateless', () => {
+      const items = ['a', 'b', 'c'];
+      When(host)
+        .has(state({ items }))
+        .expect(the.Items.not.toHaveValue('something'));
+
+      // hint: if negation is not stateless, the previous "not"-call will already have set "not" to true,
+      // causing calling it again this time "resets" it back to "false":
+      When(host)
+        .has(state({ items }))
+        .expect(the.Items.not.toHaveValue('something'));
     });
 
     it('should work for prop setter', () => {

@@ -78,7 +78,7 @@ export interface PropertyValueDescriptor<
   PropertyKey extends keyof Component,
 > extends PropertyDescriptor<Component, PropertyKey> {
   /** The property's name, whose value will be asserted or set. */
-  name: Partial<PropertyKey>;
+  name: PropertyKey;
   /** Whether the property expects an array as value (~ is of type `T[]`) */
   isArrayProperty?: boolean;
   /** The default, expected value when it comes to asserting the property. */
