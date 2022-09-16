@@ -3,6 +3,7 @@ import { beFound, FindingOptions, haveEmitted, haveState, state } from './lib';
 import {
   DeclarativeTestingApi,
   EmissionOptions,
+  ExpectApi,
   ExtensionFn,
   PropertyDescriptor,
   PropertyValueDescriptor,
@@ -38,8 +39,8 @@ const getStatesToAssert = (
 };
 
 export class Capabilities<Component> {
-  private negate = false;
   protected assert: AssertionBuilder<Component>;
+  protected actions: ActionBuilder<Component>;
 
   protected get whenComponents() {
     return this._when(this._components);
@@ -52,15 +53,16 @@ export class Capabilities<Component> {
   }
 
   constructor(
-    private _when: DeclarativeTestingApi,
-    private _components: TargetRef<HTMLElement, Component>,
+    protected readonly _when: DeclarativeTestingApi,
+    protected readonly _components: TargetRef<HTMLElement, Component>,
+    protected readonly negate = false,
   ) {
-    this.assert = new AssertionBuilder(_when, _components);
+    this.assert = new AssertionBuilder(_when, _components, this.negate);
+    this.actions = new ActionBuilder(_when, _components);
   }
 
   public get not() {
-    this.negate = !this.negate;
-    return this;
+    return this.createCapabilities(this._components, !this.negate);
   }
 
   protected templates = {
@@ -149,10 +151,76 @@ export class Capabilities<Component> {
     return asNgtxElementListRef(this._components)();
   }
 
-  private createCapabilities(ref: TargetRef<HTMLElement, Component>): this {
+  private createCapabilities(
+    ref: TargetRef<HTMLElement, Component>,
+    negate: boolean = this.negate,
+  ): this {
     // TODO: we should really find a better way to construct the specialized capabilities class at runtime:
     const thisSubClassConstructor: any = this.constructor;
-    return new thisSubClassConstructor(this._when, ref);
+    return new thisSubClassConstructor(this._when, ref, negate);
+  }
+}
+
+type TestBaseStatement<Component> = (
+  v?: any,
+) => ExpectApi<HTMLElement, Component>;
+
+class ActionBuilder<Component> {
+  protected statement: TestBaseStatement<Component> = () =>
+    this.whenComponents.rendered();
+
+  protected get whenComponents() {
+    return this.when(this.target);
+  }
+
+  protected get currentStatement(): TestBaseStatement<Component> {
+    return this.statement.bind(this);
+  }
+
+  constructor(
+    private readonly when: DeclarativeTestingApi,
+    private readonly target: TargetRef<HTMLElement, Component>,
+  ) {}
+
+  public setProperty<PropertyKey extends keyof Component = keyof Component>({
+    name,
+    defaultSetterValue,
+  }: PropertyValueDescriptor<Partial<Component>, PropertyKey>) {
+    const current = this.currentStatement;
+
+    this.statement = (value: Component[PropertyKey] = defaultSetterValue!) =>
+      current().and(
+        this.whenComponents.has(state({ [name as PropertyKey]: value })),
+      );
+
+    return this;
+  }
+
+  public emitEvent<PropertyKey extends keyof Component>({
+    name,
+    defaultSetterValue,
+  }: PropertyValueDescriptor<Component, PropertyKey>) {
+    const current = this.currentStatement;
+
+    this.statement = (value: Component[PropertyKey] = defaultSetterValue!) =>
+      current().and(
+        this.whenComponents.emits(
+          name as PropertyKey,
+          value ?? defaultSetterValue,
+        ),
+      );
+
+    return this;
+  }
+
+  public and(...extensions: ExtensionFn<HTMLElement, Component>[]) {
+    const current = this.currentStatement;
+    this.statement = (value?: any) => current(value).and(...extensions);
+    return this;
+  }
+
+  public done() {
+    return this.statement;
   }
 }
 
@@ -160,8 +228,9 @@ class AssertionBuilder<Component> {
   private assertion?: Callable<AssertionStatement<Component>>;
 
   constructor(
-    private when: DeclarativeTestingApi,
-    private target: TargetRef<HTMLElement, Component>,
+    private readonly when: DeclarativeTestingApi,
+    private readonly target: TargetRef<HTMLElement, Component>,
+    private readonly negated: boolean,
   ) {}
 
   property<K extends keyof Component = keyof Component>({
@@ -169,7 +238,12 @@ class AssertionBuilder<Component> {
     defaultAssertionValue,
     isArrayProperty,
   }: PropertyValueDescriptor<Partial<Component>, K>) {
-    const assertion = new AssertionStatement(this.when, this.target);
+    const assertion = new AssertionStatement(
+      this.when,
+      this.target,
+      this.negated,
+    );
+
     this.assertion = assertion.create(
       (value?: Component[K] | Component[K][]) => {
         const statesToCheck = getStatesToAssert(
@@ -186,7 +260,23 @@ class AssertionBuilder<Component> {
     return this;
   }
 
-  create() {
+  eventEmission<K extends keyof Component = keyof Component>({
+    name,
+  }: PropertyDescriptor<Component, K>) {
+    const assertion = new AssertionStatement(
+      this.when,
+      this.target,
+      this.negated,
+    );
+
+    this.assertion = assertion.create((opts: EmissionOptions = {}) => {
+      return [haveEmitted(name as K, opts)];
+    });
+
+    return this;
+  }
+
+  done() {
     const current = this.assertion;
     this.assertion = undefined;
     return current!;
@@ -194,22 +284,7 @@ class AssertionBuilder<Component> {
 }
 
 class AssertionStatement<Component = any> {
-  //#region negation
-  private negate = false;
-  public readonly not = new Proxy(
-    {},
-    {
-      get: () => {
-        this.negate = !this.negate;
-        return this;
-      },
-    },
-  );
-  //#endregion
-
   private get expectTargets() {
-    console.warn(this.negate);
-
     return this.negate
       ? this.when(this.targets).rendered().expect(this.targets).not
       : this.when(this.targets).rendered().expect(this.targets);
@@ -218,6 +293,7 @@ class AssertionStatement<Component = any> {
   constructor(
     private when: DeclarativeTestingApi,
     private targets: TargetRef<HTMLElement, Component>,
+    private negate: boolean,
   ) {}
 
   public create<Input>(
@@ -229,4 +305,4 @@ class AssertionStatement<Component = any> {
   }
 }
 
-export type Callable<T> = T & Function;
+type Callable<T> = T & Function;

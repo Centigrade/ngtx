@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Capabilities } from '../declarative-testing/capabilities';
+import { createExtension } from '../declarative-testing/declarative-testing';
 import {
   classMember,
   componentMethod,
@@ -54,20 +55,30 @@ const valueProperty: PropertyValueDescriptor<{ value: string }, 'value'> = {
   defaultAssertionValue: expect.any(String),
 };
 
+const extensionSpy = jest.fn();
+const testExtension = createExtension((_, { addPredicate }) => {
+  addPredicate(extensionSpy);
+});
+
 class ItemCapabilities extends Capabilities<ItemComponent> {
-  public hasValue = this.templates.prop.setter(valueProperty);
-  // public toHaveValue = this.templates.prop.assertion({ name: 'value' });
-  public toHaveValue = this.assert.property(valueProperty).create();
-  public activates = this.templates.event.emitter({ name: 'activate' });
-  public toHaveBeenActivated = this.templates.event.assertion({
-    name: 'activate',
-  });
-  public hasTags = this.templates.prop.setter({ name: 'tags' });
-  public toHaveTags = this.templates.prop.assertion({
-    name: 'tags',
-    isArrayProperty: true,
-    defaultAssertionValue: expect.any(Array),
-  });
+  public hasValue = this.actions
+    .setProperty(valueProperty)
+    .and(testExtension)
+    .done();
+  public toHaveValue = this.assert.property(valueProperty).done();
+  public activates = this.actions.emitEvent({ name: 'activate' }).done();
+  public toHaveBeenActivated = this.assert
+    .eventEmission({ name: 'activate' })
+    .done();
+
+  public hasTags = this.actions.setProperty({ name: 'tags' }).done();
+  public toHaveTags = this.assert
+    .property({
+      name: 'tags',
+      isArrayProperty: true,
+      defaultAssertionValue: expect.any(Array),
+    })
+    .done();
 }
 
 describe(
@@ -154,7 +165,7 @@ describe(
         .expect(the.Items.first().not.toHaveValue('b'));
     });
 
-    fit('negation should be stateless', () => {
+    it('negation should be stateless', () => {
       const items = ['a', 'b', 'c'];
       When(host)
         .has(state({ items }))
@@ -215,6 +226,11 @@ describe(
 
     it('should assert array property correctly (default value)', () => {
       When(the.Items.nth(1).hasTags(['a'])).expect(the.Items.toHaveTags());
+    });
+
+    it('should call extension functions in "and"', () => {
+      // hint: test not pure. dependent on global "extensionSpy" fn.
+      expect(extensionSpy).toHaveBeenCalled();
     });
   }),
 );
