@@ -68,7 +68,6 @@ class ItemCapabilities extends Capabilities<ItemComponent> {
   public toHaveValue = this.assert.property(valueProperty);
   public activates = this.actions.emitEvent({ name: 'activate' }).done();
   public toHaveBeenActivated = this.assert.eventEmission({ name: 'activate' });
-
   public hasTags = this.actions.setProperty({ name: 'tags' }).done();
   public toHaveTags = this.assert.property({
     name: 'tags',
@@ -168,7 +167,8 @@ describe(
         .expect(the.Items.not.toHaveValue('something'));
 
       // hint: if negation is not stateless, the previous "not"-call will already have set "not" to true,
-      // causing calling it again this time "resets" it back to "false":
+      // causing calling it again this time "resets" it back to "false".
+      // we expect it to be stateless though, so the following duplication must not cause problems:
       When(host)
         .has(state({ items }))
         .expect(the.Items.not.toHaveValue('something'));
