@@ -5,25 +5,26 @@ import { call, emit } from './lib';
 import { NgtxTestState } from './symbols';
 import { NgtxTestEnv } from './test-env';
 import {
-  DeclarativeTestingApi,
   Events,
   ExpectApi,
   ExtensionFn,
   ExtensionFnMarker,
   ExtensionFnSignature,
-  NgtxDeclarativeApiStatement,
+  PredicateApi,
   TargetRef,
   TargetResolver,
+  TestStateExporter,
+  WhenStatement,
 } from './types';
 import { asNgtxElementListRef } from './utility';
 
 export const createDeclarativeTestingApi = (
   fx: NgtxFixture<any, any>,
   existingTestEnv?: NgtxTestEnv,
-) => {
+): WhenStatement => {
   let spyFactory: SpyFactoryFn | undefined;
 
-  const when: Omit<DeclarativeTestingApi, 'setSpyFactory'> = <
+  const when: Omit<WhenStatement, 'setSpyFactory'> = <
     Html extends HTMLElement,
     Type,
   >(
@@ -71,16 +72,16 @@ export const createDeclarativeTestingApi = (
 
         if (isExtensionFn) {
           return addPredicate(...[first, ...others]);
-        } else if (isDeclarativeStatement(first)) {
+        } else if (hasTestState(first)) {
           // hint: applying all the predicates and assertions from the statement into the current test:
           const statementTestState = first[NgtxTestState].getState();
           testEnv.importState(statementTestState);
 
           return addPredicate();
         } else {
-          return (
-            createDeclarativeTestingApi(fx, testEnv) as DeclarativeTestingApi
-          )(first);
+          return (createDeclarativeTestingApi(fx, testEnv) as WhenStatement)(
+            first,
+          );
         }
       },
       expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
@@ -99,7 +100,8 @@ export const createDeclarativeTestingApi = (
       },
     };
 
-    const addPredicate = (...fns: ExtensionFn<Html, Type>[]) => {
+    const addPredicate = (...extensionFns: ExtensionFn<Html, Type>[]) => {
+      // TODO: clean this up and think about ways to cleanly import the original subject from expression rather than stubbing one.
       // for chained expressions ( When(the.Button.getsClicked()) ) we need to ensure that a valid target is given,
       // as chained expressions do not expose their internal targets to our current test-state.
       //    When(the.Button.getsClicked()).and(detectChanges())
@@ -115,7 +117,7 @@ export const createDeclarativeTestingApi = (
         predicateTarget as any,
       );
 
-      fns.forEach((fn) => {
+      extensionFns.forEach((fn) => {
         fn(elementListRef, testEnv, fx);
       });
 
@@ -136,7 +138,7 @@ export const createDeclarativeTestingApi = (
     if (isExpectApi(target)) {
       const testState = target[NgtxTestState].getState();
       testEnv.importState(testState);
-      return expectationApi;
+      return expectationApi as ExpectApi<Html, Type>;
     }
 
     return {
@@ -153,14 +155,14 @@ export const createDeclarativeTestingApi = (
       do: addPredicate,
       gets: addPredicate,
       get: addPredicate,
-    };
+    } as PredicateApi<Html, Type>;
   };
 
   return Object.assign(when, {
     setSpyFactory: (spyFt: SpyFactoryFn): void => {
       spyFactory = spyFt;
     },
-  });
+  }) as WhenStatement;
 };
 
 export const createExtension = <Html extends HTMLElement, Component>(
@@ -176,9 +178,7 @@ function isExtension<Html extends HTMLElement, Type>(
   return (value as ExtensionFn<Html, Type>).__ngtxExtensionFn === true;
 }
 
-function isDeclarativeStatement(
-  value: any,
-): value is NgtxDeclarativeApiStatement {
+function hasTestState(value: any): value is TestStateExporter {
   return value != null && value[NgtxTestState] instanceof NgtxTestEnv;
 }
 

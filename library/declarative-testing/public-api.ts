@@ -10,7 +10,6 @@ export {
   AssertionApi,
   CallOptions,
   CssClass,
-  DeclarativeTestingApi,
   ElementList,
   ElementListRef,
   EmissionOptions,
@@ -25,4 +24,5 @@ export {
   TargetRef,
   TargetResolver,
   Token,
+  WhenStatement as DeclarativeTestingApi,
 } from './types';

@@ -1,7 +1,7 @@
 import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from '../core';
-import { DeclarativeTestingApi } from '../declarative-testing/types';
+import { WhenStatement } from '../declarative-testing/types';
 
 export interface NgtxGlobalConfig {
   defaultSpyFactory: SpyFactoryFn;
@@ -31,7 +31,7 @@ export type NgtxSuite<T> = Omit<
     fixture: ComponentFixture<T>,
     skipInitialChangeDetection?: boolean,
   ): void;
-  When: DeclarativeTestingApi;
+  When: WhenStatement;
   host(): NgtxElement<HTMLElement, T>;
 };
 

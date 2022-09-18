@@ -4,15 +4,24 @@ import { NgtxTestState } from './symbols';
 import type { NgtxTestEnv } from './test-env';
 
 //#region internal types
-
-type WhenChainImport<Html extends HTMLElement, Component> = (
-  chainPart: NgtxDeclarativeApiStatement,
+type ChainedStatement<Html extends HTMLElement, Component> = (
+  testStatement: TestStateExporter,
 ) => ExpectApi<Html, Component>;
 
-type PredicateFn<Html extends HTMLElement, Component> = (
+type PredicateReceiver<Html extends HTMLElement, Component> = (
   // hint: Required<Component> to normalize Component's type, so that extension-fns
   // using "keyof Component" can safely use all of them, even keys being optional (e.g. age?: number).
   ...predicates: ExtensionFn<Html, Required<Component>>[]
+) => ExpectApi<Html, Component>;
+
+interface EmitPredicate<Html extends HTMLElement, Component> {
+  (resolver: EventDispatcher, arg?: any): ExpectApi<Html, Component>;
+  (eventName: Events<Html, Component>, arg?: any): ExpectApi<Html, Component>;
+}
+type CallPredicate<Html extends HTMLElement, Component> = <Out>(
+  resolver: TargetResolver<Html, Component, Out>,
+  methodName: keyof Out,
+  args?: any[],
 ) => ExpectApi<Html, Component>;
 
 type AllowType<Base, Type> = {
@@ -55,7 +64,7 @@ export type ExtensionFn<
   Html extends HTMLElement,
   Component,
 > = ExtensionFnSignature<Html, Component> & ExtensionFnMarker;
-export type NgtxDeclarativeApiStatement = {
+export type TestStateExporter = {
   [NgtxTestState]: NgtxTestEnv;
 };
 
@@ -91,56 +100,172 @@ export interface SpyFactorySetter {
   setSpyFactory(fn: any): void;
 }
 
-export type SubjectSetterFn = <Html extends HTMLElement, Component>(
+export type SubjectStatement = <Html extends HTMLElement, Component>(
   subject: TargetRef<Html, Component>,
 ) => PredicateApi<Html, Component>;
 
-export type DeclarativeExpressionReceiver = (
-  testExpression: ExpectApi<HTMLElement, any>,
-) => ExpectApi<HTMLElement, unknown>;
+export type WhenStatement = SpyFactorySetter &
+  SubjectStatement &
+  ChainedStatement<HTMLElement, any>;
 
-export type DeclarativeTestingApi = SpyFactorySetter &
-  SubjectSetterFn &
-  DeclarativeExpressionReceiver;
+export type AndStatement<
+  Html extends HTMLElement,
+  Component,
+> = PredicateReceiver<Html, Component> & // and(...extFns)...
+  WhenStatement; // and(host)... // and(When(...).does(...))...
 
 export type EventDispatcher = <Html extends HTMLElement, Component>(
   subject: NgtxElement<Html, Component>,
 ) => void;
 
-interface EmitPredicate<Html extends HTMLElement, Component> {
-  (resolver: EventDispatcher, arg?: any): ExpectApi<Html, Component>;
-  (eventName: Events<Html, Component>, arg?: any): ExpectApi<Html, Component>;
-}
-type CallPredicate<Html extends HTMLElement, Component> = <Out>(
-  resolver: TargetResolver<Html, Component, Out>,
-  methodName: keyof Out,
-  args?: any[],
-) => ExpectApi<Html, Component>;
-
-export interface PredicateApi<Html extends HTMLElement, Component>
-  extends NgtxDeclarativeApiStatement {
+export interface PredicateApi<Html extends HTMLElement, Component> {
+  /**
+   * Predicate emitting the specified event on the pre-defined target:
+   *
+   * > **Please note:** The `emits` method is just an alias for `emit`. They can be used interchangeably.
+   * > ~~~ts
+   * > When(host).emit(...)...
+   * > // is the same as:
+   * > When(host).emits(...)...
+   * > ~~~
+   *
+   * #### Example 1 - without event-arg:
+   * ~~~ts
+   */
   emit: EmitPredicate<Html, Component>;
   emits: EmitPredicate<Html, Component>;
 
+  /**
+   * Predicate calling the specified method. The call-target as well as the method-name will be selected via parameters.
+   *
+   * > **Please note:** The examples uses the concept of test-harness classes. You can read more about it [here](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/GOOD_TESTS.md).
+   *
+   * > **Please note:** The `calls` method is just an alias for `call`. They can be used interchangeably.
+   * > ~~~ts
+   * > When(host).call(...)...
+   * > // is the same as:
+   * > When(host).calls(...)...
+   * > ~~~
+   *
+   * #### Example 1 - method on the target's nativeElement:
+   *
+   * ~~~ts
+   * import { nativeMethod } from '@centigrade/ngtx';
+   * // target is the.Button's nativeElement,
+   * // only arg is the options object:
+   * When(the.Button)
+   *  .calls(nativeMethod, 'scrollIntoView', [{ behavior: 'smooth' }])...
+   * ~~~
+   *
+   * #### Example 2 - method on a componentInstance:
+   *
+   * ~~~ts
+   * import { componentMethod } from '@centigrade/ngtx';
+   * // target is the.Button's componentInstance
+   * When(the.Button).calls(componentMethod, 'click')...
+   * ~~~
+   *
+   * #### Example 3 - method on a service or injected token:
+   *
+   * ~~~ts
+   * import { injected } from '@centigrade/ngtx';
+   * // target is the host's injector:
+   * When(host)
+   *  .calls(injected(SomeService), 'someMethodOnService')...
+   * ~~~
+   */
   call: CallPredicate<Html, Component>;
+  /**
+   * Predicate calling the specified method. The call-target as well as the method-name will be selected via parameters.
+   *
+   * > **Please note:** The examples uses the concept of test-harness classes. You can read more about it [here](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/GOOD_TESTS.md).
+   *
+   * > **Please note:** The `calls` method is just an alias for `call`. They can be used interchangeably.
+   * > ~~~ts
+   * > When(host).call(...)...
+   * > // is the same as:
+   * > When(host).calls(...)...
+   * > ~~~
+   *
+   * #### Example 1 - method on the target's nativeElement:
+   *
+   * ~~~ts
+   * import { nativeMethod } from '@centigrade/ngtx';
+   * // target is the.Button's nativeElement,
+   * // only arg is the options object:
+   * When(the.Button)
+   *  .calls(nativeMethod, 'scrollIntoView', [{ behavior: 'smooth' }])...
+   * ~~~
+   *
+   * #### Example 2 - method on a componentInstance:
+   *
+   * ~~~ts
+   * import { componentMethod } from '@centigrade/ngtx';
+   * // target is the.Button's componentInstance
+   * When(the.Button).calls(componentMethod, 'click')...
+   * ~~~
+   *
+   * #### Example 3 - method on a service or injected token:
+   *
+   * ~~~ts
+   * import { injected } from '@centigrade/ngtx';
+   * // target is the host's injector:
+   * When(host)
+   *  .calls(injected(SomeService), 'someMethodOnService')...
+   * ~~~
+   */
   calls: CallPredicate<Html, Component>;
 
+  /** A predicate doing nothing. You can use this if the test is already set-up from the very beginning. */
   rendered(): ExpectApi<Html, Component>;
-  has: PredicateFn<Html, Component>;
-  have: PredicateFn<Html, Component>;
-  does: PredicateFn<Html, Component>;
-  do: PredicateFn<Html, Component>;
-  gets: PredicateFn<Html, Component>;
-  get: PredicateFn<Html, Component>;
-  is: PredicateFn<Html, Component>;
-  are: PredicateFn<Html, Component>;
+  has: PredicateReceiver<Html, Component>;
+  have: PredicateReceiver<Html, Component>;
+  does: PredicateReceiver<Html, Component>;
+  do: PredicateReceiver<Html, Component>;
+  gets: PredicateReceiver<Html, Component>;
+  get: PredicateReceiver<Html, Component>;
+  is: PredicateReceiver<Html, Component>;
+  are: PredicateReceiver<Html, Component>;
 }
 
 export interface ExpectApi<Html extends HTMLElement, Component>
-  extends NgtxDeclarativeApiStatement {
-  and: PredicateFn<Html, Component> &
-    WhenChainImport<Html, Component> &
-    DeclarativeTestingApi;
+  extends TestStateExporter {
+  /**
+   * Allows to chain additional statement(s) to the test-expression:
+   *
+   * Example 1 - with targeted statement:
+   *
+   * ~~~ts
+   * When(host)
+   *   .has(state({ text: 'Hi' }))
+   *   .and(the.ClearButton)
+   *   .gets(clicked())
+   *   .expect(host)
+   *   .to(haveState({ text: '' }));
+   * ~~~
+   *
+   * Example 2 - with extension-function(s) only:
+   *
+   * ~~~ts
+   * When(host)
+   *   .has(state({ label: 'Welcome' }))
+   *   .and(detectChanges({ viaChangeDetectorRef: true }))
+   *   .expect(the.Label)
+   *   .to(haveText({ label: 'Welcome' }));
+   * ~~~
+   *
+   * Example 3 - with capability api:
+   *
+   * ~~~ts
+   * When(host)
+   *   .has(state({ text: 'Hi' }))
+   *   .and(the.ClearButton.getsClicked())
+   *   .expect(host)
+   *   .to(haveText({ text: '' }));
+   * ~~~
+   *
+   */
+  and: AndStatement<Html, Component>;
   expect<Html extends HTMLElement, Component>(
     object: TargetRef<Html, Component>,
   ): AssertionApi<Html, Component>;
@@ -148,9 +273,39 @@ export interface ExpectApi<Html extends HTMLElement, Component>
 }
 
 export interface AssertionApi<Html extends HTMLElement, Component>
-  extends NgtxDeclarativeApiStatement {
+  extends TestStateExporter {
   not: AssertionApi<Html, Component>;
+  /**
+   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/declarative-api/assertions/index.md),
+   * and immediately triggers the test expression to run. You want to use this behavior inside ngtx test-cases:
+   *
+   * **Example**
+   *
+   * ~~~ts
+   * it('should render the label text', () => {
+   *  When(host).has(state({ label: 'Welcome' })).expect(the.Label).to(haveText('Welcome'));
+   * });
+   * ~~~
+   * @param assertions The assertion(s) to register for this test.
+   */
   to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
+  /**
+   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/declarative-api/assertions/index.md), but does not immediately trigger the test expression to run.
+   * You want to use this behavior for ngtx' capabilities classes:
+   *
+   * **Example**
+   *
+   * ~~~ts
+   * import { Capabilities } from '@centigrade/ngtx';
+   *
+   * export class ButtonCapability extends Capabilities<ButtonComponent> {
+   *    public toHaveText(expectedText: string | string[]) {
+   *      return this.expectComponents.will(haveText(expectedText));
+   *    }
+   * }
+   * ~~~
+   * @param assertions The assertion(s) to register for this test.
+   */
   will(...assertions: ExtensionFn<Html, Required<Component>>[]): NgtxTestEnv;
 }
 export type IHaveLifeCycleHook = {

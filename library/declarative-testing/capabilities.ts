@@ -1,13 +1,13 @@
 import { NgtxElement, NgtxMultiElement } from '../core';
 import { beFound, FindingOptions, haveEmitted, haveState, state } from './lib';
 import {
-  DeclarativeTestingApi,
   EmissionOptions,
   ExpectApi,
   ExtensionFn,
   PropertyDescriptor,
   PropertyValueDescriptor,
   TargetRef,
+  WhenStatement,
 } from './types';
 import { asNgtxElementListRef } from './utility';
 
@@ -53,7 +53,7 @@ export class Capabilities<Component> {
   }
 
   constructor(
-    protected readonly _when: DeclarativeTestingApi,
+    protected readonly _when: WhenStatement,
     protected readonly _components: TargetRef<HTMLElement, Component>,
     protected readonly negate = false,
   ) {
@@ -65,6 +65,8 @@ export class Capabilities<Component> {
     return this.createCapabilities(this._components, !this.negate);
   }
 
+  // TODO: remove deprecated api when releasing stable version 2
+  /** @deprecated Please use `this.actions` and/or `this.assert` in order to create standard capability APIs. The API will be removed in the stable release. */
   protected templates = {
     prop: {
       setter: <PropertyKey extends keyof Component = keyof Component>({
@@ -186,7 +188,7 @@ class ActionBuilder<Component> {
   }
 
   constructor(
-    private readonly when: DeclarativeTestingApi,
+    private readonly when: WhenStatement,
     private readonly target: TargetRef<HTMLElement, Component>,
   ) {}
 
@@ -240,7 +242,7 @@ class AssertionBuilder<Component> {
   }
 
   constructor(
-    private readonly when: DeclarativeTestingApi,
+    private readonly when: WhenStatement,
     private readonly target: TargetRef<HTMLElement, Component>,
     private readonly negated: boolean,
   ) {}
