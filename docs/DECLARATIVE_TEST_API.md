@@ -159,16 +159,7 @@ Provides APIs to describe start situations for your test cases:
 > ```ts
 > const NativeInput = () => get<HTMLInputElement, unknown>('input');
 >
-> When(NativeInput)
->   .has(attributes({ value: 'some text' }))
->   .and(host)
->   .calls(componentMethod, 'clearText')
->   .expect(NativeInput)
->   .to(haveAttribute({ value: '' }));
-> <<<<<<< HEAD
 > When(NativeInput).has(attributes({ disabled: true, value: 'some text' })) ...
-> =======
-> >>>>>> 19876ccc6f31020da115271cea5413d24a06b7fc
 > ```
 
 > #### `state(propMap)`
@@ -184,16 +175,7 @@ Provides APIs to describe start situations for your test cases:
 > ```ts
 > const Expander = () => get(ExpanderComponent);
 >
-> When(Expander)
->   .has(state({ open: false }))
->   .and(Expander)
->   .gets(clicked())
->   .expect(Expander)
->   .to(haveState({ open: true }));
-> <<<<<<< HEAD
 > When(Expander).has(state({ open: false })) ...
-> =======
-> >>>>>> 19876ccc6f31020da115271cea5413d24a06b7fc
 > ```
 
 > #### `does(extensionFn)`

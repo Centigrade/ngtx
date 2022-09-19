@@ -130,9 +130,40 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
    * > ~~~
    *
    * #### Example 1 - without event-arg:
+   *
    * ~~~ts
+   * When(the.IncreaseButton).emits('click')...
+   * ~~~
+   *
+   * #### Example 2 - with event-arg:
+   *
+   * ~~~ts
+   * When(the.Tabs).emit('tabIndexChange', 1)...
+   * ~~~
    */
   emit: EmitPredicate<Html, Component>;
+  /**
+   * Predicate emitting the specified event on the pre-defined target:
+   *
+   * > **Please note:** The `emits` method is just an alias for `emit`. They can be used interchangeably.
+   * > ~~~ts
+   * > When(host).emit(...)...
+   * > // is the same as:
+   * > When(host).emits(...)...
+   * > ~~~
+   *
+   * #### Example 1 - without event-arg:
+   *
+   * ~~~ts
+   * When(the.IncreaseButton).emits('click')...
+   * ~~~
+   *
+   * #### Example 2 - with event-arg:
+   *
+   * ~~~ts
+   * When(the.Tabs).emit('tabIndexChange', 1)...
+   * ~~~
+   */
   emits: EmitPredicate<Html, Component>;
 
   /**
@@ -218,6 +249,17 @@ export interface PredicateApi<Html extends HTMLElement, Component> {
 
   /** A predicate doing nothing. You can use this if the test is already set-up from the very beginning. */
   rendered(): ExpectApi<Html, Component>;
+  /**
+   * A predicate accepting [predicate extension-functions](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/declarative-api/built-in.md)
+   *
+   * @include alias: call, calls
+   * > **Please note:** The `calls` method is just an alias for `call`. They can be used interchangeably.
+   * > ~~~ts
+   * > When(host).call(...)...
+   * > // is the same as:
+   * > When(host).calls(...)...
+   * > ~~~
+   */
   has: PredicateReceiver<Html, Component>;
   have: PredicateReceiver<Html, Component>;
   does: PredicateReceiver<Html, Component>;
