@@ -202,8 +202,11 @@ export const emit = <Html extends HTMLElement, Type>(
     });
   });
 
-export const attributes = <Html extends HTMLElement>(
-  stateDef: PropertiesOf<Html> | PropertiesOf<Html>[],
+export const attributes = <
+  Html extends HTMLElement,
+  Target extends Html = Html,
+>(
+  stateDef: PropertiesOf<Target> | PropertiesOf<Target>[],
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
@@ -426,11 +429,14 @@ export const haveText = (
     });
   });
 
-export const haveAttributes = <Html extends HTMLElement>(
+export const haveAttributes = <
+  Html extends HTMLElement,
+  Target extends Html = Html,
+>(
   stateDef:
-    | PropertiesOf<Html>
-    | PropertiesOf<Html>[]
-    | ((index: number) => PropertiesOf<Html>),
+    | PropertiesOf<Target>
+    | PropertiesOf<Target>[]
+    | ((index: number) => PropertiesOf<Target>),
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
