@@ -109,3 +109,15 @@ export function scheduleFn(
 
   return [...fnArray, fn];
 }
+
+export function getAllProperties<T extends {}>(obj: T): (keyof T)[] {
+  let allProps: any = [],
+    curr = obj;
+  do {
+    const props = Object.getOwnPropertyNames(curr);
+    props.forEach(function (prop) {
+      if (allProps.indexOf(prop) === -1) allProps.push(prop);
+    });
+  } while ((curr = Object.getPrototypeOf(curr)));
+  return allProps;
+}

@@ -22,6 +22,7 @@ import {
   asNgtxElementListRef,
   checkListsHaveSameSize,
   expandValueToArrayWithLength,
+  getAllProperties,
   tryResolveTarget,
 } from './utility';
 
@@ -86,6 +87,40 @@ export const debug = <Html extends HTMLElement, Type>(
             props,
             '\n\n',
           );
+        });
+      }
+
+      if (opts.attributesOf) {
+        const targets = tryResolveTarget(
+          asNgtxElementListRef(opts.attributesOf),
+          'debug',
+        );
+
+        targets.forEach((target, index) => {
+          const attributes = getAllProperties(target.nativeElement);
+          const wantedAttributes = opts.attributeFilter
+            ? attributes.filter((a) => opts.attributeFilter!(a.toLowerCase()))
+            : attributes;
+          const output = wantedAttributes.reduce(
+            (result, current) => ({
+              ...result,
+              [current]: target.nativeElement[current],
+            }),
+            {},
+          );
+
+          console.log(
+            `------- Attributes of ${target.nativeElement.constructor.name} #${
+              index + 1
+            } --------`,
+            '\n\n',
+            // maybeFiltered
+            //   .map(([name, value]) => `${name}: ${value}`)
+            //   .join('\n\t'),
+            // '\n\n',
+          );
+          console.log(output);
+          console.log('\n\n');
         });
       }
     });
@@ -496,6 +531,8 @@ export const haveState = <T>(
 //#region types
 export interface DebugOptions {
   stateOf?: TargetRef<HTMLElement, any>;
+  attributesOf?: TargetRef<HTMLElement, any>;
+  attributeFilter?: (attributeName: string) => boolean;
 }
 
 export interface DetectChangesOptions {

@@ -17,6 +17,7 @@ import {
   clicked,
   componentMethod,
   containText,
+  debug,
   haveAttributes,
   haveCalled,
   haveCssClass,
@@ -270,6 +271,12 @@ describe(
         .has(state({ items: ['a', 'b'], opened: true }))
         .and(the.ItemContainers)
         .have(attributes([{ title: 'title a' }, { title: 'title b' }]))
+        .and(
+          debug({
+            attributesOf: the.ItemContainers,
+            attributeFilter: (a) => ['style', 'tagname'].includes(a),
+          }),
+        )
         .expect(the.ItemContainers)
         .to(haveAttributes({ title: expect.stringContaining('title ') }));
     });
