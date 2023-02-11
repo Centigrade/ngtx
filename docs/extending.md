@@ -1,4 +1,7 @@
-## [🏠][home] &nbsp; → &nbsp; [Documentation][api] &nbsp; → &nbsp; [Declarative Testing API][declarativeapi] &nbsp; → &nbsp; **Extension Functions**
+[docs]: ./ngtx.md
+[home]: ../README.md
+
+## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp;**Custom Extension-Functions**
 
 &nbsp;
 
@@ -19,9 +22,3 @@ Before reading this article, please make sure that you understand the basics of 
 ## Extending ngtx' Declarative Api
 
 ngtx comes with several neat `predicates` and `assertions` but there will probably be cases where you need to add custom logic in order to make your test suit your needs. ngtx has several extension points where you can
-
-[api]: ./DOCUMENTATION.md
-[goodtests]: ./GOOD_TESTS.md
-[firststeps]: ./FIRST_STEPS.md
-[declarativeapi]: ./DECLARATIVE_TEST_API.md
-[home]: ../README.md

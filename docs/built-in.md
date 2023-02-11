@@ -1,10 +1,7 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; Built-In Functionality
-
 [home]: ../README.md
-[index]: ../index.md
-[docs]: ../../DOCUMENTATION.md
-[declarative]: ./index.md
-[extensionfns]: ../custom-extensions.md
+[overview]: ./overview.md
+[getstarted]: ./ngtx.md
+[extensionfns]: ./extending.md
 
 <!--  -->
 
@@ -30,11 +27,19 @@
 [havestate]: ./assertions/have-state.md
 [havetext]: ./assertions/have-text.md
 
-## List of all built-in Predicates
+## [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Built-in Extension-Functions**
+
+## Built-in Predicates and Assertions
+
+In this article you find a list of all built-in predicates and assertions of ngtx.
+
+> 🚨 No clue what we're talking about? [We can get you started here!][getstarted]
+
+### Predicates
 
 A predicate is a function that executes an operation on a given target. A test case can contain an arbitrary number of predicates that will be executed in the order they appear. The following list shows an overview on all built-in predicates. Please note that you can also [write your own predicates][extensionfns], if there is a use case that is not covered by the built-in predicates.
 
-> ### [attributes]
+> #### [attributes]
 >
 > Predicate that sets user-defined attributes on the target's `nativeElement`.
 >
@@ -42,7 +47,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(the.Button).has(attributes({ disabled: true })).expect(...).to(...);
 > ```
 
-> ### [callLifeCycleHook]
+> #### [callLifeCycleHook]
 >
 > Predicate that calls the specified Angular life-cycle-hooks on the target's `componentInstance`.
 >
@@ -50,7 +55,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(host).does(callLifeCycleHook({ ngOnInit: true })).expect(...).to(...);
 > ```
 
-> ### [call]
+> #### [call]
 >
 > Predicate that calls a specified method on a user-defined target.
 >
@@ -60,7 +65,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(the.DialogView).does(call(injected(DialogService), 'close')).expect(...).to(...);
 > ```
 
-> ### [clicked]
+> #### [clicked]
 >
 > Predicate that simulates a click-event or native click on its target.
 >
@@ -68,7 +73,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(the.Button).gets(clicked()).expect(...).to(...);
 > ```
 
-> ### [debug]
+> #### [debug]
 >
 > Predicate that prints out the current testing-DOM state at the moment of calling.
 >
@@ -76,7 +81,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(the.ClearIcon).gets(clicked()).and(debug()).expect(...).to(...);
 > ```
 
-> ### [detectChanges]
+> #### [detectChanges]
 >
 > Predicate that detects changes and applies them to the view.
 >
@@ -84,7 +89,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(host).calls(injected(DataService), 'loadAll').and(detectChanges()).expect(...).to(...);
 > ```
 
-> ### [emit]
+> #### [emit]
 >
 > Predicate that emits the specified event with an optional argument.
 >
@@ -92,7 +97,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(the.DropDown).does(emit('selectionChange', 'Item 1')).expect(...).to(...);
 > ```
 
-> ### [state]
+> #### [state]
 >
 > Predicate that sets the specified state on the target's `componentInstance`
 >
@@ -100,7 +105,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(host).has(state({ items: ['a', 'b', 'c'] }).expect(...).to(...);
 > ```
 
-> ### [waitFakeAsync]
+> #### [waitFakeAsync]
 >
 > Predicate that waits the specified amount of time within a `fakeAsync` zone.
 >
@@ -108,11 +113,11 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(host).has(state({ items$: of(['a', 'b', 'c']) }).and(waitFakeAsync()).expect(...).to(...);
 > ```
 
-## List of all built-in Assertions
+### Assertions
 
-An assertion is a function that runs checks on a given target. A test case can contain an arbitrary number of assertions that will be executed in the order they appear. If one of the checks fail, the test case will fail, too. The following list shows an overview on all built-in assertions. Please note that you can also [write your own ones][extensionfns], if there is a use case that is not covered by the built-in assertions.
+An assertion is a function that runs checks on a given target. A test case can contain an arbitrary number of assertions that will be executed in the order they appear. If one of the checks fail, the test case will fail, too. The following list shows an overview on all built-in assertions. Please note that you can also [write your own assertions][extensionfns], if there is a use case that is not covered by the built-in assertions.
 
-> ### [beFound]
+> #### [beFound]
 >
 > Assertion that checks for its target(s) to be present in the component-under-test's template.
 >
@@ -120,7 +125,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(the.CartItems).to(beFound({ times: 3 }));
 > ```
 
-> ### [beMissing]
+> #### [beMissing]
 >
 > Assertion that checks for its target(s) not to be present in the component-under-test's template.
 >
@@ -128,7 +133,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(the.AdminTab).to(beMissing());
 > ```
 
-> ### [containText]
+> #### [containText]
 >
 > Assertion that checks for its target(s) to contain the specified sub-string(s).
 >
@@ -136,7 +141,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(the.WelcomeLabel).to(containText('Welcome'));
 > ```
 
-> ### [haveAttributes]
+> #### [haveAttributes]
 >
 > Assertion that checks for its target(s) to have the specified attribute(s) with the given values.
 >
@@ -144,7 +149,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(the.SubmitButton).to(haveAttributes({ disabled: true }));
 > ```
 
-> ### [haveCalled]
+> #### [haveCalled]
 >
 > Assertion that checks for its target(s) to have called a specified target method.
 >
@@ -152,7 +157,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(host).to(haveCalled(componentMethod, 'close'));
 > ```
 
-> ### [haveCssClass]
+> #### [haveCssClass]
 >
 > Assertion that checks for its target(s) to have specified css-class(es).
 >
@@ -160,7 +165,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(the.Expander).to(haveCssClass('opened'));
 > ```
 
-> ### [haveEmitted]
+> #### [haveEmitted]
 >
 > Assertion that checks for its target(s) to have emitted the specified event.
 >
@@ -168,7 +173,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(host).to(haveEmitted('textChange', { arg: 'new text' }));
 > ```
 
-> ### [haveState]
+> #### [haveState]
 >
 > Assertion that checks for its target(s) to have the specified state(s).
 >
@@ -176,7 +181,7 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(the.Expander).to(haveState({ open: true }));
 > ```
 
-> ### [haveText]
+> #### [haveText]
 >
 > Assertion that checks for its target(s) to have the specified (exact) text-content.
 >
