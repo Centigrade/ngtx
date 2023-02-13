@@ -22,8 +22,8 @@ class the {
   }
 }
 
-it('[Dialog] should emit the finish-event when clicking on cancel button', () => {
-  const dialogResult: DialogResult = 'cancel';
+it('[Dialog] should emit the finish-event when clicking on finish button', () => {
+  const dialogResult: DialogResult = 'ok';
 
   When(the.FinishButton)
     .gets(clicked())
