@@ -32,7 +32,7 @@ it('[Dialog] should emit the finish-event when clicking on finish button', () =>
 });
 ```
 
-Write tests in a way that actually is understandable, quick and fun.
+Write tests in a way that is actually understandable, quick and fun.
 
 ### Recommended Learning Path
 
