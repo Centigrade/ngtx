@@ -175,7 +175,7 @@ it('should focus the textbox on button clear-click', () => {
 
 ## Whole Examples
 
-### Example 1: Checkbox
+### Example 1: CartView
 
 ```ts
 import {
