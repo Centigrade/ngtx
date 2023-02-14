@@ -6,15 +6,17 @@
 
 # [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Adding ngtx to Your Tests**
 
-> Already knowing the base concepts of ngtx? No? [👉 Let's start here, first!][getstarted]
+This article outlines the steps that are necessary to actually add ngtx to and use it in your test-suites.
 
-## Adding ngtx to your `describe`-block
+> Not knowing the base concepts of ngtx? [👉 Let's start here!][getstarted]
 
-You can add ngtx to your tests in four small steps. Initially, those steps may seem very complicated and even un-intuitive. But after doing this several times, it gets very easy to remember and do. We promise! 🙂
+## Adding ngtx to your Test-Suites
+
+You can add ngtx to your tests in four small steps. Initially, those steps may seem a bit complicated or even unintuitive. But after doing this several times, it gets very easy to remember and do. We promise! 😉
 
 #### Step 1: Wrapping the Test-suite with a Call to ngtx
 
-You are probably familiar with a standard test-suite like this:
+You are probably familiar with a standard Angular test-setup like this:
 
 ```ts
 describe('TextboxComponent', () => {
@@ -33,7 +35,7 @@ describe('TextboxComponent', () => {
 });
 ```
 
-To include ngtx just wrap the second argument of the `describe`block in a `ngtx`-call:
+To include ngtx just wrap the callback of the `describe`-block in a `ngtx`-call:
 
 ```diff
 + import { ngtx } from '@centigrade/ngtx';
@@ -106,9 +108,9 @@ Once ngtx receives the fixture instance, it will trigger the change-detection fo
 
 #### Step 4: Passing Type-Information to Improve Intellisense
 
-Now, there's only one little detail to add, before actually adding the test.
+Now, there's only one small detail to add, before actually adding the test.
 
-For better intellisense, ngtx needs to know of what type the `host` / component under test is. That's why the `ngtx` is generic and accepts one type-constraint.
+For better intellisense, ngtx needs to know of what type the `host` / component under test is. That's why the `ngtx`-function is generic and accepts one type-constraint.
 In our example the component under test is the `TextboxComponent`, so we add that information like so:
 
 ```diff
@@ -162,7 +164,7 @@ describe('TextboxComponent', ngtx<TextboxComponent>(( { When, host, get } ) => {
 
 > #### 💡 Built-in predicates and assertions can be imported
 >
-> Note: All the ngtx predicates and assertions can be simply imported from the library. See first line in the example above.
+> Note: All the ngtx predicates and assertions can be simply imported from the library. See very first line in the example above.
 
 Done! You're ready to write additional tests now with all the help of ngtx!
 

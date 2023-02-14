@@ -36,13 +36,13 @@ it('[the clear button] should clear the content of the textbox', () => {
 
 **Just ignore the fact that we didn't import e.g. the `When` function or `state` anywhere in the example. We will learn this in the very end of this article.**
 
-While most of the test-"sentence" seems to be pure magic, we will begin to understand the different parts in just a minute. For now we can see, that the sentence consists of two `triggers` causing a single `effect`:
+While most of the test-"sentence" seems to be kind of magic, we will begin to understand the different parts in just a minute. For now we can see, that the sentence consists of two `triggers` causing a single `effect` that we check for:
 
 - **Trigger 1:** the textbox-component ("`host`") gets its `text`-property set to the string `"hi!"`,
 - **Trigger 2:** the ClearButton gets clicked,
 - **Expected effect:** the textbox' text property got reset to an empty string (`""`)
 
-This is a complete test, stating that:
+In slightly other words:
 
 > "when the textbox' text is not empty and the user clicks the clear button, the textbox' text should be cleared".
 >
@@ -60,13 +60,15 @@ When(<subject>)
    .to(<effect>)
 ```
 
-Next, we will understand what the heck `<subject>`s, `<something>` and `<effect>` are!
+This means that we always start with a `When`-function to define the first trigger and then – optionally – chain an arbitrary number of additional triggers after that. In the end, we then check for a certain effect.
+
+Okay, that makes somewhat sense. But what the heck are "`<subject>`s", "`<something>`s" and "`<effect>`s"? Let me explain.
 
 ### TargetRefs ("`<subject>`s")
 
 > 🚨 What we called "`<subject>`s" earlier in the example is better referred to as _"Targets"_, to not confuse them with the widely known `rxjs`-subjects.
 
-A `TargetRef` is a simple function, returning a handle to a specific part of the component-under-tests' template (_"Target"_). ngtx needs to call those `TargetRef`s to find your target(s) when actually running your test-case.
+A `TargetRef` is a simple function, returning a handle to a specific part of the component-under-tests' template (**_"Target"_**). ngtx needs to call those `TargetRef`s to find your _target(s)_ when actually running your test-case.
 
 Here are some examples, how to create target-refs:
 
@@ -86,18 +88,18 @@ When(theUserNameField)
 
 ### Predicates ("`<something>`")
 
-A predicate is a function that executes an operation on a given _target_. A test case can contain an arbitrary number of predicates that will be executed in the order they appear. The following list shows an overview on all built-in predicates. Please note that you can also [write your own predicates][extensionfns], if there is a use case that is not covered by the built-in predicates.
+A predicate is a function that executes an operation on a given _target_. A test case can contain an arbitrary number of predicates that will be executed in the order they appear. Please note that you can also [write your own predicates][extensionfns], if there is a use case that is not covered by the built-in predicates.
 
 > See all built-in predicates and assertions in the [overview][overview].
 
 ### Assertions ("`<effect>`")
 
-An assertion is a function that runs checks on a given _target_. A test case can contain an arbitrary number of assertions that will be executed in the order they appear. If one of the checks fail, the test case will fail, too. The following list shows an overview on all built-in assertions. Please note that you can also [write your own assertions][extensionfns], if there is a use case that is not covered by the built-in assertions.
+An assertion is a function that runs checks on a given _target_. A test case can contain an arbitrary number of assertions that will be executed in the order they appear. If one of the checks fail, the test case will fail, too. Please note that you can also [write your own assertions][extensionfns], if there is a use case that is not covered by the built-in assertions.
 
 > See all built-in predicates and assertions in the [overview][overview].
 
 ## Revisit: Importing ngtx to Your Tests
 
-In earlier examples we saw the usage of a mysteriously present `When` function or the `state` predicate. But where do those things come from? We skipped some code, to not bother you with some small boilerplate. But now is the right time to draw the whole picture.
+In earlier examples we saw the usage of a mysteriously present `When`-function or the `state`-predicate. But where do those things come from? We skipped some code, to not bother you with some small boilerplate. But now is the right time to draw the whole picture.
 
 [👉 Let's see the whole test-code, extending the example-test.][addngtx]

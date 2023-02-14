@@ -1,12 +1,11 @@
-## [🏠][home] &nbsp; → &nbsp; [Documentation][api] &nbsp; → &nbsp; **Common Examples**
+[home]: ../README.md
+[docs]: ./overview.md
 
-This article gives a basic overview on a range of ngtx helpers.
-
-The following examples are influenced by real enterprise applications, ngtx was used in. It demonstrates how ngtx can help you writing tests that are easier to read and maintain.
-
-> Please note that the following test-cases are actually coming from _different_ components, i.e. multiple, unrelated test-suites. They are put here together for the sake of brevity. In a real application they must remain in separated test-suites with their own `TestBed`s and `fixtures`, of course.
+## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp; **Common Examples**
 
 ## Examples By Use-Case
+
+This article demonstrates common test-scenarios, and how declarative testing with ngtx can solve them for you.
 
 #### Checking the Existence / Non-Existence of a Target
 
@@ -103,10 +102,74 @@ it('should logout a user when clicking the logout-button', () => {
     .gets(clicked())
     .expect(host)
     .to(
+      // hint: "injected" can be imported from @centigrade/ngtx
       haveCalled(injected(AuthService), 'logout', {
+        times: 1, // 1 is actually default, showing it for demonstration
+        withArgs: [], // expect no arguments on call
+        whichReturns: Promise.resolve(), // pass a spy-return-value
+      }),
+    );
+});
+```
+
+#### Check that a Method has been Called on a NativeElement
+
+Template of host
+
+```html
+<input #textbox [value]="text" />
+<button (click)="clearAndFocusTextbox(textbox)">X</button>
+```
+
+Declarative tests
+
+```ts
+class the {
+  static ClearButton() {
+    return get('button');
+  }
+  static NativeInput() {
+    return get('input');
+  }
+}
+
+it('should focus the textbox on button clear-click', () => {
+  When(the.ClearButton)
+    .gets(clicked())
+    .expect(the.NativeInput)
+    .to(
+      // hint: "nativeMethod" can be imported from @centigrade/ngtx
+      haveCalled(nativeMethod, 'focus', {
         times: 1, // 1 is actually default, but showing for educational purposes
       }),
     );
+});
+```
+
+#### Trigger a Method Call
+
+Template of host
+
+```html
+<span>Hi {{ fullName }}!</span>
+```
+
+Declarative tests
+
+```ts
+class the {
+  static FullNameSpan() {
+    return get('span');
+  }
+}
+
+it('should focus the textbox on button clear-click', () => {
+  When(host)
+    .has(state({ firstName: 'Ann', lastName: 'Smith' }))
+    // hint: "componentMethod" can be imported from @centigrade/ngtx
+    .and(call(componentMethod, 'ngOnChanges', { firstName: true }))
+    .expect(the.FullNameSpan)
+    .to(haveText('Hi Ann Smith!'));
 });
 ```
 
@@ -216,10 +279,3 @@ const providerWithState = <Provider>(
     });
   });
 ```
-
-[api]: ./DOCUMENTATION.md
-[declarativetests]: ./DECLARATIVE_TEST_API.md
-[features]: ./FEATURES.md
-[firststeps]: ./FIRST_STEPS.md
-[good-tests]: ./GOOD_TESTS.md
-[home]: ../README.md
