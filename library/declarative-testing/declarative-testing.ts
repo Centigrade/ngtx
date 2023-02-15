@@ -36,9 +36,15 @@ export const createDeclarativeTestingApi = (
 
     const assertionsApi = <Html extends HTMLElement, Type>(
       target: TargetRef<Html, Type> | NgtxTestEnv,
+      ...others: NgtxTestEnv[]
     ) => {
       if (target instanceof NgtxTestEnv) {
-        testEnv.importState(target.getState());
+        // import passed in test-envs:
+        // case: .expect( When(x).rendered().expect(y).will(z) )
+        [target, ...others].forEach((testEnvToImport) => {
+          testEnv.importState(testEnvToImport.getState());
+        });
+
         return testEnv.executeTest();
       }
 
@@ -74,8 +80,10 @@ export const createDeclarativeTestingApi = (
           return addPredicate(...[first, ...others]);
         } else if (hasTestState(first)) {
           // hint: applying all the predicates and assertions from the statement into the current test:
-          const statementTestState = first[NgtxTestState].getState();
-          testEnv.importState(statementTestState);
+          ([first, ...others] as NgtxTestEnv[]).forEach((state) => {
+            const statementTestState = state[NgtxTestState].getState();
+            testEnv.importState(statementTestState);
+          });
 
           return addPredicate();
         } else {
@@ -84,10 +92,13 @@ export const createDeclarativeTestingApi = (
           );
         }
       },
-      expect<Html extends HTMLElement, Type>(target: TargetRef<Html, Type>) {
+      expect<Html extends HTMLElement, Type>(
+        target: TargetRef<Html, Type>,
+        ...others: NgtxTestEnv[]
+      ) {
         return Object.assign(
           { [NgtxTestState]: testEnv },
-          assertionsApi(target),
+          assertionsApi(target, ...others),
           {
             not: new Proxy(expectationApi, {
               get: (_: any, propertyName: string) => {
