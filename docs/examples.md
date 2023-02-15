@@ -146,6 +146,33 @@ it('should focus the textbox on button clear-click', () => {
 });
 ```
 
+#### Detect Changes on a `ChangeDetectionStrategy.OnPush` Component
+
+Template of host
+
+```html
+<span>Hi {{ name }}!</span>
+```
+
+Declarative tests
+
+```ts
+class the {
+  static NameSpan() {
+    return get('span');
+  }
+}
+
+it('should render a greeting', () => {
+  When(host)
+    .has(state({ name: 'Ann' }))
+    // hint: this will enforce change detection for OnPush components
+    .and(detectChanges({ viaChangeDetectorRef: true }))
+    .expect(the.NameSpan)
+    .to(haveText('Hi Ann!'));
+});
+```
+
 #### Trigger a Method Call
 
 Template of host
