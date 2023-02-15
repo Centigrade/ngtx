@@ -1,6 +1,7 @@
 [home]: ../README.md
 [overview]: ./overview.md
 [addngtx]: ./add-ngtx.md
+[builtins]: ./built-in.md
 [extensionfns]: ./extending.md
 
 # [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Getting Started**
@@ -90,13 +91,13 @@ When(theUserNameField)
 
 A predicate is a function that executes an operation on a given _target_. A test case can contain an arbitrary number of predicates that will be executed in the order they appear. Please note that you can also [write your own predicates][extensionfns], if there is a use case that is not covered by the built-in predicates.
 
-> See all built-in predicates and assertions in the [overview][overview].
+> See all built-in predicates and assertions in the [list of built-in features][builtins].
 
 ### Assertions ("`<effect>`")
 
 An assertion is a function that runs checks on a given _target_. A test case can contain an arbitrary number of assertions that will be executed in the order they appear. If one of the checks fail, the test case will fail, too. Please note that you can also [write your own assertions][extensionfns], if there is a use case that is not covered by the built-in assertions.
 
-> See all built-in predicates and assertions in the [overview][overview].
+> See all built-in predicates and assertions in the [list of built-in features][builtins].
 
 ## Revisit: Importing ngtx to Your Tests
 
