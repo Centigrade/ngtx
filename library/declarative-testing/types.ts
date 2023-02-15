@@ -311,7 +311,9 @@ export interface ExpectApi<Html extends HTMLElement, Component>
   expect<Html extends HTMLElement, Component>(
     object: TargetRef<Html, Component>,
   ): AssertionApi<Html, Component>;
-  expect<Html extends HTMLElement, Component>(assertion: NgtxTestEnv): void;
+  expect<Html extends HTMLElement, Component>(
+    ...assertions: NgtxTestEnv[]
+  ): void;
 }
 
 export interface AssertionApi<Html extends HTMLElement, Component>

@@ -160,6 +160,21 @@ describe(
       }
     }
 
+    it('should allow multiple assertions passed in via expect', () => {
+      const toBeOpened = When(host)
+        .rendered()
+        .expect(host)
+        .will(haveState({ opened: true }));
+      const toHaveOneItem = When(host)
+        .rendered()
+        .expect(host)
+        .will(haveState({ items: ['a'] }));
+
+      When(host)
+        .has(state({ opened: true, items: ['a'] }))
+        .expect(toBeOpened, toHaveOneItem);
+    });
+
     it('and (chaining - 1)', () => {
       const setItems = When(host).has(state({ items: [1, 2, 3] }));
 
