@@ -62,7 +62,7 @@ When(<subject>)
 
 This means that we always start with a `When`-function to define the first trigger and then – optionally – chain an arbitrary number of additional triggers after that via adding `and`s. In the end, we then check for a certain effect.
 
-But what the heck are "`<subject>`s", "`<something>`s" and "`<effect>`s"? Let' see'.
+But what the heck are "`<subject>`s", "`<something>`s" and "`<effect>`s"? Let's see.
 
 ### TargetRefs ("`<subject>`s")
 
