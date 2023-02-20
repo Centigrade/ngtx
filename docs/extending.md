@@ -14,6 +14,12 @@
 
 ngtx comes with several neat `predicates` and `assertions` but there will probably be (quite a lot of) cases where you need to add custom logic in order to make your test suit fit your needs. ngtx' api is designed with extendability in mind. Let's jump it.
 
+### Custom Predicates
+
+> #### 🚧 Coming Soon!
+>
+> Sorry, we don't have this documented yet, but we're working on it.
+
 ### Custom Assertions: Expander-Example
 
 Imagine we have a `ExpanderComponent` with an arrow-icon inside. Whenever the expander is opened, the arrow-icon should get a style-css property "`transform: rotate(180deg)`". However, if the expander is closed the transform gets reset to zero.
