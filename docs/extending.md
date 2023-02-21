@@ -3,8 +3,6 @@
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp;**Custom Extension-Functions**
 
-&nbsp;
-
 > #### 💡 New to ngtx?
 >
 > If you're new to ngtx and don't know the basic concepts yet, better
@@ -14,11 +12,147 @@
 
 ngtx comes with several neat `predicates` and `assertions` but there will probably be (quite a lot of) cases where you need to add custom logic in order to make your test suit fit your needs. ngtx' api is designed with extendability in mind. Let's jump it.
 
-### Custom Predicates
+### Custom Predicates: CartView Example
 
-> #### 🚧 Coming Soon!
+Let's say we have a cart-view where a user gets listed what they are about to purchase. In Angular we would use a `CartService` to provide the cart-data. When testing this view, we may want to set the state of the mocked version of the `CartService`, so that we are in control about what items will be handed to the view.
+
+Unfortunately ngtx does not provide something like that out of the box, but we can help ourselves and create such a predicate extension. Let's start with a draft, how we would like to use our extension later in our tests:
+
+```ts
+it('should render all cart items', () => {
+  When(host)
+    .has(
+      // the predicate-extension we are about to build:
+      providerWithState(CartService, {
+        cartItems: [
+          { name: 'pizza', price: 5.25 },
+          { name: 'ice cream', price: 2.5 },
+        ],
+      }),
+    )
+    .expect(the.CartItems)
+    .to(beFound({ times: 2 }));
+});
+```
+
+Ok, looks decent enough to go to the next step: the implementation.
+The first thing we have to do is to define the function and its parameter-list:
+
+```ts
+const providerWithState = (token: any, stateDef: any) => {
+  // yet to come
+};
+
+// or - with better type support:
+const providerWithState = <T, S extends T>(token: T, stateDef: Partial<S>) => {
+  // yet to come
+};
+```
+
+> ### Please Note
 >
-> Sorry, we don't have this documented yet, but we're working on it.
+> While the second example is the one with better intellisense, we're going with the first one in this example for the sake of brevity and readability. In real applications, you should consider choosing the second way.
+
+In the next step we need to import and use ngtx' `createExtension` function. This function hands us some tools and information we are going to need to describe and pass our logic to ngtx:
+
+```ts
+import { createExtension } from '@centigrade/ngtx';
+
+const providerWithState = (token: any, stateDef: any) => {
+  return createExtension((getTargets, { addPredicate }, fixture) => {
+    // yet to come
+  });
+};
+```
+
+In the code above we imported the `createExtension` function and declare all the helper we're going to use soon.
+Let's go through the parameters that we are provided with by `createExtension`:
+
+- `getTargets`: When calling this function, we get an array-like list of the _targets_ that is defined by the user in the test:
+
+  `... .expect(host).to(haveStyle(...))`: in this example calling `getTargets` will return us a list with only the resolved `host` reference in it. The resolved reference is of type `NgtxElement` a small wrapper around Angular's built-in `DebugElement`. It provides some extra features, but we're not taking a close look to them right now.
+
+- `addPredicate`: this helper allows you to schedule predicate-logic to the current test. Your predicate-logic will be called in the order they appear within a test and before all assertions will execute.
+
+- `fixture`: this is a reference to the `NgtxFixture`. Again, this type is a small wrapper around Angular's built-in `ComponentFixture`. It also adds some extra functionality and we also will ignore the details for now.
+
+Now that we know what these helper can do for us, we can pass our predicate-logic to ngtx:
+
+```ts
+import { createExtension } from '@centigrade/ngtx';
+
+const providerWithState = (serviceClass: any, stateDef: any) => {
+  return createExtension((getTargets, { addPredicate }, fixture) => {
+    addPredicate(() => {
+      // get the targets that the user defined in the test
+      const targets = getTargets();
+      // now we run our logic on all targets that were found:
+      for (const target of targets) {
+        // get the service instance from the target:
+        const service = target.injector.get(serviceClass);
+        // go through the stateDef and assign it to the service instance:
+        for (const propNameAndValue of Object.entries(stateDef)) {
+          const propName = propNameAndValue[0];
+          const value = propNameAndValue[1];
+          service[propName] = value;
+        }
+      }
+      // now that we updated the service on all targets, we should detect changes:
+      fixture.detectChanges();
+    });
+  });
+};
+```
+
+Oh, that's quite a lot. Let's go through it to better understand what's going on:
+
+- first we call `addPredicate` and pass it an arrow-function. This is the place where we pass ngtx our custom logic and tell that this should be a predicate. This information is important for ngtx to know _when_ the logic should be executed (before assertions).
+- next we utilize the first parameter `getTargets` to retrieve the targets that the user defined in the test. Examples:
+
+  ```ts
+  // target is "host" (= the component under test):
+  When(host).has(providerWithState(/*...*/));
+  // targets are the CartItemComponents:
+  const theCartItems = () => getAll(CartItemComponent);
+  When(theCartItems).has(providerWithState(/*...*/));
+  // target is a native button element
+  // (which would not make too much sense for this type of predicate):
+  const theCancelButton = () => get('button.cancel');
+  When(theCancelButton).has(providerWithState(/*...*/));
+  ```
+
+  > The key finding here is, that the target is always the expression that was passed to the `When`-function (or `and`-function for subsequent, chained expressions):
+  > `When(host).has(state({...})).and(theCancelButton).gets(clicked())`
+  >
+  > - target 1: host (state gets set there)
+  > - target 2: theCancelButton (emits a click-event)
+
+- After retrieving the target(s), we run our predicate-logic on each target. All targets provide their injector reference, that we use to inject the desired service-instance from the target.
+- In the next step we run through all properties on the given, desired service-state and assign those properties to the service.
+- in the very end, after assigning all state to the service, we run Angular's change-detection by utilizing the `fixture`-parameter.
+
+That's it! Now we can use our predicate like we drafted in the beginning:
+
+```ts
+import { providerWithState } from './my-ngtx-extensions';
+import { CartService } from './services/cart.service';
+
+// ...
+it('should render all cart items', () => {
+  When(host)
+    .has(
+      // the predicate-extension we are about to build:
+      providerWithState(CartService, {
+        cartItems: [
+          { name: 'pizza', price: 5.25 },
+          { name: 'ice cream', price: 2.5 },
+        ],
+      }),
+    )
+    .expect(the.CartItems)
+    .to(beFound({ times: 2 }));
+});
+```
 
 ### Custom Assertions: Expander-Example
 
@@ -94,11 +228,11 @@ export const haveStyle = (styleProp: string, expectedValue: string) => {
 };
 ```
 
-Let's go through the arguments that we are provided with by `createExtension`:
+Let's go through the parameters that we are provided with by `createExtension`:
 
 - `getTargets`: When calling this function, we get an array-like list of the _targets_ that is defined by the user in the test:
 
-`... .expect(host).to(haveStyle(...))`: in this example calling `getTargets` will return us a list with only the resolved `host` reference in it. The resolved reference is of type `NgtxElement` a small wrapper around Angular's built-in `DebugElement`. It provides some extra features, but we're not taking a close look to them right now.
+  `... .expect(host).to(haveStyle(...))`: in this example calling `getTargets` will return us a list with only the resolved `host` reference in it. The resolved reference is of type `NgtxElement` a small wrapper around Angular's built-in `DebugElement`. It provides some extra features, but we're not taking a close look to them right now.
 
 - `addAssertion`: this helper allows you to schedule assertion-logic to the current test. Your assertion-logic will be called at the end of the test, after all predicates have been executed.
 
