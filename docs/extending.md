@@ -16,6 +16,10 @@ ngtx comes with several neat `predicates` and `assertions` but there will probab
 
 Let's say we have a cart-view where a user gets listed what they are about to purchase. In Angular we would use a `CartService` to provide the cart-data. When testing this view, we may want to set the state of the mocked version of the `CartService`, so that we are in control about what items will be handed to the view.
 
+> ### The Result
+>
+> ![Image of a shopping cart view where a user can see their purchase items](./media/cart_view.svg)
+
 Unfortunately ngtx does not provide something like that out of the box, but we can help ourselves and create such a predicate extension. Let's start with a draft, how we would like to use our extension later in our tests:
 
 ```ts

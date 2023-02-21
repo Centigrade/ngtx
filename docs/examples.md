@@ -1,5 +1,6 @@
 [home]: ../README.md
 [docs]: ./overview.md
+[extending]: ./extending.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp; **Common Examples**
 
@@ -202,7 +203,9 @@ it('should focus the textbox on button clear-click', () => {
 
 ## Whole Examples
 
-### Example 1: CartView
+### Example: CartView
+
+The following example contains a custom predicate extension. If you like to better understand how this is working you can take a look here: [How to: writing custom extensions][extending].
 
 ```ts
 import {
