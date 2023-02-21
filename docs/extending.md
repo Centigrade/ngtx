@@ -10,7 +10,7 @@
 
 ## Extending ngtx' Declarative Api
 
-ngtx comes with several neat `predicates` and `assertions` but there will probably be (quite a lot of) cases where you need to add custom logic in order to make your test suit fit your needs. ngtx' api is designed with extendability in mind. Let's jump it.
+ngtx comes with several neat `predicates` and `assertions` but there will probably be (quite some) cases where you need to add custom logic in order to make your test suit fit your needs. ngtx' api is designed with extendability in mind. Let's jump it.
 
 ### Custom Predicates: CartView Example
 
