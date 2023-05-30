@@ -10,26 +10,37 @@
 
 Testing in ngtx is based on a simple concept stating that certain trigger(s) will cause certain effect(s), which we, in turn, can observe.
 
-```mermaid
-graph LR;
-Trigger-->Effect
-```
+If you know the [AAA-unit test pattern](https://robertmarshall.dev/blog/arrange-act-and-assert-pattern-the-three-as-of-unit-testing/) (arrange, act, assert), conditions are what you would put into the `// arrange` block of your AAA-unit test, triggers are what you would put into the `// act` block, and the expected effect then represents the `// assert` part of your unit test.
 
-&nbsp;
+Exactly as in **AAA tests**, the first two parts can sometimes be empty.
 
-An Angular unit test – seen from this perspective – is only **a chain of certain triggers**, that we _expect_ to cause a certain effect. With ngtx we can describe this relation of triggers and effects in a human readable way. Let's take a look at this example:
+An Angular unit test – seen from this perspective – is only **an arbitrary number of conditions, followed by one or more triggers, that we _expect_ to cause a certain effect**. Using the before mentioned example: When the button is disabled (condition) and we click on it, we expect that no event handler was called.
+
+With ngtx we can describe this relation of triggers and effects in a human readable way. Let's take a look at this example:
 
 ```ts
-it('[the clear button] should clear the content of the textbox', () => {
-  // trigger 1:
+it('[the clear button] should clear the textbox when enabled', () => {
+  // arrange:
   When(host)
-    .has(state({ text: 'hi!' }))
-    // trigger 2:
+    .has(state({ canClear: true, text: 'some text' }))
+    // act:
     .and(the.ClearButton)
     .gets(clicked())
-    // effect:
+    // assert:
     .expect(host)
-    .to(haveState({ text: '' }));
+    .to.not(haveState({ text: '' }));
+});
+
+it('[the clear button] should not clear the textbox when disabled', () => {
+  // arrange:
+  When(host)
+    .has(state({ canClear: false, text: 'some text' }))
+    // act:
+    .and(the.ClearButton)
+    .gets(clicked())
+    // assert:
+    .expect(host)
+    .to.not(haveState({ text: 'some text' }));
 });
 ```
 
