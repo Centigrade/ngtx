@@ -18,14 +18,11 @@ We can do better and we think we should. ngtx is meant to give you the necessary
 
 New to ngtx? Let's get you started with these links:
 
-- [Getting Started / First Steps][firststeps]
-- [Feature Overview][features]
-- [Declarative Testing API][declarativetesting] (**🔥 new (currently alpha)**)
+- [Getting Started / First Steps][declarativetesting]
 
 Having questions or issues using ngtx? You may want to take a look at this:
 
 - [Examples][examples]
-- [How to: Writing Good Tests][goodtests]
 - [StackOverflow][stackoverflow]
 
 ### Quick Start
@@ -85,21 +82,13 @@ describe(
 
 If you know and like ngtx we would love for you to contribute by either giving us feedback on issues or missing features or even by helping us implement already [existing issues](https://github.com/Centigrade/ngtx/issues). If you have ideas how to improve our workflow you're also welcome to share it with us.
 
-- [Contributing][contributing]
-- [Code of Conduct][codeofconduct]
-
 ## Team
 
 - Julian Lang ([GitHub: JulianLang](https://github.com/JulianLang), author)
 - Patrick-Andre Decker
 
-[api]: ./docs/API.md
-[contributing]: ./CONTRIBUTING.md
-[codeofconduct]: ./CODE_OF_CONDUCT.md
-[declarativetesting]: ./docs/declarative-api/index.md
-[documentation]: ./docs/DOCUMENTATION.md
-[examples]: ./docs/EXAMPLES.md
-[features]: ./docs/FEATURES.md
-[goodtests]: ./docs/GOOD_TESTS.md
-[firststeps]: ./docs/FIRST_STEPS.md
+[api]: ./docs/built-in.md
+[declarativetesting]: ./docs/overview.md
+[documentation]: ./docs/ngtx.md
+[examples]: ./docs/examples.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
