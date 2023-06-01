@@ -1,3 +1,9 @@
+[api]: ./docs/built-in.md
+[declarativetesting]: ./docs/overview.md
+[documentation]: ./docs/ngtx.md
+[examples]: ./docs/examples.md
+[stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
+
 ![ngtx logo](./docs/media/logo.svg)
 
 > If you have ideas how to further improve ngtx feel free to raise an issue and/or contribute.
@@ -5,6 +11,8 @@
 # @centigrade/ngtx
 
 ![](https://github.com/Centigrade/ngtx/workflows/CI/badge.svg)
+
+`$ npm install @centigrade/ngtx --save-dev`
 
 ngtx stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of functions aiming to make your life easier when testing Angular components. It's supposed to make your tests lean while increasing the readability by boosting the semantics of each test case.
 
@@ -25,59 +33,6 @@ Having questions or issues using ngtx? You may want to take a look at this:
 - [Examples][examples]
 - [StackOverflow][stackoverflow]
 
-### Quick Start
-
-`$ npm install @centigrade/ngtx --save-dev`
-
-```ts
-import { ngtx } from '@centigrade/ngtx';
-
-describe(
-  'MyComponent',
-  ngtx<MyComponent>(
-    ({ useFixture, When, host, get, getAll /*, other ngtx helpers... */ }) => {
-      // skipping Angular test boilerplate code...
-      beforeEach(() => {
-        const fixture = TestBed.createComponent(MyComponent);
-        useFixture(fixture);
-      });
-
-      class the {
-        static Headline() {
-          return get('h1');
-        }
-        static Features() {
-          return getAll(ListItemComponent);
-        }
-      }
-
-      it('should have a title', () => {
-        When(host)
-          .has(state({ title: 'Welcome to ngtx!' }))
-          .expect(the.Headline)
-          .to(haveText('Welcome to ngtx!'));
-      });
-
-      it('should list all its features', () => {
-        const ExpectTheFeatureListItems = When(host)
-          .rendered()
-          .expect(the.Features);
-
-        ExpectTheFeatureListItems.to(beFound({ times: 4 }));
-        ExpectTheFeatureListItems.to(
-          haveText([
-            'many handy test helpers, such as simple template querying via get and getAll',
-            'powerful declarative testing-api for super-expressive test cases',
-            'encouraging support for testing component harnesses',
-            'unobtrusive, just acts as a layer above the test-fixture',
-          ]),
-        );
-      });
-    },
-  ),
-);
-```
-
 ## Contributing
 
 If you know and like ngtx we would love for you to contribute by either giving us feedback on issues or missing features or even by helping us implement already [existing issues](https://github.com/Centigrade/ngtx/issues). If you have ideas how to improve our workflow you're also welcome to share it with us.
@@ -86,9 +41,3 @@ If you know and like ngtx we would love for you to contribute by either giving u
 
 - Julian Lang ([GitHub: JulianLang](https://github.com/JulianLang), author)
 - Patrick-Andre Decker
-
-[api]: ./docs/built-in.md
-[declarativetesting]: ./docs/overview.md
-[documentation]: ./docs/ngtx.md
-[examples]: ./docs/examples.md
-[stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
