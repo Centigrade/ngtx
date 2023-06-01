@@ -1,6 +1,7 @@
 [home]: ../README.md
-[overview]: ./built-in.md
+[builtin]: ./built-in.md
 [getstarted]: ./ngtx.md
+[componentharnesses]: ./harnesses.md
 [addngtx]: ./add-ngtx.md
 [examples]: ./examples.md
 [extending]: ./extending.md
@@ -43,3 +44,8 @@ To get you started we recommend you to read the following articles in this order
 2. [Hands-On: Add ngtx to your tests][addngtx]
 3. [Get an overview: See common examples][examples]
 4. [How to write custom extensions][extending]
+
+### Further Resources
+
+- [All built-in, declarative features][builtin]
+- [Component Harnesses][componentharnesses]
