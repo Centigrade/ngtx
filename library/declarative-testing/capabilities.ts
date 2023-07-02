@@ -1,14 +1,6 @@
 import { NgtxElement, NgtxMultiElement } from '../core';
-import { beFound, FindingOptions, haveEmitted, haveState, state } from './lib';
-import {
-  EmissionOptions,
-  ExpectApi,
-  ExtensionFn,
-  PropertyDescriptor,
-  PropertyValueDescriptor,
-  TargetRef,
-  WhenStatement,
-} from './types';
+import { beFound, FindingOptions } from './lib';
+import { ExpectApi, TargetRef, WhenStatement } from './types';
 import { asNgtxElementListRef } from './utility';
 
 const getStatesToAssert = (
@@ -39,85 +31,25 @@ const getStatesToAssert = (
 };
 
 export class Capabilities<Component> {
-  protected assert: AssertionBuilder<Component>;
-  protected actions: ActionBuilder<Component>;
-
-  protected get whenComponents() {
-    return this._when(this._components);
+  protected get whenComponent() {
+    return this._when(this._target);
   }
 
-  protected get expectComponents() {
+  protected get expectComponent() {
     return this.negate
-      ? this.whenComponents.rendered().expect(this._components).not
-      : this.whenComponents.rendered().expect(this._components);
+      ? this.whenComponent.rendered().expect(this._target).not
+      : this.whenComponent.rendered().expect(this._target);
   }
 
   constructor(
     protected readonly _when: WhenStatement,
-    protected readonly _components: TargetRef<HTMLElement, Component>,
+    protected readonly _target: TargetRef<HTMLElement, Component>,
     protected readonly negate = false,
-  ) {
-    this.assert = new AssertionBuilder(_when, _components, this.negate);
-    this.actions = new ActionBuilder(_when, _components);
-  }
+  ) {}
 
   public get not() {
-    return this.createCapabilities(this._components, !this.negate);
+    return this.createCapabilities(this._target, !this.negate);
   }
-
-  // TODO: remove deprecated api when releasing stable version 2
-  /** @deprecated Please use `this.actions` and/or `this.assert` in order to create standard capability APIs. The API will be removed in the stable release. */
-  protected templates = {
-    prop: {
-      setter: <PropertyKey extends keyof Component = keyof Component>({
-        name,
-        defaultSetterValue,
-      }: PropertyValueDescriptor<Partial<Component>, PropertyKey>) => {
-        return (value: Component[PropertyKey] = defaultSetterValue!) =>
-          this.whenComponents.has(state({ [name as PropertyKey]: value }));
-      },
-      assertion: <PropertyKey extends keyof Component = keyof Component>({
-        name,
-        defaultAssertionValue,
-        isArrayProperty,
-      }: PropertyValueDescriptor<Component, PropertyKey>) => {
-        return (value?: Component[PropertyKey] | Component[PropertyKey][]) => {
-          const propName = name as PropertyKey;
-
-          const statesToCheck = getStatesToAssert(
-            value,
-            defaultAssertionValue,
-            propName as string,
-            isArrayProperty ?? false,
-          );
-
-          return this.expectComponents.will(haveState(statesToCheck));
-        };
-      },
-    },
-    event: {
-      emitter: <PropertyKey extends keyof Component>({
-        name,
-        defaultSetterValue,
-      }: PropertyValueDescriptor<Component, PropertyKey>) => {
-        return (arg?: any) => {
-          return this.whenComponents.emits(
-            name as PropertyKey,
-            arg ?? defaultSetterValue,
-          );
-        };
-      },
-      assertion: <PropertyKey extends keyof Component = keyof Component>({
-        name,
-      }: PropertyDescriptor<Component, PropertyKey>) => {
-        return (opts: EmissionOptions = {}) => {
-          return this.expectComponents.will(
-            haveEmitted(name as PropertyKey, opts),
-          );
-        };
-      },
-    },
-  };
 
   public first() {
     return this.atIndex(0);
@@ -146,11 +78,11 @@ export class Capabilities<Component> {
   }
 
   public toBeFound(opts: FindingOptions = {}) {
-    return this.expectComponents.will(beFound(opts));
+    return this.expectComponent.will(beFound(opts));
   }
 
   private getTargetRefs() {
-    return asNgtxElementListRef(this._components)();
+    return asNgtxElementListRef(this._target)();
   }
 
   private createCapabilities(
@@ -168,108 +100,7 @@ export class Capabilities<Component> {
 // --------------------------------------
 
 //#region types
-type Callable<T> = T & Function;
 type TestBaseStatement<Component> = (
   value?: any,
 ) => ExpectApi<HTMLElement, Component>;
-//#endregion
-
-//#region entities
-class ActionBuilder<Component> {
-  protected statement: TestBaseStatement<Component> = () =>
-    this.whenComponents.rendered();
-
-  protected get whenComponents() {
-    return this.when(this.target);
-  }
-
-  protected get currentStatement(): TestBaseStatement<Component> {
-    return this.statement.bind(this);
-  }
-
-  constructor(
-    private readonly when: WhenStatement,
-    private readonly target: TargetRef<HTMLElement, Component>,
-  ) {}
-
-  public setProperty<PropertyKey extends keyof Component = keyof Component>({
-    name,
-    defaultSetterValue,
-  }: PropertyValueDescriptor<Partial<Component>, PropertyKey>) {
-    const current = this.currentStatement;
-
-    this.statement = (value: Component[PropertyKey] = defaultSetterValue!) =>
-      current().and(
-        this.whenComponents.has(state({ [name as PropertyKey]: value })),
-      );
-
-    return this;
-  }
-
-  public emitEvent<PropertyKey extends keyof Component>({
-    name,
-    defaultSetterValue,
-  }: PropertyValueDescriptor<Component, PropertyKey>) {
-    const current = this.currentStatement;
-
-    this.statement = (value: Component[PropertyKey] = defaultSetterValue!) =>
-      current().and(
-        this.whenComponents.emits(
-          name as PropertyKey,
-          value ?? defaultSetterValue,
-        ),
-      );
-
-    return this;
-  }
-
-  public and(...extensions: ExtensionFn<HTMLElement, Component>[]) {
-    const current = this.currentStatement;
-    this.statement = (value?: any) => current(value).and(...extensions);
-    return this;
-  }
-
-  public done() {
-    return this.statement;
-  }
-}
-
-class AssertionBuilder<Component> {
-  private get expectTargets() {
-    return this.negated
-      ? this.when(this.target).rendered().expect(this.target).not
-      : this.when(this.target).rendered().expect(this.target);
-  }
-
-  constructor(
-    private readonly when: WhenStatement,
-    private readonly target: TargetRef<HTMLElement, Component>,
-    private readonly negated: boolean,
-  ) {}
-
-  property<K extends keyof Component = keyof Component>({
-    name,
-    defaultAssertionValue,
-    isArrayProperty,
-  }: PropertyValueDescriptor<Partial<Component>, K>) {
-    return (value?: Component[K] | Component[K][]) => {
-      const statesToCheck = getStatesToAssert(
-        value,
-        defaultAssertionValue,
-        name as string,
-        isArrayProperty ?? false,
-      );
-
-      return this.expectTargets.will(haveState(statesToCheck));
-    };
-  }
-
-  eventEmission<K extends keyof Component = keyof Component>({
-    name,
-  }: PropertyDescriptor<Component, K>) {
-    return (opts: EmissionOptions = {}) =>
-      this.expectTargets.will(haveEmitted(name as K, opts));
-  }
-}
-
 //#endregion
