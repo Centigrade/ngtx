@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Capabilities } from '../declarative-testing/capabilities';
+import { ComponentHarness } from '../declarative-testing/component-harness';
 import {
   componentMethod,
   detectChanges,
@@ -53,7 +53,7 @@ const valueProperty: PropertyValueDescriptor<{ value: string }, 'value'> = {
   defaultAssertionValue: expect.any(String),
 };
 
-class ItemCapabilities extends Capabilities<ItemComponent> {
+class ItemCapabilities extends ComponentHarness<ItemComponent> {
   public hasValue(value: string) {
     return this.whenComponent.has(state({ value }));
   }

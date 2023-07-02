@@ -3,34 +3,7 @@ import { beFound, FindingOptions } from './lib';
 import { ExpectApi, TargetRef, WhenStatement } from './types';
 import { asNgtxElementListRef } from './utility';
 
-const getStatesToAssert = (
-  expectedStateOrStates: any,
-  defaultValue: any,
-  propName: string,
-  isArrayProperty: boolean,
-): any => {
-  if (isArrayProperty) {
-    // hint: value could also be "expect.any(Array)", which is no array
-    const isArray = Array.isArray(expectedStateOrStates);
-    const isNestedArray = isArray && Array.isArray(expectedStateOrStates[0]);
-
-    // we pass multiple prop states
-    if (isNestedArray) {
-      return expectedStateOrStates.map((propState: any[]) => {
-        return { [propName]: propState };
-      });
-    }
-
-    // we only pass one prop state, so check this one for all found matches in template
-    return { [propName]: expectedStateOrStates ?? defaultValue };
-  }
-
-  return Array.isArray(expectedStateOrStates)
-    ? expectedStateOrStates.map((x) => ({ [propName]: x }))
-    : { [propName]: expectedStateOrStates ?? defaultValue };
-};
-
-export class Capabilities<Component> {
+export class ComponentHarness<Component> {
   protected get whenComponent() {
     return this._when(this._target);
   }

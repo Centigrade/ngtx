@@ -1,9 +1,9 @@
-export { Capabilities } from './capabilities';
+export { ComponentHarness } from './component-harness';
 export {
   createDeclarativeTestingApi,
   createExtension,
 } from './declarative-testing';
-export { allOrNth } from './harnesses';
+export { allOrNth } from './helpers';
 export * from './lib';
 export { NgtxTestEnv } from './test-env';
 export {

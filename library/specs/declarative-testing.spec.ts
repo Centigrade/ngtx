@@ -7,7 +7,7 @@ import {
   Output,
 } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { allOrNth } from '../declarative-testing/harnesses';
+import { allOrNth } from '../declarative-testing/helpers';
 import {
   attributes,
   beFound,
