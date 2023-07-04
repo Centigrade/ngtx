@@ -73,29 +73,6 @@ export type TargetResolver<Html extends HTMLElement, Type, Output> = (
   target: NgtxElement<Html, Type>,
 ) => Output;
 
-/** Describes a property name. */
-export interface PropertyDescriptor<
-  Component,
-  PropertyKey extends keyof Component,
-> {
-  name: Partial<PropertyKey>;
-}
-
-/** Describes a property which can be passed to template methods inherited from ngtx' `Capability<T>` class. */
-export interface PropertyValueDescriptor<
-  Component,
-  PropertyKey extends keyof Component,
-> extends PropertyDescriptor<Component, PropertyKey> {
-  /** The property's name, whose value will be asserted or set. */
-  name: PropertyKey;
-  /** Whether the property expects an array as value (~ is of type `T[]`) */
-  isArrayProperty?: boolean;
-  /** The default, expected value when it comes to asserting the property. */
-  defaultSetterValue?: Component[PropertyKey];
-  /** The default, set value when setting the property. */
-  defaultAssertionValue?: Component[PropertyKey];
-}
-
 export interface SpyFactorySetter {
   setSpyFactory(fn: any): void;
 }

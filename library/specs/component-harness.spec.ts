@@ -8,7 +8,6 @@ import {
   haveState,
   state,
 } from '../declarative-testing/lib';
-import { PropertyValueDescriptor } from '../declarative-testing/types';
 import { ngtx } from '../ngtx';
 
 @Component({
@@ -46,12 +45,6 @@ class ListComponent {
     this.selected = value;
   }
 }
-
-const valueProperty: PropertyValueDescriptor<{ value: string }, 'value'> = {
-  name: 'value',
-  defaultSetterValue: '',
-  defaultAssertionValue: expect.any(String),
-};
 
 class ItemCapabilities extends ComponentHarness<ItemComponent> {
   public hasValue(value: string) {
