@@ -93,6 +93,10 @@ describe(
       expect(fixture.componentInstance).toBeTruthy();
     });
 
+    it('should work negated for all items', () => {
+      When(host).rendered().expect(the.Items.not.toHaveValue('not-existing'));
+    });
+
     it('should work for all items', () => {
       When(host)
         .has(state({ items: ['a', 'b', 'c'] }))
