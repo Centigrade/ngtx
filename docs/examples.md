@@ -191,7 +191,7 @@ class the {
   }
 }
 
-it('should focus the textbox on button clear-click', () => {
+it('should update the full name when the first name changed', () => {
   When(host)
     .has(state({ firstName: 'Ann', lastName: 'Smith' }))
     // hint: "componentMethod" can be imported from @centigrade/ngtx
