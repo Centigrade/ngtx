@@ -3,6 +3,7 @@
 [documentation]: ./docs/ngtx.md
 [examples]: ./docs/examples.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
+[dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 
 ![ngtx logo](./docs/media/logo.svg)
 
@@ -18,7 +19,7 @@ ngtx stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of f
 
 ## Why?
 
-All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really are just steps on our way to our test-goal. Furthermore, while we care about production code to be clean and easy to understand, our testing code is left WET instead of DRY and hard to understand on the first glance.
+All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really are just steps on our way to our test-goal. Furthermore, while we care about production code to be clean and easy to understand, our testing code is left WET instead of [DRY] and hard to understand on the first glance.
 
 We can do better and we think we should. ngtx is meant to give you the necessary tools to write super-expressive test cases that focus on the semantics rather than on imperative testing-code. Get onboard and start writing your tests declarative, to make the most of your time and code.
 

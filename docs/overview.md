@@ -6,6 +6,7 @@
 [examples]: ./examples.md
 [extending]: ./extending.md
 [extensionfns]: ./extending.md
+[dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 
 # [🏠][home] &nbsp; → &nbsp; Documentation
 
@@ -13,7 +14,7 @@
 
 **No matter if you love or hate unit-testing of Angular components, ngtx was made for you.**
 
-With simple concepts in mind, we strive for easy-to-read, error-robust and DRY test-suites that are actually fun to write. If this sounds good to you, keep on reading!
+With simple concepts in mind, we strive for easy-to-read, error-robust and [DRY] test-suites that are actually fun to write. If this sounds good to you, keep on reading!
 
 ### ngtx?
 
