@@ -7,7 +7,7 @@ import {
   Output,
 } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { allOrNth } from '../declarative-testing/helpers';
+import { allOrNth } from '../../declarative-testing/helpers';
 import {
   attributes,
   beFound,
@@ -29,8 +29,8 @@ import {
   nativeEvent,
   nativeMethod,
   state,
-} from '../declarative-testing/lib';
-import { ngtx } from '../ngtx';
+} from '../../declarative-testing/lib';
+import { ngtx } from '../../ngtx';
 
 @Injectable()
 abstract class AlertBaseService {
