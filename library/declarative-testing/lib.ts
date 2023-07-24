@@ -6,6 +6,7 @@ import { createExtension } from './declarative-testing';
 import {
   CallBaseOptions,
   CallOptions,
+  CallSiteResolver,
   CssClass,
   EmissionOptions,
   EventDispatcher,
@@ -14,7 +15,6 @@ import {
   IHaveLifeCycleHook,
   PropertiesOf,
   TargetRef,
-  TargetResolver,
   Token,
 } from './types';
 import {
@@ -203,7 +203,7 @@ export const waitFakeAsync = (durationOrMs: 'animationFrame' | number = 0) =>
   });
 
 export const call = <Html extends HTMLElement, Component, Out>(
-  resolver: TargetResolver<Html, Component, Out>,
+  resolver: CallSiteResolver<Html, Component, Out>,
   methodName: keyof Out,
   args: any[] = [],
 ): ExtensionFn<Html, Component> =>
@@ -359,7 +359,7 @@ export const beFound = <Html extends HTMLElement, Component>(
 
 interface haveCalledFn {
   <Html extends HTMLElement, Component, Out>(
-    resolver: TargetResolver<Html, Component, Out>,
+    resolver: CallSiteResolver<Html, Component, Out>,
     methodName: keyof Out,
     opts?: CallOptions,
   ): ExtensionFn<Html, Component>;
@@ -372,7 +372,7 @@ export const haveCalled: haveCalledFn = <
   Out,
   Spy extends {},
 >(
-  resolver: TargetResolver<Html, Component, Out> | Spy,
+  resolver: CallSiteResolver<Html, Component, Out> | Spy,
   methodName: keyof Out | CallOptions | undefined,
   opts: CallOptions = {},
 ): ExtensionFn<Html, Component> =>

@@ -1,7 +1,7 @@
 [docs]: ./ngtx.md
 [home]: ../README.md
 
-## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp;**Custom Extension-Functions**
+## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp;**Custom Extension Functions**
 
 > #### 💡 New to ngtx?
 >
@@ -10,11 +10,15 @@
 
 ## Extending ngtx' Declarative Api
 
-ngtx comes with several neat `predicates` and `assertions` but there will probably be (quite some) cases where you need to add custom logic in order to make your test suit fit your needs. ngtx' api is designed with extendability in mind. Let's jump it.
+ngtx comes with several neat `predicates` and `assertions` but there will probably be (quite some) cases where you need to add custom logic in order to make your test suite fit your needs. ngtx' api is designed with extendability in mind. Let's start.
 
 ### Custom Predicates: CartView Example
 
-Let's say we have a cart-view where a user gets listed what they are about to purchase. In Angular we would use a `CartService` to provide the cart-data. When testing this view, we may want to set the state of the mocked version of the `CartService`, so that we are in control about what items will be handed to the view.
+Let's say we have a cart-view where a user gets listed what they are about to purchase. In Angular we would use a `CartService` to provide the cart data.
+
+When testing, we don't want to use the "real" `CartService` as it might make calls to the network, which causes side-effects and also slows our tests down. Instead we would use a `CartTestingService` that looks all the same in regard to its API, but in fact does nothing behind the scenes.
+
+In order to test, that our cart view correctly interacts with the fake version of our `CartService`, we need a predicate, allowing us to update that service's state. With this predicate, we are able to control, what items will be handed from the service to the view.
 
 > ### The Result
 >
@@ -40,7 +44,7 @@ it('should render all cart items', () => {
 ```
 
 Ok, looks decent enough to go to the next step: the implementation.
-The first thing we have to do is to define the function and its parameter-list:
+The first thing we have to do is to define the function and its parameter list:
 
 ```ts
 const providerWithState = (token: any, stateDef: any) => {
@@ -69,7 +73,7 @@ const providerWithState = (token: any, stateDef: any) => {
 };
 ```
 
-In the code above we imported the `createExtension` function and declare all the helper we're going to use soon.
+In the code above we imported the `createExtension` function and declared all the helpers we're going to use soon.
 Let's go through the parameters that we are provided with by `createExtension`:
 
 - `getTargets`: When calling this function, we get an array-like list of the _targets_ that is defined by the user in the test:
@@ -232,11 +236,9 @@ export const haveStyle = (styleProp: string, expectedValue: string) => {
 };
 ```
 
-Let's go through the parameters that we are provided with by `createExtension`:
+Let's go through the parameters that are provided by `createExtension`:
 
-- `getTargets`: When calling this function, we get an array-like list of the _targets_ that is defined by the user in the test:
-
-  `... .expect(host).to(haveStyle(...))`: in this example calling `getTargets` will return us a list with only the resolved `host` reference in it. The resolved reference is of type `NgtxElement` a small wrapper around Angular's built-in `DebugElement`. It provides some extra features, but we're not taking a close look to them right now.
+- `getTargets`: This is a `TargetRef`, meaning a function without any arguments, that returns a reference to some HTML element(s) or child component(s). So calling this function will return us the targets, we want to run our `haveStyle` check upon.
 
 - `addAssertion`: this helper allows you to schedule assertion-logic to the current test. Your assertion-logic will be called at the end of the test, after all predicates have been executed.
 

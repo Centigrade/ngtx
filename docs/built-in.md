@@ -27,7 +27,7 @@
 [havestate]: ./assertions/have-state.md
 [havetext]: ./assertions/have-text.md
 
-## [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Built-in Extension-Functions**
+## [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Built-in Extension Functions**
 
 ## Built-in Predicates and Assertions
 

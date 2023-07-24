@@ -9,6 +9,7 @@ export { NgtxTestEnv } from './test-env';
 export {
   AssertionApi,
   CallOptions,
+  CallSiteResolver as TargetResolver,
   CssClass,
   ElementList,
   ElementListRef,
@@ -20,7 +21,6 @@ export {
   PredicateApi,
   SpyOnFn,
   TargetRef,
-  TargetResolver,
   Token,
   WhenStatement as DeclarativeTestingApi,
 } from './types';

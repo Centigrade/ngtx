@@ -19,7 +19,7 @@ interface EmitPredicate<Html extends HTMLElement, Component> {
   (eventName: Events<Html, Component>, arg?: any): ExpectApi<Html, Component>;
 }
 type CallPredicate<Html extends HTMLElement, Component> = <Out>(
-  resolver: TargetResolver<Html, Component, Out>,
+  resolver: CallSiteResolver<Html, Component, Out>,
   methodName: keyof Out,
   args?: any[],
 ) => ExpectApi<Html, Component>;
@@ -69,7 +69,7 @@ export type TestStateExporter = {
 };
 
 export type CssClass = string | undefined;
-export type TargetResolver<Html extends HTMLElement, Type, Output> = (
+export type CallSiteResolver<Html extends HTMLElement, Type, Output> = (
   target: NgtxElement<Html, Type>,
 ) => Output;
 
