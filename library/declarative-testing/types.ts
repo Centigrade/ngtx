@@ -297,7 +297,7 @@ export interface AssertionApi<Html extends HTMLElement, Component>
   extends TestStateExporter {
   not: AssertionApi<Html, Component>;
   /**
-   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/declarative-api/assertions/index.md),
+   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/main/docs/built-in.md),
    * and immediately triggers the test expression to run. You want to use this behavior inside ngtx test-cases:
    *
    * **Example**
@@ -311,7 +311,7 @@ export interface AssertionApi<Html extends HTMLElement, Component>
    */
   to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
   /**
-   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/declarative-api/assertions/index.md), but does not immediately trigger the test expression to run.
+   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/main/docs/built-in.md), but does not immediately trigger the test expression to run.
    * You want to use this behavior for ngtx' capabilities classes:
    *
    * **Example**
