@@ -284,6 +284,37 @@ export const state = <T>(
 //#endregion
 
 //#region assertion extensions
+export const haveStyle = (
+  styles:
+    | Partial<CSSStyleDeclaration>
+    | Partial<CSSStyleDeclaration | null | undefined>[],
+) =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const subjects = tryResolveTarget(targets, haveCssClass.name);
+
+      // hint: if single class is given as input, it will be expanded to be checked on all subjects:
+      const stylesArray = expandValueToArrayWithLength(subjects.length, styles);
+
+      stylesArray.forEach((styleDef, index) => {
+        // hint: allow user to pass null or undefined to skip check
+        if (styleDef == null) return;
+
+        const subject = subjects[index];
+
+        Object.entries(styleDef).forEach(([name, value]) => {
+          const styleProperty = (subject.nativeElement.style as any)[name];
+
+          if (isAssertionNegated) {
+            expect(styleProperty).not.toEqual(value);
+          } else {
+            expect(styleProperty).toEqual(value);
+          }
+        });
+      });
+    });
+  });
+
 export const haveCssClass = <Html extends HTMLElement, Component>(
   cssClasses: CssClass | (CssClass | string[])[],
 ): ExtensionFn<Html, Component> =>

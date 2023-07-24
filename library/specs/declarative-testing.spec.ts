@@ -23,6 +23,7 @@ import {
   haveCssClass,
   haveEmitted,
   haveState,
+  haveStyle,
   haveText,
   injected,
   nativeEvent,
@@ -78,6 +79,7 @@ class DropDownItemComponent {
         *ngFor="let item of items"
         class="item"
         [class.selected]="item === value"
+        [style.color]="'red'"
         [value]="item"
         (activate)="value = item"
       >
@@ -339,6 +341,66 @@ describe(
           .expect(the.NotExistingTarget)
           .to(haveAttributes({})),
       );
+    });
+
+    it('haveStyle -> single', () => {
+      When(host)
+        .has(state({ items: ['a'], opened: true }))
+        .expect(the.Items.first)
+        .to(haveStyle({ color: 'red' }));
+    });
+
+    it('haveStyle -> multiple, passed in one argument', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .expect(the.Items)
+        .to(haveStyle({ color: 'red' }));
+    });
+
+    it('haveStyle -> multiple, passed in multiple arguments', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .expect(the.Items)
+        .to(haveStyle([{ color: 'red' }, { color: 'red' }]));
+    });
+
+    [null, undefined].forEach((nullish) => {
+      it('haveStyle -> multiple, passed in multiple & skipped arguments', () => {
+        When(host)
+          .has(state({ items: ['a', 'b'], opened: true }))
+          .expect(the.Items)
+          .to(haveStyle([nullish, { color: 'red' }]));
+      });
+    });
+
+    it('haveStyle -> single, negated', () => {
+      When(host)
+        .has(state({ items: ['a'], opened: true }))
+        .expect(the.Items.first)
+        .not.to(haveStyle({ color: 'yellow' }));
+    });
+
+    it('haveStyle -> multiple, passed in one argument, negated', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .expect(the.Items)
+        .not.to(haveStyle({ color: 'yellow' }));
+    });
+
+    it('haveStyle -> multiple, passed in multiple arguments, negated', () => {
+      When(host)
+        .has(state({ items: ['a', 'b'], opened: true }))
+        .expect(the.Items)
+        .not.to(haveStyle([{ color: 'yellow' }, { color: 'yellow' }]));
+    });
+
+    [null, undefined].forEach((nullish) => {
+      it('haveStyle -> multiple, passed in multiple & skipped arguments, negated', () => {
+        When(host)
+          .has(state({ items: ['a', 'b'], opened: true }))
+          .expect(the.Items)
+          .not.to(haveStyle([nullish, { color: 'yellow' }]));
+      });
     });
 
     it('haveCssClass', () => {

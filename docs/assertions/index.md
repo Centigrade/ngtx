@@ -12,6 +12,7 @@
 [havecssclass]: ./have-css-class.md
 [haveemitted]: ./have-emitted.md
 [havestate]: ./have-state.md
+[havestyle]: ./have-style.md
 [havetext]: ./have-text.md
 
 ---
@@ -82,6 +83,14 @@ An assertion is a function that runs checks on a given target. A test case can c
 >
 > ```ts
 > When(...).has(...).expect(the.Expander).to(haveState({ open: true }));
+> ```
+
+> ### [haveStyle]
+>
+> Assertion that checks for its target(s) to have the specified style properties.
+>
+> ```ts
+> When(...).has(...).expect(the.ExpanderArrow).to(haveStyle({ transform: 'rotate(180deg)' }));
 > ```
 
 > ### [haveText]

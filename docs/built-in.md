@@ -181,6 +181,14 @@ An assertion is a function that runs checks on a given target. A test case can c
 > When(...).has(...).expect(the.Expander).to(haveState({ open: true }));
 > ```
 
+> #### [haveStyle]
+>
+> Assertion that checks for its target(s) to have the specified style properties.
+>
+> ```ts
+> When(...).has(...).expect(the.ExpanderArrow).to(haveStyle({ transform: 'rotate(180deg)' }));
+> ```
+
 > #### [haveText]
 >
 > Assertion that checks for its target(s) to have the specified (exact) text-content.
