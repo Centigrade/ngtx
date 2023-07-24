@@ -1,5 +1,5 @@
 import { NgtxElement, NgtxMultiElement } from '../core';
-import { beFound, FindingOptions } from './lib';
+import { beFound, beMissing, FindingOptions } from './lib';
 import { ExpectApi, TargetRef, WhenStatement } from './types';
 import { asNgtxElementListRef } from './utility';
 
@@ -53,6 +53,14 @@ export class ComponentHarness<Component> {
   public toBeFound(opts: FindingOptions = {}) {
     return this.expectComponent.will(beFound(opts));
   }
+
+  public toBeMissing() {
+    return this.expectComponent.will(beMissing());
+  }
+
+  public to: ComponentHarness<Component>['expectComponent']['will'] = (
+    ...assertions
+  ) => this.expectComponent.will(...assertions);
 
   private getTargetRefs() {
     return asNgtxElementListRef(this._target)();
