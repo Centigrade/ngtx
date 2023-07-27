@@ -18,7 +18,7 @@ With simple concepts in mind, we strive for easy-to-read, error-robust and [DRY]
 
 ### What's ngtx?
 
-ngtx are a**ng**ular **t**esting e**x**tensions; it's core feature is, that it allows you to write your tests declaratively. Declarative tests with ngtx looks like that:
+ngtx are a**ng**ular **t**esting e**x**tensions; its core feature is, that it allows you to write your tests declaratively. Declarative tests with ngtx looks like that:
 
 ```ts
 // class that lists all elements in html-template
