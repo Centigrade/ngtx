@@ -48,10 +48,10 @@ it('[the clear button] should not clear the textbox when disabled', () => {
 
 **Just ignore the fact that we didn't import e.g. the `When` function or `state` anywhere in the example. We will learn this in the very end of this article.**
 
-While most of the test-"sentence" seems to be kind of magic, we will begin to understand the different parts in just a minute. For now we can see, that the sentence consists of two `triggers` causing a single `effect` that we check for:
+While most of the test-"sentence" seems to be kind of magic, we will begin to understand the different parts in just a minute. For now we can see, that the sentence consists of one `condition` and one `trigger` causing a single `effect` that we check for:
 
-- **Trigger 1:** the textbox-component ("`host`") gets its `text`-property set to the string `"hi!"`,
-- **Trigger 2:** the ClearButton gets clicked,
+- **Condition:** the textbox-component ("`host`") gets its `text`-property set to the string `"hi!"`,
+- **Trigger:** the ClearButton gets clicked,
 - **Expected effect:** the textbox' text property got reset to an empty string (`""`)
 
 In slightly other words:
