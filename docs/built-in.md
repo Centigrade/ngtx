@@ -12,6 +12,7 @@
 [debug]: ./predicates/debug.md
 [detectchanges]: ./predicates/detect-changes.md
 [emit]: ./predicates/emit.md
+[provider]: ./predicates/provider.md
 [state]: ./predicates/state.md
 [waitfakeasync]: ./predicates/wait-fake-async.md
 
@@ -27,7 +28,7 @@
 [havestate]: ./assertions/have-state.md
 [havetext]: ./assertions/have-text.md
 
-## [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Built-in Extension-Functions**
+## [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Built-in Extension Functions**
 
 ## Built-in Predicates and Assertions
 
@@ -97,6 +98,21 @@ A predicate is a function that executes an operation on a given target. A test c
 > When(the.DropDown).does(emit('selectionChange', 'Item 1')).expect(...).to(...);
 > ```
 
+> #### [provider]
+>
+> Predicate that sets the specified state on the target's `componentInstance`
+>
+> ```ts
+> // setting state on a provider
+> When(host).has(provider(AuthService).withState({ isLoggedIn: true }))...;
+> // emitting data on a provider's property
+> When(host).has(provider(AuthService).emittingOnProperty$('user$', userObj))...;
+> // emitting data on a provider that itself is a rxjs Subject
+> When(host).has(provider(IsLoggedIn$).emitting$(true))...;
+> ```
+>
+> **Note:** Passing emission data is optional, since some subjects may be of type `Subject<void>` which do not require data to emit.
+>
 > #### [state]
 >
 > Predicate that sets the specified state on the target's `componentInstance`
@@ -179,6 +195,14 @@ An assertion is a function that runs checks on a given target. A test case can c
 >
 > ```ts
 > When(...).has(...).expect(the.Expander).to(haveState({ open: true }));
+> ```
+
+> #### [haveStyle]
+>
+> Assertion that checks for its target(s) to have the specified style properties.
+>
+> ```ts
+> When(...).has(...).expect(the.ExpanderArrow).to(haveStyle({ transform: 'rotate(180deg)' }));
 > ```
 
 > #### [haveText]

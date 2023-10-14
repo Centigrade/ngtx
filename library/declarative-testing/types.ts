@@ -19,7 +19,7 @@ interface EmitPredicate<Html extends HTMLElement, Component> {
   (eventName: Events<Html, Component>, arg?: any): ExpectApi<Html, Component>;
 }
 type CallPredicate<Html extends HTMLElement, Component> = <Out>(
-  resolver: TargetResolver<Html, Component, Out>,
+  resolver: CallSiteResolver<Html, Component, Out>,
   methodName: keyof Out,
   args?: any[],
 ) => ExpectApi<Html, Component>;
@@ -69,32 +69,9 @@ export type TestStateExporter = {
 };
 
 export type CssClass = string | undefined;
-export type TargetResolver<Html extends HTMLElement, Type, Output> = (
+export type CallSiteResolver<Html extends HTMLElement, Type, Output> = (
   target: NgtxElement<Html, Type>,
 ) => Output;
-
-/** Describes a property name. */
-export interface PropertyDescriptor<
-  Component,
-  PropertyKey extends keyof Component,
-> {
-  name: Partial<PropertyKey>;
-}
-
-/** Describes a property which can be passed to template methods inherited from ngtx' `Capability<T>` class. */
-export interface PropertyValueDescriptor<
-  Component,
-  PropertyKey extends keyof Component,
-> extends PropertyDescriptor<Component, PropertyKey> {
-  /** The property's name, whose value will be asserted or set. */
-  name: PropertyKey;
-  /** Whether the property expects an array as value (~ is of type `T[]`) */
-  isArrayProperty?: boolean;
-  /** The default, expected value when it comes to asserting the property. */
-  defaultSetterValue?: Component[PropertyKey];
-  /** The default, set value when setting the property. */
-  defaultAssertionValue?: Component[PropertyKey];
-}
 
 export interface SpyFactorySetter {
   setSpyFactory(fn: any): void;
@@ -320,7 +297,7 @@ export interface AssertionApi<Html extends HTMLElement, Component>
   extends TestStateExporter {
   not: AssertionApi<Html, Component>;
   /**
-   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/declarative-api/assertions/index.md),
+   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/main/docs/built-in.md),
    * and immediately triggers the test expression to run. You want to use this behavior inside ngtx test-cases:
    *
    * **Example**
@@ -334,7 +311,7 @@ export interface AssertionApi<Html extends HTMLElement, Component>
    */
   to(...assertions: ExtensionFn<Html, Required<Component>>[]): void;
   /**
-   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/experimental/capabilities/docs/declarative-api/assertions/index.md), but does not immediately trigger the test expression to run.
+   * Accepts [asserting extension-functions](https://github.com/Centigrade/ngtx/blob/main/docs/built-in.md), but does not immediately trigger the test expression to run.
    * You want to use this behavior for ngtx' capabilities classes:
    *
    * **Example**

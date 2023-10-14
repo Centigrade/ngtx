@@ -1,12 +1,15 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, ProviderToken } from '@angular/core';
 import { tick } from '@angular/core/testing';
+import { Subject } from 'rxjs';
 import { NgtxElement } from '../core';
 import { Maybe } from '../types';
 import { createExtension } from './declarative-testing';
 import {
   CallBaseOptions,
   CallOptions,
+  CallSiteResolver,
   CssClass,
+  ElementListRef,
   EmissionOptions,
   EventDispatcher,
   Events,
@@ -14,7 +17,6 @@ import {
   IHaveLifeCycleHook,
   PropertiesOf,
   TargetRef,
-  TargetResolver,
   Token,
 } from './types';
 import {
@@ -149,6 +151,127 @@ export const clicked = <Html extends HTMLElement, Type>(
 //#endregion
 
 //#region predicate extensions
+/**
+ * Resolves the specified token from Angular's dependency injection and provides an API to further
+ * work with that resolved instance. E.g. allows to change state or emit values on `Subject`s
+ * (see examples below).
+ *
+ * ---
+ * ### Examples
+ *
+ * ~~~ts
+ * // setting state:
+ * When(host).has(provider(AuthService).withState({ user: { name: 'Ann' } }))...
+ * // emitting data on a subject located on that token:
+ * When(host).has(provider(AuthService).emittingOnProperty$('user$', userObj))...
+ * // emitting data on a token which itself is a kind of rxjs Subject:
+ * When(host).has(provider(CurrentUser$).emitting$(userObj))...
+ * ~~~
+ *
+ * ---
+ * @param provider The token to resolve from dependency injection and then work with.
+ * @returns An api that allows to work with the resolved token.
+ */
+export const provider = <T extends {}>(provider: ProviderToken<T>) => ({
+  /**
+   * Sets the specified state on the resolved token instance and calls the change detection afterwards.
+   *
+   * ---
+   * ### Example
+   *
+   * ~~~ts
+   * // setting state:
+   * When(host).has(provider(AuthService).withState({ isLoggedIn: true }))...
+   * ~~~
+   * ---
+   * @param stateDef The state to set on the resolved token instance.
+   */
+  withState: (stateDef: Partial<PropertiesOf<T>>) =>
+    createExtension((target, { addPredicate }, fixture) => {
+      addPredicate(() => {
+        target().forEach((host) => {
+          const instance = host.injector.get(provider);
+
+          for (const prop in stateDef) {
+            (instance as any)[prop] = stateDef[prop];
+          }
+        });
+
+        fixture.detectChanges();
+      });
+    }),
+  /**
+   * Emits the given data on the specified property (which must be some kind of rxjs `Subject`)
+   * and calls change detection after each emission.
+   *
+   * ---
+   * ### Example
+   *
+   * ~~~ts
+   * // emitting data on a subject located on that token:
+   * When(host).has(provider(AuthService).emittingOnProperty$('isLoggedIn$', true))...
+   * ~~~
+   *
+   * ---
+   * @param property The name of the property to emit data on (must be some kind of `Subject`)
+   * @param value (Optional) The value that should be emitted on the property.
+   */
+  emittingOnProperty$: <I extends keyof T>(property: I, value?: any) =>
+    createExtension(
+      (
+        targets: ElementListRef<HTMLElement, any>,
+        { addPredicate },
+        fixture,
+      ) => {
+        addPredicate(() => {
+          targets().forEach((target) => {
+            const instance = target.injector.get(provider);
+            const subject = instance[property] as unknown as Subject<T[I]>;
+
+            subject.next(value);
+            fixture.detectChanges();
+          });
+        });
+      },
+    ),
+  /**
+   * Takes the given value and emits it on the resolved token instance, which must be some kind of rxjs `Subject`
+   * and calls change detection after each emission.
+   *
+   * ---
+   * ### Example
+   *
+   * ~~~ts
+   * // emitting data on a token which itself is a kind of rxjs Subject:
+   * When(host).has(provider(CurrentUser$).emitting$({
+   *  name: 'Ann Smith',
+   *  email: 'ann.smith@company.com',
+   * }))...
+   * ~~~
+   *
+   * ---
+   * @param value The value to emit on the token (that itself must be some kind of rxjs `Subject`).
+   */
+  emitting$: (value?: any) =>
+    createExtension(
+      (
+        targets: ElementListRef<HTMLElement, any>,
+        { addPredicate },
+        fixture,
+      ) => {
+        addPredicate(() => {
+          targets().forEach((target) => {
+            const instance = target.injector.get(provider);
+            const subject = instance as unknown as Subject<T>;
+
+            subject.next(value);
+            fixture.detectChanges();
+          });
+        });
+      },
+    ),
+});
+
 export const detectChanges = (opts: DetectChangesOptions = {}) =>
   createExtension((targets, { addPredicate }, fx) => {
     addPredicate(() => {
@@ -203,7 +326,7 @@ export const waitFakeAsync = (durationOrMs: 'animationFrame' | number = 0) =>
   });
 
 export const call = <Html extends HTMLElement, Component, Out>(
-  resolver: TargetResolver<Html, Component, Out>,
+  resolver: CallSiteResolver<Html, Component, Out>,
   methodName: keyof Out,
   args: any[] = [],
 ): ExtensionFn<Html, Component> =>
@@ -284,6 +407,37 @@ export const state = <T>(
 //#endregion
 
 //#region assertion extensions
+export const haveStyle = (
+  styles:
+    | Partial<CSSStyleDeclaration>
+    | Partial<CSSStyleDeclaration | null | undefined>[],
+) =>
+  createExtension((targets, { addAssertion, isAssertionNegated }) => {
+    addAssertion(() => {
+      const subjects = tryResolveTarget(targets, haveCssClass.name);
+
+      // hint: if single class is given as input, it will be expanded to be checked on all subjects:
+      const stylesArray = expandValueToArrayWithLength(subjects.length, styles);
+
+      stylesArray.forEach((styleDef, index) => {
+        // hint: allow user to pass null or undefined to skip check
+        if (styleDef == null) return;
+
+        const subject = subjects[index];
+
+        Object.entries(styleDef).forEach(([name, value]) => {
+          const styleProperty = (subject.nativeElement.style as any)[name];
+
+          if (isAssertionNegated) {
+            expect(styleProperty).not.toEqual(value);
+          } else {
+            expect(styleProperty).toEqual(value);
+          }
+        });
+      });
+    });
+  });
+
 export const haveCssClass = <Html extends HTMLElement, Component>(
   cssClasses: CssClass | (CssClass | string[])[],
 ): ExtensionFn<Html, Component> =>
@@ -359,7 +513,7 @@ export const beFound = <Html extends HTMLElement, Component>(
 
 interface haveCalledFn {
   <Html extends HTMLElement, Component, Out>(
-    resolver: TargetResolver<Html, Component, Out>,
+    resolver: CallSiteResolver<Html, Component, Out>,
     methodName: keyof Out,
     opts?: CallOptions,
   ): ExtensionFn<Html, Component>;
@@ -372,7 +526,7 @@ export const haveCalled: haveCalledFn = <
   Out,
   Spy extends {},
 >(
-  resolver: TargetResolver<Html, Component, Out> | Spy,
+  resolver: CallSiteResolver<Html, Component, Out> | Spy,
   methodName: keyof Out | CallOptions | undefined,
   opts: CallOptions = {},
 ): ExtensionFn<Html, Component> =>

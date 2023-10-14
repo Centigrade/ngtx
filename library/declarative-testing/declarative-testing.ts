@@ -5,6 +5,7 @@ import { call, emit } from './lib';
 import { NgtxTestState } from './symbols';
 import { NgtxTestEnv } from './test-env';
 import {
+  CallSiteResolver,
   Events,
   ExpectApi,
   ExtensionFn,
@@ -12,7 +13,6 @@ import {
   ExtensionFnSignature,
   PredicateApi,
   TargetRef,
-  TargetResolver,
   TestStateExporter,
   WhenStatement,
 } from './types';
@@ -136,7 +136,7 @@ export const createDeclarativeTestingApi = (
     };
 
     const callFn = <Out>(
-      resolver: TargetResolver<Html, Type, Out>,
+      resolver: CallSiteResolver<Html, Type, Out>,
       methodName: keyof Out,
       args: any[] = [],
     ) => {

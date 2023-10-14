@@ -2,13 +2,13 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ComponentHarness } from '../declarative-testing/component-harness';
 import {
+  beFound,
   componentMethod,
   detectChanges,
   haveCalled,
   haveState,
   state,
 } from '../declarative-testing/lib';
-import { PropertyValueDescriptor } from '../declarative-testing/types';
 import { ngtx } from '../ngtx';
 
 @Component({
@@ -46,12 +46,6 @@ class ListComponent {
     this.selected = value;
   }
 }
-
-const valueProperty: PropertyValueDescriptor<{ value: string }, 'value'> = {
-  name: 'value',
-  defaultSetterValue: '',
-  defaultAssertionValue: expect.any(String),
-};
 
 class ItemCapabilities extends ComponentHarness<ItemComponent> {
   public hasValue(value: string) {
@@ -98,6 +92,22 @@ describe(
 
     it('should create', () => {
       expect(fixture.componentInstance).toBeTruthy();
+    });
+
+    it('should work negated for all items', () => {
+      When(host).rendered().expect(the.Items.not.toHaveValue('not-existing'));
+    });
+
+    it('[to] should work', () => {
+      When(host)
+        .has(state({ items: ['a', 'b', 'c'] }))
+        .expect(the.Items.to(beFound({ times: 3 })));
+    });
+
+    it('[to] should work negated', () => {
+      When(host)
+        .rendered()
+        .expect(the.Items.not.to(haveState({ value: 'not-existing' })));
     });
 
     it('should work for all items', () => {

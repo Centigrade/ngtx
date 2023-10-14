@@ -12,9 +12,10 @@
 [havecssclass]: ./have-css-class.md
 [haveemitted]: ./have-emitted.md
 [havestate]: ./have-state.md
+[havestyle]: ./have-style.md
 [havetext]: ./have-text.md
 
-Other Assertions: &nbsp; [beFound] ・ [beMissing] ・ [containText] ・ haveAttributes ・ [haveCalled] ・ [haveCssClass] ・ [haveEmitted] ・ [haveState] ・ [haveText]
+Other Assertions: &nbsp; [beFound] ・ [beMissing] ・ [containText] ・ haveAttributes ・ [haveCalled] ・ [haveCssClass] ・ [haveEmitted] ・ [haveState] ・ [haveStyle] ・ [haveText]
 
 ---
 

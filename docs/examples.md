@@ -1,12 +1,13 @@
 [home]: ../README.md
 [docs]: ./overview.md
 [extending]: ./extending.md
+[havecalled]: ./assertions/have-called.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp; **Common Examples**
 
-## Examples By Use-Case
+## Examples By Use Case
 
-This article demonstrates common test-scenarios, and how declarative testing with ngtx can solve them for you.
+This article demonstrates common test scenarios, and how declarative testing with ngtx can solve them for you.
 
 #### Checking the Existence / Non-Existence of a Target
 
@@ -21,6 +22,8 @@ Template of host
 Declarative tests
 
 ```ts
+import { beMissing, beFound } from '@centigrade/ngtx';
+
 class the {
   static Greeting() {
     return get('.greeting');
@@ -55,6 +58,8 @@ Template of host
 Declarative tests
 
 ```ts
+import { containText, haveText } from '@centigrade/ngtx';
+
 class the {
   static Greeting() {
     return get('.greeting');
@@ -77,7 +82,7 @@ it('should show a greeting for logged in users', () => {
 });
 ```
 
-#### Provoke an Event and Check a Service has been Called
+#### Provoke an Event and Check that a Service has been Called
 
 Template of host
 
@@ -90,6 +95,8 @@ Template of host
 Declarative tests
 
 ```ts
+import { clicked, haveCalled, injected } from '@centigrade/ngtx';
+
 class the {
   static LogoutButton() {
     return get('button');
@@ -113,6 +120,8 @@ it('should logout a user when clicking the logout-button', () => {
 });
 ```
 
+More information `haveCalled` can be found [here][havecalled].
+
 #### Check that a Method has been Called on a NativeElement
 
 Template of host
@@ -125,6 +134,8 @@ Template of host
 Declarative tests
 
 ```ts
+import { clicked, haveCalled, nativeMethod } from '@centigrade/ngtx';
+
 class the {
   static ClearButton() {
     return get('button');
@@ -139,7 +150,6 @@ it('should focus the textbox on button clear-click', () => {
     .gets(clicked())
     .expect(the.NativeInput)
     .to(
-      // hint: "nativeMethod" can be imported from @centigrade/ngtx
       haveCalled(nativeMethod, 'focus', {
         times: 1, // 1 is actually default, but showing for educational purposes
       }),
@@ -158,6 +168,8 @@ Template of host
 Declarative tests
 
 ```ts
+import { state, detectChanges, haveText } from '@centigrade/ngtx';
+
 class the {
   static NameSpan() {
     return get('span');
@@ -185,13 +197,15 @@ Template of host
 Declarative tests
 
 ```ts
+import { state, call, haveText } from '@centigrade/ngtx';
+
 class the {
   static FullNameSpan() {
     return get('span');
   }
 }
 
-it('should focus the textbox on button clear-click', () => {
+it('should update the full name when the first name changed', () => {
   When(host)
     .has(state({ firstName: 'Ann', lastName: 'Smith' }))
     // hint: "componentMethod" can be imported from @centigrade/ngtx
@@ -201,7 +215,7 @@ it('should focus the textbox on button clear-click', () => {
 });
 ```
 
-## Whole Examples
+## Complete Examples
 
 ### Example: CartView
 
@@ -242,6 +256,7 @@ describe(
     });
 
     class the {
+      // hint: allOrNth ("all or n-th") provides an API to get either all of the specified targets, or a specific one:
       static CartItems = allOrNth(CartItemComponent, getAll);
       static TotalSum() {
         return get<HTMLSpanElement>('.total-sum');
@@ -282,9 +297,14 @@ describe(
   }),
 );
 
-// ------------------------
+// --------------------  ❗️   ---------------------
+// to understand the following code, please follow
+// the link to the documentation of "how to write
+// custom extension functions" given in the paragraph
+// above this code example.
+// -------------------------------------------------
+
 // Custom predicates:
-// ------------------------
 
 // hint: type "Type<...>" is imported from @angular/core:
 const providerWithState = <Provider>(
@@ -303,8 +323,9 @@ const providerWithState = <Provider>(
         });
       });
 
-      // hint: our manipulation to service possibly requires a view update,
-      // so triggering it afterwards:
+      // hint: since the manipulation of the service
+      // possibly requires a view update, we trigger
+      // change detection afterwards:
       fixture.detectChanges();
     });
   });

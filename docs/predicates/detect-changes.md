@@ -11,10 +11,11 @@
 [debug]: ./debug.md
 [detectchanges]: ./detect-changes.md
 [emit]: ./emit.md
+[provider]: ./provider.md
 [state]: ./state.md
 [waitfakeasync]: ./wait-fake-async.md
 
-Other Predicates: &nbsp; [attributes] ・ [callLifeCycleHook] ・[call] ・[clicked] ・[debug] ・detectChanges ・[emit] ・[state] ・[waitFakeAsync]
+Other Predicates: &nbsp; [attributes] ・ [callLifeCycleHook] ・[call] ・ [clicked] ・ [debug] ・ detectChanges ・ [emit] ・ [provider] ・ [state] ・ [waitFakeAsync]
 
 ---
 
