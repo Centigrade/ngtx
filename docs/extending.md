@@ -149,7 +149,7 @@ import { CartService } from './services/cart.service';
 it('should render all cart items', () => {
   When(host)
     .has(
-      // the predicate-extension we are about to build:
+      // the predicate-extension we now did build:
       providerWithState(CartService, {
         cartItems: [
           { name: 'pizza', price: 5.25 },
