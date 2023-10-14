@@ -61,7 +61,7 @@ it('[the clear button] should not clear the textbox when disabled', () => {
 While most of the test-"sentence" seems to be kind of magic, we will begin to understand the different parts in just a minute. For now we can see, that the sentence consists of one `condition` and one `trigger` causing a single `effect` that we check for:
 
 - **Condition:** the textbox-component ("`host`") gets its `text`-property set to the string `"some text"` and the `disableClear` property to `false`,
-- **Trigger:** the `ClearButton` gets clicked,
+- **Trigger:** the `ClearButton` gets clicked (emits the `click` event),
 - **Expected effect:** the textbox' `text` property got reset to an empty string (`""`)
 
 ## Getting Slightly More In-Depth
