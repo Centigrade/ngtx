@@ -314,7 +314,7 @@ const providerWithState = <Provider>(
   createExtensionFn((getTargets, { addPredicate }, fixture) => {
     addPredicate(() => {
       // hint: ngtx supports manipulation of multiple targets,
-      // so per default it passing arrays:
+      // so per default it is passing arrays:
       getTargets().forEach((target) => {
         const providerInstance = target.injector.get(provider);
 
