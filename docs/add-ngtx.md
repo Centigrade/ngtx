@@ -165,7 +165,7 @@ describe('TextboxComponent', ngtx<TextboxComponent>(( { When, host, get } ) => {
 +      return get('button.clear');
 +    }
 + }
-+
+
 + it('[the clear button] should clear the content of the textbox', () => {
 +   When(host)
 +     .has(state({ text: 'hi!' }))
