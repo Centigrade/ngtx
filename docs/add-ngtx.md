@@ -63,6 +63,8 @@ To include ngtx, just wrap the callback of the `describe`-block in a `ngtx`-call
 The `ngtx`-function call will provide us with some helpers, that we can grab from the first argument of our test suite function:
 
 ```diff
+import { ngtx } from '@centigrade/ngtx';
+
 - describe('TextboxComponent', ngtx(() => {
 + describe('TextboxComponent', ngtx(( { useFixture, When, host, get } ) => {
     let fixture: ComponentFixture<TextboxComponent>;
@@ -87,6 +89,8 @@ We just made the `useFixture`, `When` and `get`-helpers, as well as the `host`-T
 But wait, what is that `useFixture` helper? In order to "connect" ngtx to your test suite, you need to call this function by passing the Angular test-fixture to it, like so:
 
 ```diff
+import { ngtx } from '@centigrade/ngtx';
+
 describe('TextboxComponent', ngtx(( { useFixture, When, host, get } ) => {
   let fixture: ComponentFixture<TextboxComponent>;
   let component: TextboxComponent;
@@ -113,6 +117,8 @@ Now, there's only one small detail missing before we can actually add our tests.
 For better intellisense, ngtx needs to know of what type the `host` / component under test is. That's why the `ngtx`-function is generic and accepts one type-constraint. In our example, the component under test is the `TextboxComponent`. We can pass that information to ngtx like so:
 
 ```diff
+import { ngtx } from '@centigrade/ngtx';
+
 - describe('TextboxComponent', ngtx(( { When, host, get } ) => {
 + describe('TextboxComponent', ngtx<TextboxComponent>(( { When, host, get } ) => {
     let fixture: ComponentFixture<TextboxComponent>;
