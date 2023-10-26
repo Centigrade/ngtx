@@ -151,15 +151,14 @@ describe('TextboxComponent', ngtx<TextboxComponent>(( { When, host, get } ) => {
   });
 
 + class the {
-+    // this is basically a TargetRef function, but wrapped in a class
-+    // to list all of the targets we will use throughout our tests in one place.
-+    // the name of the class ("the") seems unusual but reads well in the test
-+    // sentences; we will see that in the test case below.
+     // the following function is a TargetRef function; we wrap them in a class
+     // to list all of the targets we will use throughout our tests in one place.
+     // the name of the class ("the") seems unusual but reads well in the test
+     // sentences; we will see that in the test case below.
 +    static ClearButton() {
 +      return get('button.clear');
 +    }
 + }
-+
 +
 + it('[the clear button] should clear the content of the textbox', () => {
 +   When(host)
