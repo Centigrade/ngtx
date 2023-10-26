@@ -131,7 +131,7 @@ import { ngtx } from '@centigrade/ngtx';
     beforeEach(() => {
       fixture = TestBed.createComponent(TextboxComponent);
       component = fixture.componentInstance;
-      fixture.detectChanges();
+      useFixture(fixture);
     });
 }));
 ```
@@ -153,7 +153,7 @@ describe('TextboxComponent', ngtx<TextboxComponent>(( { When, host, get } ) => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TextboxComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    useFixture(fixture);
   });
 
 + class the {
