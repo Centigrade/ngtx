@@ -58,11 +58,11 @@ it('[the clear button] should not clear the textbox when disabled', () => {
 
 ### Explanation of the First Example-Test
 
-While most of the test-"sentence" seems to be kind of magic, we will begin to understand the different parts in just a minute. For now we can see, that the first test's sentence consists of two **triggers** causing a single **effect** that we check for:
+While most of the test-"sentence" seems to be kind of magic, we will begin to understand the different parts in just a minute. For now we can see, that the sentence consists of one **condition** and one **trigger** causing a single **effect** that we check for:
 
-- **Trigger 1:** the textbox-component ("`host`") gets its `text`-property set to the string `"some text"`, and its `disableClear` property to `false`
-- **Trigger 2:** the `ClearButton` gets clicked,
-- **Expected effect:** the textbox' `text` property is reset to an empty string (`""`)
+- **Condition:** the textbox-component ("`host`") gets its `text`-property set to the string `"some text"` and the `disableClear` property to `false`,
+- **Trigger:** the `ClearButton` gets clicked (emits the `click` event),
+- **Expected effect:** the textbox' `text` property got reset to an empty string (`""`)
 
 ## Getting Slightly More In-Depth
 
@@ -78,7 +78,7 @@ When(<target>)
 
 > where each `<target>` can be in fact a different element or sub-component of the component-under-test's html template.
 
-This means that we always start with a `When`-function to define the first trigger and then (optionally) chain an arbitrary number of additional triggers via adding `and`s. In the end, we then check for a certain effect.
+This means that we always start with a `When`-function to define the first **condition** or **trigger** and then (optionally) chain an arbitrary number of additional triggers via adding `and`s. In the end, we then check for a certain effect.
 
 But what the heck are "`<target>`s", "`<something>`s" and "`<effect>`s"? Let's see.
 

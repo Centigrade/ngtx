@@ -1,9 +1,9 @@
-import { NgtxApi } from '../core/api.decorator';
+import { NgtxApi, TargetCollection } from '../core/api.decorator';
 
-describe('TestApi', () => {
+describe('TargetCollection', () => {
   it('should auto-rename static methods', () => {
     // arrange, act
-    @NgtxApi()
+    @TargetCollection()
     class Get {
       static Test() {}
     }
@@ -13,7 +13,7 @@ describe('TestApi', () => {
 
   it('should auto-rename instance methods', () => {
     // arrange, act
-    @NgtxApi()
+    @TargetCollection()
     class Get {
       Test() {}
     }
@@ -45,6 +45,6 @@ describe('TestApi', () => {
       }
     }
     // assert
-    expect(() => NgtxApi()(Get)).not.toThrow();
+    expect(() => TargetCollection()(Get)).not.toThrow();
   });
 });
