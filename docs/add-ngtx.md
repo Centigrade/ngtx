@@ -134,7 +134,7 @@ For better intellisense, ngtx needs to know of what type the `host` / component 
 
 ```diff
 - import { ngtx } from '@centigrade/ngtx';
-+ import { ngtx, state, haveState } from '@centigrade/ngtx';
++ import { ngtx, state, clicked, haveState } from '@centigrade/ngtx';
 
 describe('TextboxComponent', ngtx<TextboxComponent>(( { When, host, get } ) => {
   let fixture: ComponentFixture<TextboxComponent>;
