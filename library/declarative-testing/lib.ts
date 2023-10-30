@@ -496,13 +496,13 @@ export const beFound = <Html extends HTMLElement, Component>(
       const count = subjects?.length ?? 0;
 
       if (isAssertionNegated) {
-        if (opts?.times) {
+        if (opts?.times != null) {
           expect(count).not.toBe(opts.times);
         } else {
           expect(count).not.toBeGreaterThan(0);
         }
       } else {
-        if (opts?.times) {
+        if (opts?.times != null) {
           expect(count).toBe(opts.times);
         } else {
           expect(count).toBeGreaterThan(0);
