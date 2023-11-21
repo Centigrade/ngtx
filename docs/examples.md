@@ -2,6 +2,7 @@
 [docs]: ./overview.md
 [extending]: ./extending.md
 [havecalled]: ./assertions/have-called.md
+[querying]: ./querying.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp; **Common Examples**
 
@@ -330,3 +331,7 @@ const providerWithState = <Provider>(
     });
   });
 ```
+
+### Next Steps
+
+In the examples above, you have seen the usage of ngtx' `get` and `getAll` helpers. As this is probably new to you, we recommend you to [👉 read about how to query with ngtx][querying].

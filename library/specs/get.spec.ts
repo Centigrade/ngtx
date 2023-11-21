@@ -10,19 +10,30 @@ import { Expect } from './shared/expect';
     <h2 class="headline">Sub Headline</h2>
 
     <app-list>
-      <app-list-item data-ngtx="test:item.1">Item 1</app-list-item>
-      <app-list-item data-ngtx="test:item.2">Item 2</app-list-item>
-      <app-list-item data-ngtx="test:item.3">
-        <span>Item 3.1</span>
-        <span>Item 3.2</span>
-        <span>Item 3.3</span>
+      <app-list-item data-ngtx="item 11">Item 11</app-list-item>
+      <app-list-item data-ngtx="item 1">Item 1</app-list-item>
+      <app-list-item data-ngtx="item 2">
+        <span>Item 2.1</span>
+        <span>Item 2.2</span>
+        <span>Item 2.3</span>
       </app-list-item>
 
       <div class="item">Some other type of item</div>
     </app-list>
+
+    <app-list>
+      <app-list-item
+        *ngFor="let item of dynamicItems"
+        [attr.data-ngtx]="'dynamic-item ' + item.name"
+      >
+        {{ item.name }}
+      </app-list-item>
+    </app-list>
   `,
 })
-class GetTestComponent {}
+class GetTestComponent {
+  dynamicItems: { name: string }[] = [];
+}
 
 @Component({
   selector: 'app-list',
@@ -45,6 +56,7 @@ describe(
   'Feature: NgtxElement.get',
   ngtx(({ useFixture, get }) => {
     let fixture: ComponentFixture<GetTestComponent> = undefined!;
+    let component: GetTestComponent;
 
     beforeEach(async () => {
       await TestBed.configureTestingModule({
@@ -54,6 +66,7 @@ describe(
 
     beforeEach(() => {
       fixture = TestBed.createComponent(GetTestComponent);
+      component = fixture.componentInstance;
       useFixture(fixture);
     });
 
@@ -77,18 +90,41 @@ describe(
       },
     );
 
-    // TODO: implement feature later
-    it.skip('should get elements by ngtx attribute', () => {
+    it('should get elements by ngtx attribute', () => {
       // arrange, act
       const all = fixture.debugElement.queryAll(By.css('[data-ngtx]'));
-      const first = get('ngtx_test:item.1');
-      const second = get('ngtx_test:item.2');
-      const withoutId = get('ngtx_test:item');
+      const first = get('ngtx_item 11');
+      const second = get('ngtx_item 1');
+      const withoutId = get('ngtx_item');
+
+      // assert
+      expect(withoutId.debugElement).toEqual(all[0]);
+      expect(first.debugElement).toEqual(all[0]);
+      expect(second.debugElement).toEqual(all[1]);
+    });
+
+    it('should get elements by dynamic ngtx attribute', () => {
+      // arrange
+      const items = [
+        { name: 'name 11' },
+        { name: 'name 1' },
+        { name: 'name 2' },
+      ];
+      component.dynamicItems = items;
+      fixture.detectChanges();
+
+      // act
+      const all = fixture.debugElement.queryAll(
+        By.css('[data-ngtx*="dynamic-item"]'),
+      );
+      const first = get('ngtx_name 11');
+      const second = get('ngtx_name 1');
+      const third = get('ngtx_name 2');
 
       // assert
       expect(first.debugElement).toEqual(all[0]);
-      expect(withoutId.debugElement).toEqual(all[0]);
       expect(second.debugElement).toEqual(all[1]);
+      expect(third.debugElement).toEqual(all[2]);
     });
 
     it.each(['.not-existing', NotExistingComponent])(
@@ -137,6 +173,7 @@ describe(
   'Feature: NgtxElement.getAll',
   ngtx(({ useFixture, getAll }) => {
     let fixture: ComponentFixture<GetTestComponent> = undefined!;
+    let component: GetTestComponent;
 
     beforeEach(async () => {
       await TestBed.configureTestingModule({
@@ -146,6 +183,7 @@ describe(
 
     beforeEach(() => {
       fixture = TestBed.createComponent(GetTestComponent);
+      component = fixture.componentInstance;
       useFixture(fixture);
     });
 
@@ -169,12 +207,38 @@ describe(
     it('should get elements by ngtx attribute', () => {
       // arrange, act
       const all = fixture.debugElement.queryAll(By.css('[data-ngtx]'));
-      const first = getAll('ngtx_test:item.1');
-      const second = getAll('ngtx_test:item.2');
+      const firstInHtml = getAll('ngtx_item 11');
+      const secondInHtml = getAll('ngtx_item 1');
+      const thirdInHtml = getAll('ngtx_item 2');
 
       // assert
-      expect(first.first().debugElement).toEqual(all[0]);
-      expect(second.first().debugElement).toEqual(all[1]);
+      expect(firstInHtml.first().debugElement).toEqual(all[0]);
+      expect(secondInHtml.first().debugElement).toEqual(all[1]);
+      expect(thirdInHtml.first().debugElement).toEqual(all[2]);
+    });
+
+    it('should get elements by dynamic ngtx attribute', () => {
+      // arrange
+      const items = [
+        { name: 'name 11' },
+        { name: 'name 1' },
+        { name: 'name 2' },
+      ];
+      component.dynamicItems = items;
+      fixture.detectChanges();
+
+      // act
+      const all = fixture.debugElement.queryAll(
+        By.css('[data-ngtx*="dynamic-item"]'),
+      );
+      const firstInHtml = getAll('ngtx_name 11');
+      const secondInHtml = getAll('ngtx_name 1');
+      const thirdInHtml = getAll('ngtx_name 2');
+
+      // assert
+      expect(firstInHtml.first().debugElement).toEqual(all[0]);
+      expect(secondInHtml.first().debugElement).toEqual(all[1]);
+      expect(thirdInHtml.first().debugElement).toEqual(all[2]);
     });
 
     it('should be chainable', () => {
