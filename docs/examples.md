@@ -198,7 +198,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { state, call, haveText } from '@centigrade/ngtx';
+import { state, call, componentMethod, haveText } from '@centigrade/ngtx';
 
 class the {
   static FullNameSpan() {
@@ -209,7 +209,6 @@ class the {
 it('should update the full name when the first name changed', () => {
   When(host)
     .has(state({ firstName: 'Ann', lastName: 'Smith' }))
-    // hint: "componentMethod" can be imported from @centigrade/ngtx
     .and(call(componentMethod, 'ngOnChanges', { firstName: true }))
     .expect(the.FullNameSpan)
     .to(haveText('Hi Ann Smith!'));
