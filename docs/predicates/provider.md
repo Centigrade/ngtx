@@ -3,7 +3,6 @@
 [home]: ../README.md
 [index]: ../built-in.md
 [docs]: ../overview.md
-[declarative]: ../index.md
 [attributes]: ./attributes.md
 [calllifecyclehook]: ./call-life-cycle-hook.md
 [call]: ./call.md

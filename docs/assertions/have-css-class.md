@@ -1,8 +1,7 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `haveCssClass`
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `haveCssClass`
 
 [home]: ../README.md
 [docs]: ../overview.md
-[declarative]: ../index.md
 [index]: ../built-in.md
 [befound]: ./be-found.md
 [bemissing]: ./be-missing.md
