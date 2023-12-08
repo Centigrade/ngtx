@@ -1,4 +1,4 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp;→ &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `attributes`
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `attributes`
 
 [home]: ../README.md
 [index]: ../built-in.md
