@@ -1,7 +1,7 @@
 ## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp;→ &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `clicked`
 
 [home]: ../README.md
-[docs]: ../../DOCUMENTATION.md
+[docs]: ../overview.md
 [declarative]: ../index.md
 [index]: ../built-in.md
 [attributes]: ./attributes.md

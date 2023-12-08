@@ -1,4 +1,4 @@
-[docs]: ./ngtx.md
+[docs]: ./overview.md
 [home]: ../README.md
 [providerpredicate]: ./predicates/provider.md
 
