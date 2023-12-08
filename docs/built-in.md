@@ -112,7 +112,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > ```
 >
 > **Note:** Passing emission data is optional, since some subjects may be of type `Subject<void>` which do not require data to emit.
->
+
 > #### [state]
 >
 > Predicate that sets the specified state on the target's `componentInstance`
