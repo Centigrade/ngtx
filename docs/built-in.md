@@ -26,6 +26,7 @@
 [havecssclass]: ./assertions/have-css-class.md
 [haveemitted]: ./assertions/have-emitted.md
 [havestate]: ./assertions/have-state.md
+[havestyle]: ./assertions/have-style.md
 [havetext]: ./assertions/have-text.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Built-in Extension Functions**
