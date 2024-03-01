@@ -132,11 +132,10 @@ it('should logout a user when clicking the logout-button', () => {
     .gets(clicked())
     .expect(host)
     .to(
-      // hint: "injected" can be imported from @centigrade/ngtx
       haveCalled(injected(AuthService), 'logout', {
-        times: 1, // 1 is actually default, showing it for demonstration
-        withArgs: [], // expect no arguments on call
-        whichReturns: Promise.resolve(), // pass a spy-return-value
+        times: 1,
+        withArgs: [],
+        whichReturns: Promise.resolve(),
       }),
     );
 });
