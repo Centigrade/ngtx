@@ -23,7 +23,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { beMissing, beFound } from '@centigrade/ngtx';
+import { beMissing, beFound, state } from '@centigrade/ngtx';
 
 class the {
   static Greeting() {
@@ -59,7 +59,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { containText, haveText } from '@centigrade/ngtx';
+import { containText, haveText, state } from '@centigrade/ngtx';
 
 class the {
   static Greeting() {
@@ -96,7 +96,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { clicked, haveCalled, injected } from '@centigrade/ngtx';
+import { clicked, haveCalled, injected, state } from '@centigrade/ngtx';
 
 class the {
   static LogoutButton() {
