@@ -11,7 +11,7 @@
 
 This article demonstrates common test scenarios, and how declarative testing with ngtx can solve them for you.
 
-> ⚠️ The examples do not show the setup code for the describe block, which is needed to get the reference to the `When` method.
+> ⚠️ The examples do not show the setup code for the describe block, which is needed to get the reference to the `When`-function.
 > Refer to [this guide][setup] in order to learn how to setup ngtx in your tests.
 
 #### Checking the Existence / Non-Existence of a Target
