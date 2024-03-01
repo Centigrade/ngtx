@@ -3,12 +3,16 @@
 [extending]: ./extending.md
 [havecalled]: ./assertions/have-called.md
 [querying]: ./querying.md
+[setup]: ./add-ngtx.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp; **Common Examples**
 
 ## Examples By Use Case
 
 This article demonstrates common test scenarios, and how declarative testing with ngtx can solve them for you.
+
+> ⚠️ The examples do not show the setup code for the describe block, which is needed to get the reference to the `When` method.
+> Refer to [this guide][setup] in order to learn how to setup ngtx in your tests.
 
 #### Checking the Existence / Non-Existence of a Target
 
