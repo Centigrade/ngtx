@@ -112,6 +112,23 @@ it('should logout a user when clicking the logout-button', () => {
   When(host)
     .has(state({ loggedInUser: { name: 'Ann' } }))
     .and(the.LogoutButton)
+    .emits('click')
+    .expect(host)
+    .to(
+      // hint: "injected" can be imported from @centigrade/ngtx
+      haveCalled(injected(AuthService), 'logout', {
+        times: 1, // 1 is actually default, showing it for demonstration
+        withArgs: [], // expect no arguments on call
+        whichReturns: Promise.resolve(), // pass a spy-return-value
+      }),
+    );
+});
+
+// or alternatevily using the convenient "clicked()" predicate:
+it('should logout a user when clicking the logout-button', () => {
+  When(host)
+    .has(state({ loggedInUser: { name: 'Ann' } }))
+    .and(the.LogoutButton)
     .gets(clicked())
     .expect(host)
     .to(
