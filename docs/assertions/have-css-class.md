@@ -1,6 +1,6 @@
 ## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `haveCssClass`
 
-[home]: ../README.md
+[home]: ../../README.md
 [docs]: ../overview.md
 [index]: ../built-in.md
 [befound]: ./be-found.md
