@@ -78,7 +78,7 @@ it('you can skip single item checks by passing undefined', () => {
     .expect(the.DropDownItems)
     .to(haveText([undefined, 'Item b', undefined]));
   // checking for 3 texts -> ok!
-  // checks only the second item, if it contains "b";
+  // checks only the second item, if it has the text "Item b";
   // the first and third items are allowed to have any text
 });
 
