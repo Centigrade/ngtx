@@ -1,5 +1,6 @@
 ## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `haveEmitted`
 
+[configure]: ../configuring-ngtx.md#passing-a-spy-factory-function
 [home]: ../README.md
 [docs]: ../overview.md
 [index]: ../built-in.md
