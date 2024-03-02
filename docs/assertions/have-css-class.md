@@ -74,7 +74,10 @@ it('[ContextMenuItems] should have the hover class when mouse enters', () => {
 });
 ```
 
-> ## ⚠️ The number of class-definitions always must be the same as the number of targets found when the test runs
+> ## ⚠️ The number of class-definitions _must_ match the number of targets found when the test runs
+>
+> The only exception to this is the overload with a single string, that automatically applies to all found targets.
+> For the overloads using arrays to specify wanted classes, the number of specified classes must match the number of found targets in the test-run.
 >
 > This is a safety feature of ngtx in order to prevent a test being green, only because the assertion stopped iterating
 > and thus not checking all the targets that were originally found.
