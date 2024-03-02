@@ -1,8 +1,7 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `haveState`
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `haveState`
 
 [home]: ../README.md
-[docs]: ../../DOCUMENTATION.md
-[declarative]: ../index.md
+[docs]: ../overview.md
 [index]: ../built-in.md
 [befound]: ./be-found.md
 [bemissing]: ./be-missing.md

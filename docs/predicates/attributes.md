@@ -1,9 +1,8 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp;→ &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `attributes`
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `attributes`
 
 [home]: ../README.md
 [index]: ../built-in.md
-[docs]: ../../DOCUMENTATION.md
-[declarative]: ../index.md
+[docs]: ../overview.md
 [attributes]: ./attributes.md
 [calllifecyclehook]: ./call-life-cycle-hook.md
 [call]: ./call.md

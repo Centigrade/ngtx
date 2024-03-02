@@ -26,6 +26,7 @@
 [havecssclass]: ./assertions/have-css-class.md
 [haveemitted]: ./assertions/have-emitted.md
 [havestate]: ./assertions/have-state.md
+[havestyle]: ./assertions/have-style.md
 [havetext]: ./assertions/have-text.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][overview] &nbsp; → &nbsp; **Built-in Extension Functions**
@@ -112,7 +113,7 @@ A predicate is a function that executes an operation on a given target. A test c
 > ```
 >
 > **Note:** Passing emission data is optional, since some subjects may be of type `Subject<void>` which do not require data to emit.
->
+
 > #### [state]
 >
 > Predicate that sets the specified state on the target's `componentInstance`

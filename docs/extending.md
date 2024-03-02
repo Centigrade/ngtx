@@ -1,5 +1,6 @@
-[docs]: ./ngtx.md
+[docs]: ./overview.md
 [home]: ../README.md
+[providerpredicate]: ./predicates/provider.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp;**Custom Extension Functions**
 
@@ -24,7 +25,7 @@ In order to test, that our cart view correctly interacts with the fake version o
 >
 > ![Image of a shopping cart view where a user can see their purchase items](./media/cart_view.svg)
 
-Unfortunately ngtx does not provide something like that out of the box, but we can help ourselves and create such a predicate extension. Let's start with a draft, how we would like to use our extension later in our tests:
+ngtx actually does provide a solution to that problem via the [`provider(<token>)`-predicate][providerpredicate], but for this example we just write a similar predicate ourselves. Let's start with a draft, how we would like to use our extension later in our tests:
 
 ```ts
 it('should render all cart items', () => {
@@ -52,7 +53,12 @@ const providerWithState = (token: any, stateDef: any) => {
 };
 
 // or - with better type support:
-const providerWithState = <T, S extends T>(token: T, stateDef: Partial<S>) => {
+import { Type } from '@angular/core';
+
+const providerWithState = <T, S extends T>(
+  token: Type<T>,
+  stateDef: Partial<S>,
+) => {
   // yet to come
 };
 ```

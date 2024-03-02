@@ -555,6 +555,13 @@ describe(
         .to(beFound({ times: 3 }));
     });
 
+    it('beFound -> times (0)', () => {
+      When(host)
+        .has(state({ items: [], opened: true }))
+        .expect(the.Items)
+        .to(beFound({ times: 0 }));
+    });
+
     it('beFound -> not', () => {
       When(host)
         .has(state({ items: [1, 2, 3], opened: false }))
@@ -567,6 +574,13 @@ describe(
         .has(state({ items: [1], opened: true }))
         .expect(the.Items)
         .not.to(beFound({ times: 3 }));
+    });
+
+    it('beFound -> not -> times (0)', () => {
+      When(host)
+        .has(state({ items: [1, 2, 3], opened: true }))
+        .expect(the.Items)
+        .not.to(beFound({ times: 0 }));
     });
 
     it('beMissing', () => {

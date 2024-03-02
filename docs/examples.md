@@ -2,12 +2,17 @@
 [docs]: ./overview.md
 [extending]: ./extending.md
 [havecalled]: ./assertions/have-called.md
+[querying]: ./querying.md
+[setup]: ./add-ngtx.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp; **Common Examples**
 
 ## Examples By Use Case
 
 This article demonstrates common test scenarios, and how declarative testing with ngtx can solve them for you.
+
+> ⚠️ The examples do not show the setup code for the describe block, which is needed to get the reference to the `When`-function.
+> Refer to [this guide][setup] in order to learn how to setup ngtx in your tests.
 
 #### Checking the Existence / Non-Existence of a Target
 
@@ -22,7 +27,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { beMissing, beFound } from '@centigrade/ngtx';
+import { beMissing, beFound, state } from '@centigrade/ngtx';
 
 class the {
   static Greeting() {
@@ -58,7 +63,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { containText, haveText } from '@centigrade/ngtx';
+import { containText, haveText, state } from '@centigrade/ngtx';
 
 class the {
   static Greeting() {
@@ -95,7 +100,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { clicked, haveCalled, injected } from '@centigrade/ngtx';
+import { clicked, haveCalled, injected, state } from '@centigrade/ngtx';
 
 class the {
   static LogoutButton() {
@@ -107,7 +112,7 @@ it('should logout a user when clicking the logout-button', () => {
   When(host)
     .has(state({ loggedInUser: { name: 'Ann' } }))
     .and(the.LogoutButton)
-    .gets(clicked())
+    .emits('click')
     .expect(host)
     .to(
       // hint: "injected" can be imported from @centigrade/ngtx
@@ -115,6 +120,22 @@ it('should logout a user when clicking the logout-button', () => {
         times: 1, // 1 is actually default, showing it for demonstration
         withArgs: [], // expect no arguments on call
         whichReturns: Promise.resolve(), // pass a spy-return-value
+      }),
+    );
+});
+
+// or alternatevily using the convenient "clicked()" predicate:
+it('should logout a user when clicking the logout-button', () => {
+  When(host)
+    .has(state({ loggedInUser: { name: 'Ann' } }))
+    .and(the.LogoutButton)
+    .gets(clicked())
+    .expect(host)
+    .to(
+      haveCalled(injected(AuthService), 'logout', {
+        times: 1,
+        withArgs: [],
+        whichReturns: Promise.resolve(),
       }),
     );
 });
@@ -197,7 +218,7 @@ Template of host
 Declarative tests
 
 ```ts
-import { state, call, haveText } from '@centigrade/ngtx';
+import { state, call, componentMethod, haveText } from '@centigrade/ngtx';
 
 class the {
   static FullNameSpan() {
@@ -208,7 +229,6 @@ class the {
 it('should update the full name when the first name changed', () => {
   When(host)
     .has(state({ firstName: 'Ann', lastName: 'Smith' }))
-    // hint: "componentMethod" can be imported from @centigrade/ngtx
     .and(call(componentMethod, 'ngOnChanges', { firstName: true }))
     .expect(the.FullNameSpan)
     .to(haveText('Hi Ann Smith!'));
@@ -330,3 +350,7 @@ const providerWithState = <Provider>(
     });
   });
 ```
+
+### Next Steps
+
+In the examples above, you have seen the usage of ngtx' `get` and `getAll` helpers. As this is probably new to you, we recommend you to [👉 read about how to query with ngtx][querying].
