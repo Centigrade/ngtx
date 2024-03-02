@@ -447,6 +447,20 @@ describe(
         .to(haveText([undefined, 'b']));
     });
 
+    it('haveText -> mapper fn', () => {
+      When(host)
+        .has(state({ items: ['0', '1', '2'], opened: true }))
+        .expect(the.ItemContainers)
+        .to(haveText((index) => index.toString()));
+    });
+
+    it('haveText -> not -> mapper fn', () => {
+      When(host)
+        .has(state({ items: ['0', '1', '2'], opened: true }))
+        .expect(the.ItemContainers)
+        .not.to(haveText((index) => 'something else' + index));
+    });
+
     it('haveText -> target not found', () => {
       expectToThrowNotFoundError(() =>
         When(host)
@@ -475,6 +489,20 @@ describe(
         .has(state({ items: ['item a', 'item b'], opened: true }))
         .expect(the.ItemContainers)
         .to(containText([undefined, 'b']));
+    });
+
+    it('containText -> mapper fn', () => {
+      When(host)
+        .has(state({ items: ['a0', 'b1', 'c2'], opened: true }))
+        .expect(the.ItemContainers)
+        .to(containText((index) => index.toString()));
+    });
+
+    it('containText -> not -> mapper fn', () => {
+      When(host)
+        .has(state({ items: ['0', '1', '2'], opened: true }))
+        .expect(the.ItemContainers)
+        .not.to(containText((index) => 'something else' + index));
     });
 
     it('containText -> target not found', () => {

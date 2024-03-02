@@ -571,50 +571,76 @@ export const haveEmitted = <Html extends HTMLElement, Component>(
   });
 
 export const containText = (
-  texts: Maybe<string> | Maybe<string>[],
+  texts: Maybe<string> | Maybe<string>[] | ((index: number) => string),
 ): ExtensionFn<HTMLElement, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const subjects = tryResolveTarget(targets, containText.name);
-      const textArray = expandValueToArrayWithLength(subjects.length, texts);
 
-      textArray.forEach((text, index) => {
-        // allow user to skip items via null or undefined
-        if (text == null) return;
+      if (typeof texts === 'function') {
+        subjects.forEach((subject, index) => {
+          const text = texts(index);
 
-        const element = subjects[index];
+          if (isAssertionNegated) {
+            expect(subject.textContent()).not.toContain(text);
+          } else {
+            expect(subject.textContent()).toContain(text);
+          }
+        });
+      } else {
+        const textArray = expandValueToArrayWithLength(subjects.length, texts);
 
-        if (isAssertionNegated) {
-          expect(element.textContent()).not.toContain(text);
-        } else {
-          expect(element.textContent()).toContain(text);
-        }
-      });
+        textArray.forEach((text, index) => {
+          // allow user to skip items via null or undefined
+          if (text == null) return;
+
+          const element = subjects[index];
+
+          if (isAssertionNegated) {
+            expect(element.textContent()).not.toContain(text);
+          } else {
+            expect(element.textContent()).toContain(text);
+          }
+        });
+      }
     });
   });
 
 export const haveText = (
-  texts: Maybe<string> | Maybe<string>[],
+  texts: Maybe<string> | Maybe<string>[] | ((index: number) => string),
 ): ExtensionFn<HTMLElement, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
       const subjects = tryResolveTarget(targets, haveText.name);
-      const textArray = asArray(texts);
 
-      checkListsHaveSameSize('haveText', textArray, subjects);
+      if (typeof texts === 'function') {
+        subjects.forEach((subject, index) => {
+          const text = texts(index);
 
-      textArray.forEach((text, index) => {
-        // allow user to skip items via null or undefined
-        if (text == null) return;
+          if (isAssertionNegated) {
+            expect(subject.textContent()).not.toEqual(text);
+          } else {
+            expect(subject.textContent()).toEqual(text);
+          }
+        });
+      } else {
+        const textArray = asArray(texts);
 
-        const element = subjects[index];
+        checkListsHaveSameSize('haveText', textArray, subjects);
 
-        if (isAssertionNegated) {
-          expect(element.textContent()).not.toEqual(text);
-        } else {
-          expect(element.textContent()).toEqual(text);
-        }
-      });
+        textArray.forEach((text, index) => {
+          // allow user to skip items via null or undefined
+          if (text == null) return;
+
+          const element = subjects[index];
+
+          if (isAssertionNegated) {
+            expect(element.textContent()).not.toEqual(text);
+          } else {
+            expect(element.textContent()).toEqual(text);
+          }
+        });
+      }
     });
   });
 
