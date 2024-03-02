@@ -41,13 +41,7 @@ type CssClass = string | undefined;
 ## Examples
 
 ```ts
-import {
-  clicked,
-  haveCssClass,
-  componentMethod,
-  injected,
-  nativeMethod,
-} from '@centigrade/ngtx';
+import { haveCssClass } from '@centigrade/ngtx';
 
 class the {
   // don't bother if you don't know "allOrNth" yet.
