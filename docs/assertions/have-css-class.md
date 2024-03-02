@@ -30,7 +30,7 @@ haveCssClass(cssClasses);
 | -------- | ---------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1        | cssClasses | `string`     | The name of the css class needed to be present. If the assertion's `TargetRef` refers to multiple targets, all of them needs to have the class to pass the test.         |
 | 2        | cssClasses | `CssClass[]` | An array of css classes, where the array-item position refers to the index of the target.                                                                                |
-| 2        | cssClasses | `string[][]` | A two-dimensional array of css classes, where the first dimension refers to the index of the target and the second to the classes that should be checked on that target. |
+| 3        | cssClasses | `string[][]` | A two-dimensional array of css classes, where the first dimension refers to the index of the target and the second to the classes that should be checked on that target. |
 
 ### `type CssClass`
 
