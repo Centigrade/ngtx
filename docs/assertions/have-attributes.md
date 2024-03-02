@@ -20,6 +20,10 @@ Other Assertions: &nbsp; [beFound] ・ [beMissing] ・ [containText] ・ haveAtt
 
 This assertion checks if its associated target(s) have the specified attributes on their `nativeElement`s.
 
+> #### 💡 Checking the `componentInstance` rather than the `nativeElement`
+>
+> If you want to check for HTML attributes on the target's `componentInstance`, please refer to [haveState].
+
 ## Signature
 
 ```ts
