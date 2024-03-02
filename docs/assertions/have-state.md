@@ -17,3 +17,7 @@
 Other Assertions: &nbsp; [beFound] ・ [beMissing] ・ [containText] ・ [haveAttributes] ・ [haveCalled] ・ [haveCssClass] ・ [haveEmitted] ・ haveState ・ [haveStyle] ・ [haveText]
 
 ---
+
+# Soon available 😇
+
+[Bring me back to home][home]
