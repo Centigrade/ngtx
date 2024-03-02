@@ -23,7 +23,7 @@ This assertion checks if its associated target(s) contain the specified text(s).
 ## Signature
 
 ```ts
-containText(expectedSubstring: string);
+containText(substrings: Maybe<string> | Maybe<string>[] | (index: number) => string);
 ```
 
 ## Examples
@@ -84,3 +84,12 @@ it('checking for fewer items (but more than 1) than present in the template will
     .to(containText(['a', 'b'])); // checking for 2 items -> error
 });
 ```
+
+> ## ⚠️ The number of text-definitions _must_ match the number of targets found when the test runs
+>
+> The only exception is the overload where you specify a single text-definition, that automatically applies to all found targets. Such as `containText('some text')`.
+>
+> For the overloads using arrays to specify text-requirements, the number of specified text-definitions must match the number of found targets in the test-run.
+>
+> This is a safety feature of ngtx in order to prevent a test being green, only because the assertion stopped iterating
+> and thus not checking all the targets that were originally found.
