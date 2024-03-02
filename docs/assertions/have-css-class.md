@@ -76,15 +76,16 @@ it('[ContextMenuItems] should have the hover class when mouse enters', () => {
 
 > ## ⚠️ The number of class-definitions _must_ match the number of targets found when the test runs
 >
-> The only exception to this is the overload with a single string, that automatically applies to all found targets.
-> For the overloads using arrays to specify wanted classes, the number of specified classes must match the number of found targets in the test-run.
+> The only exception is the overload where you specify a single class, that automatically applies to all found targets. Such as `haveCssClass("selected")`.
+>
+> For the overloads using arrays to specify class-requirements, the number of specified classes must match the number of found targets in the test-run.
 >
 > This is a safety feature of ngtx in order to prevent a test being green, only because the assertion stopped iterating
 > and thus not checking all the targets that were originally found.
 
 > ## 💡 Skipping assertions for some targets
 >
-> If you want to check some of the targets that will be found when the test runs, just pass `undefined`, to that target's class definitions:
+> If you want to skip checking some of the targets, just pass `undefined` as their class requirements:
 >
 > ```ts
 > haveCssClass([['item', 'hover'], undefined, 'item']),
