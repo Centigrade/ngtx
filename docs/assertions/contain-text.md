@@ -26,6 +26,18 @@ This assertion checks if its associated target(s) contain the specified text(s).
 containText(substrings: Maybe<string> | Maybe<string>[] | (index: number) => string);
 ```
 
+| Overload | Parameter  | Type                               | Description                                                                                                                                                                                      |
+| -------- | ---------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1        | substrings | `Maybe<string>`                    | The substring being expected to be found in the targets' `nativeElement` text content.                                                                                                           |
+| 2        | substrings | `Maybe<string>[]`                  | An array of substrings expected to be found in the targets' `nativeElement`s text contents. The index of a substring in the array translates to the index of a target in the found targets list. |
+| 3        | substrings | `(index: number) => Maybe<string>` | A function mapping the index of a target being found to a substring expected to be found in the target's `nativeElement`'s text content.                                                         |
+
+### `type Maybe<T>`
+
+```ts
+type Maybe<T> = T | undefined | null;
+```
+
 ## Examples
 
 ```ts
