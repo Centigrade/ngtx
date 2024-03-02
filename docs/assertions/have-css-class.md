@@ -29,7 +29,7 @@ haveCssClass(cssClasses);
 | Overload | Parameter  | Type         | Description                                                                                                                                                              |
 | -------- | ---------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1        | cssClasses | `string`     | The name of the css class needed to be present. If the assertion's `TargetRef` refers to multiple targets, all of them needs to have the class to pass the test.         |
-| 2        | cssClasses | `CssClass[]` | An array of css classes, where the array-item position refers to the index of the target being checked.                                                                  |
+| 2        | cssClasses | `CssClass[]` | An array of css classes, where the index of a class translates to the index of a target in the found targets list.                                                       |
 | 3        | cssClasses | `string[][]` | A two-dimensional array of css classes, where the first dimension refers to the index of the target and the second to the classes that should be checked on that target. |
 
 ### `type CssClass`
