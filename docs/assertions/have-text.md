@@ -86,14 +86,14 @@ it('checking for more items than ngtx can find will throw an error', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
-    .to(haveText(['Item a', 'Item b', 'Item c', 'Item d'])); // checking for 4 items -> error
+    .to(haveText(['Item a', 'Item b', 'Item c', 'Item d'])); // checking for 4 texts -> error
 });
 
 it('checking for fewer items (but more than 1) than present in the template will also throw an error', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
-    .to(haveText(['Item a', 'Item b'])); // checking for 2 items -> error
+    .to(haveText(['Item a', 'Item b'])); // checking for 2 texts -> error
 });
 ```
 

@@ -61,7 +61,7 @@ it('[DropDownItems] should all contain the word "Item"', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
-    .to(containText('Item')); // checking for 1 item -> do the single check for all items found -> ok!
+    .to(containText('Item')); // checking for 1 substring -> do the single check for all items found -> ok!
   // checks all found drop-down-items if they contain "Item"
 });
 
@@ -69,7 +69,7 @@ it('[DropDownItems] should contain their specific identifiers', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
-    .to(containText(['a', 'b', 'c'])); // checking for 3 -> ok!
+    .to(containText(['a', 'b', 'c'])); // checking for 3 substrings -> ok!
   // checks the first item to contain "a", the second for "b" and the third for "c".
 });
 
@@ -77,7 +77,7 @@ it('you can skip single item checks by passing undefined', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
-    .to(containText([undefined, 'b', undefined])); // checking for 3 -> ok!
+    .to(containText([undefined, 'b', undefined])); // checking for 3 substrings -> ok!
   // checks only the second item, if it contains "b";
   // the first and third items are allowed to have any text
 });
@@ -86,14 +86,14 @@ it('checking for more items than ngtx can find will throw an error', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
-    .to(containText(['a', 'b', 'c', 'd'])); // checking for 4 items -> error
+    .to(containText(['a', 'b', 'c', 'd'])); // checking for 4 substrings -> error
 });
 
 it('checking for fewer items (but more than 1) than present in the template will also throw an error', () => {
   When(host)
     .has(state({ items: ['Item a', 'Item b', 'Item c'] })) // 3 items
     .expect(the.DropDownItems)
-    .to(containText(['a', 'b'])); // checking for 2 items -> error
+    .to(containText(['a', 'b'])); // checking for 2 substrings -> error
 });
 ```
 
