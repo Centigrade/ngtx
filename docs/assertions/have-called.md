@@ -1,5 +1,6 @@
 ## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; [Built-In Functionality][index] &nbsp; → &nbsp; `haveCalled`
 
+[configure]: ../configuring-ngtx.md#passing-a-spy-factory-function
 [home]: ../README.md
 [docs]: ../../DOCUMENTATION.md
 [declarative]: ../index.md
@@ -20,6 +21,13 @@ Other Assertions: &nbsp; [beFound] ・ [beMissing] ・ [containText] ・ [haveAt
 ---
 
 The `haveCalled` assertion checks that a target did call the specified method.
+
+## ⚠️ Before you use this assertion
+
+Since ngtx does support jasmine and jest, it does not know how to create spies, which is needed for this assertion to work.
+That's why you need to configure ngtx before being able to use the `haveCalled` assertion.
+
+[See how to configure it here.][configure]
 
 ## Signature
 
