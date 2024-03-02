@@ -1,9 +1,8 @@
-## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; [Declarative Testing][declarative] &nbsp; → &nbsp; Configuring ngtx
+## [🏠][home] &nbsp; → &nbsp; **[Documentation][docs]** &nbsp; → &nbsp; Configuring ngtx
 
 [home]: ../README.md
-[docs]: ../../DOCUMENTATION.md
-[declarative]: ../index.md
-[index]: ../built-in.md
+[docs]: ./overview.md
+[index]: ./built-in.md
 [usefixture]: ./helpers/use-fixture.md
 
 ### Passing a Spy Factory Function
