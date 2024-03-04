@@ -43,9 +43,9 @@ export class ButtonComponentHarness {
 }
 ```
 
-> Note: instead of `expect(...).to(...)` we use `expect(...).will(...)`, because `to` would immediately run the test, which is not what we want. `will` only adds the assertion without running the test afterwards, as component harnesses are meant to be "plugged into" tests, not being a complete test of their own.
+> ⚠️ Note: instead of `expect(...).to(...)` we use `expect(...).will(...)`, because `to` would immediately run the test, which is not what we want. `will` only adds the assertion without running the test afterwards, as component harnesses are meant to be "plugged into" tests, not being a complete test of their own.
 
-> Note: the harness class' assertion looks a bit funny, but since all declarative statements need to start with a `When` clause, we just feed it a noop-start-sentence (`When(button).rendered()` basically does nothing).
+> 💡 Note: the harness class' assertion looks a bit funny, but since all declarative statements need to start with a `When` clause, we just feed it a noop-start-sentence (`When(button).rendered()` basically does nothing).
 
 With that simple harness class for our buttons in place, we can optimize our tests further:
 
