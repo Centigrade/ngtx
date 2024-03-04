@@ -9,7 +9,7 @@
 
 ## Taking Things to a Higher Level
 
-If you use declarative testing for a while, you will notice that, even that were pretty close to being [DRY] with our testing code, there are still common patterns that occur over and over again. When taking a second, closer look we realize that these recurring "patterns" are just basic capabilities of your components.
+If you use declarative testing for a while, you will notice that, even that we're pretty close to being [DRY] with our testing code, there are still common patterns that occur over and over again. When taking a second, closer look we realize that these recurring "patterns" are just basic capabilities of your components.
 
 For example it is no surprise that a line like:
 

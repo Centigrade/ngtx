@@ -1,6 +1,7 @@
 [docs]: ./overview.md
 [home]: ../README.md
 [providerpredicate]: ./predicates/provider.md
+[havestyle]: ./assertions/have-style.md
 
 ## [🏠][home] &nbsp; → &nbsp; [Documentation][docs] &nbsp; → &nbsp;**Custom Extension Functions**
 
@@ -195,9 +196,7 @@ You created this component and it works great:
 >
 > ![Picture of the expander in opened state](./media/expander_opened.svg)
 
-Now we want to test the rotation behavior of the arrow. After looking into the built-in assertions list, we realize - ngtx does not provide a way to assert styles being applied to an element. Bummer!
-
-But fortunately, we can help ourselves. We just need to create a custom assertion. Let's start with the _vision_ of our extension - how do we want to use it later? What about this:
+Now we want to test the rotation behavior of the arrow. Although ngtx already offers the [haveStyle]-assertion, we write a similar assertion on our owns. Let's start with the _vision_ of our extension - how do we want to use it later? What about this:
 
 ```ts
 it('should rotate the arrow icon when opened', () => {
