@@ -38,10 +38,12 @@ export class ButtonComponentHarness {
     return this.when(the.button)
       .rendered()
       .expect(the.button)
-      .to(haveText(label));
+      .will(haveText(label));
   }
 }
 ```
+
+> Note: instead of `expect(...).to(...)` we use `expect(...).will(...)`, because `to` would immediately run the test, which is not what we want. `will` only adds the assertion without running the test afterwards, which is the behavior we need in component harnesses.
 
 > Note: the harness class' assertion looks a bit funny, but since all declarative statements need to start with a `When` clause, we just feed it a noop-start-sentence (`When(button).rendered()` basically does nothing).
 
