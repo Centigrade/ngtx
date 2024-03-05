@@ -5,7 +5,6 @@
     "lib": ["esnext", "dom"],
     "target": "esnext",
     "allowSyntheticDefaultImports": true,
-    "suppressImplicitAnyIndexErrors": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "declaration": true,
