@@ -25,7 +25,7 @@ which may be of one of the following types:
 
 - **CSS-Selector**: an arbitrary, valid css selector, e.g. `"button.primary"`
 - **ComponentClass**: a component class e.g. `TextboxComponent`
-- **ngtx-ID:** a ngtx ID, which you can learn more about in a following [chapter](#querying-by-ngtx-id), e.g. `"cart:item"`
+- **ngtx-ID:** a ngtx ID, which you can learn more about in a following [chapter](#querying-by-ngtx-id), e.g. `"ngtx_cart:item"`
 
 ## Why do I Need to Query Anything?
 
