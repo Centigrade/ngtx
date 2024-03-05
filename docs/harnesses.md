@@ -65,7 +65,7 @@ class the {
 it('should open the login dialog when the login button was clicked', () => {
   When(the.LoginButton.getsClicked())
     .expect(host)
-    .to(haveCalled('showLoginDialog'));
+    .to(haveCalled(injected(AuthDialogService), 'showLoginDialog'));
 });
 
 it('should show the username in the logout button', () => {
