@@ -9,6 +9,7 @@ import {
   CallOptions,
   CallSiteResolver,
   CssClass,
+  ElementList,
   ElementListRef,
   EmissionOptions,
   EventDispatcher,
@@ -368,12 +369,15 @@ export const attributes = <
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = tryResolveTarget(targets, attributes.name);
+      const element = tryResolveTarget(targets, attributes.name) as ElementList<
+        Html,
+        Target
+      >;
       const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = targets()[index];
-        const props = Object.entries(state) as [string, any][];
+        const props = Object.entries(state) as [keyof Html, any][];
 
         props.forEach(([key, value]) => {
           subject.nativeElement[key] = value;
@@ -384,17 +388,20 @@ export const attributes = <
     });
   });
 
-export const state = <T>(
-  stateDef: PropertiesOf<T> | PropertiesOf<T>[],
-): ExtensionFn<HTMLElement, T> =>
+export const state = <Target>(
+  stateDef: PropertiesOf<Target> | PropertiesOf<Target>[],
+): ExtensionFn<HTMLElement, Target> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
-      const element = tryResolveTarget(targets, state.name);
+      const element = tryResolveTarget(targets, state.name) as ElementList<
+        HTMLElement,
+        Target
+      >;
       const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];
-        const props = Object.entries(state) as [string, any][];
+        const props = Object.entries(state) as [keyof Target, any][];
 
         props.forEach(([key, value]) => {
           subject.componentInstance[key] = value;
@@ -659,10 +666,10 @@ export const haveAttributes = <
       const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
-        const subject = element[index];
+        const subject = element[index] as NgtxElement<Target>;
         const resolvedState =
           typeof state === 'function' ? state(index) : state;
-        const props = Object.entries(resolvedState) as [string, any][];
+        const props = Object.entries(resolvedState) as [keyof Target, any][];
 
         props.forEach(([key, value]) => {
           const property = subject.nativeElement[key];
@@ -677,22 +684,25 @@ export const haveAttributes = <
     });
   });
 
-export const haveState = <T>(
+export const haveState = <Target>(
   stateDef:
-    | PropertiesOf<T>
-    | PropertiesOf<T>[]
-    | ((index: number) => PropertiesOf<T>),
-): ExtensionFn<HTMLElement, T> =>
+    | PropertiesOf<Target>
+    | PropertiesOf<Target>[]
+    | ((index: number) => PropertiesOf<Target>),
+): ExtensionFn<HTMLElement, Target> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
-      const element = tryResolveTarget(targets, haveState.name);
+      const element = tryResolveTarget(targets, haveState.name) as ElementList<
+        HTMLElement,
+        Target
+      >;
       const states = expandValueToArrayWithLength(element.length, stateDef);
 
       states.forEach((state, index) => {
         const subject = element[index];
         const resolvedState =
           typeof state === 'function' ? state(index) : state;
-        const props = Object.entries(resolvedState) as [string, any][];
+        const props = Object.entries(resolvedState) as [keyof Target, any][];
 
         props.forEach(([key, value]) => {
           const property = subject.componentInstance[key];
