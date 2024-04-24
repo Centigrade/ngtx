@@ -1,4 +1,4 @@
-import { Type } from '@angular/core';
+import { InjectionToken, Type } from '@angular/core';
 import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
 import { NgtxTestState } from './symbols';
 import type { NgtxTestEnv } from './test-env';
@@ -347,7 +347,7 @@ export type ElementListRef<
   Component,
 > = () => ElementList<Html, Component>;
 
-export type Token<T> = Type<T> | Function;
+export type Token<T> = Type<T> | Function | InjectionToken<T>;
 export type PropertiesOf<T> = Partial<T & Record<keyof T, any>>;
 export type Events<Html extends HTMLElement, Type> =
   | keyof Type
