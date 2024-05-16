@@ -1,6 +1,7 @@
 import { SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxMultiElement } from '.';
+import { ComponentHarness } from '../declarative-testing/component-harness';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
 import { NgtxElement } from './element';
 
@@ -43,6 +44,8 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
     skipInitialChangeDetection = false,
   ): NgtxFixture<Html, Component> {
     this.fixture = fixture;
+
+    this.connectComponentHarnessesToFixture();
 
     this.root = new NgtxElement<Html, Component>(
       this.fixture.debugElement,
@@ -151,6 +154,11 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
     this.checkFixture();
 
     return this.root.triggerEvent(name, eventArgs);
+  }
+
+  private connectComponentHarnessesToFixture() {
+    ComponentHarness.get = this.get.bind(this);
+    ComponentHarness.getAll = this.getAll.bind(this);
   }
 
   private checkFixture() {

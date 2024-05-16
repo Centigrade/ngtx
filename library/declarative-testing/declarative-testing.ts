@@ -1,7 +1,6 @@
 import { NgtxFixture } from '../core/fixture';
 import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { SpyFactoryFn } from '../types';
-import { ComponentHarness } from './component-harness';
 import { call, emit } from './lib';
 import { NgtxTestState } from './symbols';
 import { NgtxTestEnv } from './test-env';
@@ -24,9 +23,6 @@ export const createDeclarativeTestingApi = (
   existingTestEnv?: NgtxTestEnv,
 ): WhenStatement => {
   let spyFactory: SpyFactoryFn | undefined;
-
-  ComponentHarness.get = fx.get.bind(fx);
-  ComponentHarness.getAll = fx.getAll.bind(fx);
 
   const when: Omit<WhenStatement, 'setSpyFactory'> = <
     Html extends HTMLElement,
