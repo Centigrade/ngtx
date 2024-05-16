@@ -48,6 +48,12 @@ class ListComponent {
 }
 
 class ItemCapabilities extends ComponentHarness<ItemComponent> {
+  public toHaveSection() {
+    return this.expect(() => this.get('section')).will(beFound());
+  }
+  public toHaveSections() {
+    return this.expect(() => this.getAll('section')).will(beFound());
+  }
   public hasValue(value: string) {
     return this.whenComponent.has(state({ value }));
   }
@@ -208,6 +214,14 @@ describe(
 
     it('should assert array property correctly (default value)', () => {
       When(the.Items.nth(1).hasTags(['a'])).expect(the.Items.toHaveTags());
+    });
+
+    it('should find internal component targets with get', () => {
+      When(host).rendered().expect(the.Items.toHaveSection());
+    });
+
+    it('should find internal component targets with getAll', () => {
+      When(host).rendered().expect(the.Items.toHaveSections());
     });
   }),
 );

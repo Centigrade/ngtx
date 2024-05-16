@@ -1,11 +1,22 @@
-import { NgtxElement, NgtxMultiElement } from '../core';
+import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
 import { beFound, beMissing, FindingOptions } from './lib';
 import { ExpectApi, TargetRef, WhenStatement } from './types';
 import { asNgtxElementListRef } from './utility';
 
 export class ComponentHarness<Component> {
+  static get: NgtxFixture<HTMLElement, unknown>['get'];
+  static getAll: NgtxFixture<HTMLElement, unknown>['getAll'];
+
+  protected get get() {
+    return ComponentHarness.get;
+  }
+
+  protected get getAll() {
+    return ComponentHarness.getAll;
+  }
+
   protected get whenComponent() {
-    return this._when(this._target);
+    return this.when(this._target);
   }
 
   protected get expectComponent() {
@@ -14,8 +25,12 @@ export class ComponentHarness<Component> {
       : this.whenComponent.rendered().expect(this._target);
   }
 
+  protected get expect() {
+    return this.whenComponent.rendered().expect;
+  }
+
   constructor(
-    protected readonly _when: WhenStatement,
+    protected readonly when: WhenStatement,
     protected readonly _target: TargetRef<HTMLElement, Component>,
     protected readonly negate = false,
   ) {}
@@ -72,7 +87,7 @@ export class ComponentHarness<Component> {
   ): this {
     // TODO: we should really find a better way to construct the specialized capabilities class at runtime:
     const thisSubClassConstructor: any = this.constructor;
-    return new thisSubClassConstructor(this._when, ref, negate);
+    return new thisSubClassConstructor(this.when, ref, negate);
   }
 }
 
