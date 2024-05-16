@@ -33,7 +33,7 @@ class the {
 it('[Dialog] should emit the finish-event when clicking on finish button', () => {
   const dialogResult: DialogResult = 'ok';
 
-  When(the.FinishButton)
+  When(the.OkButton)
     .gets(clicked())
     .expect(host) // host = the component under test => DialogComponent
     .to(haveEmitted('finish', { arg: dialogResult })); // asserts that "finish"-event was emitted
