@@ -30,7 +30,7 @@ class the {
   }
 }
 
-it('[Dialog] should emit the finish-event when clicking on finish button', () => {
+it('[Dialog] should emit the finish-event when clicking on the ok button', () => {
   const dialogResult: DialogResult = 'ok';
 
   When(the.OkButton)
