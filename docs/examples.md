@@ -24,6 +24,10 @@ Template of host
 </section>
 ```
 
+> 💡 **Angular 17 template syntax supported**
+>
+> ngtx is template-syntax agnostic, so you can also use the newer syntax using `@if(...) { ... }` etc.
+
 Declarative tests
 
 ```ts
