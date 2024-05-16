@@ -1,19 +1,16 @@
-import { NgtxElement, NgtxFixture, NgtxMultiElement } from '../core';
+import { NgtxElement, NgtxMultiElement } from '../core';
 import { beFound, beMissing, FindingOptions } from './lib';
 import { ExpectApi, TargetRef, WhenStatement } from './types';
 import { asNgtxElementListRef } from './utility';
 
 export class ComponentHarness<Component> {
-  static get: NgtxFixture<HTMLElement, unknown>['get'];
-  static getAll: NgtxFixture<HTMLElement, unknown>['getAll'];
+  protected get: NgtxElement['get'] = (target) => {
+    return (this._target() as any).get(target);
+  };
 
-  protected get get() {
-    return ComponentHarness.get;
-  }
-
-  protected get getAll() {
-    return ComponentHarness.getAll;
-  }
+  protected getAll: NgtxElement['getAll'] = (target) => {
+    return (this._target() as any).getAll(target);
+  };
 
   protected get whenComponent() {
     return this.when(this._target);

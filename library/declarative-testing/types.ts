@@ -349,6 +349,9 @@ export type ElementListRef<
 
 export type Token<T> = Type<T> | Function | InjectionToken<T>;
 export type PropertiesOf<T> = Partial<T & Record<keyof T, any>>;
+export type HtmlPropertiesOf<T extends HTMLElement> =
+  | PropertiesOf<T>
+  | Record<`data-${string}`, any>;
 export type Events<Html extends HTMLElement, Type> =
   | keyof Type
   | HtmlEvents<keyof Html>;

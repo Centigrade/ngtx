@@ -14,6 +14,7 @@ import {
   EventDispatcher,
   Events,
   ExtensionFn,
+  HtmlPropertiesOf,
   IHaveLifeCycleHook,
   PropertiesOf,
   TargetRef,
@@ -364,7 +365,7 @@ export const attributes = <
   Html extends HTMLElement,
   Target extends Html = Html,
 >(
-  stateDef: PropertiesOf<Target> | PropertiesOf<Target>[],
+  stateDef: HtmlPropertiesOf<Target> | HtmlPropertiesOf<Target>[],
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addPredicate }, fixture) => {
     addPredicate(() => {
@@ -649,9 +650,9 @@ export const haveAttributes = <
   Target extends Html = Html,
 >(
   stateDef:
-    | PropertiesOf<Target>
-    | PropertiesOf<Target>[]
-    | ((index: number) => PropertiesOf<Target>),
+    | HtmlPropertiesOf<Target>
+    | HtmlPropertiesOf<Target>[]
+    | ((index: number) => HtmlPropertiesOf<Target>),
 ): ExtensionFn<Html, any> =>
   createExtension((targets, { addAssertion, isAssertionNegated }) => {
     addAssertion(() => {
@@ -665,7 +666,9 @@ export const haveAttributes = <
         const props = Object.entries(resolvedState) as [string, any][];
 
         props.forEach(([key, value]) => {
-          const property = subject.nativeElement[key];
+          const property =
+            subject.nativeElement[key] ||
+            subject.nativeElement.getAttribute(key);
 
           if (isAssertionNegated) {
             expect(property).not.toEqual(value);

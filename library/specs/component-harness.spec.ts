@@ -5,6 +5,7 @@ import {
   beFound,
   componentMethod,
   detectChanges,
+  haveAttributes,
   haveCalled,
   haveState,
   state,
@@ -16,6 +17,7 @@ import { ngtx } from '../ngtx';
   template: `
     <section
       data-ngtx="dropdown-item:content-container"
+      data-role="item"
       [attr.title]="value || null"
       (click)="showDialog()"
     >
@@ -49,10 +51,14 @@ class ListComponent {
 
 class ItemCapabilities extends ComponentHarness<ItemComponent> {
   public toHaveSection() {
-    return this.expect(() => this.get('section')).will(beFound());
+    return this.expect(() => this.get('section')).will(
+      haveAttributes({ 'data-role': 'item' }),
+    );
   }
   public toHaveSections() {
-    return this.expect(() => this.getAll('section')).will(beFound());
+    return this.expect(() => this.getAll('section')).will(
+      haveAttributes({ 'data-role': 'item' }),
+    );
   }
   public hasValue(value: string) {
     return this.whenComponent.has(state({ value }));
