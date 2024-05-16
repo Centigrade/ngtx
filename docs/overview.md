@@ -24,7 +24,7 @@ ngtx are a**ng**ular **t**esting e**x**tensions; its core feature is, that it al
 // class that lists all elements in html-template
 // we need for our tests:
 class the {
-  static FinishButton() {
+  static OkButton() {
     // get is a simplified version of query(By.css/directive)
     return get<HTMLButtonElement>('.btn[type=submit]');
   }
