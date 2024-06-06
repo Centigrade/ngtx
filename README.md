@@ -23,7 +23,7 @@ All common things we do in Angular tests are quite verbose. We often find oursel
 
 We can do better and we think we should. ngtx is meant to give you the necessary tools to write super-expressive test cases that focus on the semantics rather than on imperative testing-code. Get onboard and start writing your tests declarative, to make the most of your time and code.
 
-### Compatibility Table
+## Compatibility Table
 
 | ngtx    | Angular |
 | ------- | ------- |
