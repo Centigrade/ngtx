@@ -72,15 +72,17 @@ export const createDeclarativeTestingApi = (
       [NgtxTestState]: testEnv,
       and: <Html extends HTMLElement, Type>(
         first: TargetRef<Html, Type> | ExtensionFn<Html, Type>,
-        ...others: any[]
+        ...others: ExtensionFn<Html, Type>[]
       ) => {
         const isExtensionFn = isExtension<Html, Type>(first);
 
         if (isExtensionFn) {
-          return addPredicate(...[first, ...others]);
+          const predicates = [first, ...others] as any;
+          return addPredicate(...predicates);
         } else if (hasTestState(first)) {
+          const testEnvExporter = [first, ...others] as TestStateExporter[];
           // hint: applying all the predicates and assertions from the statement into the current test:
-          ([first, ...others] as NgtxTestEnv[]).forEach((state) => {
+          testEnvExporter.forEach((state) => {
             const statementTestState = state[NgtxTestState].getState();
             testEnv.importState(statementTestState);
           });
@@ -101,9 +103,10 @@ export const createDeclarativeTestingApi = (
           assertionsApi(target, ...others),
           {
             not: new Proxy(expectationApi, {
-              get: (_: any, propertyName: string) => {
+              get: (_: any, propertyName: any) => {
                 testEnv.negateAssertion();
-                return assertionsApi(target)?.[propertyName];
+                const assertions = assertionsApi(target) as any;
+                return assertions?.[propertyName];
               },
             }),
           },

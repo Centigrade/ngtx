@@ -374,7 +374,7 @@ export const attributes = <
 
       states.forEach((state, index) => {
         const subject = targets()[index];
-        const props = Object.entries(state) as [string, any][];
+        const props = Object.entries(state) as [keyof Html, any][];
 
         props.forEach(([key, value]) => {
           subject.nativeElement[key] = value;
@@ -395,7 +395,7 @@ export const state = <T>(
 
       states.forEach((state, index) => {
         const subject = element[index];
-        const props = Object.entries(state) as [string, any][];
+        const props = Object.entries(state) as [keyof T, any][];
 
         props.forEach(([key, value]) => {
           subject.componentInstance[key] = value;
@@ -663,7 +663,10 @@ export const haveAttributes = <
         const subject = element[index];
         const resolvedState =
           typeof state === 'function' ? state(index) : state;
-        const props = Object.entries(resolvedState) as [string, any][];
+        const props = Object.entries(resolvedState) as [
+          keyof Html & string,
+          any,
+        ][];
 
         props.forEach(([key, value]) => {
           const property =
@@ -695,7 +698,7 @@ export const haveState = <T>(
         const subject = element[index];
         const resolvedState =
           typeof state === 'function' ? state(index) : state;
-        const props = Object.entries(resolvedState) as [string, any][];
+        const props = Object.entries(resolvedState) as [keyof T, any][];
 
         props.forEach(([key, value]) => {
           const property = subject.componentInstance[key];
