@@ -28,8 +28,8 @@ We can do better and we think we should. ngtx is meant to give you the necessary
 
 | ngtx    | Angular |
 | ------- | ------- |
-| 2.5.0   | 17+     |
-| < 2.5.0 | 13+     |
+| 2.5.0   | >= 17   |
+| < 2.5.0 | >= 13   |
 
 > For version details see the [changelog].
 
