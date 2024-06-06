@@ -3,6 +3,7 @@
 [documentation]: ./docs/ngtx.md
 [examples]: ./docs/examples.md
 [stackoverflow]: https://stackoverflow.com/questions/tagged/ngtx
+[changelog]: ./docs/changelog.md
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 
 ![ngtx logo](./docs/media/logo.svg)

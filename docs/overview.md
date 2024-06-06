@@ -6,7 +6,6 @@
 [examples]: ./examples.md
 [extending]: ./extending.md
 [querying]: ./querying.md
-[changelog]: ./changelog.md
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 
 # [🏠][home] &nbsp; → &nbsp; Documentation
