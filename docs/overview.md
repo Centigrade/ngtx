@@ -47,15 +47,6 @@ Write tests in a way that is actually understandable, quick and fun.
 >
 > However, once you wrote a few declarative tests, the overall concept gets more and more clear and finally becomes the natural way of describing tests for you. To get there, it's pretty helpful to follow the below-mentioned learning path, and to take a look at some [examples][examples] in order to gain a better understanding how to write those tests.
 
-### Compatibility Table
-
-| ngtx    | Angular |
-| ------- | ------- |
-| 2.5.0   | 17+     |
-| < 2.5.0 | 13+     |
-
-> For version details see the [changelog].
-
 ### Recommended Learning Path
 
 To get you started we recommend you to read the following articles in this order:
