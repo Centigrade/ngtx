@@ -13,11 +13,6 @@ module.exports = {
     prefix: '<rootDir>/',
   }),
   transform: {
-    '^.+\\.(ts|js|html)$': 'ts-jest',
-  },
-  globals: {
-    'ts-jest': {
-      tsconfig: './tsconfig.spec.json',
-    },
+    '^.+\\.(ts|js|html)$': 'jest-preset-angular',
   },
 };
