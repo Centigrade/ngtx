@@ -6,6 +6,7 @@
 [examples]: ./examples.md
 [extending]: ./extending.md
 [querying]: ./querying.md
+[changelog]: ./changelog.md
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 
 # [🏠][home] &nbsp; → &nbsp; Documentation
@@ -45,6 +46,15 @@ Write tests in a way that is actually understandable, quick and fun.
 > As always, when learning a new way of doing things, you initially have to understand some concepts, like the `the`-class and of course the general structure of declarative tests. You'll also want to know the basic, built-in [predicates and assertions][builtin], but they are easy to remember after a short while.
 >
 > However, once you wrote a few declarative tests, the overall concept gets more and more clear and finally becomes the natural way of describing tests for you. To get there, it's pretty helpful to follow the below-mentioned learning path, and to take a look at some [examples][examples] in order to gain a better understanding how to write those tests.
+
+### Compatibility Table
+
+| ngtx    | Angular |
+| ------- | ------- |
+| 2.5.0   | 17+     |
+| < 2.5.0 | 13+     |
+
+> For version details see the [changelog].
 
 ### Recommended Learning Path
 
