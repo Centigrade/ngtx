@@ -21,9 +21,7 @@ There are two ways to do that:
      jasmine.createSpy().and.returnValue(returnValue),
    );
    // or for jest spies:
-   setDefaultSpyFactory(
-     (returnValue) => (returnValue) => jest.fn(() => returnValue),
-   );
+   setDefaultSpyFactory((returnValue) => jest.fn(() => returnValue));
    ```
 
    This will configure ngtx to use this spy-factory-function in all test suites, whenever it is needed.
