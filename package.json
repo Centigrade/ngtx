@@ -33,12 +33,9 @@
     }
   ],
   "peerDependencies": {
-    "@angular-devkit/build-angular": ">=17",
-    "@angular/common": ">=17",
-    "@angular/compiler": ">=17",
-    "@angular/core": ">=17",
-    "@angular/platform-browser": ">=17",
-    "rxjs": ">=6.0.0"
+    "@angular/common": ">=17.0.0 <18.0.0",
+    "@angular/core": ">=17.0.0 <18.0.0",
+    "ng-mocks": ">=14.0.0 <15.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.8",
