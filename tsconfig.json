@@ -16,7 +16,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true
   },
-  "include": ["library", "library/specs"],
+  "include": ["library", "library/specs", "setupAngularTestEnv.ts"],
   "exclude": [
     "node_modules",
     "dist",

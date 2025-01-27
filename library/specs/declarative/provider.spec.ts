@@ -13,9 +13,7 @@ class TestService {
 
 export abstract class SomeToken$ extends BehaviorSubject<boolean> {}
 
-@Component({
-  template: ``,
-})
+@Component({ standalone: false, template: `` })
 class TestingComponent {}
 
 describe(

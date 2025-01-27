@@ -4,18 +4,21 @@ import { allOrNth } from '../declarative-testing/helpers';
 import { ngtx } from '../ngtx';
 
 @Component({
+  standalone: false,
   selector: 'app-child',
   template: '<ng-content></ng-content>',
 })
 class ChildComponent {}
 
 @Component({
+  standalone: false,
   selector: 'app-child-two',
   template: '<ng-content></ng-content>',
 })
 class Child2Component {}
 
 @Component({
+  standalone: false,
   template: `
     <app-child>a</app-child>
     <app-child>b</app-child>

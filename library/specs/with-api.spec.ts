@@ -5,6 +5,7 @@ import { Expect } from './shared/expect';
 import { configureTestModule } from './shared/util';
 
 @Component({
+  standalone: false,
   template: `
     <table>
       <tr data-ngtx="header-row">

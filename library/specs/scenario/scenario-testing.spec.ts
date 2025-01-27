@@ -10,6 +10,7 @@ class MyService {
 }
 
 @Component({
+  standalone: false,
   template: ` <div>{{ myService.value }}</div> `,
 })
 class ScenarioTestComponent {

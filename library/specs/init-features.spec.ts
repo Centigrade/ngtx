@@ -7,9 +7,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NgtxElement } from '../core';
 import { NGTX_GLOBAL_CONFIG, setDefaultSpyFactory } from '../global-config';
 
-@Component({
-  template: '<div></div>',
-})
+@Component({ standalone: false, template: '<div></div>' })
 class DemoComponent {}
 
 describe('init-features: initSyntaxHighlighting', () => {
