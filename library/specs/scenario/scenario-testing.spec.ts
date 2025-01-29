@@ -1,7 +1,11 @@
 import { Component, Injectable, inject } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { NgtxElement } from '../../core';
-import { useTestBed } from '../../scenario-testing/scenario-testing';
+import {
+  TestGeneratorFn,
+  TestScenario,
+  useTestBed,
+} from '../../scenario-testing/scenario-testing';
 import { TestingModule } from '../../scenario-testing/testing-modules';
 
 @Injectable()
@@ -24,50 +28,56 @@ const ScenarioTestModule = TestingModule.configure({
 
 class ElementHarness<T> {
   constructor(
+    private readonly name: string,
     private readonly target: () => NgtxElement<HTMLElement, T> | undefined,
   ) {}
 
-  toBeFound() {
+  toBeFound(): TestGeneratorFn<T> {
     return ({ scenarioDescription, setupTest, fixture }) => {
-      it(`[${scenarioDescription}] should find the ${this.target.name}`, () => {
+      it(`[${scenarioDescription}] should find the ${this.name}`, () => {
         setupTest();
         expect(this.target()).toBeTruthy();
       });
     };
   }
-}
 
-describe('Scenario Testing', async () => {
-  const scenario = await useTestBed(
-    ScenarioTestModule.forComponent(ScenarioTestComponent),
-    ScenarioTestComponent,
-  );
-
-  class the {
-    static Div() {
-      return new ElementHarness(() => scenario.query('div'));
-    }
+  toHaveText(expected: string): TestGeneratorFn<T> {
+    return ({ scenarioDescription, setupTest, fixture }) => {
+      it(`[${scenarioDescription}] should have the text "${expected}"`, () => {
+        setupTest();
+        expect(this.target()?.nativeElement.textContent).toContain(expected);
+      });
+    };
   }
-
-  scenario(
-    'should display the value from the service',
-    serviceHasValue('Hello, Test!'),
-  ).expect(the.Div().toBeFound());
-});
+}
 
 const serviceHasValue = (value: string) => (testBed: TestBed) => {
   const myService = testBed.inject(MyService);
   myService.value = value;
 };
 
-const toHaveValueHelloTest = (
-  fixture: ComponentFixture<any>,
-  setupTest: () => void,
-) => {
-  it(`should have the value 'Hello, Test!'`, () => {
-    setupTest();
+describe('Scenario Testing', () => {
+  let scenario!: TestScenario<ScenarioTestComponent>;
 
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toBe('Hello, Test!');
+  beforeEach(async () => {
+    scenario = await useTestBed(
+      ScenarioTestModule.forComponent(ScenarioTestComponent),
+      ScenarioTestComponent,
+    );
   });
-};
+
+  class the {
+    static Div() {
+      return new ElementHarness('', () => scenario.query('div'));
+    }
+  }
+
+  scenario(
+    'should display the value from the service',
+    serviceHasValue('Hello, Test!'),
+  ).expect(
+    //
+    the.Div().toHaveText('Hello, Test!'),
+    the.Div().toBeFound(),
+  );
+});
