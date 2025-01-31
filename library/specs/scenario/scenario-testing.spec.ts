@@ -1,8 +1,8 @@
 import { Component, Injectable, Type, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { ElementHarness } from '../../scenario-testing/scenario-harnesses';
-import { useTestBed } from '../../scenario-testing/scenario-testing';
+import { ScenarioTestingHarness } from '../../scenario-testing/scenario-harnesses';
+import { useScenarioTesting } from '../../scenario-testing/scenario-testing';
 import { ComponentFixtureRef } from '../../scenario-testing/types';
 
 @Injectable()
@@ -52,7 +52,7 @@ const withInitialChangeDetection = () => {
 // Usage Example
 // ----------------------------
 
-const { scenario, tests } = useTestBed({
+const { scenario, tests } = useScenarioTesting({
   componentType: ScenarioTestComponent,
   moduleConfig: {
     declarations: [ScenarioTestComponent],
@@ -61,11 +61,11 @@ const { scenario, tests } = useTestBed({
 });
 
 class the {
-  static Div = new ElementHarness('div', tests);
-  static ParamIdDiv = new ElementHarness('#route-param', tests);
+  static Div = new ScenarioTestingHarness('div', tests);
+  static ParamIdDiv = new ScenarioTestingHarness('#route-param', tests);
 }
 
-scenario('MyService value is displayed 1')
+scenario(`MyService value is displayed`)
   .configure(
     withRouterParams({ id: undefined }),
     withServiceState(MyService, { value: 'Jane' }),
@@ -73,14 +73,16 @@ scenario('MyService value is displayed 1')
   .whenComponentReady(withInitialChangeDetection())
   .expect(
     the.Div.toContainText('Jane'),
+    the.Div.not.toContainText('Madam'),
     the.ParamIdDiv.toBeMissing(),
+    the.ParamIdDiv.not.toBeFound(),
     the.Div.toHaveStyles({
       color: 'red',
       fontSize: '12px',
     }),
   );
 
-scenario('The param id is 42')
+scenario(`The param id is 42`)
   .configure(
     withRouterParams({ id: 42 }),
     withServiceState(MyService, { value: 'Henry' }),
@@ -88,7 +90,11 @@ scenario('The param id is 42')
   .whenComponentReady(withInitialChangeDetection())
   .expect(
     the.Div.toHaveText('heNRY', { trim: true, ignoreCase: true }),
+    the.Div.not.toHaveText('Ernie', { trim: true, ignoreCase: true }),
+    the.Div.toHaveClass('div-style'),
+    the.ParamIdDiv.not.toHaveClass('div-style'),
     the.ParamIdDiv.toBeFound(),
+    the.ParamIdDiv.not.toBeMissing(),
     the.ParamIdDiv.toHaveText('42'),
   );
 

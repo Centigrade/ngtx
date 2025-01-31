@@ -179,7 +179,7 @@ export class NgtxTestScenario<T = any> {
   }
 }
 
-export function useTestBed<T>(
+export function useScenarioTesting<T>(
   props: Omit<NgtxScenarioInitProps<T>, 'description'>,
 ) {
   const environment = new NgtxScenarioTestEnvironment(
@@ -193,34 +193,4 @@ export function useTestBed<T>(
       NgtxTestScenario.from({ ...props, description }, environment),
     tests: environment,
   };
-}
-
-// ----------------------------
-// Harness System
-// ----------------------------
-
-export class NgtxScenarioTestHarness<Html extends HTMLElement, Component> {
-  constructor(
-    public readonly selector: string | Type<Component>,
-    private readonly testEnv: NgtxScenarioTestEnvironment<any>,
-    public readonly name = typeof selector === 'string'
-      ? selector
-      : selector.name,
-  ) {}
-
-  public fixtureRef!: ComponentFixtureRef<Component>;
-
-  public provideTests(tests: () => unknown) {
-    return (fxRef: ComponentFixtureRef<Component>) => {
-      this.fixtureRef = fxRef;
-      tests();
-    };
-  }
-
-  get debugElement() {
-    return this.testEnv.query(this.selector as any)() as TypedDebugElement<
-      Html,
-      Component
-    >;
-  }
 }
