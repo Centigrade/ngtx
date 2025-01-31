@@ -142,9 +142,7 @@ describe(
 
     beforeEach(() => {
       fixture = TestBed.createComponent(DropDownComponent);
-      useFixture(fixture, {
-        spyFactory: (retValue) => jest.fn(() => retValue),
-      });
+      useFixture(fixture);
     });
 
     class the {

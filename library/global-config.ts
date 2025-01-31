@@ -8,6 +8,11 @@ export const NGTX_GLOBAL_CONFIG: NgtxGlobalConfig = {
   },
 };
 
+/** Configures ngtx in order to make it work with your current test setup. */
+export function configureNgtx(config: NgtxGlobalConfig) {
+  NGTX_GLOBAL_CONFIG.defaultSpyFactory = config.defaultSpyFactory;
+}
+
 /**
  * Configures ngtx to use the specified spyFactory as default whenever a declarative test needs to
  * create a spy.

@@ -1,6 +1,18 @@
 import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+import { configureNgtx } from './library/global-config';
+import { NgtxTestingFrameworkAdapter } from './library/scenario-testing/types';
 
 setupZoneTestEnv();
+
+const jestFramework: NgtxTestingFrameworkAdapter = {
+  describe,
+  beforeEach,
+};
+
+configureNgtx({
+  testingFrameworkAdapter: jestFramework,
+  defaultSpyFactory: (retValue) => jest.fn(() => retValue),
+});
 
 Object.defineProperty(window, 'CSS', { value: null });
 Object.defineProperty(window, 'getComputedStyle', {
