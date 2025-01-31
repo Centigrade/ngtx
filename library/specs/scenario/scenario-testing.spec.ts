@@ -18,7 +18,7 @@ class MyService {
       {{ myService.value }}
     </div>
     @if(paramId){
-    <div id="route-param">{{ paramId }}</div>
+    <div data-ngtx="route-param">{{ paramId }}</div>
     }
   `,
 })
@@ -64,7 +64,7 @@ const { scenario, tests } = useScenarioTesting({
 
 class the {
   static Div = new ScenarioTestingHarness('div', tests);
-  static ParamIdDiv = new ScenarioTestingHarness('#route-param', tests);
+  static ParamIdDiv = new ScenarioTestingHarness('ngtx_route-param', tests);
 }
 
 scenario(`MyService value is displayed`)

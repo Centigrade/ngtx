@@ -1,5 +1,6 @@
 import { Type } from 'ng-mocks';
 import { TypedDebugElement } from '../types';
+import { isNgtxQuerySelector } from '../utility';
 import { NgtxScenarioTestEnvironment } from './scenario-testing';
 import { NgtxScenarioTestIsAssertionNegated } from './symbols';
 import { ComponentFixtureRef } from './types';
@@ -32,7 +33,9 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
     public readonly selector: string | Type<Component>,
     private readonly testEnv: NgtxScenarioTestEnvironment<any>,
     public readonly name = typeof selector === 'string'
-      ? selector
+      ? isNgtxQuerySelector(selector)
+        ? selector.replace('ngtx_', '')
+        : selector
       : selector.name,
   ) {}
 

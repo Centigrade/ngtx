@@ -8,6 +8,7 @@ import { Type } from 'ng-mocks';
 import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { ngtx } from '../ngtx';
 import { TypedDebugElement } from '../types';
+import { isNgtxQuerySelector, queryNgtxMarker } from '../utility';
 import {
   ComponentFixtureRef,
   NgtxScenarioInitProps,
@@ -34,26 +35,22 @@ export class NgtxScenarioTestEnvironment<T> {
   }
 
   public query<Html extends HTMLElement, Component>(
-    selector: string,
+    query: string,
   ): () => TypedDebugElement<Html, Component>;
   public query<Html extends HTMLElement, Component>(
     type: Type<Component>,
   ): () => TypedDebugElement<Html, Component>;
   public query<Html extends HTMLElement, Component>(
-    selector: string | Type<Component>,
+    query: string | Type<Component>,
   ): () => TypedDebugElement<Html, Component> {
     return () => {
       const fixture = this.fixtureRef();
 
-      if (!fixture) {
-        throw new Error('Fixture not set');
-      }
-
-      if (typeof selector === 'string') {
-        return fixture!.debugElement.query(By.css(selector))!;
-      }
-
-      return fixture!.debugElement.query(By.directive(selector))!;
+      return isNgtxQuerySelector(query)
+        ? queryNgtxMarker(query as string, fixture.debugElement)
+        : typeof query === 'string'
+        ? fixture.debugElement.query(By.css(query))
+        : fixture.debugElement.query(By.directive(query));
     };
   }
 
