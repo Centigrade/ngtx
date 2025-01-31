@@ -92,8 +92,8 @@ scenario(`The param id is 42`)
   .setup(
     withRouterParams({ id: 42 }),
     withServiceState(MyService, { value: 'Henry' }),
+    withInitialChangeDetection(),
   )
-  .whenComponentReady(withInitialChangeDetection())
   .expect(
     the.Div.toHaveText('heNRY', { trim: true, ignoreCase: true }),
     the.Div.not.toHaveText('Ernie', { trim: true, ignoreCase: true }),

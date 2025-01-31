@@ -132,26 +132,6 @@ export class NgtxTestScenario<T = any> {
     return scenario;
   }
 
-  whenComponentReady(...mods: ScenarioViewSetupFn<T>[]): NgtxTestScenario<T> {
-    const scenario = NgtxTestScenario.from(
-      {
-        componentType: this._componentType,
-        description: this._description,
-        moduleConfig: this._moduleConfig,
-        modificationsBeforeComponentCreation:
-          this._modificationsBeforeComponentCreation,
-        modificationsAfterComponentCreation: [
-          ...this._modificationsAfterComponentCreation,
-          ...mods,
-        ],
-        tests: this.tests,
-      },
-      this._testEnvironment,
-    );
-
-    return scenario;
-  }
-
   expect(...tests: ScenarioTestDefinition<T>[]): void {
     const scenario = NgtxTestScenario.from(
       {
