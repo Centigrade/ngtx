@@ -62,7 +62,7 @@ To get you started we recommend you to read the following articles in this order
 - [All built-in, declarative features][builtin]
 - [Component Harnesses][componentharnesses]
 
-### Scenario Testing
+### 🚀 Scenario Testing
 
 Give our new scenario based testing approach a try! It’s still experimental, but we’d love to hear your feedback.
 
