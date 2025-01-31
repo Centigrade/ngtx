@@ -7,6 +7,7 @@
 [extending]: ./extending.md
 [querying]: ./querying.md
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+[scenarioTestingVision]: ./scenario-testing/vision.md
 
 # [🏠][home] &nbsp; → &nbsp; Documentation
 
@@ -60,3 +61,9 @@ To get you started we recommend you to read the following articles in this order
 
 - [All built-in, declarative features][builtin]
 - [Component Harnesses][componentharnesses]
+
+### Scenario Testing
+
+Give our new scenario based testing approach a try! It’s still experimental, but we’d love to hear your feedback.
+
+- [Vision and Showcase][scenarioTestingVision]
