@@ -17,6 +17,8 @@ export function configureNgtx(config: NgtxGlobalConfig) {
  * Configures ngtx to use the specified spyFactory as default whenever a declarative test needs to
  * create a spy.
  * @param spyFactory The spy factory to automatically use when spies are needed in declarative tests.
+ * @deprecated Please use `configureNgtx(config)` instead. This function will be removed in ngtx 3.
+ * @todo To be removed in ngtx version 3.
  */
 export function setDefaultSpyFactory(spyFactory: SpyFactoryFn): void {
   NGTX_GLOBAL_CONFIG.defaultSpyFactory = spyFactory;
