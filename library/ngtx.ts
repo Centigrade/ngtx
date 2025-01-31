@@ -1,6 +1,15 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from './core';
 import { createDeclarativeTestingApi } from './declarative-testing/declarative-testing';
+import {
+  NgtxScenarioSetupFnMarker,
+  NgtxScenarioViewSetupFnMarker,
+} from './scenario-testing/symbols';
+import {
+  ComponentFixtureRef,
+  ScenarioSetupFn,
+  ScenarioViewSetupFn,
+} from './scenario-testing/types';
 import { NgtxSuite, UseFixtureOptions } from './types';
 
 /**
@@ -24,7 +33,7 @@ import { NgtxSuite, UseFixtureOptions } from './types';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
+function _ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   const ngtxFixture = new NgtxFixture();
   const When = createDeclarativeTestingApi(ngtxFixture);
 
@@ -54,4 +63,35 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   };
 
   return () => suite(ngtxImpl);
+}
+
+export const ngtx = Object.assign(_ngtx, {
+  scenario: {
+    envSetupFn,
+    viewSetupFn,
+  },
+  is,
+});
+
+function envSetupFn(fn: () => unknown) {
+  return Object.assign(fn, { [NgtxScenarioSetupFnMarker]: true });
+}
+function viewSetupFn(fn: (fixtureRef: ComponentFixtureRef) => unknown) {
+  return Object.assign(fn, { [NgtxScenarioViewSetupFnMarker]: true });
+}
+
+function is(obj: any, type: 'scenarioSetupFn'): obj is ScenarioSetupFn;
+function is(
+  obj: any,
+  type: 'scenarioViewSetupFn',
+): obj is ScenarioViewSetupFn<any>;
+function is(obj: any, type: 'scenarioSetupFn' | 'scenarioViewSetupFn') {
+  switch (type) {
+    case 'scenarioSetupFn':
+      return obj?.[NgtxScenarioSetupFnMarker] === true;
+    case 'scenarioViewSetupFn':
+      return obj?.[NgtxScenarioViewSetupFnMarker] === true;
+    default:
+      return false;
+  }
 }

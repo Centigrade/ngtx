@@ -1,16 +1,16 @@
 import { Type } from 'ng-mocks';
 import { TypedDebugElement } from '../types';
 import { NgtxScenarioTestEnvironment } from './scenario-testing';
+import { NgtxScenarioTestIsAssertionNegated } from './symbols';
 import { ComponentFixtureRef } from './types';
 
-const NgtxIsAssertionNegatedFlag = Symbol('IsNegated');
-
 export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
-  [NgtxIsAssertionNegatedFlag] = false;
+  private [NgtxScenarioTestIsAssertionNegated] = false;
 
   public get isAssertionNegated() {
-    return this[NgtxIsAssertionNegatedFlag];
+    return this[NgtxScenarioTestIsAssertionNegated];
   }
+
   public readonly not: Omit<typeof this, 'not'> = new Proxy(this, {
     get: (_, property) => {
       // TODO: document that constructors of Harnesses are not allowed to be overridden!
@@ -21,8 +21,8 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
         this.name,
       );
 
-      // hint: toggling isNegated
-      target[NgtxIsAssertionNegatedFlag] = !this[NgtxIsAssertionNegatedFlag];
+      target[NgtxScenarioTestIsAssertionNegated] =
+        !this[NgtxScenarioTestIsAssertionNegated];
 
       return (target as any)[property];
     },

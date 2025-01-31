@@ -1,5 +1,9 @@
 import { Type } from '@angular/core';
 import { ComponentFixture, TestModuleMetadata } from '@angular/core/testing';
+import {
+  NgtxScenarioSetupFnMarker,
+  NgtxScenarioViewSetupFnMarker,
+} from './symbols';
 
 export type ComponentFixtureRef<T = any> = () => ComponentFixture<T>;
 export type ScenarioTestDefinition<T> = (
@@ -14,11 +18,19 @@ export type NgtxScenarioInitProps<T> = {
   componentType: Type<T>;
   moduleConfig: TestModuleMetadata;
 };
+
 export type NgtxScenarioProps<T> = NgtxScenarioInitProps<T> & {
   description: string;
   tests?: ScenarioTestDefinition<T>[];
-  modificationsBeforeComponentCreation?: (() => void)[];
-  modificationsAfterComponentCreation?: ((
-    fxRef: ComponentFixtureRef<T>,
-  ) => void)[];
+  modificationsBeforeComponentCreation?: ScenarioSetupFn[];
+  modificationsAfterComponentCreation?: ScenarioViewSetupFn<T>[];
+};
+
+export type ScenarioViewSetupFn<T> = ((
+  fxRef: ComponentFixtureRef<T>,
+) => void) & {
+  [NgtxScenarioViewSetupFnMarker]: boolean;
+};
+export type ScenarioSetupFn = (() => void) & {
+  [NgtxScenarioSetupFnMarker]: boolean;
 };

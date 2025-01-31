@@ -1,6 +1,7 @@
 import { Component, Injectable, Type, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
+import { ngtx } from '../../ngtx';
 import { ScenarioTestingHarness } from '../../scenario-testing/scenario-harnesses';
 import { useScenarioTesting } from '../../scenario-testing/scenario-testing';
 import { ComponentFixtureRef } from '../../scenario-testing/types';
@@ -30,22 +31,23 @@ class ScenarioTestComponent {
 // ----------------------------
 // Test Setup Utilities
 // ----------------------------
-const withRouterParams = (params: Record<string, unknown>) => () => {
-  TestBed.overrideProvider(ActivatedRoute, {
-    useValue: { snapshot: { params: params } },
-  });
-};
 
-const withServiceState =
-  <T>(token: Type<T>, state: Partial<T>) =>
-  () => {
+const withRouterParams = (params: Record<string, unknown>) =>
+  ngtx.scenario.envSetupFn(() => {
+    TestBed.overrideProvider(ActivatedRoute, {
+      useValue: { snapshot: { params: params } },
+    });
+  });
+
+const withServiceState = <T>(token: Type<T>, state: Partial<T>) =>
+  ngtx.scenario.envSetupFn(() => {
     TestBed.overrideProvider(token, { useValue: state });
-  };
+  });
 
 const withInitialChangeDetection = () => {
-  return (fxRef: ComponentFixtureRef) => {
+  return ngtx.scenario.viewSetupFn((fxRef: ComponentFixtureRef) => {
     fxRef().changeDetectorRef.detectChanges();
-  };
+  });
 };
 
 // ----------------------------
@@ -66,11 +68,11 @@ class the {
 }
 
 scenario(`MyService value is displayed`)
-  .configure(
+  .setup(
     withRouterParams({ id: undefined }),
     withServiceState(MyService, { value: 'Jane' }),
+    withInitialChangeDetection(),
   )
-  .whenComponentReady(withInitialChangeDetection())
   .expect(
     the.Div.toContainText('Jane'),
     the.Div.not.toContainText('Madam'),
@@ -80,10 +82,14 @@ scenario(`MyService value is displayed`)
       color: 'red',
       fontSize: '12px',
     }),
+    the.Div.not.toHaveStyles({
+      color: 'blue',
+      fontSize: '24px',
+    }),
   );
 
 scenario(`The param id is 42`)
-  .configure(
+  .setup(
     withRouterParams({ id: 42 }),
     withServiceState(MyService, { value: 'Henry' }),
   )

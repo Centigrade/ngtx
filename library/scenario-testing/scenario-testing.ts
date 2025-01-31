@@ -6,13 +6,16 @@ import {
 import { By } from '@angular/platform-browser';
 import { Type } from 'ng-mocks';
 import { NGTX_GLOBAL_CONFIG } from '../global-config';
+import { ngtx } from '../ngtx';
 import { TypedDebugElement } from '../types';
 import {
   ComponentFixtureRef,
   NgtxScenarioInitProps,
   NgtxScenarioProps,
   NgtxTestingFrameworkAdapter,
+  ScenarioSetupFn,
   ScenarioTestDefinition,
+  ScenarioViewSetupFn,
 } from './types';
 
 export class NgtxScenarioTestEnvironment<T> {
@@ -97,14 +100,17 @@ export class NgtxTestScenario<T = any> {
     private readonly _testEnvironment: NgtxScenarioTestEnvironment<T>,
     private readonly _moduleConfig: TestModuleMetadata,
     private readonly _componentType: Type<T>,
-    private readonly _modificationsBeforeComponentCreation: (() => void)[],
-    private readonly _modificationsAfterComponentCreation: ((
-      fxRef: ComponentFixtureRef<T>,
-    ) => void)[],
+    private readonly _modificationsBeforeComponentCreation: ScenarioSetupFn[],
+    private readonly _modificationsAfterComponentCreation: ScenarioViewSetupFn<T>[],
     private readonly tests: ScenarioTestDefinition<T>[],
   ) {}
 
-  configure(...mods: (() => void)[]): NgtxTestScenario<T> {
+  setup(
+    ...mods: (ScenarioSetupFn | ScenarioViewSetupFn<T>)[]
+  ): NgtxTestScenario<T> {
+    const scenarioMods = mods.filter((mod) => ngtx.is(mod, 'scenarioSetupFn'));
+    const viewMods = mods.filter((mod) => ngtx.is(mod, 'scenarioViewSetupFn'));
+
     const scenario = NgtxTestScenario.from(
       {
         componentType: this._componentType,
@@ -112,10 +118,12 @@ export class NgtxTestScenario<T = any> {
         moduleConfig: this._moduleConfig,
         modificationsBeforeComponentCreation: [
           ...this._modificationsBeforeComponentCreation,
-          ...mods,
+          ...scenarioMods,
         ],
-        modificationsAfterComponentCreation:
-          this._modificationsAfterComponentCreation,
+        modificationsAfterComponentCreation: [
+          ...this._modificationsAfterComponentCreation,
+          ...viewMods,
+        ],
         tests: this.tests,
       },
       this._testEnvironment,
@@ -124,9 +132,7 @@ export class NgtxTestScenario<T = any> {
     return scenario;
   }
 
-  whenComponentReady(
-    ...mods: ((fxRef: ComponentFixtureRef<T>) => void)[]
-  ): NgtxTestScenario<T> {
+  whenComponentReady(...mods: ScenarioViewSetupFn<T>[]): NgtxTestScenario<T> {
     const scenario = NgtxTestScenario.from(
       {
         componentType: this._componentType,
