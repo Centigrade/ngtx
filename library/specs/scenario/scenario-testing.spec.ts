@@ -1,12 +1,12 @@
-import { Component, Injectable, inject } from '@angular/core';
+import { Component, Injectable, Type, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { NgtxElement } from '../../core';
+import { ActivatedRoute } from '@angular/router';
+import { ElementHarness } from '../../scenario-testing/scenario-harnesses';
+import { useScenario } from '../../scenario-testing/scenario-testing';
 import {
-  TestGeneratorFn,
-  TestScenario,
-  useTestBed,
-} from '../../scenario-testing/scenario-testing';
-import { TestingModule } from '../../scenario-testing/testing-modules';
+  ComponentFixtureRef,
+  NgtxTestingFrameworkAdapter,
+} from '../../scenario-testing/types';
 
 @Injectable()
 class MyService {
@@ -15,69 +15,89 @@ class MyService {
 
 @Component({
   standalone: false,
-  template: ` <div>{{ myService.value }}</div> `,
+  template: `
+    <div class="div-style" style="color: red; fontSize: 12px">
+      {{ myService.value }}
+    </div>
+    @if(paramId){
+    <div id="route-param">{{ paramId }}</div>
+    }
+  `,
 })
 class ScenarioTestComponent {
   myService = inject(MyService);
+  route = inject(ActivatedRoute);
+  paramId = this.route.snapshot.params.id;
 }
 
-const ScenarioTestModule = TestingModule.configure({
-  declarations: [ScenarioTestComponent],
-  providers: [MyService],
-});
-
-class ElementHarness<T> {
-  constructor(
-    private readonly name: string,
-    private readonly target: () => NgtxElement<HTMLElement, T> | undefined,
-  ) {}
-
-  toBeFound(): TestGeneratorFn<T> {
-    return ({ scenarioDescription, setupTest, fixture }) => {
-      it(`[${scenarioDescription}] should find the ${this.name}`, () => {
-        setupTest();
-        expect(this.target()).toBeTruthy();
-      });
-    };
-  }
-
-  toHaveText(expected: string): TestGeneratorFn<T> {
-    return ({ scenarioDescription, setupTest, fixture }) => {
-      it(`[${scenarioDescription}] should have the text "${expected}"`, () => {
-        setupTest();
-        expect(this.target()?.nativeElement.textContent).toContain(expected);
-      });
-    };
-  }
-}
-
-const serviceHasValue = (value: string) => (testBed: TestBed) => {
-  const myService = testBed.inject(MyService);
-  myService.value = value;
+// ----------------------------
+// Test Setup Utilities
+// ----------------------------
+const withRouterParams = (params: Record<string, unknown>) => () => {
+  TestBed.overrideProvider(ActivatedRoute, {
+    useValue: { snapshot: { params: params } },
+  });
 };
 
-describe('Scenario Testing', () => {
-  let scenario!: TestScenario<ScenarioTestComponent>;
+const withServiceState =
+  <T>(token: Type<T>, state: Partial<T>) =>
+  () => {
+    TestBed.overrideProvider(token, { useValue: state });
+  };
 
-  beforeEach(async () => {
-    scenario = await useTestBed(
-      ScenarioTestModule.forComponent(ScenarioTestComponent),
-      ScenarioTestComponent,
-    );
-  });
+const withInitialChangeDetection = () => {
+  return (fxRef: ComponentFixtureRef) => {
+    fxRef().changeDetectorRef.detectChanges();
+  };
+};
 
-  class the {
-    static Div() {
-      return new ElementHarness('', () => scenario.query('div'));
-    }
-  }
+// ----------------------------
+// Usage Example
+// ----------------------------
+const jestFramework: NgtxTestingFrameworkAdapter = {
+  describe,
+  beforeEach,
+};
 
-  scenario(
-    'should display the value from the service',
-    serviceHasValue('Hello, Test!'),
-  ).expect(
-    //
-    the.Div().toHaveText('Hello, Test!'),
-    the.Div().toBeFound(),
-  );
+const { scenario, tests } = useScenario({
+  componentType: ScenarioTestComponent,
+  testingFrameworkAdapter: jestFramework,
+  moduleConfig: {
+    declarations: [ScenarioTestComponent],
+    providers: [MyService],
+  },
 });
+
+class the {
+  static Div = new ElementHarness('div', tests);
+  static ParamIdDiv = new ElementHarness('#route-param', tests);
+}
+
+scenario('MyService value is displayed 1')
+  .configure(
+    withRouterParams({ id: undefined }),
+    withServiceState(MyService, { value: 'Jane' }),
+  )
+  .whenComponentReady(withInitialChangeDetection())
+  .expect(
+    the.Div.toContainText('Jane'),
+    the.ParamIdDiv.toBeMissing(),
+    the.Div.toHaveStyles({
+      color: 'red',
+      fontSize: '12px',
+    }),
+  );
+
+scenario('The param id is 42')
+  .configure(
+    withRouterParams({ id: 42 }),
+    withServiceState(MyService, { value: 'Henry' }),
+  )
+  .whenComponentReady(withInitialChangeDetection())
+  .expect(
+    the.Div.toHaveText('heNRY', { trim: true, ignoreCase: true }),
+    the.ParamIdDiv.toBeFound(),
+    the.ParamIdDiv.toHaveText('42'),
+  );
+
+tests.run();

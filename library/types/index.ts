@@ -92,13 +92,13 @@ export type CssSelector = string;
 export type QueryTarget<Component> = CssSelector | Type<Component>;
 
 /** An improved version of Angular's `DebugElement` that can actually handle proper typing. */
-export interface TypedDebugElement<
+export type TypedDebugElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
-> extends DebugElement {
+> = Omit<DebugElement, 'nativeElement' | 'componentInstance'> & {
   nativeElement: Html;
   componentInstance: Component;
-}
+};
 
 /** Describes an object that has at least a subset of the properties of type `T` with `any` value, */
 export type TypeObjectMap<K> = Partial<{
