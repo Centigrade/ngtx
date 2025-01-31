@@ -1,6 +1,18 @@
 import { NgtxGlobalConfig, SpyFactoryFn } from './types';
 
+const NO_FRAMEWORK_ADAPTER_ERROR = () => {
+  throw new Error(
+    `No testing FrameworkAdapter was configured for ngtx scenario testing. Please call "configureNgtx(config)" and pass your config. For help, see: https://github.com/Centigrade/ngtx/blob/main/docs/configuring-ngtx.md`,
+  );
+};
+
+const DEFAULT_TESTING_FRAMEWORK_ADAPTER = {
+  describe: NO_FRAMEWORK_ADAPTER_ERROR,
+  beforeEach: NO_FRAMEWORK_ADAPTER_ERROR,
+};
+
 export const NGTX_GLOBAL_CONFIG: NgtxGlobalConfig = {
+  testingFrameworkAdapter: DEFAULT_TESTING_FRAMEWORK_ADAPTER,
   defaultSpyFactory: (returnValue?: any): any => {
     throw new Error(
       `No spy-factory passed to ngtx. Please call useFixture(fixture, { spyFactory: () => <spyInstance> }). Or setup a default spy-factory via "setDefaultSpyFactory"-function imported from "@centigrade/ngtx".`,
@@ -11,6 +23,8 @@ export const NGTX_GLOBAL_CONFIG: NgtxGlobalConfig = {
 /** Configures ngtx in order to make it work with your current test setup. */
 export function configureNgtx(config: NgtxGlobalConfig) {
   NGTX_GLOBAL_CONFIG.defaultSpyFactory = config.defaultSpyFactory;
+  NGTX_GLOBAL_CONFIG.testingFrameworkAdapter =
+    config.testingFrameworkAdapter ?? DEFAULT_TESTING_FRAMEWORK_ADAPTER;
 }
 
 /**

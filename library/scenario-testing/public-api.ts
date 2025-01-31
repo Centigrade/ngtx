@@ -1,5 +1,5 @@
 export { ElementHarness } from './scenario-harnesses';
-export { NgtxScenarioTestHarness, useScenario } from './scenario-testing';
+export { NgtxScenarioTestHarness, useTestBed } from './scenario-testing';
 export {
   ComponentFixtureRef,
   NgtxScenarioInitProps,

@@ -2,11 +2,8 @@ import { Component, Injectable, Type, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { ElementHarness } from '../../scenario-testing/scenario-harnesses';
-import { useScenario } from '../../scenario-testing/scenario-testing';
-import {
-  ComponentFixtureRef,
-  NgtxTestingFrameworkAdapter,
-} from '../../scenario-testing/types';
+import { useTestBed } from '../../scenario-testing/scenario-testing';
+import { ComponentFixtureRef } from '../../scenario-testing/types';
 
 @Injectable()
 class MyService {
@@ -54,14 +51,9 @@ const withInitialChangeDetection = () => {
 // ----------------------------
 // Usage Example
 // ----------------------------
-const jestFramework: NgtxTestingFrameworkAdapter = {
-  describe,
-  beforeEach,
-};
 
-const { scenario, tests } = useScenario({
+const { scenario, tests } = useTestBed({
   componentType: ScenarioTestComponent,
-  testingFrameworkAdapter: jestFramework,
   moduleConfig: {
     declarations: [ScenarioTestComponent],
     providers: [MyService],

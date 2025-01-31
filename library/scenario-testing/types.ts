@@ -13,7 +13,6 @@ export type NgtxTestingFrameworkAdapter = {
 export type NgtxScenarioInitProps<T> = {
   componentType: Type<T>;
   moduleConfig: TestModuleMetadata;
-  testingFrameworkAdapter: NgtxTestingFrameworkAdapter;
 };
 export type NgtxScenarioProps<T> = NgtxScenarioInitProps<T> & {
   description: string;

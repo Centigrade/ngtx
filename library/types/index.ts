@@ -2,9 +2,11 @@ import { DebugElement, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from '../core';
 import { WhenStatement } from '../declarative-testing/types';
+import { NgtxTestingFrameworkAdapter } from '../scenario-testing/types';
 
 export interface NgtxGlobalConfig {
   defaultSpyFactory: SpyFactoryFn;
+  testingFrameworkAdapter?: NgtxTestingFrameworkAdapter;
 }
 
 export type Maybe<T> = T | undefined | null;

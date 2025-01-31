@@ -5,6 +5,7 @@ import {
 } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Type } from 'ng-mocks';
+import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { TypedDebugElement } from '../types';
 import {
   ComponentFixtureRef,
@@ -83,7 +84,6 @@ export class NgtxTestScenario<T = any> {
     return new NgtxTestScenario(
       props.description,
       environment,
-      props.testingFrameworkAdapter,
       props.moduleConfig,
       props.componentType,
       props.modificationsBeforeComponentCreation ?? [],
@@ -95,7 +95,6 @@ export class NgtxTestScenario<T = any> {
   private constructor(
     private readonly _description: string,
     private readonly _testEnvironment: NgtxScenarioTestEnvironment<T>,
-    private readonly _testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
     private readonly _moduleConfig: TestModuleMetadata,
     private readonly _componentType: Type<T>,
     private readonly _modificationsBeforeComponentCreation: (() => void)[],
@@ -111,7 +110,6 @@ export class NgtxTestScenario<T = any> {
         componentType: this._componentType,
         description: this._description,
         moduleConfig: this._moduleConfig,
-        testingFrameworkAdapter: this._testingFrameworkAdapter,
         modificationsBeforeComponentCreation: [
           ...this._modificationsBeforeComponentCreation,
           ...mods,
@@ -134,7 +132,6 @@ export class NgtxTestScenario<T = any> {
         componentType: this._componentType,
         description: this._description,
         moduleConfig: this._moduleConfig,
-        testingFrameworkAdapter: this._testingFrameworkAdapter,
         modificationsBeforeComponentCreation:
           this._modificationsBeforeComponentCreation,
         modificationsAfterComponentCreation: [
@@ -155,7 +152,6 @@ export class NgtxTestScenario<T = any> {
         componentType: this._componentType,
         description: this._description,
         moduleConfig: this._moduleConfig,
-        testingFrameworkAdapter: this._testingFrameworkAdapter,
         modificationsBeforeComponentCreation:
           this._modificationsBeforeComponentCreation,
         modificationsAfterComponentCreation:
@@ -183,11 +179,11 @@ export class NgtxTestScenario<T = any> {
   }
 }
 
-export function useScenario<T>(
+export function useTestBed<T>(
   props: Omit<NgtxScenarioInitProps<T>, 'description'>,
 ) {
   const environment = new NgtxScenarioTestEnvironment(
-    props.testingFrameworkAdapter,
+    NGTX_GLOBAL_CONFIG.testingFrameworkAdapter!,
     props.moduleConfig,
     props.componentType,
   );
