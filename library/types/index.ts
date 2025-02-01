@@ -1,9 +1,12 @@
-import { DebugElement, SimpleChanges, Type } from '@angular/core';
+import { DebugElement, Signal, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from '../core';
 import { WhenStatement } from '../declarative-testing/types';
 import { NgtxTestingFrameworkAdapter } from '../scenario-testing/types';
 
+export type UnwrapSignals<T> = {
+  [K in keyof T]: T[K] extends Signal<infer V> ? V : T[K];
+};
 export interface NgtxGlobalConfig {
   defaultSpyFactory: SpyFactoryFn;
   testingFrameworkAdapter?: NgtxTestingFrameworkAdapter;

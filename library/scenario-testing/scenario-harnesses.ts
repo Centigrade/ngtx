@@ -1,5 +1,7 @@
+import { isSignal, untracked } from '@angular/core';
 import { Type } from 'ng-mocks';
-import { TypedDebugElement } from '../types';
+import { HtmlPropertiesOf } from '../declarative-testing/types';
+import { TypedDebugElement, UnwrapSignals } from '../types';
 import { isNgtxQuerySelector } from '../utility';
 import { NgtxScenarioTestEnvironment } from './scenario-testing';
 import { NgtxScenarioTestIsAssertionNegated } from './symbols';
@@ -39,13 +41,13 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
       : selector.name,
   ) {}
 
-  public fixtureRef!: ComponentFixtureRef<Component>;
+  public fixtureRef!: ComponentFixtureRef;
 
   /**
    * Adds user defined test cases to the current scenario.
    */
   public addTests(userDefinedTests: () => unknown) {
-    return (fxRef: ComponentFixtureRef<Component>) => {
+    return (fxRef: ComponentFixtureRef) => {
       // set the fixture ref in order to enable code running in user defined tests to access the fixture via its ref:
       this.fixtureRef = fxRef;
       // add a set of tests (e.g. someHarness.toBeFound() adds 1 test)
@@ -194,6 +196,51 @@ export class ScenarioTestingHarness<
           }
         });
       });
+    });
+  }
+  public toHaveState(expectedState: Partial<UnwrapSignals<Component>>) {
+    return this.addTests(() => {
+      Object.entries(expectedState).forEach(([property, expectedValue]) => {
+        const description = this.isAssertionNegated
+          ? `${this.name} should have the property "${property}" not having the value ${expectedValue}`
+          : `${this.name} should have the property "${property}" with value ${expectedValue}`;
+
+        it(description, () => {
+          untracked(() => {
+            const value = (this.debugElement.componentInstance as any)[
+              property
+            ];
+            const unwrappedValue = isSignal(value) ? value() : value;
+
+            if (this.isAssertionNegated) {
+              expect(unwrappedValue).not.toEqual(expectedValue);
+            } else {
+              expect(unwrappedValue).toEqual(expectedValue);
+            }
+          });
+        });
+      });
+    });
+  }
+  public toHaveAttributes(expectedAttributes: HtmlPropertiesOf<Html>) {
+    return this.addTests(() => {
+      Object.entries(expectedAttributes).forEach(
+        ([attribute, expectedValue]) => {
+          const description = this.isAssertionNegated
+            ? `${this.name} should have the attribute "${attribute}" not having the value "${expectedValue}"`
+            : `${this.name} should have the attribute "${attribute}" with value "${expectedValue}"`;
+
+          it(description, () => {
+            const value = (this.debugElement.nativeElement as any)[attribute];
+
+            if (this.isAssertionNegated) {
+              expect(value).not.toEqual(String(expectedValue));
+            } else {
+              expect(value).toEqual(String(expectedValue));
+            }
+          });
+        },
+      );
     });
   }
 }

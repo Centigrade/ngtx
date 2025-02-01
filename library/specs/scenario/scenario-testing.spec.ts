@@ -1,4 +1,4 @@
-import { Component, Injectable, Type, inject } from '@angular/core';
+import { Component, Injectable, Type, inject, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { ngtx } from '../../ngtx';
@@ -13,12 +13,22 @@ class MyService {
 
 @Component({
   standalone: false,
+  template: `<p>{{ text }}</p>`,
+  selector: 'app-text',
+})
+class TextComponent {
+  readonly text = input('unset');
+}
+
+@Component({
+  standalone: false,
   template: `
     <div class="div-style" style="color: red; fontSize: 12px">
       {{ myService.value }}
     </div>
+    <app-text [text]="myService.value" />
     @if(paramId){
-    <div data-ngtx="route-param">{{ paramId }}</div>
+    <div data-ngtx="route-param" [attr.title]="paramId">{{ paramId }}</div>
     }
   `,
 })
@@ -57,13 +67,14 @@ const withInitialChangeDetection = () => {
 const { scenario, tests } = useScenarioTesting({
   componentType: ScenarioTestComponent,
   moduleConfig: {
-    declarations: [ScenarioTestComponent],
+    declarations: [ScenarioTestComponent, TextComponent],
     providers: [MyService],
   },
 });
 
 class the {
   static Div = new ScenarioTestingHarness('div', tests);
+  static Text = new ScenarioTestingHarness(TextComponent, tests);
   static ParamIdDiv = new ScenarioTestingHarness('ngtx_route-param', tests);
 }
 
@@ -78,6 +89,8 @@ scenario(`MyService value is displayed`)
     the.Div.not.toContainText('Madam'),
     the.ParamIdDiv.toBeMissing(),
     the.ParamIdDiv.not.toBeFound(),
+    the.Text.toBeFound(),
+    the.Text.toHaveState({ text: 'Jane' }),
     the.Div.toHaveStyles({
       color: 'red',
       fontSize: '12px',
@@ -102,6 +115,7 @@ scenario(`The param id is 42`)
     the.ParamIdDiv.toBeFound(),
     the.ParamIdDiv.not.toBeMissing(),
     the.ParamIdDiv.toHaveText('42'),
+    the.ParamIdDiv.toHaveAttributes({ title: 42 }),
   );
 
 tests.run();
