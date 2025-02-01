@@ -68,6 +68,7 @@ export class NgtxScenarioTestEnvironment<T> {
           scenario['_runModificationsBeforeComponentCreation']();
           this.fixture = TestBed.createComponent(_componentType);
           scenario['_runModificationsAfterComponentCreation'](this.fixtureRef);
+          this.fixture.detectChanges();
         });
 
         scenario['_run'](this.fixtureRef);

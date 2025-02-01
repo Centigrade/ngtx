@@ -54,12 +54,6 @@ const withServiceState = <T>(token: Type<T>, state: Partial<T>) =>
     TestBed.overrideProvider(token, { useValue: state });
   });
 
-const withInitialChangeDetection = () => {
-  return ngtx.scenario.viewSetupFn((fxRef: ComponentFixtureRef) => {
-    fxRef().changeDetectorRef.detectChanges();
-  });
-};
-
 // ----------------------------
 // Usage Example
 // ----------------------------
@@ -82,7 +76,6 @@ scenario(`MyService value is displayed`)
   .setup(
     withRouterParams({ id: undefined }),
     withServiceState(MyService, { value: 'Jane' }),
-    withInitialChangeDetection(),
   )
   .expect(
     the.Div.toContainText('Jane'),
@@ -105,7 +98,6 @@ scenario(`The param id is 42`)
   .setup(
     withRouterParams({ id: 42 }),
     withServiceState(MyService, { value: 'Henry' }),
-    withInitialChangeDetection(),
   )
   .expect(
     the.Div.toHaveText('heNRY', { trim: true, ignoreCase: true }),
