@@ -1,10 +1,9 @@
 import { Component, Injectable, Type, inject, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ngtx } from '../../ngtx';
 import { ScenarioTestingHarness } from '../../scenario-testing/scenario-harnesses';
 import { useScenarioTesting } from '../../scenario-testing/scenario-testing';
-import { ComponentFixtureRef } from '../../scenario-testing/types';
 
 @Injectable()
 class MyService {
@@ -58,9 +57,10 @@ const withServiceState = <T>(token: Type<T>, state: Partial<T>) =>
 // Usage Example
 // ----------------------------
 
-const { scenario, tests } = useScenarioTesting({
+const { scenario, expect, tests } = useScenarioTesting({
   componentType: ScenarioTestComponent,
   moduleConfig: {
+    imports: [RouterModule.forRoot([])],
     declarations: [ScenarioTestComponent, TextComponent],
     providers: [MyService],
   },
@@ -109,5 +109,17 @@ scenario(`The param id is 42`)
     the.ParamIdDiv.toHaveText('42'),
     the.ParamIdDiv.toHaveAttributes({ title: 42 }),
   );
+
+expect(
+  the.Div.toBeFound(),
+  the.ParamIdDiv.toBeMissing(),
+  the.Text.toHaveState({ text: 'Hello, World!' }),
+);
+
+expect(
+  the.Div.toBeFound(),
+  the.ParamIdDiv.toBeMissing(),
+  the.Text.toHaveState({ text: 'Hello, World!' }),
+);
 
 tests.run();
