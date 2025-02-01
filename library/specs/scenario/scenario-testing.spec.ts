@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ngtx } from '../../ngtx';
 import { ScenarioTestingHarness } from '../../scenario-testing/scenario-harnesses';
 import { useScenarioTesting } from '../../scenario-testing/scenario-testing';
+import { NgtxScenarioTestAssertionFn } from '../../scenario-testing/types';
 
 @Injectable()
 class MyService {
@@ -57,7 +58,11 @@ const withServiceState = <T>(token: Type<T>, state: Partial<T>) =>
 // Usage Example
 // ----------------------------
 
-const { scenario, expect, tests } = useScenarioTesting({
+const {
+  scenario,
+  expect: expectThat,
+  tests,
+} = useScenarioTesting({
   componentType: ScenarioTestComponent,
   moduleConfig: {
     imports: [RouterModule.forRoot([])],
@@ -110,16 +115,31 @@ scenario(`The param id is 42`)
     the.ParamIdDiv.toHaveAttributes({ title: 42 }),
   );
 
-expect(
+expectThat(
   the.Div.toBeFound(),
   the.ParamIdDiv.toBeMissing(),
   the.Text.toHaveState({ text: 'Hello, World!' }),
 );
 
-expect(
+const beComponentType =
+  (type: any): NgtxScenarioTestAssertionFn<HTMLElement, any> =>
+  // TODO: docs: document that debugElement must only be accessed within it case:
+  (addTests, harness) =>
+    addTests(() => {
+      it(`should be the component "${type.name}"`, () => {
+        expect(harness.debugElement.componentInstance).toBeInstanceOf(type);
+      });
+    });
+
+expectThat(
   the.Div.toBeFound(),
   the.ParamIdDiv.toBeMissing(),
   the.Text.toHaveState({ text: 'Hello, World!' }),
+  the.Text.to(
+    beComponentType(TextComponent),
+    beComponentType(TextComponent),
+    beComponentType(TextComponent),
+  ),
 );
 
 tests.run();

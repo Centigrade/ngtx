@@ -1,5 +1,6 @@
 import { Type } from '@angular/core';
 import { ComponentFixture, TestModuleMetadata } from '@angular/core/testing';
+import { ScenarioTestingHarness } from './scenario-harnesses';
 import {
   NgtxScenarioSetupFnMarker,
   NgtxScenarioViewSetupFnMarker,
@@ -34,3 +35,8 @@ export type ScenarioViewSetupFn<T> = ((
 export type ScenarioSetupFn = (() => void) & {
   [NgtxScenarioSetupFnMarker]: boolean;
 };
+
+export type NgtxScenarioTestAssertionFn<Html extends HTMLElement, Component> = (
+  addTests: ScenarioTestingHarness<Html, Component>['addTests'],
+  harness: ScenarioTestingHarness<Html, Component>,
+) => ScenarioTestDefinition<any>;

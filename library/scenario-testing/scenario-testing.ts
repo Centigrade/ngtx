@@ -130,7 +130,9 @@ export class NgtxTestScenario<T = any> {
     return scenario;
   }
 
-  expect(...tests: ScenarioTestDefinition<T>[]): void {
+  expect(
+    ...tests: (ScenarioTestDefinition<T> | ScenarioTestDefinition<T>[])[]
+  ): void {
     const scenario = NgtxTestScenario.from(
       {
         componentType: this._componentType,
@@ -140,7 +142,7 @@ export class NgtxTestScenario<T = any> {
           this._modificationsBeforeComponentCreation,
         modificationsAfterComponentCreation:
           this._modificationsAfterComponentCreation,
-        tests: [...this.tests, ...tests],
+        tests: [...this.tests, ...tests].flat(1),
       },
       this._testEnvironment,
     );

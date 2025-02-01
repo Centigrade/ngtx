@@ -5,7 +5,7 @@ import { TypedDebugElement, UnwrapSignals } from '../types';
 import { isNgtxQuerySelector } from '../utility';
 import { NgtxScenarioTestEnvironment } from './scenario-testing';
 import { NgtxScenarioTestIsAssertionNegated } from './symbols';
-import { ComponentFixtureRef } from './types';
+import { ComponentFixtureRef, NgtxScenarioTestAssertionFn } from './types';
 
 export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
   private [NgtxScenarioTestIsAssertionNegated] = false;
@@ -16,7 +16,7 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
 
   public readonly not: Omit<typeof this, 'not'> = new Proxy(this, {
     get: (_, property) => {
-      // TODO: document that constructors of Harnesses are not allowed to be overridden!
+      // TODO: docs: document that constructors of Harnesses are not allowed to be overridden!
       const harnessConstructor = this.constructor as any;
       const target = new harnessConstructor(
         this.selector,
@@ -242,5 +242,9 @@ export class ScenarioTestingHarness<
         },
       );
     });
+  }
+  public to(...assertions: NgtxScenarioTestAssertionFn<Html, Component>[]) {
+    const addTests: typeof this.addTests = this.addTests.bind(this);
+    return assertions.map((assertion) => assertion(addTests, this));
   }
 }
