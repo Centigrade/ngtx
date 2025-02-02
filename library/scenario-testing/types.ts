@@ -22,7 +22,6 @@ export type NgtxScenarioInitProps<T> = {
 };
 
 export type NgtxScenarioProps<T> = NgtxScenarioInitProps<T> & {
-  runFocused: boolean;
   description: string;
   tests?: ScenarioTestDefinition<T>[];
   modificationsBeforeComponentCreation?: ScenarioSetupFn[];

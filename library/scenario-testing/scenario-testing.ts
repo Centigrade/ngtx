@@ -86,7 +86,6 @@ export class NgtxTestScenario<T = any> {
   ): NgtxTestScenario<T> {
     return new NgtxTestScenario(
       props.description,
-      props.runFocused,
       environment,
       props.moduleConfig,
       props.componentType,
@@ -96,9 +95,10 @@ export class NgtxTestScenario<T = any> {
     );
   }
 
+  private _runFocused: boolean;
+
   private constructor(
     private readonly _description: string,
-    private readonly _runFocused: boolean,
     private readonly _testEnvironment: NgtxScenarioTestEnvironment<T>,
     private readonly _moduleConfig: TestModuleMetadata,
     private readonly _componentType: Type<T>,
@@ -117,7 +117,6 @@ export class NgtxTestScenario<T = any> {
       {
         componentType: this._componentType,
         description: this._description,
-        runFocused: this._runFocused,
         moduleConfig: this._moduleConfig,
         modificationsBeforeComponentCreation: [
           ...this._modificationsBeforeComponentCreation,
@@ -135,26 +134,7 @@ export class NgtxTestScenario<T = any> {
     return scenario;
   }
 
-  expect(
-    ...tests: (ScenarioTestDefinition<T> | ScenarioTestDefinition<T>[])[]
-  ): void {
-    const scenario = NgtxTestScenario.from(
-      {
-        componentType: this._componentType,
-        description: this._description,
-        runFocused: this._runFocused,
-        moduleConfig: this._moduleConfig,
-        modificationsBeforeComponentCreation:
-          this._modificationsBeforeComponentCreation,
-        modificationsAfterComponentCreation:
-          this._modificationsAfterComponentCreation,
-        tests: [...this.tests, ...tests].flat(1),
-      },
-      this._testEnvironment,
-    );
-
-    this._testEnvironment['_addScenario'](scenario);
-  }
+  readonly expect = createExpect(this);
 
   private _runModificationsBeforeComponentCreation() {
     this._modificationsBeforeComponentCreation.forEach((mod) => mod());
@@ -180,28 +160,48 @@ export function useScenarioTesting<T>(
     props.componentType,
   );
 
-  let runScenarioFocused = false;
-  const only = (userScenarios: () => unknown) => {
-    runScenarioFocused = true;
-    userScenarios();
-    runScenarioFocused = false;
-  };
-
-  const controlLevelExpect: NgtxTestScenario<T>['expect'] = (...scenarios) => {
-    return NgtxTestScenario.from(
-      { ...props, runFocused: runScenarioFocused, description: 'Control' },
-      environment,
-    ).expect(...scenarios);
-  };
+  const controlLevelExpect: NgtxTestScenario<T>['expect'] = createExpect(
+    NgtxTestScenario.from({ ...props, description: 'Control' }, environment),
+  );
 
   return {
-    only,
     scenario: (description: string) =>
-      NgtxTestScenario.from(
-        { ...props, runFocused: runScenarioFocused, description },
-        environment,
-      ),
+      NgtxTestScenario.from({ ...props, description }, environment),
     expect: controlLevelExpect,
     tests: environment,
   };
+}
+
+function createExpect<T>(fromScenario: NgtxTestScenario<T>) {
+  let focussed = false;
+  const addExpectationsAndAddScenarioToTestEnv = (
+    ...tests: (ScenarioTestDefinition<T> | ScenarioTestDefinition<T>[])[]
+  ) => {
+    const scenario = NgtxTestScenario.from(
+      {
+        componentType: fromScenario['_componentType'],
+        description: fromScenario['_description'],
+        moduleConfig: fromScenario['_moduleConfig'],
+        modificationsBeforeComponentCreation:
+          fromScenario['_modificationsBeforeComponentCreation'],
+        modificationsAfterComponentCreation:
+          fromScenario['_modificationsAfterComponentCreation'],
+        tests: [...fromScenario['tests'], ...tests].flat(1),
+      },
+      fromScenario['_testEnvironment'],
+    );
+
+    scenario['_runFocused'] = focussed;
+
+    fromScenario['_testEnvironment']['_addScenario'](scenario);
+  };
+
+  return Object.assign(addExpectationsAndAddScenarioToTestEnv, {
+    only: (
+      ...tests: (ScenarioTestDefinition<T> | ScenarioTestDefinition<T>[])[]
+    ) => {
+      focussed = true;
+      addExpectationsAndAddScenarioToTestEnv(...tests);
+    },
+  });
 }
