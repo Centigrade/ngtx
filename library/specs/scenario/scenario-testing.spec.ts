@@ -38,7 +38,7 @@ class ScenarioTestComponent {
 }
 
 // ----------------------------
-// Test Setup Utilities
+// Custom Extensions (scenario setup functions)
 // ----------------------------
 
 const withRouterParams = (params: Record<string, unknown>) =>
@@ -48,10 +48,14 @@ const withRouterParams = (params: Record<string, unknown>) =>
     });
   });
 
-const withServiceState = <T>(token: Type<T>, state: Partial<T>) =>
-  ngtx.scenario.envSetupFn(() => {
-    TestBed.overrideProvider(token, { useValue: state });
-  });
+const overrideProvider = <T>(token: Type<T>) => {
+  return {
+    setState: (state: Partial<Record<keyof T, any>>) =>
+      ngtx.scenario.envSetupFn(() => {
+        TestBed.overrideProvider(token, { useValue: state });
+      }),
+  };
+};
 
 // ----------------------------
 // Usage Example
@@ -79,7 +83,7 @@ class the {
 scenario(`MyService value is displayed`)
   .setup(
     withRouterParams({ id: undefined }),
-    withServiceState(MyService, { value: 'Jane' }),
+    overrideProvider(MyService).setState({ value: 'Jane' }),
   )
   .expect(
     the.Div.toContainText('Jane'),
@@ -101,7 +105,7 @@ scenario(`MyService value is displayed`)
 scenario(`The param id is 42`)
   .setup(
     withRouterParams({ id: 42 }),
-    withServiceState(MyService, { value: 'Henry' }),
+    overrideProvider(MyService).setState({ value: 'Henry' }),
   )
   .expect(
     the.Div.toHaveText('heNRY', { trim: true, ignoreCase: true }),
