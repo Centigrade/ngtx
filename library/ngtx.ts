@@ -7,6 +7,7 @@ import {
 } from './scenario-testing/symbols';
 import {
   ComponentFixtureRef,
+  NgtxScenarioTestAssertionFn,
   ScenarioSetupFn,
   ScenarioViewSetupFn,
 } from './scenario-testing/types';
@@ -69,9 +70,16 @@ export const ngtx = Object.assign(_ngtx, {
   scenario: {
     envSetupFn,
     viewSetupFn,
+    testGeneratorFn,
   },
   is,
 });
+
+function testGeneratorFn<Html extends HTMLElement, Component>(
+  fn: NgtxScenarioTestAssertionFn<Html, Component>,
+) {
+  return fn;
+}
 
 function envSetupFn(fn: () => unknown) {
   return Object.assign(fn, { [NgtxScenarioSetupFnMarker]: true });

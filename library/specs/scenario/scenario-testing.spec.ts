@@ -4,7 +4,6 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ngtx } from '../../ngtx';
 import { ScenarioTestingHarness } from '../../scenario-testing/scenario-harnesses';
 import { useScenarioTesting } from '../../scenario-testing/scenario-testing';
-import { NgtxScenarioTestAssertionFn } from '../../scenario-testing/types';
 
 @Injectable()
 class MyService {
@@ -121,15 +120,25 @@ expectThat(
   the.Text.toHaveState({ text: 'Hello, World!' }),
 );
 
-const beComponentType =
-  (type: any): NgtxScenarioTestAssertionFn<HTMLElement, any> =>
+const beComponentType = (type: any) =>
   // TODO: docs: document that debugElement must only be accessed within it case:
-  (addTests, harness) =>
+  ngtx.scenario.testGeneratorFn((addTests, harness) =>
     addTests(() => {
-      it(`should be the component "${type.name}"`, () => {
-        expect(harness.debugElement.componentInstance).toBeInstanceOf(type);
+      const description = harness.isAssertionNegated
+        ? `should not be the component "${type.name}"`
+        : `should be the component "${type.name}"`;
+
+      it(description, () => {
+        if (harness.isAssertionNegated) {
+          expect(harness.debugElement.componentInstance).not.toBeInstanceOf(
+            type,
+          );
+        } else {
+          expect(harness.debugElement.componentInstance).toBeInstanceOf(type);
+        }
       });
-    });
+    }),
+  );
 
 expectThat(
   the.Div.toBeFound(),
@@ -140,6 +149,7 @@ expectThat(
     beComponentType(TextComponent),
     beComponentType(TextComponent),
   ),
+  the.Text.not.to(beComponentType(ScenarioTestComponent)),
 );
 
 tests.run();
