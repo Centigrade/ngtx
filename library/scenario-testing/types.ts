@@ -11,6 +11,7 @@ export type ScenarioTestDefinition<T> = (
   fixtureRef: ComponentFixtureRef<T>,
 ) => void;
 export type NgtxTestingFrameworkAdapter = {
+  fdescribe: (title: string, suite: () => void) => void;
   describe: (title: string, suite: () => void) => void;
   beforeEach: (fn: () => void) => void;
 };
@@ -21,6 +22,7 @@ export type NgtxScenarioInitProps<T> = {
 };
 
 export type NgtxScenarioProps<T> = NgtxScenarioInitProps<T> & {
+  runFocused: boolean;
   description: string;
   tests?: ScenarioTestDefinition<T>[];
   modificationsBeforeComponentCreation?: ScenarioSetupFn[];

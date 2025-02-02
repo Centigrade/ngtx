@@ -6,6 +6,7 @@ setupZoneTestEnv();
 
 const jestFramework: NgtxTestingFrameworkAdapter = {
   describe,
+  fdescribe,
   beforeEach,
 };
 

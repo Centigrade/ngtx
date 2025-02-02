@@ -56,10 +56,12 @@ export class NgtxScenarioTestEnvironment<T> {
 
   public run() {
     const { _framework, _moduleConfig, _componentType, scenarios } = this;
-    const { describe, beforeEach } = _framework;
+    const { describe, fdescribe, beforeEach } = _framework;
 
     for (const scenario of scenarios) {
-      describe(scenario['_description'], () => {
+      const descriptor = scenario['_runFocused'] ? fdescribe : describe;
+
+      descriptor(scenario['_description'], () => {
         beforeEach(async () => {
           await TestBed.configureTestingModule(
             _moduleConfig,
@@ -84,6 +86,7 @@ export class NgtxTestScenario<T = any> {
   ): NgtxTestScenario<T> {
     return new NgtxTestScenario(
       props.description,
+      props.runFocused,
       environment,
       props.moduleConfig,
       props.componentType,
@@ -95,6 +98,7 @@ export class NgtxTestScenario<T = any> {
 
   private constructor(
     private readonly _description: string,
+    private readonly _runFocused: boolean,
     private readonly _testEnvironment: NgtxScenarioTestEnvironment<T>,
     private readonly _moduleConfig: TestModuleMetadata,
     private readonly _componentType: Type<T>,
@@ -113,6 +117,7 @@ export class NgtxTestScenario<T = any> {
       {
         componentType: this._componentType,
         description: this._description,
+        runFocused: this._runFocused,
         moduleConfig: this._moduleConfig,
         modificationsBeforeComponentCreation: [
           ...this._modificationsBeforeComponentCreation,
@@ -137,6 +142,7 @@ export class NgtxTestScenario<T = any> {
       {
         componentType: this._componentType,
         description: this._description,
+        runFocused: this._runFocused,
         moduleConfig: this._moduleConfig,
         modificationsBeforeComponentCreation:
           this._modificationsBeforeComponentCreation,
@@ -174,16 +180,27 @@ export function useScenarioTesting<T>(
     props.componentType,
   );
 
-  const controlLevelScenario = NgtxTestScenario.from(
-    { ...props, description: 'Control' },
-    environment,
-  );
-  const controlLevelExpect: NgtxTestScenario<T>['expect'] =
-    controlLevelScenario.expect.bind(controlLevelScenario);
+  let runScenarioFocused = false;
+  const only = (userScenarios: () => unknown) => {
+    runScenarioFocused = true;
+    userScenarios();
+    runScenarioFocused = false;
+  };
+
+  const controlLevelExpect: NgtxTestScenario<T>['expect'] = (...scenarios) => {
+    return NgtxTestScenario.from(
+      { ...props, runFocused: runScenarioFocused, description: 'Control' },
+      environment,
+    ).expect(...scenarios);
+  };
 
   return {
+    only,
     scenario: (description: string) =>
-      NgtxTestScenario.from({ ...props, description }, environment),
+      NgtxTestScenario.from(
+        { ...props, runFocused: runScenarioFocused, description },
+        environment,
+      ),
     expect: controlLevelExpect,
     tests: environment,
   };
