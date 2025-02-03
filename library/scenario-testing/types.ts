@@ -41,3 +41,5 @@ export type NgtxScenarioTestAssertionFn<Html extends HTMLElement, Component> = (
   addTests: ScenarioTestingHarness<Html, Component>['addTests'],
   harness: ScenarioTestingHarness<Html, Component>,
 ) => ScenarioTestDefinition<any>;
+
+export type NgtxScenarioSetupFn<T> = ScenarioSetupFn | ScenarioViewSetupFn<T>;
