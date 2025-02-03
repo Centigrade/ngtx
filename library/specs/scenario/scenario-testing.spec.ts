@@ -50,7 +50,7 @@ const withRouterParams = (params: Record<string, unknown>) =>
 
 const overrideProvider = <T>(token: Type<T>) => {
   return {
-    setState: (state: Partial<Record<keyof T, any>>) =>
+    setState: (state: Partial<T>) =>
       ngtx.scenario.envSetupFn(() => {
         TestBed.overrideProvider(token, { useValue: state });
       }),
