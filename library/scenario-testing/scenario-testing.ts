@@ -160,14 +160,10 @@ export function useScenarioTesting<T>(
     props.componentType,
   );
 
-  const controlLevelExpect: NgtxTestScenario<T>['expect'] = createExpect(
-    NgtxTestScenario.from({ ...props, description: 'Control' }, environment),
-  );
-
   return {
     scenario: (description: string) =>
       NgtxTestScenario.from({ ...props, description }, environment),
-    expect: controlLevelExpect,
+
     tests: environment,
   };
 }

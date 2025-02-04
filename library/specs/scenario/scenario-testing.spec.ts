@@ -61,11 +61,7 @@ const overrideProvider = <T>(token: Type<T>) => {
 // Usage Example
 // ----------------------------
 
-const {
-  scenario,
-  expect: expectThat,
-  tests,
-} = useScenarioTesting({
+const { scenario, tests } = useScenarioTesting({
   componentType: ScenarioTestComponent,
   moduleConfig: {
     imports: [RouterModule.forRoot([])],
@@ -73,6 +69,7 @@ const {
     providers: [MyService],
   },
 });
+const control = scenario;
 
 class the {
   static Div = new ScenarioTestingHarness('div', tests);
@@ -118,7 +115,7 @@ scenario(`The param id is 42`)
     the.ParamIdDiv.toHaveAttributes({ title: 42 }),
   );
 
-expectThat(
+control('Div').expect.only(
   the.Div.toBeFound(),
   the.ParamIdDiv.toBeMissing(),
   the.Text.toHaveState({ text: 'Hello, World!' }),
@@ -144,16 +141,18 @@ const beComponentType = (type: any) =>
     }),
   );
 
-expectThat(
-  the.Div.toBeFound(),
-  the.ParamIdDiv.toBeMissing(),
-  the.Text.toHaveState({ text: 'Hello, World!' }),
-  the.Text.to(
-    beComponentType(TextComponent),
-    beComponentType(TextComponent),
-    beComponentType(TextComponent),
-  ),
-  the.Text.not.to(beComponentType(ScenarioTestComponent)),
-);
+control('Div 2')
+  .setup()
+  .expect(
+    the.Div.toBeFound(),
+    the.ParamIdDiv.toBeMissing(),
+    the.Text.toHaveState({ text: 'Hello, World!' }),
+    the.Text.to(
+      beComponentType(TextComponent),
+      beComponentType(TextComponent),
+      beComponentType(TextComponent),
+    ),
+    the.Text.not.to(beComponentType(ScenarioTestComponent)),
+  );
 
 tests.run();
