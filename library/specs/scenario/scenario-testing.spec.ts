@@ -38,7 +38,7 @@ class ScenarioTestComponent {
 }
 
 // ----------------------------
-// Test Setup Utilities
+// Custom Extensions (scenario setup functions)
 // ----------------------------
 
 const withRouterParams = (params: Record<string, unknown>) =>

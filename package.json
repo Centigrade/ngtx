@@ -1,6 +1,6 @@
 {
   "name": "@centigrade/ngtx",
-  "version": "2.6.0-alpha.11",
+  "version": "2.6.0-alpha.12",
   "description": "The Angular Testing Extensions is a small set of functions, aiming to make your life easier, when testing Angular components.",
   "scripts": {
     "clean": "shx rm -rf dist",
@@ -54,7 +54,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Centigrade/ngtx.git"
+    "url": "git+https://github.com/Centigrade/ngtx.git"
   },
   "author": "Julian Lang <julian.lang@centigrade.de>",
   "license": "MIT"

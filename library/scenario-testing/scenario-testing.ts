@@ -13,6 +13,7 @@ import {
   ComponentFixtureRef,
   NgtxScenarioInitProps,
   NgtxScenarioProps,
+  NgtxScenarioSetupFn,
   NgtxTestingFrameworkAdapter,
   ScenarioSetupFn,
   ScenarioTestDefinition,
@@ -108,10 +109,15 @@ export class NgtxTestScenario<T = any> {
   ) {}
 
   setup(
-    ...mods: (ScenarioSetupFn | ScenarioViewSetupFn<T>)[]
+    ...mods: (NgtxScenarioSetupFn<T> | NgtxScenarioSetupFn<T>[])[]
   ): NgtxTestScenario<T> {
-    const scenarioMods = mods.filter((mod) => ngtx.is(mod, 'scenarioSetupFn'));
-    const viewMods = mods.filter((mod) => ngtx.is(mod, 'scenarioViewSetupFn'));
+    const flattened = mods.flat(1);
+    const scenarioMods = flattened.filter((mod) =>
+      ngtx.is(mod, 'scenarioSetupFn'),
+    );
+    const viewMods = flattened.filter((mod) =>
+      ngtx.is(mod, 'scenarioViewSetupFn'),
+    );
 
     const scenario = NgtxTestScenario.from(
       {
