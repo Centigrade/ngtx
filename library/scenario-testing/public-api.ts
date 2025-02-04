@@ -4,4 +4,6 @@ export {
   ComponentFixtureRef,
   NgtxScenarioInitProps,
   NgtxTestingFrameworkAdapter,
+  ScenarioSetupFn,
+  ScenarioViewSetupFn,
 } from './types';

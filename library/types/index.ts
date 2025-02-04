@@ -7,6 +7,8 @@ import { NgtxTestingFrameworkAdapter } from '../scenario-testing/types';
 export type UnwrapSignals<T> = {
   [K in keyof T]: T[K] extends Signal<infer V> ? V : T[K];
 };
+export type ComponentProps<T> = Partial<UnwrapSignals<T>>;
+
 export interface NgtxGlobalConfig {
   defaultSpyFactory: SpyFactoryFn;
   testingFrameworkAdapter?: NgtxTestingFrameworkAdapter;
