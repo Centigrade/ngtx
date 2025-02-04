@@ -81,10 +81,12 @@ function testGeneratorFn<Html extends HTMLElement, Component>(
   return fn;
 }
 
-function envSetupFn(fn: () => unknown) {
+function envSetupFn(fn: () => unknown): ScenarioSetupFn {
   return Object.assign(fn, { [NgtxScenarioSetupFnMarker]: true });
 }
-function viewSetupFn(fn: (fixtureRef: ComponentFixtureRef) => unknown) {
+function viewSetupFn<T>(
+  fn: (fixtureRef: ComponentFixtureRef) => unknown,
+): ScenarioViewSetupFn<T> {
   return Object.assign(fn, { [NgtxScenarioViewSetupFnMarker]: true });
 }
 
