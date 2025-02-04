@@ -85,9 +85,11 @@ function envSetupFn(fn: () => unknown): ScenarioSetupFn {
   return Object.assign(fn, { [NgtxScenarioSetupFnMarker]: true });
 }
 function viewSetupFn<T>(
-  fn: (fixtureRef: ComponentFixtureRef) => unknown,
+  fn: (fixtureRef: ComponentFixtureRef<T>) => unknown,
 ): ScenarioViewSetupFn<T> {
-  return Object.assign(fn, { [NgtxScenarioViewSetupFnMarker]: true });
+  return Object.assign(fn, {
+    [NgtxScenarioViewSetupFnMarker]: true,
+  }) as ScenarioViewSetupFn<T>;
 }
 
 function is(obj: any, type: 'scenarioSetupFn'): obj is ScenarioSetupFn;

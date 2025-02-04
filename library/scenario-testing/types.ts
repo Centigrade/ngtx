@@ -27,10 +27,10 @@ export type NgtxScenarioProps<T> = NgtxScenarioInitProps<T> & {
   modificationsBeforeComponentCreation?: ScenarioSetupFn[];
   modificationsAfterComponentCreation?: ScenarioViewSetupFn<T>[];
 };
-
-export type ScenarioViewSetupFn<T> = ((
-  fxRef: ComponentFixtureRef<T>,
-) => void) & {
+export type ScenarioViewSetupFn<
+  T,
+  ComponentFxRef extends ComponentFixtureRef<T> = ComponentFixtureRef<T>,
+> = ((fxRef: ComponentFxRef) => void) & {
   [NgtxScenarioViewSetupFnMarker]: boolean;
 };
 export type ScenarioSetupFn = (() => void) & {
