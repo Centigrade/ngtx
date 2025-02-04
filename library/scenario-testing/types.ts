@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { ComponentFixture, TestModuleMetadata } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ScenarioTestingHarness } from './scenario-harnesses';
 import {
   NgtxScenarioSetupFnMarker,
@@ -17,8 +17,8 @@ export type NgtxTestingFrameworkAdapter = {
 };
 
 export type NgtxScenarioInitProps<T> = {
-  componentType: Type<T>;
-  moduleConfig: TestModuleMetadata;
+  forComponent: Type<T>;
+  createTestBed: () => TestBed | Promise<TestBed>;
 };
 
 export type NgtxScenarioProps<T> = NgtxScenarioInitProps<T> & {

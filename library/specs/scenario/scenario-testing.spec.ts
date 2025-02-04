@@ -1,6 +1,7 @@
 import { Component, Injectable, Type, inject, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { TestingModule } from '../../core/testing-modules';
 import { ngtx } from '../../ngtx';
 import { ScenarioTestingHarness } from '../../scenario-testing/scenario-harnesses';
 import { useScenarioTesting } from '../../scenario-testing/scenario-testing';
@@ -61,13 +62,15 @@ const overrideProvider = <T>(token: Type<T>) => {
 // Usage Example
 // ----------------------------
 
+const MyTestingModule = TestingModule.configure({
+  imports: [RouterModule.forRoot([])],
+  declarations: [ScenarioTestComponent, TextComponent],
+  providers: [MyService],
+});
+
 const { scenario, tests } = useScenarioTesting({
-  componentType: ScenarioTestComponent,
-  moduleConfig: {
-    imports: [RouterModule.forRoot([])],
-    declarations: [ScenarioTestComponent, TextComponent],
-    providers: [MyService],
-  },
+  forComponent: ScenarioTestComponent,
+  createTestBed: () => MyTestingModule.forComponent(ScenarioTestComponent),
 });
 const control = scenario;
 
@@ -115,7 +118,7 @@ scenario(`The param id is 42`)
     the.ParamIdDiv.toHaveAttributes({ title: 42 }),
   );
 
-control('Div').expect.only(
+control('Div').expect(
   the.Div.toBeFound(),
   the.ParamIdDiv.toBeMissing(),
   the.Text.toHaveState({ text: 'Hello, World!' }),
@@ -156,3 +159,7 @@ control('Div 2')
   );
 
 tests.run();
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

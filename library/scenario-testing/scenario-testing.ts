@@ -1,8 +1,4 @@
-import {
-  ComponentFixture,
-  TestBed,
-  TestModuleMetadata,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Type } from 'ng-mocks';
 import { NGTX_GLOBAL_CONFIG } from '../global-config';
@@ -27,7 +23,7 @@ export class NgtxScenarioTestEnvironment<T> {
 
   constructor(
     private readonly _framework: NgtxTestingFrameworkAdapter,
-    private readonly _moduleConfig: TestModuleMetadata,
+    private readonly _testBedRef: () => TestBed | Promise<TestBed>,
     private readonly _componentType: Type<T>,
   ) {}
 
@@ -56,7 +52,7 @@ export class NgtxScenarioTestEnvironment<T> {
   }
 
   public run() {
-    const { _framework, _moduleConfig, _componentType, scenarios } = this;
+    const { _framework, _testBedRef, _componentType, scenarios } = this;
     const { describe, fdescribe, beforeEach } = _framework;
 
     for (const scenario of scenarios) {
@@ -64,9 +60,8 @@ export class NgtxScenarioTestEnvironment<T> {
 
       descriptor(scenario['_description'], () => {
         beforeEach(async () => {
-          await TestBed.configureTestingModule(
-            _moduleConfig,
-          ).compileComponents();
+          const resolvedTestBed = await _testBedRef();
+          await resolvedTestBed.compileComponents();
 
           scenario['_runModificationsBeforeComponentCreation']();
           this.fixture = TestBed.createComponent(_componentType);
@@ -88,8 +83,8 @@ export class NgtxTestScenario<T = any> {
     return new NgtxTestScenario(
       props.description,
       environment,
-      props.moduleConfig,
-      props.componentType,
+      props.createTestBed,
+      props.forComponent,
       props.modificationsBeforeComponentCreation ?? [],
       props.modificationsAfterComponentCreation ?? [],
       props.tests ?? [],
@@ -101,7 +96,7 @@ export class NgtxTestScenario<T = any> {
   private constructor(
     private readonly _description: string,
     private readonly _testEnvironment: NgtxScenarioTestEnvironment<T>,
-    private readonly _moduleConfig: TestModuleMetadata,
+    private readonly _testBedRef: () => TestBed | Promise<TestBed>,
     private readonly _componentType: Type<T>,
     private readonly _modificationsBeforeComponentCreation: ScenarioSetupFn[],
     private readonly _modificationsAfterComponentCreation: ScenarioViewSetupFn<T>[],
@@ -121,9 +116,9 @@ export class NgtxTestScenario<T = any> {
 
     const scenario = NgtxTestScenario.from(
       {
-        componentType: this._componentType,
+        forComponent: this._componentType,
         description: this._description,
-        moduleConfig: this._moduleConfig,
+        createTestBed: this._testBedRef,
         modificationsBeforeComponentCreation: [
           ...this._modificationsBeforeComponentCreation,
           ...scenarioMods,
@@ -162,8 +157,8 @@ export function useScenarioTesting<T>(
 ) {
   const environment = new NgtxScenarioTestEnvironment(
     NGTX_GLOBAL_CONFIG.testingFrameworkAdapter!,
-    props.moduleConfig,
-    props.componentType,
+    props.createTestBed,
+    props.forComponent,
   );
 
   return {
@@ -181,9 +176,9 @@ function createExpect<T>(fromScenario: NgtxTestScenario<T>) {
   ) => {
     const scenario = NgtxTestScenario.from(
       {
-        componentType: fromScenario['_componentType'],
+        forComponent: fromScenario['_componentType'],
         description: fromScenario['_description'],
-        moduleConfig: fromScenario['_moduleConfig'],
+        createTestBed: fromScenario['_testBedRef'],
         modificationsBeforeComponentCreation:
           fromScenario['_modificationsBeforeComponentCreation'],
         modificationsAfterComponentCreation:
