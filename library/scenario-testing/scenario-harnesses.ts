@@ -7,6 +7,9 @@ import { NgtxScenarioTestEnvironment } from './scenario-testing';
 import { NgtxScenarioTestIsAssertionNegated } from './symbols';
 import { ComponentFixtureRef, NgtxScenarioTestAssertionFn } from './types';
 
+type TargetSelector<Component> = string | Type<Component>;
+type TargetRef<T> = () => TargetSelector<T>;
+
 export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
   private [NgtxScenarioTestIsAssertionNegated] = false;
 
@@ -32,7 +35,7 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
   });
 
   constructor(
-    public readonly selector: string | Type<Component>,
+    public readonly selector: TargetSelector<Component> | TargetRef<Component>,
     private readonly testEnv: NgtxScenarioTestEnvironment<any>,
     public readonly name = typeof selector === 'string'
       ? isNgtxQuerySelector(selector)
