@@ -13,6 +13,7 @@ import {
 import { ngtx } from '../ngtx';
 
 @Component({
+  standalone: false,
   selector: 'app-item',
   template: `
     <section
@@ -32,6 +33,7 @@ class ItemComponent {
 }
 
 @Component({
+  standalone: false,
   template: `
     <app-item
       *ngFor="let i of items"

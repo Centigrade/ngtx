@@ -683,35 +683,40 @@ export const haveAttributes = <
     });
   });
 
-export const haveState = <T>(
+export const haveState = <T, StateDef extends T>(
   stateDef:
-    | PropertiesOf<T>
-    | PropertiesOf<T>[]
-    | ((index: number) => PropertiesOf<T>),
+    | PropertiesOf<StateDef>
+    | PropertiesOf<StateDef>[]
+    | ((index: number) => PropertiesOf<StateDef>),
 ): ExtensionFn<HTMLElement, T> =>
-  createExtension((targets, { addAssertion, isAssertionNegated }) => {
-    addAssertion(() => {
-      const element = tryResolveTarget(targets, haveState.name);
-      const states = expandValueToArrayWithLength(element.length, stateDef);
+  createExtension(
+    (
+      targets: ElementListRef<HTMLElement, T>,
+      { addAssertion, isAssertionNegated },
+    ) => {
+      addAssertion(() => {
+        const element = tryResolveTarget(targets, haveState.name);
+        const states = expandValueToArrayWithLength(element.length, stateDef);
 
-      states.forEach((state, index) => {
-        const subject = element[index];
-        const resolvedState =
-          typeof state === 'function' ? state(index) : state;
-        const props = Object.entries(resolvedState) as [keyof T, any][];
+        states.forEach((state, index) => {
+          const subject = element[index];
+          const resolvedState =
+            typeof state === 'function' ? state(index) : state;
+          const props = Object.entries(resolvedState) as [keyof T, any][];
 
-        props.forEach(([key, value]) => {
-          const property = subject.componentInstance[key];
+          props.forEach(([key, value]) => {
+            const property = subject.componentInstance[key];
 
-          if (isAssertionNegated) {
-            expect(property).not.toEqual(value);
-          } else {
-            expect(property).toEqual(value);
-          }
+            if (isAssertionNegated) {
+              expect(property).not.toEqual(value);
+            } else {
+              expect(property).toEqual(value);
+            }
+          });
         });
       });
-    });
-  });
+    },
+  );
 //#endregion
 
 //#region types

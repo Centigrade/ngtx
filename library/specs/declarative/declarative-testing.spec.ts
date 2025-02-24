@@ -45,6 +45,7 @@ class AlertService extends AlertBaseService {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-dropdown-item',
   template: `
     <section
@@ -69,6 +70,7 @@ class DropDownItemComponent {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-dropdown',
   template: `
     <section (click)="toggle($event)" data-ngtx="dropdown:toggle">

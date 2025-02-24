@@ -8,6 +8,7 @@ import { NgtxElement } from '../core';
 import { NGTX_GLOBAL_CONFIG, setDefaultSpyFactory } from '../global-config';
 
 @Component({
+  standalone: false,
   template: '<div></div>',
 })
 class DemoComponent {}

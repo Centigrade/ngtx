@@ -5,6 +5,7 @@ import { ngtx } from '../ngtx';
 import { Expect } from './shared/expect';
 
 @Component({
+  standalone: false,
   template: `
     <h1 class="headline">Headline</h1>
     <h2 class="headline">Sub Headline</h2>
@@ -36,18 +37,21 @@ class GetTestComponent {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-list',
   template: '<section> <ng-content></ng-content> </section>',
 })
 class ListComponent {}
 
 @Component({
+  standalone: false,
   selector: 'app-list-item',
   template: '<div> <ng-content></ng-content> </div>',
 })
 class ListItemComponent {}
 
 @Component({
+  standalone: false,
   template: '',
 })
 class NotExistingComponent {}
