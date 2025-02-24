@@ -80,8 +80,11 @@ export class NgtxElement<
 
     queries.forEach((query) => {
       const resultList = queryAll<Html, Component>(query, this.debugElement);
-      const elements = resultList.map((r) => new NgtxElement(r));
-      results.push(...elements);
+      const elements = resultList?.map((r) => new NgtxElement(r));
+
+      if (elements) {
+        results.push(...elements);
+      }
     });
 
     // only provide ngtx element if query could actually find something.
