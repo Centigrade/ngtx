@@ -9,8 +9,8 @@ export { NgtxTestEnv } from './test-env';
 export {
   AssertionApi,
   CallOptions,
-  CallSiteResolver as TargetResolver,
   CssClass,
+  WhenStatement as DeclarativeTestingApi,
   ElementList,
   ElementListRef,
   EmissionOptions,
@@ -18,9 +18,12 @@ export {
   ExpectApi,
   ExtensionFn,
   ExtensionFnSignature,
+  NgtxElementRef,
   PredicateApi,
+  PropertiesOf,
   SpyOnFn,
   TargetRef,
+  CallSiteResolver as TargetResolver,
   Token,
-  WhenStatement as DeclarativeTestingApi,
+  WhenStatement,
 } from './types';
