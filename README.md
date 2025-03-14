@@ -18,6 +18,29 @@
 
 ngtx stands for "A**ng**ular **T**esting E**x**tensions" and is a small set of functions aiming to make your life easier when testing Angular components. It's supposed to make your tests lean while increasing the readability by boosting the semantics of each test case.
 
+This is what a declarative test with `ngtx` can look like (skipping some minimal boilerplate):
+
+```ts
+class the {
+  static ClearTextButton() {
+    // get is a simplified version of debugElement.query(By.css/directive):
+    return get(IconButtonComponent);
+  }
+}
+
+it('[TextboxComponent] should clear the text of the input when the clear button is clicked', () => {
+  // host always refers to the component-under-test, so here it is the TextboxComponent:
+  When(host)
+    .hasState({ text: 'some text' })
+    .and(the.ClearTextButton)
+    .gets(clicked())
+    .expect(host)
+    .toHaveState({ text: '' });
+});
+```
+
+Easy to read, easy to grasp. This is how we like our unit tests. But there is a lot more waiting for you to be explored. Ready when you are!
+
 ## Why?
 
 All common things we do in Angular tests are quite verbose. We often find ourselves writing stuff that does not express our intensions, but really are just steps on our way to our test-goal. Furthermore, while we care about production code to be clean and easy to understand, our testing code is left WET instead of [DRY] and hard to understand on the first glance.
