@@ -31,11 +31,11 @@ class the {
 it('[TextboxComponent] should clear the text of the input when the clear button is clicked', () => {
   // host always refers to the component-under-test, so here it is the TextboxComponent:
   When(host)
-    .hasState({ text: 'some text' })
+    .has(state({ text: 'some text' }))
     .and(the.ClearTextButton)
     .gets(clicked())
     .expect(host)
-    .toHaveState({ text: '' });
+    .to(haveState({ text: '' }));
 });
 ```
 
