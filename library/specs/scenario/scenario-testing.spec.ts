@@ -88,21 +88,20 @@ const MyTestingModule = TestingModule.configure({
   providers: [MyService],
 });
 
-const { scenario, tests } = useScenarioTesting({
+const { test, testEnv } = useScenarioTesting({
   forComponent: ScenarioTestComponent,
   createTestBed: () => MyTestingModule.forComponent(ScenarioTestComponent),
 });
-const control = scenario;
 
 class the {
-  static Div = new ScenarioTestingHarness(tests, 'div');
-  static Text = new ScenarioTestingHarness(tests, TextComponent);
-  static ParamIdDiv = new ScenarioTestingHarness(tests, 'ngtx_route-param');
-  static host = new ScenarioTestingHarness(tests);
+  static Div = new ScenarioTestingHarness(testEnv, 'div');
+  static Text = new ScenarioTestingHarness(testEnv, TextComponent);
+  static ParamIdDiv = new ScenarioTestingHarness(testEnv, 'ngtx_route-param');
+  static host = new ScenarioTestingHarness(testEnv);
 }
 
 // TODO: does it make sense to create one big it case instead smaller multiple?
-scenario(`MyService value is displayed`)
+test(`MyService value is displayed`)
   .setup(
     withRouterParams({ id: undefined }),
     overrideProvider(MyService).setState({ value: 'Jane' }),
@@ -125,7 +124,7 @@ scenario(`MyService value is displayed`)
     }),
   );
 
-scenario(`The param id is 42`)
+test(`The param id is 42`)
   .setup(
     withRouterParams({ id: 42 }),
     overrideProvider(MyService).setState({ value: 'Henry' }),
@@ -142,24 +141,19 @@ scenario(`The param id is 42`)
     the.ParamIdDiv.toHaveAttributes({ title: 42 }),
   );
 
-control('Div').expect(
+test('Some Control').expect(
   the.Div.toBeFound(),
   the.ParamIdDiv.toBeMissing(),
   the.Text.toHaveState({ text: 'Hello, World!' }),
 );
 
-control('Div 2')
-  .setup()
-  .expect(
-    the.Div.toBeFound(),
-    the.ParamIdDiv.toBeMissing(),
-    the.Text.toHaveState({ text: 'Hello, World!' }),
-    the.Text.to(
-      beComponentType(TextComponent),
-      beComponentType(TextComponent),
-      beComponentType(TextComponent),
-    ),
-    the.Text.not.to(beComponentType(ScenarioTestComponent)),
-  );
+test('Other Control').expect(
+  the.Text.to(
+    beComponentType(TextComponent),
+    beComponentType(TextComponent),
+    beComponentType(TextComponent),
+  ),
+  the.Text.not.to(beComponentType(ScenarioTestComponent)),
+);
 
-tests.run();
+testEnv.runTests();

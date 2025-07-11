@@ -51,7 +51,7 @@ export class NgtxScenarioTestEnvironment<T> {
     };
   }
 
-  public run() {
+  public runTests() {
     const { _framework, _testBedRef, _componentType, scenarios } = this;
     const { describe, fdescribe, beforeEach } = _framework;
 
@@ -162,9 +162,9 @@ export function useScenarioTesting<T>(
   );
 
   return {
-    scenario: (description: string) =>
+    test: (description: string) =>
       NgtxTestScenario.from({ ...props, description }, environment),
-    tests: environment,
+    testEnv: environment,
   };
 }
 
