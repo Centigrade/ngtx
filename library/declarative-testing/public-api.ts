@@ -19,6 +19,7 @@ export {
   ExtensionFn,
   ExtensionFnSignature,
   NgtxElementRef,
+  NgtxMultiElementRef,
   PredicateApi,
   PropertiesOf,
   SpyOnFn,
