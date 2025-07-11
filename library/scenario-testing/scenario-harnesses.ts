@@ -22,8 +22,8 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
       // TODO: docs: document that constructors of Harnesses are not allowed to be overridden!
       const harnessConstructor = this.constructor as any;
       const target = new harnessConstructor(
-        this.selector,
         this.testEnv,
+        this.selector,
         this.name,
       );
 
@@ -35,13 +35,13 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
   });
 
   constructor(
-    public readonly selector: TargetSelector<Component> | TargetRef<Component>,
-    private readonly testEnv: NgtxScenarioTestEnvironment<any>,
+    protected readonly testEnv: NgtxScenarioTestEnvironment<any>,
+    public readonly selector?: TargetSelector<Component> | TargetRef<Component>,
     public readonly name = typeof selector === 'string'
       ? isNgtxQuerySelector(selector)
         ? selector.replace('ngtx_', '')
         : selector
-      : selector.name,
+      : selector?.name ?? 'host',
   ) {}
 
   public fixtureRef!: ComponentFixtureRef;
@@ -59,10 +59,15 @@ export class ScenarioTestingHarnessBase<Html extends HTMLElement, Component> {
   }
 
   get debugElement() {
-    return this.testEnv.query(this.selector as any)() as TypedDebugElement<
-      Html,
-      Component
-    >;
+    if (this.selector != undefined) {
+      return this.testEnv.query(this.selector as any)() as TypedDebugElement<
+        Html,
+        Component
+      >;
+    }
+
+    // hint: when no selector is given the scenario harness targets the test's host component
+    return this.fixtureRef().debugElement;
   }
 }
 

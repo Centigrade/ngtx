@@ -95,17 +95,20 @@ const { scenario, tests } = useScenarioTesting({
 const control = scenario;
 
 class the {
-  static Div = new ScenarioTestingHarness('div', tests);
-  static Text = new ScenarioTestingHarness(TextComponent, tests);
-  static ParamIdDiv = new ScenarioTestingHarness('ngtx_route-param', tests);
+  static Div = new ScenarioTestingHarness(tests, 'div');
+  static Text = new ScenarioTestingHarness(tests, TextComponent);
+  static ParamIdDiv = new ScenarioTestingHarness(tests, 'ngtx_route-param');
+  static host = new ScenarioTestingHarness(tests);
 }
 
+// TODO: does it make sense to create one big it case instead smaller multiple?
 scenario(`MyService value is displayed`)
   .setup(
     withRouterParams({ id: undefined }),
     overrideProvider(MyService).setState({ value: 'Jane' }),
   )
   .expect(
+    the.host.toBeFound(),
     the.Div.toContainText('Jane'),
     the.Div.not.toContainText('Madam'),
     the.ParamIdDiv.toBeMissing(),
@@ -128,6 +131,7 @@ scenario(`The param id is 42`)
     overrideProvider(MyService).setState({ value: 'Henry' }),
   )
   .expect(
+    the.host.toHaveState({ paramId: 42 }),
     the.Div.toHaveText('heNRY', { trim: true, ignoreCase: true }),
     the.Div.not.toHaveText('Ernie', { trim: true, ignoreCase: true }),
     the.Div.toHaveClass('div-style'),
