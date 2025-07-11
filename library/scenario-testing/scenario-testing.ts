@@ -104,14 +104,14 @@ export class NgtxTestScenario<T = any> {
   ) {}
 
   setup(
-    ...mods: (NgtxScenarioSetupFn<T> | NgtxScenarioSetupFn<T>[])[]
+    ...setupFns: (NgtxScenarioSetupFn<T> | NgtxScenarioSetupFn<T>[])[]
   ): NgtxTestScenario<T> {
-    const flattened = mods.flat(1);
-    const scenarioMods = flattened.filter((mod) =>
-      ngtx.is(mod, 'scenarioSetupFn'),
+    const flattened = setupFns.flat(1);
+    const scenarioSetupFns = flattened.filter((setupFn) =>
+      ngtx.is(setupFn, 'scenarioSetupFn'),
     );
-    const viewMods = flattened.filter((mod) =>
-      ngtx.is(mod, 'scenarioViewSetupFn'),
+    const viewSetupFns = flattened.filter((setupFn) =>
+      ngtx.is(setupFn, 'scenarioViewSetupFn'),
     );
 
     const scenario = NgtxTestScenario.from(
@@ -121,11 +121,11 @@ export class NgtxTestScenario<T = any> {
         createTestBed: this._testBedRef,
         modificationsBeforeComponentCreation: [
           ...this._modificationsBeforeComponentCreation,
-          ...scenarioMods,
+          ...scenarioSetupFns,
         ],
         modificationsAfterComponentCreation: [
           ...this._modificationsAfterComponentCreation,
-          ...viewMods,
+          ...viewSetupFns,
         ],
         tests: this.tests,
       },
@@ -164,7 +164,6 @@ export function useScenarioTesting<T>(
   return {
     scenario: (description: string) =>
       NgtxTestScenario.from({ ...props, description }, environment),
-
     tests: environment,
   };
 }
