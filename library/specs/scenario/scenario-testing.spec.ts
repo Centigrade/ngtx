@@ -58,6 +58,26 @@ const overrideProvider = <T>(token: Type<T>) => {
   };
 };
 
+const beComponentType = (type: any) =>
+  // TODO: docs: document that debugElement must only be accessed within it case:
+  ngtx.scenario.testGeneratorFn((addTests, harness) =>
+    addTests(() => {
+      const description = harness.isAssertionNegated
+        ? `should not be the component "${type.name}"`
+        : `should be the component "${type.name}"`;
+
+      it(description, () => {
+        if (harness.isAssertionNegated) {
+          expect(harness.debugElement.componentInstance).not.toBeInstanceOf(
+            type,
+          );
+        } else {
+          expect(harness.debugElement.componentInstance).toBeInstanceOf(type);
+        }
+      });
+    }),
+  );
+
 // ----------------------------
 // Usage Example
 // ----------------------------
@@ -123,26 +143,6 @@ control('Div').expect(
   the.ParamIdDiv.toBeMissing(),
   the.Text.toHaveState({ text: 'Hello, World!' }),
 );
-
-const beComponentType = (type: any) =>
-  // TODO: docs: document that debugElement must only be accessed within it case:
-  ngtx.scenario.testGeneratorFn((addTests, harness) =>
-    addTests(() => {
-      const description = harness.isAssertionNegated
-        ? `should not be the component "${type.name}"`
-        : `should be the component "${type.name}"`;
-
-      it(description, () => {
-        if (harness.isAssertionNegated) {
-          expect(harness.debugElement.componentInstance).not.toBeInstanceOf(
-            type,
-          );
-        } else {
-          expect(harness.debugElement.componentInstance).toBeInstanceOf(type);
-        }
-      });
-    }),
-  );
 
 control('Div 2')
   .setup()
