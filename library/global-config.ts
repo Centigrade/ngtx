@@ -2,7 +2,7 @@ import { NgtxGlobalConfig, SpyFactoryFn } from './types';
 
 const NO_FRAMEWORK_ADAPTER_ERROR = () => {
   throw new Error(
-    `No testing FrameworkAdapter was configured for ngtx scenario testing. Please call "configureNgtx(config)" and pass your config. For help, see: https://github.com/Centigrade/ngtx/blob/main/docs/configuring-ngtx.md`,
+    `No testingFrameworkAdapter was configured for ngtx scenario testing. Please call "configureNgtx(config)" and pass a testingFrameworkAdapter. For help, see: https://github.com/Centigrade/ngtx/blob/main/docs/configuring-ngtx.md`,
   );
 };
 

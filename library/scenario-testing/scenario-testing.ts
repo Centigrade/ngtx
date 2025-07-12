@@ -1,203 +1,203 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { Type } from 'ng-mocks';
 import { NGTX_GLOBAL_CONFIG } from '../global-config';
-import { ngtx } from '../ngtx';
-import { TypedDebugElement } from '../types';
-import { isNgtxQuerySelector, queryNgtxMarker } from '../utility';
+import { QueryTarget, TypedDebugElement } from '../types';
+import { isNgtxQuerySelector } from '../utility';
+import { valueOf } from '../utility/signals';
 import {
   ComponentFixtureRef,
-  NgtxScenarioInitProps,
-  NgtxScenarioProps,
-  NgtxScenarioSetupFn,
+  NgtxScenarioTestingExtensionFn,
+  NgtxScenarioTestingHarnessExtensionFn,
   NgtxTestingFrameworkAdapter,
-  ScenarioSetupFn,
-  ScenarioTestDefinition,
-  ScenarioViewSetupFn,
+  RemoteLogicFn,
+  StateWithUnwrappedSignals,
 } from './types';
 
-export class NgtxScenarioTestEnvironment<T> {
-  private scenarios: NgtxTestScenario<T>[] = [];
-  private fixture!: ComponentFixture<T>;
-  private readonly fixtureRef: ComponentFixtureRef<T> = () => this.fixture;
+export function ngtxScenarioTesting<T>(
+  fn: (scenarioTesting: NgtxScenarioTesting<T>) => unknown,
+) {
+  const { testingFrameworkAdapter } = NGTX_GLOBAL_CONFIG;
+
+  const env = new ScenarioTestingEnvironment<T>(testingFrameworkAdapter!);
+  const userLandEnv: NgtxScenarioTesting<T> = {
+    scenario: env.addTestScenario.bind(env),
+    useFixture: env.setFixture.bind(env),
+  };
+
+  fn(userLandEnv);
+}
+
+// --------------------------------
+// --------------------------------
+// --------------------------------
+
+class ScenarioTestingEnvironment<Component> {
+  #fixture!: ComponentFixture<Component>;
+  readonly #fixtureRef = () => this.#fixture;
 
   constructor(
-    private readonly _framework: NgtxTestingFrameworkAdapter,
-    private readonly _testBedRef: () => TestBed | Promise<TestBed>,
-    private readonly _componentType: Type<T>,
+    public readonly testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
   ) {}
 
-  private _addScenario(scenario: NgtxTestScenario<T>) {
-    this.scenarios = [...this.scenarios, scenario];
+  public setFixture(fixture: ComponentFixture<Component>) {
+    this.#fixture = fixture;
   }
 
-  public query<Html extends HTMLElement, Component>(
-    query: string,
-  ): () => TypedDebugElement<Html, Component>;
-  public query<Html extends HTMLElement, Component>(
-    type: Type<Component>,
-  ): () => TypedDebugElement<Html, Component>;
-  public query<Html extends HTMLElement, Component>(
-    query: string | Type<Component>,
-  ): () => TypedDebugElement<Html, Component> {
-    return () => {
-      const fixture = this.fixtureRef();
+  public addTestScenario(description: string) {
+    return new TestScenario(
+      description,
+      this.#fixtureRef,
+      this.testingFrameworkAdapter,
+    );
+  }
+}
 
-      return isNgtxQuerySelector(query)
-        ? queryNgtxMarker(query as string, fixture.debugElement)
-        : typeof query === 'string'
-        ? fixture.debugElement.query(By.css(query))
-        : fixture.debugElement.query(By.directive(query));
+class TestScenario<Component> {
+  private readonly get = <Html extends HTMLElement, Component>(
+    target: QueryTarget<Component> | undefined,
+  ): TypedDebugElement<Html, Component> => {
+    if (target == undefined) {
+      return this.#fixtureRef().debugElement;
+    }
+
+    if (typeof target === 'string') {
+      const selector = isNgtxQuerySelector(target)
+        ? `[data-ngtx="${target}"]`
+        : target;
+
+      return this.#fixtureRef().debugElement.query(By.css(selector));
+    }
+
+    return this.#fixtureRef().debugElement.query(By.directive(target));
+  };
+
+  #fixtureRef: ComponentFixtureRef;
+  #testingFrameworkAdapter: NgtxTestingFrameworkAdapter;
+  #setupFns: RemoteLogicFn<Component>[] = [];
+
+  constructor(
+    public description: string,
+    fixtureRef: ComponentFixtureRef,
+    testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
+  ) {
+    this.#fixtureRef = fixtureRef;
+    this.#testingFrameworkAdapter = testingFrameworkAdapter;
+  }
+
+  public setup(...functions: RemoteLogicFn<any>[]) {
+    this.#setupFns = [...this.#setupFns, ...functions];
+    return this;
+  }
+
+  public expect(...tests: RemoteLogicFn<any>[]) {
+    const { describe, beforeEach } = this.#testingFrameworkAdapter;
+
+    describe(this.description, () => {
+      beforeEach(async () => {
+        for (const setup of this.#setupFns) {
+          await setup({
+            fixtureRef: this.#fixtureRef,
+            query: this.get,
+          });
+        }
+      });
+
+      // hint: immediately call test generator fns to add tests
+      for (const test of tests) {
+        test({
+          fixtureRef: this.#fixtureRef,
+          query: this.get,
+        });
+      }
+    });
+  }
+}
+
+export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
+  constructor(protected readonly queryTarget?: QueryTarget<Component>) {}
+
+  public toBeFound(): NgtxScenarioTestingExtensionFn {
+    return ({ query }) => {
+      it('should be found', () => {
+        const target = query(this.queryTarget);
+        expect(target).toBeTruthy();
+      });
     };
   }
 
-  public runTests() {
-    const { _framework, _testBedRef, _componentType, scenarios } = this;
-    const { describe, fdescribe, beforeEach } = _framework;
-
-    for (const scenario of scenarios) {
-      const descriptor = scenario['_runFocused'] ? fdescribe : describe;
-
-      descriptor(scenario['_description'], () => {
-        beforeEach(async () => {
-          const resolvedTestBed = await _testBedRef();
-          await resolvedTestBed.compileComponents();
-
-          scenario['_runModificationsBeforeComponentCreation']();
-          this.fixture = TestBed.createComponent(_componentType);
-          scenario['_runModificationsAfterComponentCreation'](this.fixtureRef);
-          this.fixture.detectChanges();
-        });
-
-        scenario['_run'](this.fixtureRef);
+  public toContainText(text: string): NgtxScenarioTestingExtensionFn {
+    return ({ query }) => {
+      it(`should contain text "${text}"`, () => {
+        const target = query(this.queryTarget);
+        expect(target.nativeElement.textContent).toContain(text);
       });
-    }
+    };
+  }
+
+  public toBeEnabled(value = true): NgtxScenarioTestingExtensionFn {
+    const state = value ? 'enabled' : 'disabled';
+
+    return ({ query }) => {
+      it(`should be ${state}`, () => {
+        const target = query(this.queryTarget);
+        const component = target.componentInstance as any;
+        const nativeElement = target.nativeElement as any;
+
+        if ('disabled' in component) {
+          expect(valueOf(component.disabled)).toBe(!value);
+        } else if ('enabled' in component) {
+          expect(valueOf(component.enabled)).toBe(value);
+        } else if ('disabled' in nativeElement) {
+          expect(nativeElement.disabled).toBe(!value);
+        } else if ('enabled' in nativeElement) {
+          // hint: e.g. web-components might have an enabled api
+          expect(nativeElement.enabled).toBe(value);
+        } else {
+          throw new Error(
+            `${
+              this.queryTarget ?? 'host'
+            } doesn't have a "enabled" or "disabled" property`,
+          );
+        }
+      });
+    };
+  }
+
+  public toHaveState(
+    stateDef: StateWithUnwrappedSignals<Component>,
+  ): NgtxScenarioTestingExtensionFn {
+    return ({ query }) => {
+      const objectKeys = Object.keys(stateDef) as (keyof Component)[];
+      for (const propertyName of objectKeys) {
+        const propertyNameAsString = propertyName.toString();
+
+        it(`should have correct value for property "${propertyNameAsString}"`, () => {
+          const target = query(this.queryTarget);
+          const propertyValue = target.componentInstance[propertyName];
+          const rawValue = valueOf(propertyValue);
+
+          expect(rawValue).toEqual(stateDef[propertyName]);
+        });
+      }
+    };
+  }
+
+  public to(
+    ...testAssertions: NgtxScenarioTestingHarnessExtensionFn<Html, Component>[]
+  ): NgtxScenarioTestingExtensionFn {
+    return (env) =>
+      testAssertions.forEach((assertion) =>
+        assertion({
+          ...env,
+          targetRef: () => env.query(this.queryTarget),
+        }),
+      );
   }
 }
 
-export class NgtxTestScenario<T = any> {
-  static from<T>(
-    props: NgtxScenarioProps<T>,
-    environment: NgtxScenarioTestEnvironment<T>,
-  ): NgtxTestScenario<T> {
-    return new NgtxTestScenario(
-      props.description,
-      environment,
-      props.createTestBed,
-      props.forComponent,
-      props.modificationsBeforeComponentCreation ?? [],
-      props.modificationsAfterComponentCreation ?? [],
-      props.tests ?? [],
-    );
-  }
+// --------
 
-  private _runFocused: boolean;
-
-  private constructor(
-    private readonly _description: string,
-    private readonly _testEnvironment: NgtxScenarioTestEnvironment<T>,
-    private readonly _testBedRef: () => TestBed | Promise<TestBed>,
-    private readonly _componentType: Type<T>,
-    private readonly _modificationsBeforeComponentCreation: ScenarioSetupFn[],
-    private readonly _modificationsAfterComponentCreation: ScenarioViewSetupFn<T>[],
-    private readonly tests: ScenarioTestDefinition<T>[],
-  ) {}
-
-  setup(
-    ...setupFns: (NgtxScenarioSetupFn<T> | NgtxScenarioSetupFn<T>[])[]
-  ): NgtxTestScenario<T> {
-    const flattened = setupFns.flat(1);
-    const scenarioSetupFns = flattened.filter((setupFn) =>
-      ngtx.is(setupFn, 'scenarioSetupFn'),
-    );
-    const viewSetupFns = flattened.filter((setupFn) =>
-      ngtx.is(setupFn, 'scenarioViewSetupFn'),
-    );
-
-    const scenario = NgtxTestScenario.from(
-      {
-        forComponent: this._componentType,
-        description: this._description,
-        createTestBed: this._testBedRef,
-        modificationsBeforeComponentCreation: [
-          ...this._modificationsBeforeComponentCreation,
-          ...scenarioSetupFns,
-        ],
-        modificationsAfterComponentCreation: [
-          ...this._modificationsAfterComponentCreation,
-          ...viewSetupFns,
-        ],
-        tests: this.tests,
-      },
-      this._testEnvironment,
-    );
-
-    return scenario;
-  }
-
-  readonly expect = createExpect(this);
-
-  private _runModificationsBeforeComponentCreation() {
-    this._modificationsBeforeComponentCreation.forEach((mod) => mod());
-  }
-
-  private _runModificationsAfterComponentCreation(
-    fxRef: ComponentFixtureRef<T>,
-  ) {
-    this._modificationsAfterComponentCreation.forEach((mod) => mod(fxRef));
-  }
-
-  private _run(fixtureRef: ComponentFixtureRef<T>) {
-    this.tests.forEach((test) => test(fixtureRef));
-  }
-}
-
-export function useScenarioTesting<T>(
-  props: Omit<NgtxScenarioInitProps<T>, 'description'>,
-) {
-  const environment = new NgtxScenarioTestEnvironment(
-    NGTX_GLOBAL_CONFIG.testingFrameworkAdapter!,
-    props.createTestBed,
-    props.forComponent,
-  );
-
-  return {
-    test: (description: string) =>
-      NgtxTestScenario.from({ ...props, description }, environment),
-    testEnv: environment,
-  };
-}
-
-function createExpect<T>(fromScenario: NgtxTestScenario<T>) {
-  let focussed = false;
-  const addExpectationsAndAddScenarioToTestEnv = (
-    ...tests: (ScenarioTestDefinition<T> | ScenarioTestDefinition<T>[])[]
-  ) => {
-    const scenario = NgtxTestScenario.from(
-      {
-        forComponent: fromScenario['_componentType'],
-        description: fromScenario['_description'],
-        createTestBed: fromScenario['_testBedRef'],
-        modificationsBeforeComponentCreation:
-          fromScenario['_modificationsBeforeComponentCreation'],
-        modificationsAfterComponentCreation:
-          fromScenario['_modificationsAfterComponentCreation'],
-        tests: [...fromScenario['tests'], ...tests].flat(1),
-      },
-      fromScenario['_testEnvironment'],
-    );
-
-    scenario['_runFocused'] = focussed;
-
-    fromScenario['_testEnvironment']['_addScenario'](scenario);
-  };
-
-  return Object.assign(addExpectationsAndAddScenarioToTestEnv, {
-    only: (
-      ...tests: (ScenarioTestDefinition<T> | ScenarioTestDefinition<T>[])[]
-    ) => {
-      focussed = true;
-      addExpectationsAndAddScenarioToTestEnv(...tests);
-    },
-  });
-}
+export type NgtxScenarioTesting<T> = {
+  scenario: ScenarioTestingEnvironment<T>['addTestScenario'];
+  useFixture: ScenarioTestingEnvironment<T>['setFixture'];
+};

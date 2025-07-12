@@ -1,45 +1,35 @@
-import { Type } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ScenarioTestingHarness } from './scenario-harnesses';
-import {
-  NgtxScenarioSetupFnMarker,
-  NgtxScenarioViewSetupFnMarker,
-} from './symbols';
+import { Signal } from '@angular/core';
+import { ComponentFixture } from '@angular/core/testing';
+import { QueryTarget, TypedDebugElement } from '../types';
 
 export type ComponentFixtureRef<T = any> = () => ComponentFixture<T>;
-export type ScenarioTestDefinition<T> = (
-  fixtureRef: ComponentFixtureRef<T>,
-) => void;
+export type StateWithUnwrappedSignals<T> = Partial<{
+  [p in keyof T]: T[p] extends Signal<infer V> ? V : T[p];
+}>;
+
+export type RemoteLogicFn<T> = (ctx: RemoteLogicContext<T>) => unknown;
+export type RemoteLogicContext<T> = {
+  fixtureRef: ComponentFixtureRef<T>;
+  query: <Html extends HTMLElement, Component>(
+    target: QueryTarget<Component> | undefined,
+  ) => TypedDebugElement<Html, Component>;
+};
+export type NgtxScenarioTestingHarnessExtensionContext<
+  Html extends HTMLElement,
+  Component,
+> = RemoteLogicContext<any> & {
+  targetRef: () => TypedDebugElement<Html, Component>;
+};
+export type NgtxScenarioTestingExtensionFn = RemoteLogicFn<any>;
+export type NgtxScenarioTestingHarnessExtensionFn<
+  Html extends HTMLElement = HTMLElement,
+  Component = any,
+> = (
+  ctx: NgtxScenarioTestingHarnessExtensionContext<Html, Component>,
+) => unknown;
+
 export type NgtxTestingFrameworkAdapter = {
-  fdescribe: (title: string, suite: () => void) => void;
-  describe: (title: string, suite: () => void) => void;
-  beforeEach: (fn: () => void) => void;
+  describe: any;
+  fdescribe: any;
+  beforeEach: any;
 };
-
-export type NgtxScenarioInitProps<T> = {
-  forComponent: Type<T>;
-  createTestBed: () => TestBed | Promise<TestBed>;
-};
-
-export type NgtxScenarioProps<T> = NgtxScenarioInitProps<T> & {
-  description: string;
-  tests?: ScenarioTestDefinition<T>[];
-  modificationsBeforeComponentCreation?: ScenarioSetupFn[];
-  modificationsAfterComponentCreation?: ScenarioViewSetupFn<T>[];
-};
-export type ScenarioViewSetupFn<
-  T,
-  ComponentFxRef extends ComponentFixtureRef<T> = ComponentFixtureRef<T>,
-> = ((fxRef: ComponentFxRef) => void) & {
-  [NgtxScenarioViewSetupFnMarker]: boolean;
-};
-export type ScenarioSetupFn = (() => void) & {
-  [NgtxScenarioSetupFnMarker]: boolean;
-};
-
-export type NgtxScenarioTestAssertionFn<Html extends HTMLElement, Component> = (
-  addTests: ScenarioTestingHarness<Html, Component>['addTests'],
-  harness: ScenarioTestingHarness<Html, Component>,
-) => ScenarioTestDefinition<any>;
-
-export type NgtxScenarioSetupFn<T> = ScenarioSetupFn | ScenarioViewSetupFn<T>;

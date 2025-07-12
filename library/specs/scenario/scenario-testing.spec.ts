@@ -1,10 +1,45 @@
-import { Component, Injectable, Type, inject, input } from '@angular/core';
+import { Component, inject, Injectable, input, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TestingModule } from '../../core/testing-modules';
-import { ngtx } from '../../ngtx';
-import { ScenarioTestingHarness } from '../../scenario-testing/scenario-harnesses';
-import { useScenarioTesting } from '../../scenario-testing/scenario-testing';
+import {
+  ngtxScenarioTesting,
+  ScenarioTestingHarness,
+} from '../../scenario-testing/scenario-testing';
+import {
+  NgtxScenarioTestingExtensionFn,
+  NgtxScenarioTestingHarnessExtensionFn,
+} from '../../scenario-testing/types';
+
+function withChangeDetectionAfterSetup(): NgtxScenarioTestingExtensionFn {
+  return ({ fixtureRef }) => fixtureRef().detectChanges();
+}
+function withProvider<T>(token: Type<T>) {
+  return class {
+    static havingState(
+      state: T & Record<string, any>,
+    ): NgtxScenarioTestingExtensionFn {
+      return ({ fixtureRef }) => {
+        const injector = fixtureRef().debugElement.injector;
+        const instance = injector.get(token);
+
+        const objectKeys = Object.keys(state) as (keyof T)[];
+        for (const key of objectKeys) {
+          instance[key] = state[key];
+        }
+      };
+    }
+  };
+}
+function haveComponentType(
+  type: Type<any>,
+): NgtxScenarioTestingHarnessExtensionFn {
+  return ({ targetRef }) => {
+    it(`should be of component type "${type.constructor.name}"`, () => {
+      expect(targetRef().componentInstance).toBeInstanceOf(type);
+    });
+  };
+}
 
 @Injectable()
 class MyService {
@@ -18,6 +53,7 @@ class MyService {
 })
 class TextComponent {
   readonly text = input('unset');
+  readonly disabled = input(false);
 }
 
 @Component({
@@ -26,7 +62,7 @@ class TextComponent {
     <div class="div-style" style="color: red; fontSize: 12px">
       {{ myService.value }}
     </div>
-    <app-text [text]="myService.value" />
+    <app-text [text]="myService.value" [disabled]="false" />
     @if(paramId){
     <div data-ngtx="route-param" [attr.title]="paramId">{{ paramId }}</div>
     }
@@ -38,122 +74,33 @@ class ScenarioTestComponent {
   paramId = this.route.snapshot.params.id;
 }
 
-// ----------------------------
-// Custom Extensions (scenario setup functions)
-// ----------------------------
-
-const withRouterParams = (params: Record<string, unknown>) =>
-  ngtx.scenario.envSetupFn(() => {
-    TestBed.overrideProvider(ActivatedRoute, {
-      useValue: { snapshot: { params: params } },
-    });
-  });
-
-const overrideProvider = <T>(token: Type<T>) => {
-  return {
-    setState: (state: Partial<T>) =>
-      ngtx.scenario.envSetupFn(() => {
-        TestBed.overrideProvider(token, { useValue: state });
-      }),
-  };
-};
-
-const beComponentType = (type: any) =>
-  // TODO: docs: document that debugElement must only be accessed within it case:
-  ngtx.scenario.testGeneratorFn((addTests, harness) =>
-    addTests(() => {
-      const description = harness.isAssertionNegated
-        ? `should not be the component "${type.name}"`
-        : `should be the component "${type.name}"`;
-
-      it(description, () => {
-        if (harness.isAssertionNegated) {
-          expect(harness.debugElement.componentInstance).not.toBeInstanceOf(
-            type,
-          );
-        } else {
-          expect(harness.debugElement.componentInstance).toBeInstanceOf(type);
-        }
-      });
-    }),
-  );
-
-// ----------------------------
-// Usage Example
-// ----------------------------
-
 const MyTestingModule = TestingModule.configure({
   imports: [RouterModule.forRoot([])],
   declarations: [ScenarioTestComponent, TextComponent],
   providers: [MyService],
 });
 
-const { test, testEnv } = useScenarioTesting({
-  forComponent: ScenarioTestComponent,
-  createTestBed: () => MyTestingModule.forComponent(ScenarioTestComponent),
+ngtxScenarioTesting<ScenarioTestComponent>(({ scenario, useFixture }) => {
+  beforeEach(() => {
+    MyTestingModule.forComponent(ScenarioTestComponent);
+    const fixture = TestBed.createComponent(ScenarioTestComponent);
+    useFixture(fixture);
+  });
+
+  class the {
+    static div = new ScenarioTestingHarness('div');
+    static text = new ScenarioTestingHarness(TextComponent);
+  }
+
+  scenario('admin form')
+    .setup(
+      withProvider(MyService).havingState({ value: 'Jane' }),
+      withChangeDetectionAfterSetup(),
+    )
+    .expect(
+      the.div.toBeFound(),
+      the.text.toHaveState({ text: 'Jane' }),
+      the.text.toBeEnabled(),
+      the.text.to(haveComponentType(TextComponent)),
+    );
 });
-
-class the {
-  static Div = new ScenarioTestingHarness(testEnv, 'div');
-  static Text = new ScenarioTestingHarness(testEnv, TextComponent);
-  static ParamIdDiv = new ScenarioTestingHarness(testEnv, 'ngtx_route-param');
-  static host = new ScenarioTestingHarness(testEnv);
-}
-
-// TODO: does it make sense to create one big it case instead smaller multiple?
-test(`MyService value is displayed`)
-  .setup(
-    withRouterParams({ id: undefined }),
-    overrideProvider(MyService).setState({ value: 'Jane' }),
-  )
-  .expect(
-    the.host.toBeFound(),
-    the.Div.toContainText('Jane'),
-    the.Div.not.toContainText('Madam'),
-    the.ParamIdDiv.toBeMissing(),
-    the.ParamIdDiv.not.toBeFound(),
-    the.Text.toBeFound(),
-    the.Text.toHaveState({ text: 'Jane' }),
-    the.Div.toHaveStyles({
-      color: 'red',
-      fontSize: '12px',
-    }),
-    the.Div.not.toHaveStyles({
-      color: 'blue',
-      fontSize: '24px',
-    }),
-  );
-
-test(`The param id is 42`)
-  .setup(
-    withRouterParams({ id: 42 }),
-    overrideProvider(MyService).setState({ value: 'Henry' }),
-  )
-  .expect(
-    the.host.toHaveState({ paramId: 42 }),
-    the.Div.toHaveText('heNRY', { trim: true, ignoreCase: true }),
-    the.Div.not.toHaveText('Ernie', { trim: true, ignoreCase: true }),
-    the.Div.toHaveClass('div-style'),
-    the.ParamIdDiv.not.toHaveClass('div-style'),
-    the.ParamIdDiv.toBeFound(),
-    the.ParamIdDiv.not.toBeMissing(),
-    the.ParamIdDiv.toHaveText('42'),
-    the.ParamIdDiv.toHaveAttributes({ title: 42 }),
-  );
-
-test('Some Control').expect(
-  the.Div.toBeFound(),
-  the.ParamIdDiv.toBeMissing(),
-  the.Text.toHaveState({ text: 'Hello, World!' }),
-);
-
-test('Other Control').expect(
-  the.Text.to(
-    beComponentType(TextComponent),
-    beComponentType(TextComponent),
-    beComponentType(TextComponent),
-  ),
-  the.Text.not.to(beComponentType(ScenarioTestComponent)),
-);
-
-testEnv.runTests();
