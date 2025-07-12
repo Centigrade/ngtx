@@ -1,4 +1,5 @@
 import {
+  EnvironmentProviders,
   isStandalone,
   type NgModule,
   type Provider,
@@ -96,20 +97,15 @@ export class TestingModule implements ITestingModule {
       providers: this.providers,
     };
 
-    const flattenedTestingModule = this.imports
-      .filter((item): item is TestingModule =>
-        TestingModule.isTestingModule(item),
-      )
-      .reduce(
-        (completeTestingModule, testingModule) =>
-          mergeRecursively(completeTestingModule, testingModule),
-        module,
-      );
+    const flattenedTestingModule = this.flattenModuleHierarchy({
+      includeDeclarations: true,
+      module,
+    });
 
-    flattenedTestingModule.providers = swapMockWithOriginalProvider(
-      opts.providers ?? [],
-      flattenedTestingModule.providers,
-    );
+    flattenedTestingModule.providers = applyProviderOverrides({
+      providers: flattenedTestingModule.providers,
+      overrides: opts.providers ?? [],
+    });
 
     const additionalDeclarations = opts.additionalDeclarations ?? [];
     flattenedTestingModule.declarations = [
@@ -117,7 +113,59 @@ export class TestingModule implements ITestingModule {
       ...additionalDeclarations,
     ];
 
-    // run plugins:
+    this.applyAllPlugins(flattenedTestingModule, componentType);
+
+    let testBed = TestBed.configureTestingModule(flattenedTestingModule);
+
+    if (opts.overrideComponentProviders) {
+      testBed = testBed.overrideComponent(componentType, {
+        set: { providers: [opts.overrideComponentProviders] },
+      });
+    }
+    if (opts.overrideViewChildren) {
+      opts.overrideViewChildren.forEach((overriddenComponent) => {
+        testBed = testBed.overrideComponent(overriddenComponent.component, {
+          set: { providers: [overriddenComponent.providers] },
+        });
+      });
+    }
+
+    return testBed;
+  }
+
+  forService<T>(serviceType: Type<T>, opts: ForServiceOptions = {}): T {
+    const providers = [serviceType, ...(opts.providers ?? [])];
+
+    const module: ITestingModule = {
+      imports: this.imports,
+      // no need for declarations in service tests
+      declarations: [],
+      // add real service after module-providers, so that it wins over all previous ones,
+      // but allow the user to brute-force override the service-under-test via options:
+      providers: flatten([this.providers, providers]),
+    };
+
+    const flattenedTestingModule = this.flattenModuleHierarchy({
+      includeDeclarations: false,
+      module,
+    });
+
+    flattenedTestingModule.providers = applyProviderOverrides({
+      providers: flattenedTestingModule.providers ?? [],
+      overrides: providers ?? [],
+    });
+
+    this.applyProviderPlugins(flattenedTestingModule, serviceType);
+
+    TestBed.configureTestingModule(flattenedTestingModule);
+
+    return TestBed.inject(serviceType);
+  }
+
+  private applyAllPlugins(
+    flattenedTestingModule: ITestingModule,
+    componentType: Type<any>,
+  ) {
     flattenedTestingModule.imports = flattenedTestingModule.imports!.map(
       (declarationOrModule) => {
         if (isNgModule(declarationOrModule)) {
@@ -148,6 +196,7 @@ export class TestingModule implements ITestingModule {
         return declarationOrModule;
       },
     );
+
     flattenedTestingModule.declarations =
       flattenedTestingModule.declarations!.map((declaration) => {
         if (isComponent(declaration)) {
@@ -175,78 +224,46 @@ export class TestingModule implements ITestingModule {
         return declaration;
       });
 
+    this.applyProviderPlugins(flattenedTestingModule, componentType);
+  }
+
+  private applyProviderPlugins(
+    flattenedTestingModule: ITestingModule,
+    objectUnderTest: Type<any>,
+  ) {
     flattenedTestingModule.providers = flattenedTestingModule.providers?.map(
       (provider) =>
         this.plugins.reduce(
           (provider, plugin) =>
             plugin.transformProviders?.({
               provider,
-              objectUnderTest: componentType,
+              objectUnderTest,
             }),
           provider,
         ),
     );
-
-    let testBed = TestBed.configureTestingModule(flattenedTestingModule);
-
-    if (opts.overrideComponentProviders) {
-      testBed = testBed.overrideComponent(componentType, {
-        set: { providers: [opts.overrideComponentProviders] },
-      });
-    }
-    if (opts.overrideViewChildren) {
-      opts.overrideViewChildren.forEach((overriddenComponent) => {
-        testBed = testBed.overrideComponent(overriddenComponent.component, {
-          set: { providers: [overriddenComponent.providers] },
-        });
-      });
-    }
-
-    return testBed;
   }
 
-  forService<T>(serviceType: Type<T>, opts: ForServiceOptions = {}): T {
-    const providers = [serviceType, ...(opts.providers ?? [])];
+  private flattenModuleHierarchy(ctx: {
+    module: ITestingModule;
+    includeDeclarations?: boolean;
+  }) {
+    const { module, includeDeclarations } = ctx;
 
-    const module: ITestingModule = {
-      imports: this.imports,
-      declarations: [], // no need for declarations in service tests
-
-      // add real service as last entry, that wins over all previous ones:
-      providers: flatten([this.providers, providers ?? []]),
-    };
-
-    const flattenedTestingModule = this.imports
+    return this.imports
       .filter((item): item is TestingModule =>
         TestingModule.isTestingModule(item),
       )
-      .reduce((completeTestingModule, testingModule) => {
-        return mergeRecursively(completeTestingModule, testingModule, false);
-      }, module);
-
-    flattenedTestingModule.providers = swapMockWithOriginalProvider(
-      providers ?? [],
-      flattenedTestingModule.providers ?? [],
-    );
-
-    // run plugins
-    flattenedTestingModule.providers = flattenedTestingModule.providers?.map(
-      (provider) =>
-        this.plugins.reduce(
-          (provider, plugin) =>
-            plugin.transformProviders?.({
-              provider,
-              objectUnderTest: serviceType,
-            }),
-          provider,
-        ),
-    );
-
-    TestBed.configureTestingModule(flattenedTestingModule);
-
-    return TestBed.inject(serviceType);
+      .reduce(
+        (completeTestingModule, testingModule) =>
+          mergeRecursively(
+            completeTestingModule,
+            testingModule,
+            includeDeclarations,
+          ),
+        module,
+      );
   }
-
   private applyPluginsToComponent(ctx: DeclarationPluginContext): any {
     return this.plugins.reduce(
       (component, plugin) =>
@@ -299,22 +316,20 @@ function flatten<T>(array: (T | T[])[]): T[] {
   return array.flat(Infinity) as T[];
 }
 
-function swapMockWithOriginalProvider(
-  originals: Provider[],
-  providers: NgModule['providers'],
-) {
-  const providersWithoutMocks = providers?.filter((provider): any => {
-    if ('provide' in provider) {
-      return !originals.includes(provider.provide);
-    }
-    if (originals.includes(provider as any)) {
-      return false;
-    }
+function applyProviderOverrides(ctx: {
+  providers: NgModule['providers'];
+  overrides: Provider[];
+}) {
+  const { overrides, providers } = ctx;
 
-    return true;
-  });
+  const overrideTokens = overrides.map((provider) =>
+    'provide' in provider ? provider.provide : provider,
+  );
+  const nonOverriddenProviders = providers?.filter(
+    outWhenIncludedIn(overrideTokens),
+  );
 
-  return providersWithoutMocks?.concat(...originals);
+  return nonOverriddenProviders?.concat(...overrides);
 }
 
 function mergeRecursively<T extends ITestingModule, I extends ITestingModule>(
@@ -385,6 +400,18 @@ function ngModulesOnly(item: any) {
 }
 function uniqueOnly<T>(item: T, index: number, array: T[]) {
   return array.indexOf(item) === index;
+}
+function outWhenIncludedIn(overrideTokens: any[]) {
+  return (provider: Provider | EnvironmentProviders) => {
+    if ('provide' in provider) {
+      return !overrideTokens.includes(provider.provide);
+    }
+    if (overrideTokens.includes(provider)) {
+      return false;
+    }
+
+    return true;
+  };
 }
 function not(fn: (...args: any[]) => boolean) {
   return (...args: any[]) => !fn(...args);
