@@ -80,36 +80,39 @@ const MyTestingModule = TestingModule.configure(
   [ngMocksPlugin],
 );
 
-ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
-  beforeEach(() => {
-    MyTestingModule.forComponent(ScenarioTestComponent);
-    const fixture = TestBed.createComponent(ScenarioTestComponent);
-    useFixture(fixture);
-  });
-
-  class the {
-    static div = new ScenarioTestingHarness('div');
-    static paramIdDiv = new ScenarioTestingHarness('ngtx_route-param');
-    static text = new ScenarioTestingHarness(TextComponent, {
-      displayName: 'PageTitle',
+describe(
+  'ScenarioTestComponent',
+  ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
+    beforeEach(() => {
+      MyTestingModule.forComponent(ScenarioTestComponent);
+      const fixture = TestBed.createComponent(ScenarioTestComponent);
+      useFixture(fixture);
     });
-    static button = new ScenarioTestingHarness(ButtonComponent);
-  }
 
-  scenario('admin form')
-    .setup(
-      withProvider(MyService).havingState({ value: 'Jane' }),
-      withInitialChangeDetection(),
-    )
-    .expect(
-      the.div.toBeFound(),
-      the.div.not.toBeMissing(),
-      the.text.toHaveState({ text: 'Jane' }),
-      the.text.not.toHaveState({ text: 'Henry' }),
-      the.button.toBeEnabled(),
-      the.button.not.toBeEnabled(false),
-      the.text.to(haveComponentType(TextComponent)),
-      the.text.not.to(haveComponentType(ButtonComponent)),
-      the.paramIdDiv.toBeMissing(),
-    );
-});
+    class the {
+      static div = new ScenarioTestingHarness('div');
+      static paramIdDiv = new ScenarioTestingHarness('ngtx_route-param');
+      static text = new ScenarioTestingHarness(TextComponent, {
+        displayName: 'PageTitle',
+      });
+      static button = new ScenarioTestingHarness(ButtonComponent);
+    }
+
+    scenario('admin form')
+      .setup(
+        withProvider(MyService).havingState({ value: 'Jane' }),
+        withInitialChangeDetection(),
+      )
+      .expect(
+        the.div.toBeFound(),
+        the.div.not.toBeMissing(),
+        the.text.toHaveState({ text: 'Jane' }),
+        the.text.not.toHaveState({ text: 'Henry' }),
+        the.button.toBeEnabled(),
+        the.button.not.toBeEnabled(false),
+        the.text.to(haveComponentType(TextComponent)),
+        the.text.not.to(haveComponentType(ButtonComponent)),
+        the.paramIdDiv.toBeMissing(),
+      );
+  }),
+);

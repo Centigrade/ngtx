@@ -27,7 +27,7 @@ export function ngtxScenarioTesting<T>(
     useFixture: env.setFixture.bind(env),
   };
 
-  fn(userLandEnv);
+  return () => fn(userLandEnv);
 }
 
 // --------------------------------
