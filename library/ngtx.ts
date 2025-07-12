@@ -58,7 +58,7 @@ function _ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
 }
 
 export const ngtx = Object.assign(_ngtx, {
-  scenario: ngtxScenarioTesting,
+  scenarios: ngtxScenarioTesting,
   // is,
 });
 

@@ -78,7 +78,7 @@ const MyTestingModule = TestingModule.configure({
   providers: [MyService],
 });
 
-ngtx.scenario<ScenarioTestComponent>(({ scenario, useFixture }) => {
+ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
   beforeEach(() => {
     MyTestingModule.forComponent(ScenarioTestComponent);
     const fixture = TestBed.createComponent(ScenarioTestComponent);
