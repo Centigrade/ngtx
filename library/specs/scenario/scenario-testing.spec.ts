@@ -107,7 +107,9 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
 
   class the {
     static div = new ScenarioTestingHarness('div');
-    static text = new ScenarioTestingHarness(TextComponent, 'PageTitle');
+    static text = new ScenarioTestingHarness(TextComponent, {
+      displayName: 'PageTitle',
+    });
     static button = new ScenarioTestingHarness(ButtonComponent);
   }
 

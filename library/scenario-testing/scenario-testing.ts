@@ -13,6 +13,7 @@ import {
   NgtxTestingFrameworkAdapter,
   RemoteLogicFn,
   StateWithUnwrappedSignals,
+  TestScenarioOptions,
 } from './types';
 
 export function ngtxScenarioTesting<T>(
@@ -120,7 +121,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
   constructor(
     protected readonly queryTarget?: QueryTarget<Component>,
-    protected readonly name?: string,
+    protected readonly options?: TestScenarioOptions,
   ) {}
 
   public get isAssertionNegated() {
@@ -128,8 +129,8 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   }
 
   public get targetName() {
-    if (this.name) {
-      return this.name;
+    if (this.options?.displayName) {
+      return this.options?.displayName;
     }
 
     return typeof this.queryTarget === 'string'
@@ -141,7 +142,8 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     get: (_, property) => {
       // TODO: docs: document that constructors of Harnesses are not allowed to be overridden!
       const harnessConstructor = this.constructor as any;
-      const target = new harnessConstructor(this.queryTarget, this.name);
+      const optionsClone = { ...this.options };
+      const target = new harnessConstructor(this.queryTarget, optionsClone);
 
       target[NgtxScenarioTestIsAssertionNegated] =
         !this[NgtxScenarioTestIsAssertionNegated];

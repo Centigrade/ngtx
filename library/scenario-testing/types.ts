@@ -35,3 +35,7 @@ export type NgtxTestingFrameworkAdapter = {
   fdescribe: any;
   beforeEach: any;
 };
+
+export type TestScenarioOptions = {
+  displayName: string;
+};
