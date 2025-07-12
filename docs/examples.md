@@ -19,14 +19,16 @@ This article demonstrates common test scenarios, and how declarative testing wit
 Template of host
 
 ```html
-<section *ngIf="loggedInUser" class="greeting">
-  <span> Hi {{ loggedInUser.name }}! </span>
-</section>
+@if(loggedInUser) {
+  <section class="greeting">
+    <span> Hi {{ loggedInUser.name }}! </span>
+  </section>
+}
 ```
 
-> 💡 **Angular 17 template syntax supported**
+> 💡 **Template syntax prior to Angular 17 supported**
 >
-> ngtx is template-syntax agnostic, so you can also use the newer syntax using `@if(...) { ... }` etc.
+> ngtx is template-syntax agnostic, so you can also use the older syntax using `*ngIf="..."` etc.
 
 Declarative tests
 
@@ -96,9 +98,11 @@ it('should show a greeting for logged in users', () => {
 Template of host
 
 ```html
-<section *ngIf="loggedInUser" class="greeting">
-  <button (click)="authService.logout()">Logout</button>
-</section>
+@if(loggedInUser) {
+  <section class="greeting">
+    <button (click)="authService.logout()">Logout</button>
+  </section>
+}
 ```
 
 Declarative tests
