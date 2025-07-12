@@ -19,7 +19,7 @@ export type NgtxScenarioTestingHarnessExtensionContext<
   Component,
 > = RemoteLogicContext<any> & {
   targetRef: () => TypedDebugElement<Html, Component>;
-  targetName: string;
+  displayName: string;
   isAssertionNegated: boolean;
 };
 export type NgtxScenarioTestingExtensionFn = RemoteLogicFn<any>;

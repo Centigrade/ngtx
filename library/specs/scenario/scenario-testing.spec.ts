@@ -33,11 +33,11 @@ function withProvider<T>(token: Type<T>) {
 function haveComponentType(
   type: Type<any>,
 ): NgtxScenarioTestingHarnessExtensionFn {
-  return ({ targetRef, targetName, isAssertionNegated }) => {
+  return ({ targetRef, displayName, isAssertionNegated }) => {
     const verb = isAssertionNegated ? 'not be' : 'be';
     const componentType = getClassName(type);
 
-    it(`[${targetName}] should ${verb} of component type "${componentType}"`, () => {
+    it(`[${displayName}] should ${verb} of component type "${componentType}"`, () => {
       if (isAssertionNegated) {
         expect(targetRef().componentInstance).not.toBeInstanceOf(type);
       } else {

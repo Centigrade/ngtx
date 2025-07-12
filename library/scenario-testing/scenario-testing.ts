@@ -128,7 +128,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     return this[NgtxScenarioTestIsAssertionNegated];
   }
 
-  public get targetName() {
+  public get displayName() {
     if (this.options?.displayName) {
       return this.options?.displayName;
     }
@@ -156,7 +156,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
-      it(`[${this.targetName}] should ${verb} found`, () => {
+      it(`[${this.displayName}] should ${verb} found`, () => {
         const target = query(this.queryTarget);
 
         if (this.isAssertionNegated) {
@@ -172,7 +172,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
-      it(`[${this.targetName}] should ${verb} missing`, () => {
+      it(`[${this.displayName}] should ${verb} missing`, () => {
         const target = query(this.queryTarget);
 
         if (this.isAssertionNegated) {
@@ -188,7 +188,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     const verb = this.isAssertionNegated ? 'not contain' : 'contain';
 
     return ({ query }) => {
-      it(`[${this.targetName}] should ${verb} text "${text}"`, () => {
+      it(`[${this.displayName}] should ${verb} text "${text}"`, () => {
         const target = query(this.queryTarget);
 
         if (this.isAssertionNegated) {
@@ -205,7 +205,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     const state = value ? 'enabled' : 'disabled';
 
     return ({ query }) => {
-      it(`[${this.targetName}] should ${verb} ${state}`, () => {
+      it(`[${this.displayName}] should ${verb} ${state}`, () => {
         const target = query(this.queryTarget);
         const component = target.componentInstance as any;
         const nativeElement = target.nativeElement as any;
@@ -254,7 +254,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
       for (const propertyName of objectKeys) {
         const propertyNameAsString = propertyName.toString();
 
-        it(`[${this.targetName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
+        it(`[${this.displayName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
           const target = query(this.queryTarget);
           const propertyValue = target.componentInstance[propertyName];
           const rawValue = valueOf(propertyValue);
@@ -277,7 +277,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         assertion({
           ...env,
           targetRef: () => env.query(this.queryTarget),
-          targetName: this.targetName,
+          displayName: this.displayName,
           isAssertionNegated: this.isAssertionNegated,
         }),
       );
