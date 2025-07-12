@@ -9,6 +9,7 @@ import {
   NgtxScenarioTestingExtensionFn,
   NgtxScenarioTestingHarnessExtensionFn,
 } from '../../scenario-testing/types';
+import { getClassName } from '../../utility/string.utilities';
 import { ngMocksPlugin } from '../shared/util';
 
 function withProvider<T>(token: Type<T>) {
@@ -34,8 +35,9 @@ function haveComponentType(
 ): NgtxScenarioTestingHarnessExtensionFn {
   return ({ targetRef, targetName, isAssertionNegated }) => {
     const verb = isAssertionNegated ? 'not be' : 'be';
+    const componentType = getClassName(type);
 
-    it(`[${targetName}] should ${verb} of component type "${type.constructor.name}"`, () => {
+    it(`[${targetName}] should ${verb} of component type "${componentType}"`, () => {
       if (isAssertionNegated) {
         expect(targetRef().componentInstance).not.toBeInstanceOf(type);
       } else {
@@ -105,7 +107,7 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
 
   class the {
     static div = new ScenarioTestingHarness('div');
-    static text = new ScenarioTestingHarness(TextComponent, 'heading');
+    static text = new ScenarioTestingHarness(TextComponent, 'PageTitle');
     static button = new ScenarioTestingHarness(ButtonComponent);
   }
 
