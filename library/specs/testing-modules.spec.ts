@@ -107,7 +107,7 @@ const autoMockPlugin: TestingModulePlugin = {
 const moduleBound = [ModuleComponent, ModulePipe, ModuleDirective];
 const standalone = [StandaloneComponent, StandalonePipe, StandaloneDirective];
 
-fdescribe(
+describe(
   'with auto-mock plugin',
   ngtx(({ useFixture, get }) => {
     const MyTestingModule = TestingModule.configure(
@@ -127,22 +127,22 @@ fdescribe(
       useFixture(fixture);
     });
 
-    it('should render the module component', () => {
+    it('should not render the module component', () => {
       expect(get('#moduleComponent')).toBeFalsy();
     });
 
-    it('should render the standalone component', () => {
+    it('should not render the standalone component', () => {
       expect(get('#standaloneComponent')).toBeFalsy();
     });
 
-    it('should render the module directive', () => {
+    it('should not render the module directive', () => {
       const directive = get(ModuleDirective).injector.get(ModuleDirective);
 
       // hint: when mocked, all methods get stubbed
       expect(directive.method()).toBe(undefined);
     });
 
-    it('should render the standalone directive', () => {
+    it('should not render the standalone directive', () => {
       const directive =
         get(StandaloneDirective).injector.get(StandaloneDirective);
 
@@ -150,11 +150,11 @@ fdescribe(
       expect(directive.method()).toBe(undefined);
     });
 
-    it('should render the module Pipe', () => {
+    it('should not render the module Pipe', () => {
       expect(get('#modulePipe').textContent()).toBe('');
     });
 
-    it('should render the standalone Pipe', () => {
+    it('should not render the standalone Pipe', () => {
       expect(get('#standalonePipe').textContent()).toBe('');
     });
 
@@ -166,7 +166,7 @@ fdescribe(
   }),
 );
 
-fdescribe(
+describe(
   'No plugin',
   ngtx(({ useFixture, get }) => {
     const MyTestingModule = TestingModule.configure(
