@@ -8,10 +8,9 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { MockDeclaration, MockProvider } from 'ng-mocks';
 import { TestingModule } from '../core/testing-modules';
-import { TestingModulePlugin } from '../core/types';
 import { ngtx } from '../ngtx';
+import { ngMocksPlugin } from './shared/util';
 
 @Injectable()
 class TestService {
@@ -85,24 +84,6 @@ class ScenarioTestComponent {
   route = inject(ActivatedRoute);
   paramId = this.route.snapshot.params.id;
 }
-
-const ngMocksPlugin: TestingModulePlugin = {
-  transformComponents({ declaration, objectUnderTest }) {
-    // hint: we don't want to mock the component under test:
-    return declaration === objectUnderTest
-      ? declaration
-      : MockDeclaration(declaration);
-  },
-  transformPipes({ declaration }) {
-    return MockDeclaration(declaration);
-  },
-  transformDirectives({ declaration }) {
-    return MockDeclaration(declaration);
-  },
-  transformProviders({ provider, objectUnderTest }) {
-    return provider === objectUnderTest ? provider : MockProvider(provider);
-  },
-};
 
 const moduleBound = [ModuleComponent, ModulePipe, ModuleDirective];
 const standalone = [StandaloneComponent, StandalonePipe, StandaloneDirective];

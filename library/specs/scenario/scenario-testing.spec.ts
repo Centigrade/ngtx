@@ -9,6 +9,7 @@ import {
   NgtxScenarioTestingExtensionFn,
   NgtxScenarioTestingHarnessExtensionFn,
 } from '../../scenario-testing/types';
+import { ngMocksPlugin } from '../shared/util';
 
 function withProvider<T>(token: Type<T>) {
   return class {
@@ -79,11 +80,14 @@ class ScenarioTestComponent {
   paramId = this.route.snapshot.params.id;
 }
 
-const MyTestingModule = TestingModule.configure({
-  imports: [RouterModule.forRoot([]), ButtonComponent],
-  declarations: [ScenarioTestComponent, TextComponent],
-  providers: [MyService],
-});
+const MyTestingModule = TestingModule.configure(
+  {
+    imports: [RouterModule.forRoot([]), ButtonComponent],
+    declarations: [ScenarioTestComponent, TextComponent],
+    providers: [MyService],
+  },
+  [ngMocksPlugin],
+);
 
 ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
   beforeEach(() => {
