@@ -86,7 +86,7 @@ class ScenarioTestComponent {
   paramId = this.route.snapshot.params.id;
 }
 
-const autoMockPlugin: TestingModulePlugin = {
+const ngMocksPlugin: TestingModulePlugin = {
   transformComponents({ declaration, objectUnderTest }) {
     // hint: we don't want to mock the component under test:
     return declaration === objectUnderTest
@@ -116,7 +116,7 @@ describe(
         declarations: [ScenarioTestComponent, moduleBound],
         providers: [TestService],
       },
-      [autoMockPlugin],
+      [ngMocksPlugin],
     );
 
     beforeEach(async () => {
