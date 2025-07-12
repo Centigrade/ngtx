@@ -3,32 +3,14 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TestingModule } from '../../core/testing-modules';
 import { ngtx } from '../../ngtx';
-import { withChangeDetectionAfterSetup } from '../../scenario-testing/lib';
-import { ScenarioTestingHarness } from '../../scenario-testing/scenario-testing';
 import {
-  NgtxScenarioTestingExtensionFn,
-  NgtxScenarioTestingHarnessExtensionFn,
-} from '../../scenario-testing/types';
+  withInitialChangeDetection,
+  withProvider,
+} from '../../scenario-testing/lib';
+import { ScenarioTestingHarness } from '../../scenario-testing/scenario-testing';
+import { NgtxScenarioTestingHarnessExtensionFn } from '../../scenario-testing/types';
 import { getClassName } from '../../utility/string.utilities';
 import { ngMocksPlugin } from '../shared/util';
-
-function withProvider<T>(token: Type<T>) {
-  return class {
-    static havingState(
-      state: T & Record<string, any>,
-    ): NgtxScenarioTestingExtensionFn {
-      return ({ fixtureRef }) => {
-        const injector = fixtureRef().debugElement.injector;
-        const instance = injector.get(token);
-
-        const objectKeys = Object.keys(state) as (keyof T)[];
-        for (const key of objectKeys) {
-          instance[key] = state[key];
-        }
-      };
-    }
-  };
-}
 
 function haveComponentType(
   type: Type<any>,
@@ -117,7 +99,7 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
   scenario('admin form')
     .setup(
       withProvider(MyService).havingState({ value: 'Jane' }),
-      withChangeDetectionAfterSetup(),
+      withInitialChangeDetection(),
     )
     .expect(
       the.div.toBeFound(),
