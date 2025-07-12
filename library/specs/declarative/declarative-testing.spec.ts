@@ -207,7 +207,7 @@ describe(
         .rendered()
         .and(state({ items: ['a', 'b', 'c'], opened: true }))
         .expect(the.Items)
-        .to(haveState<any>([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
+        .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
     });
 
     it('callLifeCycleHook', () => {
@@ -267,7 +267,7 @@ describe(
       When(host)
         .has(state({ items: ['a', 'b', 'c'], opened: true }))
         .expect(the.Items)
-        .to(haveState<any>([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
+        .to(haveState([{ value: 'a' }, { value: 'b' }, { value: 'c' }]));
     });
 
     it('state -> haveState (function)', () => {
