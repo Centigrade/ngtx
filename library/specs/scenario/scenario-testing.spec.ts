@@ -3,15 +3,13 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TestingModule } from '../../core/testing-modules';
 import { ngtx } from '../../ngtx';
+import { withChangeDetectionAfterSetup } from '../../scenario-testing/lib';
 import { ScenarioTestingHarness } from '../../scenario-testing/scenario-testing';
 import {
   NgtxScenarioTestingExtensionFn,
   NgtxScenarioTestingHarnessExtensionFn,
 } from '../../scenario-testing/types';
 
-function withChangeDetectionAfterSetup(): NgtxScenarioTestingExtensionFn {
-  return ({ fixtureRef }) => fixtureRef().detectChanges();
-}
 function withProvider<T>(token: Type<T>) {
   return class {
     static havingState(
