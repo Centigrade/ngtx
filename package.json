@@ -33,17 +33,18 @@
     }
   ],
   "peerDependencies": {
-    "@angular/core": ">=17 <20",
-    "@angular/platform-browser": ">=17 <20",
-    "ng-mocks": ">=14 <15"
+    "@angular/core": ">=17",
+    "@angular/platform-browser": ">=17"
   },
   "optionalDependencies": {
-    "@angular/router": ">=17 <20"
+    "@angular/router": ">=17",
+    "zone.js": ""
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "jest": "^29.7.0",
     "jest-preset-angular": "^14.5.1",
+    "ng-mocks": "^14.13.5",
     "prettier": "^2.4.1",
     "shx": "^0.3.3",
     "ts-node": "^10.2.1"

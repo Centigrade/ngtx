@@ -49,6 +49,14 @@ class MyService {
 })
 class TextComponent {
   readonly text = input('unset');
+}
+
+@Component({
+  template: `<button [attr.disabled]="disabled">{{ text }}</button>`,
+  selector: 'app-button',
+})
+class ButtonComponent {
+  readonly text = input('click me!');
   readonly disabled = input(false);
 }
 
@@ -58,7 +66,8 @@ class TextComponent {
     <div class="div-style" style="color: red; fontSize: 12px">
       {{ myService.value }}
     </div>
-    <app-text [text]="myService.value" [disabled]="false" />
+    <app-text [text]="myService.value" />
+    <app-button [disabled]="false" />
     @if(paramId){
     <div data-ngtx="route-param" [attr.title]="paramId">{{ paramId }}</div>
     }
@@ -71,7 +80,7 @@ class ScenarioTestComponent {
 }
 
 const MyTestingModule = TestingModule.configure({
-  imports: [RouterModule.forRoot([])],
+  imports: [RouterModule.forRoot([]), ButtonComponent],
   declarations: [ScenarioTestComponent, TextComponent],
   providers: [MyService],
 });
@@ -86,6 +95,7 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
   class the {
     static div = new ScenarioTestingHarness('div');
     static text = new ScenarioTestingHarness(TextComponent);
+    static button = new ScenarioTestingHarness(ButtonComponent);
   }
 
   scenario('admin form')
@@ -96,7 +106,7 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
     .expect(
       the.div.toBeFound(),
       the.text.toHaveState({ text: 'Jane' }),
-      the.text.toBeEnabled(),
+      the.button.toBeEnabled(),
       the.text.to(haveComponentType(TextComponent)),
     );
 });

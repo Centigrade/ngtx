@@ -13,6 +13,7 @@ const jestFramework: NgtxTestingFrameworkAdapter = {
 configureNgtx({
   testingFrameworkAdapter: jestFramework,
   defaultSpyFactory: (retValue) => jest.fn(() => retValue),
+  // testingModulePlugins: []
 });
 
 Object.defineProperty(window, 'CSS', { value: null });
