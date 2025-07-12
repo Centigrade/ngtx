@@ -4,6 +4,8 @@ import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector } from '../utility';
 import { valueOf } from '../utility/signals';
+import { getClassName } from '../utility/string.utilities';
+import { NgtxScenarioTestIsAssertionNegated } from './symbols';
 import {
   ComponentFixtureRef,
   NgtxScenarioTestingExtensionFn,
@@ -114,51 +116,128 @@ class TestScenario<Component> {
 }
 
 export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
-  constructor(protected readonly queryTarget?: QueryTarget<Component>) {}
+  [NgtxScenarioTestIsAssertionNegated] = false;
+
+  constructor(
+    protected readonly queryTarget?: QueryTarget<Component>,
+    protected readonly name?: string,
+  ) {}
+
+  public get isAssertionNegated() {
+    return this[NgtxScenarioTestIsAssertionNegated];
+  }
+
+  public get targetName() {
+    if (this.name) {
+      return this.name;
+    }
+
+    return typeof this.queryTarget === 'string'
+      ? this.queryTarget
+      : getClassName(this.queryTarget);
+  }
+
+  public readonly not: Omit<typeof this, 'not'> = new Proxy(this, {
+    get: (_, property) => {
+      // TODO: docs: document that constructors of Harnesses are not allowed to be overridden!
+      const harnessConstructor = this.constructor as any;
+      const target = new harnessConstructor(this.queryTarget, this.name);
+
+      target[NgtxScenarioTestIsAssertionNegated] =
+        !this[NgtxScenarioTestIsAssertionNegated];
+
+      return (target as any)[property];
+    },
+  });
 
   public toBeFound(): NgtxScenarioTestingExtensionFn {
+    const verb = this.isAssertionNegated ? 'not be' : 'be';
+
     return ({ query }) => {
-      it('should be found', () => {
+      it(`[${this.targetName}] should ${verb} found`, () => {
         const target = query(this.queryTarget);
-        expect(target).toBeTruthy();
+
+        if (this.isAssertionNegated) {
+          expect(target).toBeFalsy();
+        } else {
+          expect(target).toBeTruthy();
+        }
+      });
+    };
+  }
+
+  public toBeMissing(): NgtxScenarioTestingExtensionFn {
+    const verb = this.isAssertionNegated ? 'not be' : 'be';
+
+    return ({ query }) => {
+      it(`[${this.targetName}] should ${verb} missing`, () => {
+        const target = query(this.queryTarget);
+
+        if (this.isAssertionNegated) {
+          expect(target).toBeTruthy();
+        } else {
+          expect(target).toBeFalsy();
+        }
       });
     };
   }
 
   public toContainText(text: string): NgtxScenarioTestingExtensionFn {
+    const verb = this.isAssertionNegated ? 'not contain' : 'contain';
+
     return ({ query }) => {
-      it(`should contain text "${text}"`, () => {
+      it(`[${this.targetName}] should ${verb} text "${text}"`, () => {
         const target = query(this.queryTarget);
-        expect(target.nativeElement.textContent).toContain(text);
+
+        if (this.isAssertionNegated) {
+          expect(target.nativeElement.textContent).not.toContain(text);
+        } else {
+          expect(target.nativeElement.textContent).toContain(text);
+        }
       });
     };
   }
 
   public toBeEnabled(value = true): NgtxScenarioTestingExtensionFn {
+    const verb = this.isAssertionNegated ? 'not be' : 'be';
     const state = value ? 'enabled' : 'disabled';
 
     return ({ query }) => {
-      it(`should be ${state}`, () => {
+      it(`[${this.targetName}] should ${verb} ${state}`, () => {
         const target = query(this.queryTarget);
         const component = target.componentInstance as any;
         const nativeElement = target.nativeElement as any;
 
-        if ('disabled' in component) {
-          expect(valueOf(component.disabled)).toBe(!value);
-        } else if ('enabled' in component) {
-          expect(valueOf(component.enabled)).toBe(value);
-        } else if ('disabled' in nativeElement) {
-          expect(nativeElement.disabled).toBe(!value);
-        } else if ('enabled' in nativeElement) {
-          // hint: e.g. web-components might have an enabled api
-          expect(nativeElement.enabled).toBe(value);
+        if (this.isAssertionNegated) {
+          if ('disabled' in component) {
+            return expect(valueOf(component.disabled)).not.toBe(!value);
+          } else if ('enabled' in component) {
+            return expect(valueOf(component.enabled)).not.toBe(value);
+          } else if ('disabled' in nativeElement) {
+            return expect(nativeElement.disabled).not.toBe(!value);
+          } else if ('enabled' in nativeElement) {
+            // hint: e.g. web-components might have an enabled api
+            return expect(nativeElement.enabled).not.toBe(value);
+          }
         } else {
-          throw new Error(
-            `${
-              this.queryTarget ?? 'host'
-            } doesn't have a "enabled" or "disabled" property`,
-          );
+          if ('disabled' in component) {
+            return expect(valueOf(component.disabled)).toBe(!value);
+          } else if ('enabled' in component) {
+            return expect(valueOf(component.enabled)).toBe(value);
+          } else if ('disabled' in nativeElement) {
+            return expect(nativeElement.disabled).toBe(!value);
+          } else if ('enabled' in nativeElement) {
+            // hint: e.g. web-components might have an enabled api
+            return expect(nativeElement.enabled).toBe(value);
+          }
         }
+
+        // hint: if no case matches, the target does not offer a enabled/disabled feature, failure:
+        throw new Error(
+          `${
+            this.queryTarget ?? 'host'
+          } doesn't have a "enabled" or "disabled" property`,
+        );
       });
     };
   }
@@ -166,17 +245,23 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   public toHaveState(
     stateDef: StateWithUnwrappedSignals<Component>,
   ): NgtxScenarioTestingExtensionFn {
+    const verb = this.isAssertionNegated ? 'not have' : 'have';
+
     return ({ query }) => {
       const objectKeys = Object.keys(stateDef) as (keyof Component)[];
       for (const propertyName of objectKeys) {
         const propertyNameAsString = propertyName.toString();
 
-        it(`should have correct value for property "${propertyNameAsString}"`, () => {
+        it(`[${this.targetName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
           const target = query(this.queryTarget);
           const propertyValue = target.componentInstance[propertyName];
           const rawValue = valueOf(propertyValue);
 
-          expect(rawValue).toEqual(stateDef[propertyName]);
+          if (this.isAssertionNegated) {
+            expect(rawValue).not.toEqual(stateDef[propertyName]);
+          } else {
+            expect(rawValue).toEqual(stateDef[propertyName]);
+          }
         });
       }
     };
@@ -190,6 +275,8 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         assertion({
           ...env,
           targetRef: () => env.query(this.queryTarget),
+          targetName: this.targetName,
+          isAssertionNegated: this.isAssertionNegated,
         }),
       );
   }

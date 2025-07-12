@@ -28,12 +28,19 @@ function withProvider<T>(token: Type<T>) {
     }
   };
 }
+
 function haveComponentType(
   type: Type<any>,
 ): NgtxScenarioTestingHarnessExtensionFn {
-  return ({ targetRef }) => {
-    it(`should be of component type "${type.constructor.name}"`, () => {
-      expect(targetRef().componentInstance).toBeInstanceOf(type);
+  return ({ targetRef, targetName, isAssertionNegated }) => {
+    const verb = isAssertionNegated ? 'not be' : 'be';
+
+    it(`[${targetName}] should ${verb} of component type "${type.constructor.name}"`, () => {
+      if (isAssertionNegated) {
+        expect(targetRef().componentInstance).not.toBeInstanceOf(type);
+      } else {
+        expect(targetRef().componentInstance).toBeInstanceOf(type);
+      }
     });
   };
 }
@@ -98,7 +105,7 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
 
   class the {
     static div = new ScenarioTestingHarness('div');
-    static text = new ScenarioTestingHarness(TextComponent);
+    static text = new ScenarioTestingHarness(TextComponent, 'heading');
     static button = new ScenarioTestingHarness(ButtonComponent);
   }
 
@@ -109,8 +116,12 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
     )
     .expect(
       the.div.toBeFound(),
+      the.div.not.toBeMissing(),
       the.text.toHaveState({ text: 'Jane' }),
+      the.text.not.toHaveState({ text: 'Henry' }),
       the.button.toBeEnabled(),
+      the.button.not.toBeEnabled(false),
       the.text.to(haveComponentType(TextComponent)),
+      the.text.not.to(haveComponentType(ButtonComponent)),
     );
 });
