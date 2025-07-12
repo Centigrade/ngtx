@@ -1,16 +1,7 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from './core';
 import { createDeclarativeTestingApi } from './declarative-testing/declarative-testing';
-import {
-  NgtxScenarioSetupFnMarker,
-  NgtxScenarioViewSetupFnMarker,
-} from './scenario-testing/symbols';
-import {
-  ComponentFixtureRef,
-  NgtxScenarioTestAssertionFn,
-  ScenarioSetupFn,
-  ScenarioViewSetupFn,
-} from './scenario-testing/types';
+import { ngtxScenarioTesting } from './scenario-testing/scenario-testing';
 import { NgtxSuite, UseFixtureOptions } from './types';
 
 /**
@@ -67,43 +58,22 @@ function _ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
 }
 
 export const ngtx = Object.assign(_ngtx, {
-  scenario: {
-    envSetupFn,
-    viewSetupFn,
-    testGeneratorFn,
-  },
-  is,
+  scenario: ngtxScenarioTesting,
+  // is,
 });
 
-function testGeneratorFn<Html extends HTMLElement, Component>(
-  fn: NgtxScenarioTestAssertionFn<Html, Component>,
-) {
-  return fn;
-}
-
-function envSetupFn(fn: () => unknown): ScenarioSetupFn {
-  return Object.assign(fn, { [NgtxScenarioSetupFnMarker]: true });
-}
-function viewSetupFn<T>(
-  fn: (fixtureRef: ComponentFixtureRef<T>) => unknown,
-): ScenarioViewSetupFn<T> {
-  return Object.assign(fn, {
-    [NgtxScenarioViewSetupFnMarker]: true,
-  }) as ScenarioViewSetupFn<T>;
-}
-
-function is(obj: any, type: 'scenarioSetupFn'): obj is ScenarioSetupFn;
-function is(
-  obj: any,
-  type: 'scenarioViewSetupFn',
-): obj is ScenarioViewSetupFn<any>;
-function is(obj: any, type: 'scenarioSetupFn' | 'scenarioViewSetupFn') {
-  switch (type) {
-    case 'scenarioSetupFn':
-      return obj?.[NgtxScenarioSetupFnMarker] === true;
-    case 'scenarioViewSetupFn':
-      return obj?.[NgtxScenarioViewSetupFnMarker] === true;
-    default:
-      return false;
-  }
-}
+// function is(obj: any, type: 'scenarioSetupFn'): obj is ScenarioSetupFn;
+// function is(
+//   obj: any,
+//   type: 'scenarioViewSetupFn',
+// ): obj is ScenarioViewSetupFn<any>;
+// function is(obj: any, type: 'scenarioSetupFn' | 'scenarioViewSetupFn') {
+//   switch (type) {
+//     case 'scenarioSetupFn':
+//       return obj?.[NgtxScenarioSetupFnMarker] === true;
+//     case 'scenarioViewSetupFn':
+//       return obj?.[NgtxScenarioViewSetupFnMarker] === true;
+//     default:
+//       return false;
+//   }
+// }

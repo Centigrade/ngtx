@@ -2,10 +2,8 @@ import { Component, inject, Injectable, input, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TestingModule } from '../../core/testing-modules';
-import {
-  ngtxScenarioTesting,
-  ScenarioTestingHarness,
-} from '../../scenario-testing/scenario-testing';
+import { ngtx } from '../../ngtx';
+import { ScenarioTestingHarness } from '../../scenario-testing/scenario-testing';
 import {
   NgtxScenarioTestingExtensionFn,
   NgtxScenarioTestingHarnessExtensionFn,
@@ -80,7 +78,7 @@ const MyTestingModule = TestingModule.configure({
   providers: [MyService],
 });
 
-ngtxScenarioTesting<ScenarioTestComponent>(({ scenario, useFixture }) => {
+ngtx.scenario<ScenarioTestComponent>(({ scenario, useFixture }) => {
   beforeEach(() => {
     MyTestingModule.forComponent(ScenarioTestComponent);
     const fixture = TestBed.createComponent(ScenarioTestComponent);
