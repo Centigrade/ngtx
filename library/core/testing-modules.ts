@@ -1,4 +1,5 @@
 import {
+  EnvironmentProviders,
   isStandalone,
   type NgModule,
   type Provider,
@@ -96,20 +97,15 @@ export class TestingModule implements ITestingModule {
       providers: this.providers,
     };
 
-    const flattenedTestingModule = this.imports
-      .filter((item): item is TestingModule =>
-        TestingModule.isTestingModule(item),
-      )
-      .reduce(
-        (completeTestingModule, testingModule) =>
-          mergeRecursively(completeTestingModule, testingModule),
-        module,
-      );
+    const flattenedTestingModule = this.flattenModuleHierarchy({
+      includeDeclarations: true,
+      module,
+    });
 
-    flattenedTestingModule.providers = swapMockWithOriginalProvider(
-      opts.providers ?? [],
-      flattenedTestingModule.providers,
-    );
+    flattenedTestingModule.providers = applyProviderOverrides({
+      providers: flattenedTestingModule.providers,
+      overrides: opts.providers ?? [],
+    });
 
     const additionalDeclarations = opts.additionalDeclarations ?? [];
     flattenedTestingModule.declarations = [
@@ -117,75 +113,7 @@ export class TestingModule implements ITestingModule {
       ...additionalDeclarations,
     ];
 
-    // run plugins:
-    flattenedTestingModule.imports = flattenedTestingModule.imports!.map(
-      (declarationOrModule) => {
-        if (isNgModule(declarationOrModule)) {
-          return declarationOrModule;
-        }
-        if (isComponent(declarationOrModule)) {
-          return this.applyPluginsToComponent({
-            objectUnderTest: componentType,
-            declaration: declarationOrModule,
-            isStandalone: true,
-          });
-        }
-        if (isDirective(declarationOrModule)) {
-          return this.applyPluginsToDirective({
-            objectUnderTest: componentType,
-            declaration: declarationOrModule,
-            isStandalone: true,
-          });
-        }
-        if (isPipe(declarationOrModule)) {
-          return this.applyPluginsToPipe({
-            objectUnderTest: componentType,
-            declaration: declarationOrModule,
-            isStandalone: true,
-          });
-        }
-
-        return declarationOrModule;
-      },
-    );
-    flattenedTestingModule.declarations =
-      flattenedTestingModule.declarations!.map((declaration) => {
-        if (isComponent(declaration)) {
-          return this.applyPluginsToComponent({
-            objectUnderTest: componentType,
-            declaration: declaration,
-            isStandalone: false,
-          });
-        }
-        if (isDirective(declaration)) {
-          return this.applyPluginsToDirective({
-            objectUnderTest: componentType,
-            declaration: declaration,
-            isStandalone: false,
-          });
-        }
-        if (isPipe(declaration)) {
-          return this.applyPluginsToPipe({
-            objectUnderTest: componentType,
-            declaration: declaration,
-            isStandalone: false,
-          });
-        }
-
-        return declaration;
-      });
-
-    flattenedTestingModule.providers = flattenedTestingModule.providers?.map(
-      (provider) =>
-        this.plugins.reduce(
-          (provider, plugin) =>
-            plugin.transformProviders?.({
-              provider,
-              objectUnderTest: componentType,
-            }),
-          provider,
-        ),
-    );
+    this.applyAllPlugins(flattenedTestingModule, componentType);
 
     let testBed = TestBed.configureTestingModule(flattenedTestingModule);
 
@@ -216,37 +144,125 @@ export class TestingModule implements ITestingModule {
       providers: flatten([this.providers, providers ?? []]),
     };
 
-    const flattenedTestingModule = this.imports
-      .filter((item): item is TestingModule =>
-        TestingModule.isTestingModule(item),
-      )
-      .reduce((completeTestingModule, testingModule) => {
-        return mergeRecursively(completeTestingModule, testingModule, false);
-      }, module);
+    const flattenedTestingModule = this.flattenModuleHierarchy({
+      includeDeclarations: false,
+      module,
+    });
 
-    flattenedTestingModule.providers = swapMockWithOriginalProvider(
-      providers ?? [],
-      flattenedTestingModule.providers ?? [],
-    );
+    flattenedTestingModule.providers = applyProviderOverrides({
+      providers: flattenedTestingModule.providers ?? [],
+      overrides: providers ?? [],
+    });
 
-    // run plugins
-    flattenedTestingModule.providers = flattenedTestingModule.providers?.map(
-      (provider) =>
-        this.plugins.reduce(
-          (provider, plugin) =>
-            plugin.transformProviders?.({
-              provider,
-              objectUnderTest: serviceType,
-            }),
-          provider,
-        ),
-    );
+    this.applyProviderPlugins(flattenedTestingModule, serviceType);
 
     TestBed.configureTestingModule(flattenedTestingModule);
 
     return TestBed.inject(serviceType);
   }
 
+  private applyAllPlugins(
+    flattenedTestingModule: ITestingModule,
+    componentType: Type<any>,
+  ) {
+    flattenedTestingModule.imports = flattenedTestingModule.imports!.map(
+      (declarationOrModule) => {
+        if (isNgModule(declarationOrModule)) {
+          return declarationOrModule;
+        }
+        if (isComponent(declarationOrModule)) {
+          return this.applyPluginsToComponent({
+            objectUnderTest: componentType,
+            declaration: declarationOrModule,
+            isStandalone: true,
+          });
+        }
+        if (isDirective(declarationOrModule)) {
+          return this.applyPluginsToDirective({
+            objectUnderTest: componentType,
+            declaration: declarationOrModule,
+            isStandalone: true,
+          });
+        }
+        if (isPipe(declarationOrModule)) {
+          return this.applyPluginsToPipe({
+            objectUnderTest: componentType,
+            declaration: declarationOrModule,
+            isStandalone: true,
+          });
+        }
+
+        return declarationOrModule;
+      },
+    );
+
+    flattenedTestingModule.declarations =
+      flattenedTestingModule.declarations!.map((declaration) => {
+        if (isComponent(declaration)) {
+          return this.applyPluginsToComponent({
+            objectUnderTest: componentType,
+            declaration: declaration,
+            isStandalone: false,
+          });
+        }
+        if (isDirective(declaration)) {
+          return this.applyPluginsToDirective({
+            objectUnderTest: componentType,
+            declaration: declaration,
+            isStandalone: false,
+          });
+        }
+        if (isPipe(declaration)) {
+          return this.applyPluginsToPipe({
+            objectUnderTest: componentType,
+            declaration: declaration,
+            isStandalone: false,
+          });
+        }
+
+        return declaration;
+      });
+
+    this.applyProviderPlugins(flattenedTestingModule, componentType);
+  }
+
+  private applyProviderPlugins(
+    flattenedTestingModule: ITestingModule,
+    objectUnderTest: Type<any>,
+  ) {
+    flattenedTestingModule.providers = flattenedTestingModule.providers?.map(
+      (provider) =>
+        this.plugins.reduce(
+          (provider, plugin) =>
+            plugin.transformProviders?.({
+              provider,
+              objectUnderTest,
+            }),
+          provider,
+        ),
+    );
+  }
+
+  private flattenModuleHierarchy(ctx: {
+    module: ITestingModule;
+    includeDeclarations?: boolean;
+  }) {
+    const { module, includeDeclarations } = ctx;
+
+    return this.imports
+      .filter((item): item is TestingModule =>
+        TestingModule.isTestingModule(item),
+      )
+      .reduce(
+        (completeTestingModule, testingModule) =>
+          mergeRecursively(
+            completeTestingModule,
+            testingModule,
+            includeDeclarations,
+          ),
+        module,
+      );
+  }
   private applyPluginsToComponent(ctx: DeclarationPluginContext): any {
     return this.plugins.reduce(
       (component, plugin) =>
@@ -299,22 +315,20 @@ function flatten<T>(array: (T | T[])[]): T[] {
   return array.flat(Infinity) as T[];
 }
 
-function swapMockWithOriginalProvider(
-  originals: Provider[],
-  providers: NgModule['providers'],
-) {
-  const providersWithoutMocks = providers?.filter((provider): any => {
-    if ('provide' in provider) {
-      return !originals.includes(provider.provide);
-    }
-    if (originals.includes(provider as any)) {
-      return false;
-    }
+function applyProviderOverrides(ctx: {
+  providers: NgModule['providers'];
+  overrides: Provider[];
+}) {
+  const { overrides, providers } = ctx;
 
-    return true;
-  });
+  const overrideTokens = overrides.map((provider) =>
+    'provide' in provider ? provider.provide : provider,
+  );
+  const nonOverriddenProviders = providers?.filter(
+    outWhenIncludedIn(overrideTokens),
+  );
 
-  return providersWithoutMocks?.concat(...originals);
+  return nonOverriddenProviders?.concat(...overrides);
 }
 
 function mergeRecursively<T extends ITestingModule, I extends ITestingModule>(
@@ -385,6 +399,18 @@ function ngModulesOnly(item: any) {
 }
 function uniqueOnly<T>(item: T, index: number, array: T[]) {
   return array.indexOf(item) === index;
+}
+function outWhenIncludedIn(overrideTokens: any[]) {
+  return (provider: Provider | EnvironmentProviders) => {
+    if ('provide' in provider) {
+      return !overrideTokens.includes(provider.provide);
+    }
+    if (overrideTokens.includes(provider)) {
+      return false;
+    }
+
+    return true;
+  };
 }
 function not(fn: (...args: any[]) => boolean) {
   return (...args: any[]) => !fn(...args);
