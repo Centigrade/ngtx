@@ -107,6 +107,7 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
 
   class the {
     static div = new ScenarioTestingHarness('div');
+    static paramIdDiv = new ScenarioTestingHarness('ngtx_route-param');
     static text = new ScenarioTestingHarness(TextComponent, {
       displayName: 'PageTitle',
     });
@@ -127,5 +128,6 @@ ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
       the.button.not.toBeEnabled(false),
       the.text.to(haveComponentType(TextComponent)),
       the.text.not.to(haveComponentType(ButtonComponent)),
+      the.paramIdDiv.toBeMissing(),
     );
 });

@@ -134,7 +134,9 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     }
 
     return typeof this.queryTarget === 'string'
-      ? this.queryTarget
+      ? isNgtxQuerySelector(this.queryTarget)
+        ? this.queryTarget.replace('ngtx_', '')
+        : this.queryTarget
       : getClassName(this.queryTarget);
   }
 
