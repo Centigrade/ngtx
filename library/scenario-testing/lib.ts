@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { StateWithUnwrappedSignals } from '../types';
 import { toHtmlString } from '../utility';
 import {
   inputNamesOf,
@@ -10,11 +11,7 @@ import {
 import { keysOf } from '../utility/object.utilities';
 import { isWritableSignal } from '../utility/signals';
 import { isNgtxElementOrMultiElement } from '../utility/type-guards';
-import {
-  DebugOptions,
-  ScenarioTestingSetupFn,
-  StateWithUnwrappedSignals,
-} from './types';
+import { DebugOptions, ScenarioTestingSetupFn } from './types';
 
 export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
   return {

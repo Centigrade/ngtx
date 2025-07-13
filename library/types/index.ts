@@ -5,10 +5,10 @@ import { WhenStatement } from '../declarative-testing/types';
 import { ScenarioTestingEnvironment } from '../scenario-testing/scenario-testing';
 import { NgtxTestingFrameworkAdapter } from '../scenario-testing/types';
 
-export type UnwrapSignals<T> = {
+export type StateWithUnwrappedSignals<T> = Partial<{
   [K in keyof T]: T[K] extends Signal<infer V> ? V : T[K];
-};
-export type ComponentProps<T> = Partial<UnwrapSignals<T>>;
+}>;
+export type ComponentProps<T> = Partial<StateWithUnwrappedSignals<T>>;
 
 export interface NgtxGlobalConfig {
   defaultSpyFactory: SpyFactoryFn;

@@ -9,6 +9,7 @@ export { NgtxTestEnv } from './test-env';
 export {
   AssertionApi,
   CallOptions,
+  CallSiteResolver,
   CssClass,
   WhenStatement as DeclarativeTestingApi,
   ElementList,
@@ -24,6 +25,7 @@ export {
   PropertiesOf,
   SpyOnFn,
   TargetRef,
+  /** @deprecated use {@link CallSiteResolver} instead. Will be removed in ngtx@3.0.0 */
   CallSiteResolver as TargetResolver,
   Token,
   WhenStatement,

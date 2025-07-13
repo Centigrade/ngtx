@@ -6,4 +6,5 @@ export {
   NgtxSuite,
   QueryTarget,
   SpyFactoryFn,
+  StateWithUnwrappedSignals,
 } from './index';

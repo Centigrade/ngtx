@@ -1,5 +1,9 @@
 import { By } from '@angular/platform-browser';
-import { QueryTarget, TypedDebugElement } from '../types';
+import {
+  QueryTarget,
+  StateWithUnwrappedSignals,
+  TypedDebugElement,
+} from '../types';
 import { isNgtxQuerySelector } from '../utility';
 import { keysOf } from '../utility/object.utilities';
 import { valueOf } from '../utility/signals';
@@ -11,7 +15,6 @@ import {
   NgtxTestingFrameworkAdapter,
   ScenarioTestCaseGeneratorFn,
   SetupInstruction,
-  StateWithUnwrappedSignals,
   TestActionFn,
   TestScenarioOptions,
 } from './types';

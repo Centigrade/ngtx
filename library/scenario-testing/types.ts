@@ -1,13 +1,8 @@
-import { Signal } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { TargetRef } from '../declarative-testing/types';
 import { QueryTarget, TypedDebugElement } from '../types';
 
 export type ComponentFixtureRef<T = any> = () => ComponentFixture<T>;
-export type StateWithUnwrappedSignals<T> = Partial<{
-  [p in keyof T]: T[p] extends Signal<infer V> ? V : T[p];
-}>;
-
 type SetupPhase = 'setup' | 'afterSetup';
 export type SetupInstruction<T> = {
   phase: SetupPhase;
