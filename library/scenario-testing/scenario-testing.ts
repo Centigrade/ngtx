@@ -14,9 +14,9 @@ import {
   TestScenarioOptions,
 } from './types';
 
-// --------------------------------
-// --------------------------------
-// --------------------------------
+// ------------------------------------------------------------------------------------------------
+// hint: scenario testing user-initialization is done here: <project-root>/library/ngtx.ts
+// ------------------------------------------------------------------------------------------------
 
 export class ScenarioTestingEnvironment<Component> {
   readonly #fixtureRef: ComponentFixtureRef<Component>;
