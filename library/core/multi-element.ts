@@ -1,11 +1,14 @@
 import { Type } from '@angular/core';
 import { ConverterFn, QueryTarget } from '../types';
 import { NgtxElement } from './element';
+import { NgtxElementSymbol } from './symbols';
 
 export class NgtxMultiElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
 > {
+  readonly [NgtxElementSymbol] = true;
+
   private readonly elements: NgtxElement<Html, Component>[];
 
   public get length(): number {

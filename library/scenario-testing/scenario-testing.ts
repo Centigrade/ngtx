@@ -1,16 +1,18 @@
 import { By } from '@angular/platform-browser';
 import { QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector } from '../utility';
+import { keysOf } from '../utility/object.utilities';
 import { valueOf } from '../utility/signals';
 import { getClassName } from '../utility/string.utilities';
 import { NgtxScenarioTestIsAssertionNegated } from './symbols';
 import {
   ComponentFixtureRef,
-  NgtxScenarioTestingExtensionFn,
   NgtxScenarioTestingHarnessExtensionFn,
   NgtxTestingFrameworkAdapter,
-  RemoteLogicFn,
+  ScenarioTestCaseGeneratorFn,
+  SetupInstruction,
   StateWithUnwrappedSignals,
+  TestActionFn,
   TestScenarioOptions,
 } from './types';
 
@@ -30,14 +32,14 @@ export class ScenarioTestingEnvironment<Component> {
 
   public readonly addTestScenario = Object.assign(
     (description: string) =>
-      new TestScenario(
+      new TestScenario<Component>(
         description,
         this.#fixtureRef,
         this.testingFrameworkAdapter,
       ),
     {
       only: (description: string) =>
-        new TestScenario(
+        new TestScenario<Component>(
           description,
           this.#fixtureRef,
           this.testingFrameworkAdapter,
@@ -48,27 +50,10 @@ export class ScenarioTestingEnvironment<Component> {
 }
 
 export class TestScenario<Component> {
-  private readonly get = <Html extends HTMLElement, Component>(
-    target: QueryTarget<Component> | undefined,
-  ): TypedDebugElement<Html, Component> => {
-    if (target == undefined) {
-      return this.#fixtureRef().debugElement;
-    }
-
-    if (typeof target === 'string') {
-      const selector = isNgtxQuerySelector(target)
-        ? `[data-ngtx="${target}"]`
-        : target;
-
-      return this.#fixtureRef().debugElement.query(By.css(selector));
-    }
-
-    return this.#fixtureRef().debugElement.query(By.directive(target));
-  };
-
   #fixtureRef: ComponentFixtureRef;
   #testingFrameworkAdapter: NgtxTestingFrameworkAdapter;
-  #setupFns: RemoteLogicFn<Component>[] = [];
+  #setupFns: TestActionFn<Component>[] = [];
+  #afterSetupFns: TestActionFn<Component>[] = [];
 
   constructor(
     public readonly description: string,
@@ -80,12 +65,21 @@ export class TestScenario<Component> {
     this.#testingFrameworkAdapter = testingFrameworkAdapter;
   }
 
-  public setup(...functions: RemoteLogicFn<any>[]) {
-    this.#setupFns = [...this.#setupFns, ...functions];
+  public setup(...setupInstructions: SetupInstruction<Component>[]) {
+    const setupFns = setupInstructions
+      .filter((e) => e.phase === 'setup')
+      .map((e) => e.run);
+    const afterSetupFns = setupInstructions
+      .filter((e) => e.phase === 'afterSetup')
+      .map((e) => e.run);
+
+    this.#setupFns = [...this.#setupFns, ...setupFns];
+    this.#afterSetupFns = [...this.#afterSetupFns, ...afterSetupFns];
+
     return this;
   }
 
-  public expect(...tests: RemoteLogicFn<any>[]) {
+  public expect(...tests: TestActionFn<any>[]) {
     const { describe, fdescribe, beforeEach } = this.#testingFrameworkAdapter;
     const describeFn = this.isFocusedTest ? fdescribe : describe;
 
@@ -94,7 +88,14 @@ export class TestScenario<Component> {
         for (const setup of this.#setupFns) {
           await setup({
             fixtureRef: this.#fixtureRef,
-            query: this.get,
+            query: this.#query,
+          });
+        }
+
+        for (const afterSetup of this.#afterSetupFns) {
+          await afterSetup({
+            fixtureRef: this.#fixtureRef,
+            query: this.#query,
           });
         }
       });
@@ -103,11 +104,29 @@ export class TestScenario<Component> {
       for (const test of tests) {
         test({
           fixtureRef: this.#fixtureRef,
-          query: this.get,
+          query: this.#query,
         });
       }
     });
   }
+
+  readonly #query = <Html extends HTMLElement, Component>(
+    target: QueryTarget<Component> | undefined,
+  ): TypedDebugElement<Html, Component> => {
+    if (target == undefined) {
+      return this.#fixtureRef().debugElement;
+    }
+
+    if (typeof target === 'string') {
+      const selector = isNgtxQuerySelector(target)
+        ? `[data-ngtx="${target}"]`.replace('ngtx_', '')
+        : target;
+
+      return this.#fixtureRef().debugElement.query(By.css(selector));
+    }
+
+    return this.#fixtureRef().debugElement.query(By.directive(target));
+  };
 }
 
 export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
@@ -148,7 +167,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     },
   });
 
-  public toBeFound(): NgtxScenarioTestingExtensionFn {
+  public toBeFound(): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
@@ -164,7 +183,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     };
   }
 
-  public toBeMissing(): NgtxScenarioTestingExtensionFn {
+  public toBeMissing(): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
@@ -180,7 +199,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     };
   }
 
-  public toContainText(text: string): NgtxScenarioTestingExtensionFn {
+  public toContainText(text: string): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not contain' : 'contain';
 
     return ({ query }) => {
@@ -196,7 +215,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     };
   }
 
-  public toBeEnabled(value = true): NgtxScenarioTestingExtensionFn {
+  public toBeEnabled(value = true): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
     const state = value ? 'enabled' : 'disabled';
 
@@ -242,7 +261,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
   public toHaveState(
     stateDef: StateWithUnwrappedSignals<Component>,
-  ): NgtxScenarioTestingExtensionFn {
+  ): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not have' : 'have';
 
     return ({ query }) => {
@@ -265,9 +284,34 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     };
   }
 
+  public toHaveStyle(
+    styleDef: Partial<CSSStyleDeclaration>,
+  ): ScenarioTestCaseGeneratorFn {
+    const verb = this.isAssertionNegated ? 'not have' : 'have';
+
+    return ({ query }) => {
+      const objectKeys = keysOf(styleDef);
+
+      for (const propertyName of objectKeys) {
+        const propertyNameAsString = propertyName.toString();
+
+        it(`[${this.displayName}] should ${verb} correct value for style-property "${propertyNameAsString}"`, () => {
+          const target = query(this.queryTarget);
+          const styleValue = target.nativeElement.style[propertyName];
+
+          if (this.isAssertionNegated) {
+            expect(styleValue).not.toEqual(styleDef[propertyName]);
+          } else {
+            expect(styleValue).toEqual(styleDef[propertyName]);
+          }
+        });
+      }
+    };
+  }
+
   public to(
     ...testAssertions: NgtxScenarioTestingHarnessExtensionFn<Html, Component>[]
-  ): NgtxScenarioTestingExtensionFn {
+  ): ScenarioTestCaseGeneratorFn {
     return (env) =>
       testAssertions.forEach((assertion) =>
         assertion({

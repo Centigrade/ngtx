@@ -1,15 +1,18 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
-import { isNgtxQuerySelector, printHtml, queryAll } from '../utility';
+import { isNgtxQuerySelector, queryAll, toHtmlString } from '../utility';
 import { removeDuplicates } from '../utility/filter.utilities';
 import { queryNgtxMarker } from '../utility/query-ngtx-marker';
 import { NgtxMultiElement } from './multi-element';
+import { NgtxElementSymbol } from './symbols';
 
 export class NgtxElement<
   Html extends HTMLElement = HTMLElement,
   Component = any,
 > {
+  readonly [NgtxElementSymbol] = true;
+
   public get nativeElement(): Html {
     return this.debugElement.nativeElement;
   }
@@ -134,6 +137,6 @@ export class NgtxElement<
   }
 
   debug(): void {
-    console.log(printHtml(this.debugElement.nativeElement));
+    console.log(toHtmlString(this.debugElement.nativeElement));
   }
 }

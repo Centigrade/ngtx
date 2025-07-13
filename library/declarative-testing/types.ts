@@ -481,6 +481,3 @@ export type SpyOnFn = <T>(
   methodName: keyof T,
   spyReturnValue?: any,
 ) => any;
-
-export type PublicApi<T> = OmitType<T, Function>;
-export type PublicMembers<T> = OmitType<T, any>;

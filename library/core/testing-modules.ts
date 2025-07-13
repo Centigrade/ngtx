@@ -7,7 +7,7 @@ import {
   type Type,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { PublicApi } from '../declarative-testing/types';
+import { PublicApi } from '@centigrade/hypertyper';
 import { TestingModuleSymbol } from './symbols';
 import {
   DeclarationPluginContext,

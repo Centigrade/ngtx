@@ -1,24 +1,154 @@
-import { Type } from '@angular/core';
-import { NgtxScenarioTestingExtensionFn } from './types';
+import { ChangeDetectorRef, Type } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
+import { toHtmlString } from '../utility';
+import {
+  inputNamesOf,
+  inputsOf,
+  toSimpleChanges,
+} from '../utility/angular.utilities';
+import { keysOf } from '../utility/object.utilities';
+import { isWritableSignal } from '../utility/signals';
+import { isNgtxElementOrMultiElement } from '../utility/type-guards';
+import {
+  DebugOptions,
+  ScenarioTestingSetupFn,
+  StateWithUnwrappedSignals,
+} from './types';
 
-export function withInitialChangeDetection(): NgtxScenarioTestingExtensionFn {
-  return ({ fixtureRef }) => fixtureRef().detectChanges();
+export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
+  return {
+    phase: 'afterSetup',
+    run: ({ fixtureRef }) => {
+      const fixture = fixtureRef();
+      const changeDetectorRef =
+        fixture.debugElement.injector.get(ChangeDetectorRef);
+      const component = fixture.debugElement.componentInstance;
+      const componentInputs = inputsOf(component);
+
+      if ('ngOnChanges' in component) {
+        const changes = toSimpleChanges(componentInputs);
+        component.ngOnChanges(changes);
+      }
+      if ('ngOnInit' in component) {
+        component.ngOnInit();
+      }
+      // TODO: other hooks
+
+      // hint: detecting via ChangeDetectorRef also updates OnPush components:
+      changeDetectorRef.detectChanges();
+    },
+  };
+}
+
+type StripMethods<T> = {
+  [K in keyof T as T[K] extends Function ? never : K]: T[K];
+};
+
+export function withHostState<T>(
+  stateDef: StateWithUnwrappedSignals<StripMethods<T>>,
+): ScenarioTestingSetupFn<T> {
+  return {
+    phase: 'setup',
+    run: ({ fixtureRef }) => {
+      const fixture = fixtureRef();
+      const host = fixture.componentRef;
+
+      const inputNames = inputNamesOf(fixture.componentInstance);
+      const stateProperties = keysOf(stateDef);
+      const component = host.instance as any;
+
+      for (const property of stateProperties) {
+        if (inputNames.includes(property)) {
+          host.setInput(property, stateDef[property]);
+          continue;
+        }
+
+        if (isWritableSignal(component[property])) {
+          component[property].set(stateDef[property]!);
+          continue;
+        }
+
+        component[property] = stateDef[property]!;
+      }
+    },
+  };
 }
 
 export function withProvider<T>(token: Type<T>) {
   return class {
-    static havingState(
-      state: T & Record<string, any>,
-    ): NgtxScenarioTestingExtensionFn {
-      return ({ fixtureRef }) => {
-        const injector = fixtureRef().debugElement.injector;
-        const instance = injector.get(token);
+    static havingState(state: T & Record<string, any>): ScenarioTestingSetupFn {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const injector = fixtureRef().debugElement.injector;
+          const instance = injector.get(token);
 
-        const objectKeys = Object.keys(state) as (keyof T)[];
-        for (const key of objectKeys) {
-          instance[key] = state[key];
-        }
+          const objectKeys = Object.keys(state) as (keyof T)[];
+          for (const key of objectKeys) {
+            instance[key] = state[key];
+          }
+        },
       };
     }
+  };
+}
+
+export function withRouteParams(
+  params: Record<string, unknown>,
+): ScenarioTestingSetupFn {
+  return {
+    phase: 'setup',
+    run: ({ fixtureRef }) => {
+      const activatedRoute =
+        fixtureRef().debugElement.injector.get(ActivatedRoute);
+
+      activatedRoute.params = new BehaviorSubject(params);
+      activatedRoute.snapshot.params = params;
+    },
+  };
+}
+
+export function debugAfterSetup<T>(
+  opts: DebugOptions<T> = {},
+): ScenarioTestingSetupFn {
+  const { stateOf, map } = opts;
+
+  const targetQueryOrRef = stateOf as any;
+  const identity = (v: unknown) => v;
+  const mapFn = map ?? identity;
+
+  return {
+    phase: 'afterSetup',
+    run: ({ fixtureRef, query }) => {
+      console.log(toHtmlString(fixtureRef().nativeElement));
+
+      if (targetQueryOrRef) {
+        if (typeof targetQueryOrRef === 'function') {
+          const maybeNgtxElement = targetQueryOrRef();
+          const componentInstances = isNgtxElementOrMultiElement(
+            maybeNgtxElement,
+          )
+            ? 'componentInstance' in maybeNgtxElement
+              ? [maybeNgtxElement.componentInstance]
+              : maybeNgtxElement.unwrap().map((x) => x.componentInstance)
+            : [query(targetQueryOrRef).componentInstance];
+
+          console.log('Component state(s):');
+          const isMappedHint = map != undefined ? ' (mapped)' : '';
+          componentInstances
+            .map((value) => [value.constructor.name, mapFn(value)] as const)
+            .forEach(([componentName, state], index) =>
+              console.log(
+                `------- state of: ${componentName} #${
+                  index + 1
+                }${isMappedHint} --------\n`,
+                state,
+                `\n\n`,
+              ),
+            );
+        }
+      }
+    },
   };
 }

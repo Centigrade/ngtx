@@ -6,7 +6,10 @@ import { isDebugElement, isNativeElement } from './type-guards';
 // ---------------------------------------------
 
 // TODO: langju: clean up printing!
-export function printHtml(node: DebugElement | Node, indentation = ''): string {
+export function toHtmlString(
+  node: DebugElement | Node,
+  indentation = '',
+): string {
   const nativeElement = isDebugElement(node) ? node.nativeElement : node;
   const elements = printNative(nativeElement, indentation);
 
@@ -18,7 +21,7 @@ function printNative(node: Node, indentation: string): string[] {
 
   if (node.childNodes.length > 0) {
     const printedChildren = Array.from(node.childNodes).map((child) =>
-      printHtml(child, indentation + '  '),
+      toHtmlString(child, indentation + '  '),
     );
 
     children.push(...printedChildren.reverse());

@@ -1,17 +1,26 @@
-import { Component, inject, Injectable, input, Type } from '@angular/core';
+import {
+  Component,
+  inject,
+  Injectable,
+  Input,
+  input,
+  SimpleChanges,
+  Type,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TestingModule } from '../../core/testing-modules';
 import { containText } from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
 import {
-  withInitialChangeDetection,
+  withChangeDetectionAfterSetup,
+  withHostState,
   withProvider,
+  withRouteParams,
 } from '../../scenario-testing/lib';
 import { ScenarioTestingHarness } from '../../scenario-testing/scenario-testing';
 import { NgtxScenarioTestingHarnessExtensionFn } from '../../scenario-testing/types';
 import { getClassName } from '../../utility/string.utilities';
-import { ngMocksPlugin } from '../shared/util';
 
 function haveComponentType(
   type: Type<any>,
@@ -56,30 +65,45 @@ class ButtonComponent {
 @Component({
   standalone: false,
   template: `
-    <div class="div-style" style="color: red; fontSize: 12px">
+    <div
+      class="div-style"
+      style="color: red; fontSize: 12px"
+      [style.background]="css"
+    >
       {{ myService.value }}
     </div>
     <app-text [text]="myService.value" />
     <app-button [disabled]="false" />
+
     @if(paramId){
     <div data-ngtx="route-param" [attr.title]="paramId">{{ paramId }}</div>
     }
   `,
 })
 class ScenarioTestComponent {
+  @Input() color = 'green';
+  disabled = input(false);
+
   myService = inject(MyService);
   route = inject(ActivatedRoute);
-  paramId = this.route.snapshot.params.id;
+  paramId?: string;
+  css?: string;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if ('color' in changes) {
+      this.css = this.color;
+    }
+  }
+  ngOnInit() {
+    this.paramId = this.route.snapshot.params.id;
+  }
 }
 
-const MyTestingModule = TestingModule.configure(
-  {
-    imports: [RouterModule.forRoot([]), ButtonComponent],
-    declarations: [ScenarioTestComponent, TextComponent],
-    providers: [MyService],
-  },
-  [ngMocksPlugin],
-);
+const MyTestingModule = TestingModule.configure({
+  imports: [RouterModule.forRoot([]), ButtonComponent],
+  declarations: [ScenarioTestComponent, TextComponent],
+  providers: [MyService],
+});
 
 describe(
   'ScenarioTestComponent',
@@ -107,7 +131,7 @@ describe(
     scenario('Jane')
       .setup(
         withProvider(MyService).havingState({ value: 'Jane' }),
-        withInitialChangeDetection(),
+        withChangeDetectionAfterSetup(),
       )
       .expect(
         the.div.toBeFound(),
@@ -123,11 +147,13 @@ describe(
 
     scenario('Henry')
       .setup(
+        withRouteParams({ id: '42' }),
         withProvider(MyService).havingState({ value: 'Henry' }),
-        withInitialChangeDetection(),
+        withHostState({ color: 'blue' }),
+        withChangeDetectionAfterSetup(),
       )
       .expect(
-        the.div.toBeFound(),
+        the.div.toHaveStyle({ background: 'blue' }),
         the.div.not.toBeMissing(),
         the.text.toHaveState({ text: 'Henry' }),
         the.text.not.toHaveState({ text: 'Jane' }),
@@ -135,7 +161,7 @@ describe(
         the.button.not.toBeEnabled(false),
         the.text.to(haveComponentType(TextComponent)),
         the.text.not.to(haveComponentType(ButtonComponent)),
-        the.paramIdDiv.toBeMissing(),
+        the.paramIdDiv.toBeFound(),
       );
 
     it('should work', () => {
