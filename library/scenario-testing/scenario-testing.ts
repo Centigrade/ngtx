@@ -28,13 +28,23 @@ export class ScenarioTestingEnvironment<Component> {
     this.#fixtureRef = fixtureRef;
   }
 
-  public addTestScenario(description: string) {
-    return new TestScenario(
-      description,
-      this.#fixtureRef,
-      this.testingFrameworkAdapter,
-    );
-  }
+  public readonly addTestScenario = Object.assign(
+    (description: string) =>
+      new TestScenario(
+        description,
+        this.#fixtureRef,
+        this.testingFrameworkAdapter,
+      ),
+    {
+      only: (description: string) =>
+        new TestScenario(
+          description,
+          this.#fixtureRef,
+          this.testingFrameworkAdapter,
+          true,
+        ),
+    },
+  );
 }
 
 export class TestScenario<Component> {
@@ -61,9 +71,10 @@ export class TestScenario<Component> {
   #setupFns: RemoteLogicFn<Component>[] = [];
 
   constructor(
-    public description: string,
+    public readonly description: string,
     fixtureRef: ComponentFixtureRef,
     testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
+    public readonly isFocusedTest = false,
   ) {
     this.#fixtureRef = fixtureRef;
     this.#testingFrameworkAdapter = testingFrameworkAdapter;
@@ -75,9 +86,10 @@ export class TestScenario<Component> {
   }
 
   public expect(...tests: RemoteLogicFn<any>[]) {
-    const { describe, beforeEach } = this.#testingFrameworkAdapter;
+    const { describe, fdescribe, beforeEach } = this.#testingFrameworkAdapter;
+    const describeFn = this.isFocusedTest ? fdescribe : describe;
 
-    describe(this.description, () => {
+    describeFn(this.description, () => {
       beforeEach(async () => {
         for (const setup of this.#setupFns) {
           await setup({

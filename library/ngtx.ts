@@ -67,7 +67,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
     getAll: ngtxFixture.getAll.bind(ngtxFixture),
     triggerEvent: ngtxFixture.triggerEvent.bind(ngtxFixture),
     // scenario testing
-    scenario: scenarioTestingEnv.addTestScenario.bind(scenarioTestingEnv),
+    scenario: scenarioTestingEnv.addTestScenario,
   };
   //#endregion
 
