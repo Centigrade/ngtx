@@ -1,6 +1,4 @@
-import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { NGTX_GLOBAL_CONFIG } from '../global-config';
 import { QueryTarget, TypedDebugElement } from '../types';
 import { isNgtxQuerySelector } from '../utility';
 import { valueOf } from '../utility/signals';
@@ -16,34 +14,18 @@ import {
   TestScenarioOptions,
 } from './types';
 
-export function ngtxScenarioTesting<T>(
-  fn: (scenarioTesting: NgtxScenarioTesting<T>) => unknown,
-) {
-  const { testingFrameworkAdapter } = NGTX_GLOBAL_CONFIG;
-
-  const env = new ScenarioTestingEnvironment<T>(testingFrameworkAdapter!);
-  const userLandEnv: NgtxScenarioTesting<T> = {
-    scenario: env.addTestScenario.bind(env),
-    useFixture: env.setFixture.bind(env),
-  };
-
-  return () => fn(userLandEnv);
-}
-
 // --------------------------------
 // --------------------------------
 // --------------------------------
 
-class ScenarioTestingEnvironment<Component> {
-  #fixture!: ComponentFixture<Component>;
-  readonly #fixtureRef = () => this.#fixture;
+export class ScenarioTestingEnvironment<Component> {
+  readonly #fixtureRef: ComponentFixtureRef<Component>;
 
   constructor(
     public readonly testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
-  ) {}
-
-  public setFixture(fixture: ComponentFixture<Component>) {
-    this.#fixture = fixture;
+    fixtureRef: ComponentFixtureRef<Component>,
+  ) {
+    this.#fixtureRef = fixtureRef;
   }
 
   public addTestScenario(description: string) {
@@ -55,7 +37,7 @@ class ScenarioTestingEnvironment<Component> {
   }
 }
 
-class TestScenario<Component> {
+export class TestScenario<Component> {
   private readonly get = <Html extends HTMLElement, Component>(
     target: QueryTarget<Component> | undefined,
   ): TypedDebugElement<Html, Component> => {
@@ -285,10 +267,3 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
       );
   }
 }
-
-// --------
-
-export type NgtxScenarioTesting<T> = {
-  scenario: ScenarioTestingEnvironment<T>['addTestScenario'];
-  useFixture: ScenarioTestingEnvironment<T>['setFixture'];
-};

@@ -2,6 +2,7 @@ import { DebugElement, Signal, SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from '../core';
 import { WhenStatement } from '../declarative-testing/types';
+import { ScenarioTestingEnvironment } from '../scenario-testing/scenario-testing';
 import { NgtxTestingFrameworkAdapter } from '../scenario-testing/types';
 
 export type UnwrapSignals<T> = {
@@ -40,6 +41,7 @@ export type NgtxSuite<T> = Omit<
   ): void;
   When: WhenStatement;
   host(): NgtxElement<HTMLElement, T>;
+  scenario: ScenarioTestingEnvironment<T>['addTestScenario'];
 };
 
 /** Defines options that affects how ngtx gets initialized. */

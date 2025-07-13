@@ -2,6 +2,7 @@ import { Component, inject, Injectable, input, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TestingModule } from '../../core/testing-modules';
+import { containText } from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
 import {
   withInitialChangeDetection,
@@ -82,7 +83,7 @@ const MyTestingModule = TestingModule.configure(
 
 describe(
   'ScenarioTestComponent',
-  ngtx.scenarios<ScenarioTestComponent>(({ scenario, useFixture }) => {
+  ngtx<ScenarioTestComponent>(({ When, host, get, scenario, useFixture }) => {
     beforeEach(() => {
       MyTestingModule.forComponent(ScenarioTestComponent);
       const fixture = TestBed.createComponent(ScenarioTestComponent);
@@ -98,7 +99,12 @@ describe(
       static button = new ScenarioTestingHarness(ButtonComponent);
     }
 
-    scenario('admin form')
+    class that {
+      static button = () => get(ButtonComponent);
+      static text = () => get(TextComponent);
+    }
+
+    scenario('jane')
       .setup(
         withProvider(MyService).havingState({ value: 'Jane' }),
         withInitialChangeDetection(),
@@ -114,5 +120,26 @@ describe(
         the.text.not.to(haveComponentType(ButtonComponent)),
         the.paramIdDiv.toBeMissing(),
       );
+
+    scenario('henry')
+      .setup(
+        withProvider(MyService).havingState({ value: 'Henry' }),
+        withInitialChangeDetection(),
+      )
+      .expect(
+        the.div.toBeFound(),
+        the.div.not.toBeMissing(),
+        the.text.toHaveState({ text: 'Henry' }),
+        the.text.not.toHaveState({ text: 'Jane' }),
+        the.button.toBeEnabled(),
+        the.button.not.toBeEnabled(false),
+        the.text.to(haveComponentType(TextComponent)),
+        the.text.not.to(haveComponentType(ButtonComponent)),
+        the.paramIdDiv.toBeMissing(),
+      );
+
+    it('should work', () => {
+      When(host).rendered().expect(that.text).not.to(containText('Jane'));
+    });
   }),
 );

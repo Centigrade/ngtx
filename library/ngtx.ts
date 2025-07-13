@@ -1,7 +1,8 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { NgtxElement, NgtxFixture } from './core';
 import { createDeclarativeTestingApi } from './declarative-testing/declarative-testing';
-import { ngtxScenarioTesting } from './scenario-testing/scenario-testing';
+import { NGTX_GLOBAL_CONFIG } from './global-config';
+import { ScenarioTestingEnvironment } from './scenario-testing/scenario-testing';
 import { NgtxSuite, UseFixtureOptions } from './types';
 
 /**
@@ -25,11 +26,23 @@ import { NgtxSuite, UseFixtureOptions } from './types';
  * ---
  * @param suite The test suite to be enriched with ngtx helper features.
  */
-function _ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
+export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   const ngtxFixture = new NgtxFixture();
-  const When = createDeclarativeTestingApi(ngtxFixture);
 
-  const ngtxImpl = {
+  //#region declarative testing
+  const When = createDeclarativeTestingApi(ngtxFixture);
+  //#endregion
+
+  //#region scenario testing
+  const { testingFrameworkAdapter } = NGTX_GLOBAL_CONFIG;
+  const scenarioTestingEnv = new ScenarioTestingEnvironment<T>(
+    testingFrameworkAdapter!,
+    () => ngtxFixture['fixture']!,
+  );
+  //#endregion
+
+  //#region ngtx main library
+  const library = {
     useFixture: <Html extends HTMLElement = HTMLElement, T = any>(
       fixture: ComponentFixture<T>,
       opts: UseFixtureOptions | boolean = {},
@@ -46,34 +59,17 @@ function _ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
         options.skipInitialChangeDetection,
       ) as NgtxFixture<Html, T>;
     },
+    // declarative testing
     When,
     host: () => ngtxFixture.rootElement as NgtxElement<HTMLElement, T>,
     detectChanges: ngtxFixture.detectChanges.bind(ngtxFixture),
     get: ngtxFixture.get.bind(ngtxFixture),
     getAll: ngtxFixture.getAll.bind(ngtxFixture),
     triggerEvent: ngtxFixture.triggerEvent.bind(ngtxFixture),
+    // scenario testing
+    scenario: scenarioTestingEnv.addTestScenario.bind(scenarioTestingEnv),
   };
+  //#endregion
 
-  return () => suite(ngtxImpl);
+  return () => suite(library);
 }
-
-export const ngtx = Object.assign(_ngtx, {
-  scenarios: ngtxScenarioTesting,
-  // is,
-});
-
-// function is(obj: any, type: 'scenarioSetupFn'): obj is ScenarioSetupFn;
-// function is(
-//   obj: any,
-//   type: 'scenarioViewSetupFn',
-// ): obj is ScenarioViewSetupFn<any>;
-// function is(obj: any, type: 'scenarioSetupFn' | 'scenarioViewSetupFn') {
-//   switch (type) {
-//     case 'scenarioSetupFn':
-//       return obj?.[NgtxScenarioSetupFnMarker] === true;
-//     case 'scenarioViewSetupFn':
-//       return obj?.[NgtxScenarioViewSetupFnMarker] === true;
-//     default:
-//       return false;
-//   }
-// }
