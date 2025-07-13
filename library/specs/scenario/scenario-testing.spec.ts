@@ -104,7 +104,7 @@ describe(
       static text = () => get(TextComponent);
     }
 
-    scenario('jane')
+    scenario('Jane')
       .setup(
         withProvider(MyService).havingState({ value: 'Jane' }),
         withInitialChangeDetection(),
@@ -121,7 +121,7 @@ describe(
         the.paramIdDiv.toBeMissing(),
       );
 
-    scenario('henry')
+    scenario('Henry')
       .setup(
         withProvider(MyService).havingState({ value: 'Henry' }),
         withInitialChangeDetection(),
