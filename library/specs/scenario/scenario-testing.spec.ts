@@ -89,8 +89,21 @@ class ButtonComponent {
     <div id="signal">{{ myService.signal() }}</div>
 
     @if (paramId) {
-      <div data-ngtx="route-param" [attr.title]="paramId">{{ paramId }}</div>
+      <div
+        data-ngtx="route-param"
+        [style.background]="css"
+        [attr.title]="paramId"
+      >
+        {{ paramId }}
+      </div>
     }
+
+    <nav>
+      <a>A</a>
+      <a>B</a>
+      <a>C</a>
+      <a>D</a>
+    </nav>
   `,
 })
 class ScenarioTestComponent {
@@ -128,21 +141,41 @@ describe(
     });
 
     class the {
-      static styledDiv = ScenarioTestingHarness.for('.div-style');
-      static paramIdDiv = ScenarioTestingHarness.for('ngtx_route-param');
-      static text = ScenarioTestingHarness.for(TextComponent, {
+      static styledDiv = ScenarioTestingHarness.forAll('div').first();
+      static paramIdDiv = ScenarioTestingHarness.forAll('ngtx_route-param');
+      static text = ScenarioTestingHarness.forAll(TextComponent, {
         displayName: 'PageTitle',
       });
-      static button = ScenarioTestingHarness.for(ButtonComponent);
-      static divWithValueTextContent = ScenarioTestingHarness.for('#value');
-      static divWithSubjectTextContent = ScenarioTestingHarness.for('#subject');
-      static divWithSignalTextContent = ScenarioTestingHarness.for('#signal');
+      static button = ScenarioTestingHarness.forAll(ButtonComponent);
+      static divWithValueTextContent = ScenarioTestingHarness.forAll('#value');
+      static divWithSubjectTextContent =
+        ScenarioTestingHarness.forAll('#subject');
+      static divWithSignalTextContent =
+        ScenarioTestingHarness.forAll('#signal');
+
+      static links = ScenarioTestingHarness.forAll('a');
+      static firstLink = ScenarioTestingHarness.forAll('a').first();
+      static thirdLink = ScenarioTestingHarness.forAll('a').nth(3);
+      static secondAndThirdLink = ScenarioTestingHarness.forAll('a').range(
+        2,
+        3,
+      );
+      static secondToFourthLink = ScenarioTestingHarness.forAll('a').range(2);
+      static lastLink = ScenarioTestingHarness.forAll('a').last();
     }
 
     class that {
       static button = () => get(ButtonComponent);
       static text = () => get(TextComponent);
     }
+
+    scenario('links').expect(
+      the.links.toBeFound({ times: 4 }),
+      the.firstLink.toContainText('A'),
+      the.secondAndThirdLink.toBeFound({ times: 2 }),
+      the.secondToFourthLink.toBeFound({ times: 3 }),
+      the.lastLink.toContainText('D'),
+    );
 
     scenario('Jane')
       .setup(

@@ -10,13 +10,17 @@ import { isNgtxQuerySelector } from '../utility';
 import { keysOf } from '../utility/object.utilities';
 import { valueOf } from '../utility/signals';
 import { getClassName } from '../utility/string.utilities';
-import { NgtxScenarioTestIsAssertionNegated } from './symbols';
+import {
+  NgtxScenarioTestIsAssertionNegated,
+  NgtxScenarioTestTargetFilter,
+} from './symbols';
 import {
   ComponentFixtureRef,
   NgtxScenarioTestingHarnessExtensionFn,
   NgtxTestingFrameworkAdapter,
   ScenarioTestCaseGeneratorFn,
   SetupInstruction,
+  TargetFilter,
   TestActionFn,
   TestScenarioOptions,
 } from './types';
@@ -117,9 +121,10 @@ export class TestScenario<Component> {
 
   readonly #query = <Html extends HTMLElement, Component>(
     target: QueryTarget<Component> | undefined,
+    filter: TargetFilter<Html, Component>,
   ): TypedDebugElement<Html, Component>[] => {
     if (target == undefined) {
-      return [this.#fixtureRef().debugElement];
+      return [this.#fixtureRef().debugElement].filter(filter.filter);
     }
 
     let searchMethod: Predicate<DebugElement>;
@@ -135,14 +140,15 @@ export class TestScenario<Component> {
     }
 
     const results = this.#fixtureRef().debugElement.queryAll(searchMethod);
-    return results.length > 0 ? results : (null as any);
+    return results.length > 0 ? results.filter(filter.filter) : (null as any);
   };
 }
 
 export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   [NgtxScenarioTestIsAssertionNegated] = false;
+  [NgtxScenarioTestTargetFilter]?: TargetFilter<Html, Component>;
 
-  static for<Html extends HTMLElement, Component>(
+  static forAll<Html extends HTMLElement, Component>(
     queryTarget?: QueryTarget<Component>,
     options?: TestScenarioOptions,
   ) {
@@ -160,36 +166,90 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
   public get displayName() {
     if (this.options?.displayName) {
-      return this.options?.displayName;
+      return this.options.displayName + this.filter.name;
     }
 
-    return typeof this.queryTarget === 'string'
-      ? isNgtxQuerySelector(this.queryTarget)
-        ? this.queryTarget.replace('ngtx_', '')
-        : this.queryTarget
-      : getClassName(this.queryTarget);
+    const name =
+      typeof this.queryTarget === 'string'
+        ? isNgtxQuerySelector(this.queryTarget)
+          ? this.queryTarget.replace('ngtx_', '')
+          : this.queryTarget
+        : getClassName(this.queryTarget);
+
+    return name + this.filter.name;
   }
 
   public readonly not: Omit<typeof this, 'not'> = new Proxy(this, {
     get: (_, property) => {
-      // TODO: docs: document that constructors of Harnesses are not allowed to be overridden!
-      const harnessConstructor = this.constructor as any;
-      const optionsClone = { ...this.options };
-      const target = new harnessConstructor(this.queryTarget, optionsClone);
+      const harnessClone = this.clone();
 
-      target[NgtxScenarioTestIsAssertionNegated] =
+      harnessClone[NgtxScenarioTestIsAssertionNegated] =
         !this[NgtxScenarioTestIsAssertionNegated];
 
-      return (target as any)[property];
+      return (harnessClone as any)[property];
     },
   });
+
+  //#region filter functions
+  public readonly nth = (nth: number) => {
+    this.checkNoFilterSet();
+
+    const harnessClone = this.clone();
+    harnessClone[NgtxScenarioTestTargetFilter] = {
+      name: `:nth(${nth})`,
+      filter: (_, index) => index === nth - 1,
+    };
+
+    return harnessClone;
+  };
+  public readonly first = () => {
+    this.checkNoFilterSet();
+
+    const harnessClone = this.clone();
+    harnessClone[NgtxScenarioTestTargetFilter] = {
+      name: `:first`,
+      filter: (_, index) => index === 0,
+    };
+
+    return harnessClone;
+  };
+  public readonly last = () => {
+    this.checkNoFilterSet();
+
+    const harnessClone = this.clone();
+    harnessClone[NgtxScenarioTestTargetFilter] = {
+      name: `:last`,
+      filter: (_, index, list) => index === list.length - 1,
+    };
+
+    return harnessClone;
+  };
+  public readonly range = (from: number, to?: number) => {
+    this.checkNoFilterSet();
+
+    const harnessClone = this.clone();
+    harnessClone[NgtxScenarioTestTargetFilter] = {
+      name: `:range(${from} to ${to ?? 'end'})`,
+      filter: (_, index, list) =>
+        index >= from - 1 && index <= (to ?? list.length) - 1,
+    };
+
+    return harnessClone;
+  };
+  //#endregion
+
+  protected get filter() {
+    return (
+      this[NgtxScenarioTestTargetFilter] ?? { name: '', filter: () => true }
+    );
+  }
 
   public toBeFound(opts: FindingOptions = {}): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
       it(`[${this.displayName}] should ${verb} found`, () => {
-        const targets = query(this.queryTarget);
+        const targets = query(this.queryTarget, this.filter);
 
         if (this.isAssertionNegated) {
           expect(targets).toBeFalsy();
@@ -207,7 +267,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return ({ query }) => {
       it(`[${this.displayName}] should ${verb} missing`, () => {
-        const target = query(this.queryTarget);
+        const target = query(this.queryTarget, this.filter);
 
         if (this.isAssertionNegated) {
           expect(target).toBeTruthy();
@@ -223,7 +283,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return ({ query }) => {
       it(`[${this.displayName}] should ${verb} text "${text}"`, () => {
-        const targets = query(this.queryTarget);
+        const targets = query(this.queryTarget, this.filter);
         expect(targets).toBeTruthy();
 
         for (const target of targets) {
@@ -243,7 +303,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return ({ query }) => {
       it(`[${this.displayName}] should ${verb} ${state}`, () => {
-        const targets = query(this.queryTarget);
+        const targets = query(this.queryTarget, this.filter);
         expect(targets).toBeTruthy();
 
         for (const target of targets) {
@@ -297,7 +357,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         const propertyNameAsString = propertyName.toString();
 
         it(`[${this.displayName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
-          const targets = query(this.queryTarget);
+          const targets = query(this.queryTarget, this.filter);
           expect(targets).toBeTruthy();
 
           for (const target of targets) {
@@ -327,7 +387,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         const propertyNameAsString = propertyName.toString();
 
         it(`[${this.displayName}] should ${verb} correct value for style-property "${propertyNameAsString}"`, () => {
-          const targets = query(this.queryTarget);
+          const targets = query(this.queryTarget, this.filter);
           expect(targets).toBeTruthy();
 
           for (const target of targets) {
@@ -351,10 +411,27 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
       testAssertions.forEach((assertion) =>
         assertion({
           ...env,
-          targetRef: () => env.query(this.queryTarget),
+          targetRef: () => env.query(this.queryTarget, this.filter),
           displayName: this.displayName,
           isAssertionNegated: this.isAssertionNegated,
         }),
       );
+  }
+
+  protected clone(): ScenarioTestingHarness<Html, Component> {
+    // TODO: docs: document that constructors of Harnesses are not allowed to be overridden!
+    const harnessConstructor = this.constructor as any;
+    const optionsClone = { ...this.options };
+    const target = new harnessConstructor(this.queryTarget, optionsClone);
+
+    return target;
+  }
+
+  protected checkNoFilterSet() {
+    if (this[NgtxScenarioTestTargetFilter] != undefined) {
+      throw new Error(
+        `[${this.displayName}] Filters like "nth", "first" or "range" can only be used once per harness instance.`,
+      );
+    }
   }
 }

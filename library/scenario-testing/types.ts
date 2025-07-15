@@ -8,17 +8,28 @@ export type SetupInstruction<T> = {
   phase: SetupPhase;
   run: TestActionFn<T>;
 };
-export type TestActionFn<T> = (ctx: SetupActionContext<T>) => unknown;
-export type SetupActionContext<T> = {
+export type TestActionFn<T> = (ctx: TestActionContext<T>) => unknown;
+
+export type TargetFilter<Html extends HTMLElement, Component> = {
+  name: string;
+  filter: (
+    item: TypedDebugElement<Html, Component>,
+    index: number,
+    array: TypedDebugElement<Html, Component>[],
+  ) => boolean;
+};
+
+export type TestActionContext<T> = {
   fixtureRef: ComponentFixtureRef<T>;
   query: <Html extends HTMLElement, Component>(
     target: QueryTarget<Component> | undefined,
+    filter: TargetFilter<Html, Component>,
   ) => TypedDebugElement<Html, Component>[];
 };
 export type ScenarioTestingHarnessExtensionContext<
   Html extends HTMLElement,
   Component,
-> = SetupActionContext<any> & {
+> = TestActionContext<any> & {
   targetRef: () => TypedDebugElement<Html, Component>[];
   displayName: string;
   isAssertionNegated: boolean;

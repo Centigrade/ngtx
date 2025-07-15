@@ -172,7 +172,10 @@ export function debugAfterSetup<T>(
             ? 'componentInstance' in maybeNgtxElement
               ? [maybeNgtxElement.componentInstance]
               : maybeNgtxElement.unwrap().map((e) => e.componentInstance)
-            : query(targetQueryOrRef).map((t) => t.componentInstance);
+            : query(targetQueryOrRef, {
+                name: '',
+                filter: () => true,
+              }).map((t) => t.componentInstance);
 
           console.log('Component state(s):');
           const isMappedHint = map != undefined ? ' (mapped)' : '';
