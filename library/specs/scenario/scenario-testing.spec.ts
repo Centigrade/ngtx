@@ -1,14 +1,17 @@
+import { AsyncPipe } from '@angular/common';
 import {
   Component,
   inject,
   Injectable,
   Input,
   input,
+  signal,
   SimpleChanges,
   Type,
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 import { TestingModule } from '../../core/testing-modules';
 import { containText } from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
@@ -30,10 +33,14 @@ function haveComponentType(
     const componentType = getClassName(type);
 
     it(`[${displayName}] should ${verb} of component type "${componentType}"`, () => {
-      if (isAssertionNegated) {
-        expect(targetRef().componentInstance).not.toBeInstanceOf(type);
-      } else {
-        expect(targetRef().componentInstance).toBeInstanceOf(type);
+      const targets = targetRef();
+
+      for (const target of targets) {
+        if (isAssertionNegated) {
+          expect(target.componentInstance).not.toBeInstanceOf(type);
+        } else {
+          expect(target.componentInstance).toBeInstanceOf(type);
+        }
       }
     });
   };
@@ -41,7 +48,9 @@ function haveComponentType(
 
 @Injectable()
 class MyService {
-  value = 'Hello, World!';
+  value = 'Hello, value!';
+  subject$ = new BehaviorSubject('Hello, subject!');
+  signal = signal('Hello, signal!');
 }
 
 @Component({
@@ -75,8 +84,12 @@ class ButtonComponent {
     <app-text [text]="myService.value" />
     <app-button [disabled]="false" />
 
-    @if(paramId){
-    <div data-ngtx="route-param" [attr.title]="paramId">{{ paramId }}</div>
+    <div id="value">{{ myService.value }}</div>
+    <div id="subject">{{ myService.subject$ | async }}</div>
+    <div id="signal">{{ myService.signal() }}</div>
+
+    @if (paramId) {
+      <div data-ngtx="route-param" [attr.title]="paramId">{{ paramId }}</div>
     }
   `,
 })
@@ -100,7 +113,7 @@ class ScenarioTestComponent {
 }
 
 const MyTestingModule = TestingModule.configure({
-  imports: [RouterModule.forRoot([]), ButtonComponent],
+  imports: [RouterModule.forRoot([]), AsyncPipe, ButtonComponent],
   declarations: [ScenarioTestComponent, TextComponent],
   providers: [MyService],
 });
@@ -115,12 +128,15 @@ describe(
     });
 
     class the {
-      static div = new ScenarioTestingHarness('div');
-      static paramIdDiv = new ScenarioTestingHarness('ngtx_route-param');
-      static text = new ScenarioTestingHarness(TextComponent, {
+      static styledDiv = ScenarioTestingHarness.for('.div-style');
+      static paramIdDiv = ScenarioTestingHarness.for('ngtx_route-param');
+      static text = ScenarioTestingHarness.for(TextComponent, {
         displayName: 'PageTitle',
       });
-      static button = new ScenarioTestingHarness(ButtonComponent);
+      static button = ScenarioTestingHarness.for(ButtonComponent);
+      static divWithValueTextContent = ScenarioTestingHarness.for('#value');
+      static divWithSubjectTextContent = ScenarioTestingHarness.for('#subject');
+      static divWithSignalTextContent = ScenarioTestingHarness.for('#signal');
     }
 
     class that {
@@ -130,13 +146,20 @@ describe(
 
     scenario('Jane')
       .setup(
-        withProvider(MyService).havingState({ value: 'Jane' }),
+        withProvider(MyService).havingState({
+          value: 'Jane',
+          signal: 'Jane',
+          subject$: new BehaviorSubject('Jane'),
+        }),
         withChangeDetectionAfterSetup(),
       )
       .expect(
-        the.div.toBeFound(),
-        the.div.not.toBeMissing(),
+        the.styledDiv.toBeFound(),
+        the.styledDiv.not.toBeMissing(),
         the.text.toHaveState({ text: 'Jane' }),
+        the.divWithValueTextContent.toContainText('Jane'),
+        the.divWithSubjectTextContent.toContainText('Jane'),
+        the.divWithSignalTextContent.toContainText('Jane'),
         the.text.not.toHaveState({ text: 'Henry' }),
         the.button.toBeEnabled(),
         the.button.not.toBeEnabled(false),
@@ -153,8 +176,8 @@ describe(
         withChangeDetectionAfterSetup(),
       )
       .expect(
-        the.div.toHaveStyle({ background: 'blue' }),
-        the.div.not.toBeMissing(),
+        the.styledDiv.toHaveStyle({ background: 'blue' }),
+        the.styledDiv.not.toBeMissing(),
         the.text.toHaveState({ text: 'Henry' }),
         the.text.not.toHaveState({ text: 'Jane' }),
         the.button.toBeEnabled(),

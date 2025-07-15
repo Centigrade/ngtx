@@ -11,7 +11,11 @@ import {
 import { keysOf } from '../utility/object.utilities';
 import { isWritableSignal } from '../utility/signals';
 import { isNgtxElementOrMultiElement } from '../utility/type-guards';
-import { DebugOptions, ScenarioTestingSetupFn } from './types';
+import {
+  ComponentFixtureRef,
+  DebugOptions,
+  ScenarioTestingSetupFn,
+} from './types';
 
 export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
   return {
@@ -74,16 +78,55 @@ export function withHostState<T>(
 
 export function withProvider<T>(token: Type<T>) {
   return class {
-    static havingState(state: T & Record<string, any>): ScenarioTestingSetupFn {
+    static #getProviderInstance(fixtureRef: ComponentFixtureRef) {
+      const injector = fixtureRef().debugElement.injector;
+      return injector.get(token);
+    }
+    static havingState(
+      state: StateWithUnwrappedSignals<T>,
+    ): ScenarioTestingSetupFn {
       return {
         phase: 'setup',
         run: ({ fixtureRef }) => {
-          const injector = fixtureRef().debugElement.injector;
-          const instance = injector.get(token);
+          const instance = this.#getProviderInstance(fixtureRef);
+          const stateProperties = Object.keys(state) as (keyof T)[];
 
-          const objectKeys = Object.keys(state) as (keyof T)[];
-          for (const key of objectKeys) {
-            instance[key] = state[key];
+          for (const property of stateProperties) {
+            if (isWritableSignal(instance[property])) {
+              instance[property].set(state[property]!);
+              continue;
+            }
+
+            (instance as any)[property] = state[property];
+          }
+        },
+      };
+    }
+    static emittingOnProperty$<Property extends keyof T>(
+      property: Property,
+      value: T[Property],
+    ): ScenarioTestingSetupFn {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = this.#getProviderInstance(fixtureRef);
+          const subject: any = instance[property];
+
+          if ('next' in subject) {
+            subject.next(value);
+          }
+        },
+      };
+    }
+    static emitting$(value: T): ScenarioTestingSetupFn {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = this.#getProviderInstance(fixtureRef);
+          const subject: any = instance;
+
+          if ('next' in subject) {
+            subject.next(value);
           }
         },
       };
@@ -128,8 +171,8 @@ export function debugAfterSetup<T>(
           )
             ? 'componentInstance' in maybeNgtxElement
               ? [maybeNgtxElement.componentInstance]
-              : maybeNgtxElement.unwrap().map((x) => x.componentInstance)
-            : [query(targetQueryOrRef).componentInstance];
+              : maybeNgtxElement.unwrap().map((e) => e.componentInstance)
+            : query(targetQueryOrRef).map((t) => t.componentInstance);
 
           console.log('Component state(s):');
           const isMappedHint = map != undefined ? ' (mapped)' : '';

@@ -1,4 +1,6 @@
+import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { FindingOptions } from '../declarative-testing/lib';
 import {
   QueryTarget,
   StateWithUnwrappedSignals,
@@ -115,27 +117,39 @@ export class TestScenario<Component> {
 
   readonly #query = <Html extends HTMLElement, Component>(
     target: QueryTarget<Component> | undefined,
-  ): TypedDebugElement<Html, Component> => {
+  ): TypedDebugElement<Html, Component>[] => {
     if (target == undefined) {
-      return this.#fixtureRef().debugElement;
+      return [this.#fixtureRef().debugElement];
     }
+
+    let searchMethod: Predicate<DebugElement>;
 
     if (typeof target === 'string') {
       const selector = isNgtxQuerySelector(target)
         ? `[data-ngtx="${target}"]`.replace('ngtx_', '')
         : target;
 
-      return this.#fixtureRef().debugElement.query(By.css(selector));
+      searchMethod = By.css(selector);
+    } else {
+      searchMethod = By.directive(target);
     }
 
-    return this.#fixtureRef().debugElement.query(By.directive(target));
+    const results = this.#fixtureRef().debugElement.queryAll(searchMethod);
+    return results.length > 0 ? results : (null as any);
   };
 }
 
 export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   [NgtxScenarioTestIsAssertionNegated] = false;
 
-  constructor(
+  static for<Html extends HTMLElement, Component>(
+    queryTarget?: QueryTarget<Component>,
+    options?: TestScenarioOptions,
+  ) {
+    return new ScenarioTestingHarness<Html, Component>(queryTarget, options);
+  }
+
+  private constructor(
     protected readonly queryTarget?: QueryTarget<Component>,
     protected readonly options?: TestScenarioOptions,
   ) {}
@@ -170,17 +184,19 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     },
   });
 
-  public toBeFound(): ScenarioTestCaseGeneratorFn {
+  public toBeFound(opts: FindingOptions = {}): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
       it(`[${this.displayName}] should ${verb} found`, () => {
-        const target = query(this.queryTarget);
+        const targets = query(this.queryTarget);
 
         if (this.isAssertionNegated) {
-          expect(target).toBeFalsy();
+          expect(targets).toBeFalsy();
         } else {
-          expect(target).toBeTruthy();
+          const foundTimes = opts.times ?? targets.length;
+          expect(targets).toBeTruthy();
+          expect(targets.length).toBe(foundTimes);
         }
       });
     };
@@ -207,12 +223,15 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return ({ query }) => {
       it(`[${this.displayName}] should ${verb} text "${text}"`, () => {
-        const target = query(this.queryTarget);
+        const targets = query(this.queryTarget);
+        expect(targets).toBeTruthy();
 
-        if (this.isAssertionNegated) {
-          expect(target.nativeElement.textContent).not.toContain(text);
-        } else {
-          expect(target.nativeElement.textContent).toContain(text);
+        for (const target of targets) {
+          if (this.isAssertionNegated) {
+            expect(target.nativeElement.textContent).not.toContain(text);
+          } else {
+            expect(target.nativeElement.textContent).toContain(text);
+          }
         }
       });
     };
@@ -224,40 +243,44 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return ({ query }) => {
       it(`[${this.displayName}] should ${verb} ${state}`, () => {
-        const target = query(this.queryTarget);
-        const component = target.componentInstance as any;
-        const nativeElement = target.nativeElement as any;
+        const targets = query(this.queryTarget);
+        expect(targets).toBeTruthy();
 
-        if (this.isAssertionNegated) {
-          if ('disabled' in component) {
-            return expect(valueOf(component.disabled)).not.toBe(!value);
-          } else if ('enabled' in component) {
-            return expect(valueOf(component.enabled)).not.toBe(value);
-          } else if ('disabled' in nativeElement) {
-            return expect(nativeElement.disabled).not.toBe(!value);
-          } else if ('enabled' in nativeElement) {
-            // hint: e.g. web-components might have an enabled api
-            return expect(nativeElement.enabled).not.toBe(value);
+        for (const target of targets) {
+          const component = target.componentInstance as any;
+          const nativeElement = target.nativeElement as any;
+
+          if (this.isAssertionNegated) {
+            if ('disabled' in component) {
+              return expect(valueOf(component.disabled)).not.toBe(!value);
+            } else if ('enabled' in component) {
+              return expect(valueOf(component.enabled)).not.toBe(value);
+            } else if ('disabled' in nativeElement) {
+              return expect(nativeElement.disabled).not.toBe(!value);
+            } else if ('enabled' in nativeElement) {
+              // hint: e.g. web-components might have an enabled api
+              return expect(nativeElement.enabled).not.toBe(value);
+            }
+          } else {
+            if ('disabled' in component) {
+              return expect(valueOf(component.disabled)).toBe(!value);
+            } else if ('enabled' in component) {
+              return expect(valueOf(component.enabled)).toBe(value);
+            } else if ('disabled' in nativeElement) {
+              return expect(nativeElement.disabled).toBe(!value);
+            } else if ('enabled' in nativeElement) {
+              // hint: e.g. web-components might have an enabled api
+              return expect(nativeElement.enabled).toBe(value);
+            }
           }
-        } else {
-          if ('disabled' in component) {
-            return expect(valueOf(component.disabled)).toBe(!value);
-          } else if ('enabled' in component) {
-            return expect(valueOf(component.enabled)).toBe(value);
-          } else if ('disabled' in nativeElement) {
-            return expect(nativeElement.disabled).toBe(!value);
-          } else if ('enabled' in nativeElement) {
-            // hint: e.g. web-components might have an enabled api
-            return expect(nativeElement.enabled).toBe(value);
-          }
+
+          // hint: if no case matches, the target does not offer a enabled/disabled feature, failure:
+          throw new Error(
+            `${
+              this.queryTarget ?? 'host'
+            } doesn't have a "enabled" or "disabled" property`,
+          );
         }
-
-        // hint: if no case matches, the target does not offer a enabled/disabled feature, failure:
-        throw new Error(
-          `${
-            this.queryTarget ?? 'host'
-          } doesn't have a "enabled" or "disabled" property`,
-        );
       });
     };
   }
@@ -269,18 +292,23 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return ({ query }) => {
       const objectKeys = Object.keys(stateDef) as (keyof Component)[];
+
       for (const propertyName of objectKeys) {
         const propertyNameAsString = propertyName.toString();
 
         it(`[${this.displayName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
-          const target = query(this.queryTarget);
-          const propertyValue = target.componentInstance[propertyName];
-          const rawValue = valueOf(propertyValue);
+          const targets = query(this.queryTarget);
+          expect(targets).toBeTruthy();
 
-          if (this.isAssertionNegated) {
-            expect(rawValue).not.toEqual(stateDef[propertyName]);
-          } else {
-            expect(rawValue).toEqual(stateDef[propertyName]);
+          for (const target of targets) {
+            const propertyValue = target.componentInstance[propertyName];
+            const rawValue = valueOf(propertyValue);
+
+            if (this.isAssertionNegated) {
+              expect(rawValue).not.toEqual(stateDef[propertyName]);
+            } else {
+              expect(rawValue).toEqual(stateDef[propertyName]);
+            }
           }
         });
       }
@@ -299,13 +327,17 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         const propertyNameAsString = propertyName.toString();
 
         it(`[${this.displayName}] should ${verb} correct value for style-property "${propertyNameAsString}"`, () => {
-          const target = query(this.queryTarget);
-          const styleValue = target.nativeElement.style[propertyName];
+          const targets = query(this.queryTarget);
+          expect(targets).toBeTruthy();
 
-          if (this.isAssertionNegated) {
-            expect(styleValue).not.toEqual(styleDef[propertyName]);
-          } else {
-            expect(styleValue).toEqual(styleDef[propertyName]);
+          for (const target of targets) {
+            const styleValue = target.nativeElement.style[propertyName];
+
+            if (this.isAssertionNegated) {
+              expect(styleValue).not.toEqual(styleDef[propertyName]);
+            } else {
+              expect(styleValue).toEqual(styleDef[propertyName]);
+            }
           }
         });
       }

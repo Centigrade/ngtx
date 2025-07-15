@@ -13,13 +13,13 @@ export type SetupActionContext<T> = {
   fixtureRef: ComponentFixtureRef<T>;
   query: <Html extends HTMLElement, Component>(
     target: QueryTarget<Component> | undefined,
-  ) => TypedDebugElement<Html, Component>;
+  ) => TypedDebugElement<Html, Component>[];
 };
 export type ScenarioTestingHarnessExtensionContext<
   Html extends HTMLElement,
   Component,
 > = SetupActionContext<any> & {
-  targetRef: () => TypedDebugElement<Html, Component>;
+  targetRef: () => TypedDebugElement<Html, Component>[];
   displayName: string;
   isAssertionNegated: boolean;
 };
