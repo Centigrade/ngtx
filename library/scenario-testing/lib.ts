@@ -184,7 +184,7 @@ class WithActions<T> {
       run: ({ fixtureRef }) => {
         const instance = this.#getTarget(fixtureRef);
         const method = instance[methodName] as (...args: any[]) => unknown;
-        method(...args);
+        method.call(instance, ...args);
       },
     };
   }
