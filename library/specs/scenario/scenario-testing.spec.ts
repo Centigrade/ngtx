@@ -17,7 +17,7 @@ import { containText } from '../../declarative-testing/lib';
 import { ngtx } from '../../ngtx';
 import {
   withChangeDetectionAfterSetup,
-  withHostState,
+  withHost,
   withProvider,
   withRouteParams,
 } from '../../scenario-testing/lib';
@@ -219,7 +219,7 @@ describe(
       .setup(
         withRouteParams({ id: '42' }),
         withProvider(MyService).havingState({ value: 'Henry' }),
-        withHostState({ color: 'blue' }),
+        withHost().havingState({ color: 'blue' }),
         withChangeDetectionAfterSetup(),
       )
       .expect(

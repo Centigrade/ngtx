@@ -3,12 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { StateWithUnwrappedSignals } from '../types';
 import { toHtmlString } from '../utility';
-import {
-  inputNamesOf,
-  inputsOf,
-  toSimpleChanges,
-} from '../utility/angular.utilities';
-import { keysOf } from '../utility/object.utilities';
+import { inputsOf, toSimpleChanges } from '../utility/angular.utilities';
 import { isWritableSignal } from '../utility/signals';
 import { isNgtxElementOrMultiElement } from '../utility/type-guards';
 import {
@@ -46,92 +41,14 @@ type StripMethods<T> = {
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
 
-export function withHostState<T>(
-  stateDef: StateWithUnwrappedSignals<StripMethods<T>>,
-): ScenarioTestingSetupFn<T> {
-  return {
-    phase: 'setup',
-    run: ({ fixtureRef }) => {
-      const fixture = fixtureRef();
-      const host = fixture.componentRef;
-
-      const inputNames = inputNamesOf(fixture.componentInstance);
-      const stateProperties = keysOf(stateDef);
-      const component = host.instance as any;
-
-      for (const property of stateProperties) {
-        if (inputNames.includes(property)) {
-          host.setInput(property, stateDef[property]);
-          continue;
-        }
-
-        if (isWritableSignal(component[property])) {
-          component[property].set(stateDef[property]!);
-          continue;
-        }
-
-        component[property] = stateDef[property]!;
-      }
-    },
-  };
+export function withHost() {
+  return new WithActions((fixtureRef) => fixtureRef().componentInstance);
 }
 
 export function withProvider<T>(token: Type<T>) {
-  return class {
-    static #getProviderInstance(fixtureRef: ComponentFixtureRef) {
-      const injector = fixtureRef().debugElement.injector;
-      return injector.get(token);
-    }
-    static havingState(
-      state: StateWithUnwrappedSignals<T>,
-    ): ScenarioTestingSetupFn {
-      return {
-        phase: 'setup',
-        run: ({ fixtureRef }) => {
-          const instance = this.#getProviderInstance(fixtureRef);
-          const stateProperties = Object.keys(state) as (keyof T)[];
-
-          for (const property of stateProperties) {
-            if (isWritableSignal(instance[property])) {
-              instance[property].set(state[property]!);
-              continue;
-            }
-
-            (instance as any)[property] = state[property];
-          }
-        },
-      };
-    }
-    static emittingOnProperty$<Property extends keyof T>(
-      property: Property,
-      value: T[Property],
-    ): ScenarioTestingSetupFn {
-      return {
-        phase: 'setup',
-        run: ({ fixtureRef }) => {
-          const instance = this.#getProviderInstance(fixtureRef);
-          const subject: any = instance[property];
-
-          if ('next' in subject) {
-            subject.next(value);
-          }
-        },
-      };
-    }
-    static emitting$(value: T): ScenarioTestingSetupFn {
-      return {
-        phase: 'setup',
-        run: ({ fixtureRef }) => {
-          const instance = this.#getProviderInstance(fixtureRef);
-          const subject: any = instance;
-
-          if ('next' in subject) {
-            subject.next(value);
-          }
-        },
-      };
-    }
-  };
+  return new WithActions((fixtureRef) =>
+    fixtureRef().debugElement.injector.get(token),
+  );
 }
 
 export function withRouteParams(
@@ -194,4 +111,64 @@ export function debugAfterSetup<T>(
       }
     },
   };
+}
+
+// ---------------------------------------
+// module internals
+// ---------------------------------------
+
+class WithActions<T> {
+  #getTarget: (fixtureRef: ComponentFixtureRef) => T;
+
+  constructor(getTarget: (fixtureRef: ComponentFixtureRef) => T) {
+    this.#getTarget = getTarget;
+  }
+
+  havingState(state: StateWithUnwrappedSignals<T>): ScenarioTestingSetupFn {
+    return {
+      phase: 'setup',
+      run: ({ fixtureRef }) => {
+        const instance = this.#getTarget(fixtureRef);
+        const stateProperties = Object.keys(state) as (keyof T)[];
+
+        for (const property of stateProperties) {
+          if (isWritableSignal(instance[property])) {
+            instance[property].set(state[property]!);
+            continue;
+          }
+
+          (instance as any)[property] = state[property];
+        }
+      },
+    };
+  }
+  emittingOnProperty$<Property extends keyof T>(
+    property: Property,
+    value: T[Property],
+  ): ScenarioTestingSetupFn {
+    return {
+      phase: 'setup',
+      run: ({ fixtureRef }) => {
+        const instance = this.#getTarget(fixtureRef);
+        const subject: any = instance[property];
+
+        if ('next' in subject) {
+          subject.next(value);
+        }
+      },
+    };
+  }
+  emitting$(value: T): ScenarioTestingSetupFn {
+    return {
+      phase: 'setup',
+      run: ({ fixtureRef }) => {
+        const instance = this.#getTarget(fixtureRef);
+        const subject: any = instance;
+
+        if ('next' in subject) {
+          subject.next(value);
+        }
+      },
+    };
+  }
 }
