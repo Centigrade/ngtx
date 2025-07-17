@@ -171,4 +171,21 @@ class WithActions<T> {
       },
     };
   }
+  calling<Property extends keyof T>(
+    methodName: T[Property] extends (...args: any[]) => unknown
+      ? Property
+      : never,
+    ...args: T[Property] extends (...args: any[]) => unknown
+      ? Parameters<T[Property]>
+      : never
+  ): ScenarioTestingSetupFn {
+    return {
+      phase: 'setup',
+      run: ({ fixtureRef }) => {
+        const instance = this.#getTarget(fixtureRef);
+        const method = instance[methodName] as (...args: any[]) => unknown;
+        method(...args);
+      },
+    };
+  }
 }
