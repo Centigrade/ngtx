@@ -1,6 +1,7 @@
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FindingOptions } from '../declarative-testing/lib';
+import { asArray } from '../declarative-testing/utility';
 import {
   QueryTarget,
   StateWithUnwrappedSignals,
@@ -144,6 +145,11 @@ export class TestScenario<Component> {
   };
 }
 
+type HarnessWithoutFilters<Html extends HTMLElement, Component> = Omit<
+  ScenarioTestingHarness<Html, Component>,
+  'nth' | 'first' | 'last' | 'range' | 'where'
+>;
+
 export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   [NgtxScenarioTestIsAssertionNegated] = false;
   [NgtxScenarioTestTargetFilter]?: TargetFilter<Html, Component>;
@@ -153,6 +159,16 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     options?: TestScenarioOptions,
   ) {
     return new ScenarioTestingHarness<Html, Component>(queryTarget, options);
+  }
+
+  static for<Html extends HTMLElement, Component>(
+    queryTarget?: QueryTarget<Component>,
+    options?: TestScenarioOptions,
+  ): HarnessWithoutFilters<Html, Component> {
+    return new ScenarioTestingHarness<Html, Component>(
+      queryTarget,
+      options,
+    ).first();
   }
 
   private constructor(
@@ -191,7 +207,9 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   });
 
   //#region filter functions
-  public readonly nth = (nth: number) => {
+  public readonly nth = (
+    nth: number,
+  ): HarnessWithoutFilters<Html, Component> => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -202,7 +220,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return harnessClone;
   };
-  public readonly first = () => {
+  public readonly first = (): HarnessWithoutFilters<Html, Component> => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -213,7 +231,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return harnessClone;
   };
-  public readonly last = () => {
+  public readonly last = (): HarnessWithoutFilters<Html, Component> => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -224,7 +242,10 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
 
     return harnessClone;
   };
-  public readonly range = (from: number, to?: number) => {
+  public readonly range = (
+    from: number,
+    to?: number,
+  ): HarnessWithoutFilters<Html, Component> => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -233,6 +254,16 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
       filter: (_, index, list) =>
         index >= from - 1 && index <= (to ?? list.length) - 1,
     };
+
+    return harnessClone;
+  };
+  public readonly where = (
+    filter: TargetFilter<Html, Component>,
+  ): HarnessWithoutFilters<Html, Component> => {
+    this.checkNoFilterSet();
+
+    const harnessClone = this.clone();
+    harnessClone[NgtxScenarioTestTargetFilter] = filter;
 
     return harnessClone;
   };
@@ -278,22 +309,35 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     };
   }
 
-  public toContainText(text: string): ScenarioTestCaseGeneratorFn {
+  public toContainText(text: string | string[]): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not contain' : 'contain';
 
     return ({ query }) => {
-      it(`[${this.displayName}] should ${verb} text "${text}"`, () => {
-        const targets = query(this.queryTarget, this.filter);
-        expect(targets).toBeTruthy();
+      const texts = asArray(text);
 
-        for (const target of targets) {
-          if (this.isAssertionNegated) {
-            expect(target.nativeElement.textContent).not.toContain(text);
-          } else {
-            expect(target.nativeElement.textContent).toContain(text);
-          }
-        }
-      });
+      for (const text of texts) {
+        it(`[${this.displayName}] should ${verb} text ${text}`, () => {
+          const targets = query(this.queryTarget, this.filter);
+          expect(targets).toBeTruthy();
+
+          const expectedTexts = this.adaptExpectedValuesInputToFoundTargets(
+            targets,
+            texts,
+          );
+
+          targets.forEach((target, index) => {
+            if (this.isAssertionNegated) {
+              expect(target.nativeElement.textContent).not.toContain(
+                expectedTexts[index],
+              );
+            } else {
+              expect(target.nativeElement.textContent).toContain(
+                expectedTexts[index],
+              );
+            }
+          });
+        });
+      }
     };
   }
 
@@ -346,60 +390,82 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   }
 
   public toHaveState(
-    stateDef: StateWithUnwrappedSignals<Component>,
+    stateDef:
+      | StateWithUnwrappedSignals<Component>
+      | StateWithUnwrappedSignals<Component>[],
   ): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not have' : 'have';
 
     return ({ query }) => {
-      const objectKeys = Object.keys(stateDef) as (keyof Component)[];
+      const stateDefs = asArray(stateDef);
 
-      for (const propertyName of objectKeys) {
-        const propertyNameAsString = propertyName.toString();
+      for (const stateDef of stateDefs) {
+        const objectKeys = Object.keys(stateDef) as (keyof Component)[];
 
-        it(`[${this.displayName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
-          const targets = query(this.queryTarget, this.filter);
-          expect(targets).toBeTruthy();
+        for (const propertyName of objectKeys) {
+          const propertyNameAsString = propertyName.toString();
 
-          for (const target of targets) {
-            const propertyValue = target.componentInstance[propertyName];
-            const rawValue = valueOf(propertyValue);
+          it(`[${this.displayName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
+            const targets = query(this.queryTarget, this.filter);
+            expect(targets).toBeTruthy();
 
-            if (this.isAssertionNegated) {
-              expect(rawValue).not.toEqual(stateDef[propertyName]);
-            } else {
-              expect(rawValue).toEqual(stateDef[propertyName]);
-            }
-          }
-        });
+            const expectedStates = this.adaptExpectedValuesInputToFoundTargets(
+              targets,
+              stateDefs,
+            );
+
+            targets.forEach((target, index) => {
+              const state = expectedStates[index];
+              const propertyValue = target.componentInstance[propertyName];
+              const rawValue = valueOf(propertyValue);
+
+              if (this.isAssertionNegated) {
+                expect(rawValue).not.toEqual(state[propertyName]);
+              } else {
+                expect(rawValue).toEqual(state[propertyName]);
+              }
+            });
+          });
+        }
       }
     };
   }
 
   public toHaveStyle(
-    styleDef: Partial<CSSStyleDeclaration>,
+    styleDef: Partial<CSSStyleDeclaration> | Partial<CSSStyleDeclaration>[],
   ): ScenarioTestCaseGeneratorFn {
     const verb = this.isAssertionNegated ? 'not have' : 'have';
 
     return ({ query }) => {
-      const objectKeys = keysOf(styleDef);
+      const styleDefs = asArray(styleDef);
 
-      for (const propertyName of objectKeys) {
-        const propertyNameAsString = propertyName.toString();
+      for (const styleDef of styleDefs) {
+        const objectKeys = keysOf(styleDef);
 
-        it(`[${this.displayName}] should ${verb} correct value for style-property "${propertyNameAsString}"`, () => {
-          const targets = query(this.queryTarget, this.filter);
-          expect(targets).toBeTruthy();
+        for (const propertyName of objectKeys) {
+          const propertyNameAsString = propertyName.toString();
 
-          for (const target of targets) {
-            const styleValue = target.nativeElement.style[propertyName];
+          it(`[${this.displayName}] should ${verb} correct value for style-property "${propertyNameAsString}"`, () => {
+            const targets = query(this.queryTarget, this.filter);
+            expect(targets).toBeTruthy();
 
-            if (this.isAssertionNegated) {
-              expect(styleValue).not.toEqual(styleDef[propertyName]);
-            } else {
-              expect(styleValue).toEqual(styleDef[propertyName]);
-            }
-          }
-        });
+            const expectedStyles = this.adaptExpectedValuesInputToFoundTargets(
+              targets,
+              styleDefs,
+            );
+
+            targets.forEach((target, index) => {
+              const style = expectedStyles[index];
+              const styleValue = target.nativeElement.style[propertyName];
+
+              if (this.isAssertionNegated) {
+                expect(styleValue).not.toEqual(style[propertyName]);
+              } else {
+                expect(styleValue).toEqual(style[propertyName]);
+              }
+            });
+          });
+        }
       }
     };
   }
@@ -419,7 +485,6 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   }
 
   protected clone(): ScenarioTestingHarness<Html, Component> {
-    // TODO: docs: document that constructors of Harnesses are not allowed to be overridden!
     const harnessConstructor = this.constructor as any;
     const optionsClone = { ...this.options };
     const target = new harnessConstructor(this.queryTarget, optionsClone);
@@ -433,5 +498,25 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         `[${this.displayName}] Filters like "nth", "first" or "range" can only be used once per harness instance.`,
       );
     }
+  }
+
+  protected adaptExpectedValuesInputToFoundTargets(
+    targets: TypedDebugElement<Html, Component>[],
+    valueOrValues: any,
+  ) {
+    const values = asArray(valueOrValues);
+
+    // one value for all targets
+    if (values.length === 1) {
+      return new Array(targets.length).fill(values.at(0));
+    }
+    // number of values matches number of found targets
+    if (values.length === targets.length) {
+      return values;
+    }
+
+    throw new Error(
+      `The number targets found (${targets.length}) does not match the number of expected values (${valueOrValues.length}).`,
+    );
   }
 }

@@ -81,7 +81,12 @@ class ButtonComponent {
     >
       {{ myService.value }}
     </div>
+    <div class="div-style" [style.background]="css"></div>
+
     <app-text [text]="myService.value" />
+    <app-text data-ngtx="textbox" text="1" />
+    <app-text data-ngtx="textbox" text="2" />
+    <app-text data-ngtx="textbox" text="3" />
     <app-button [disabled]="false" />
 
     <div id="value">{{ myService.value }}</div>
@@ -141,27 +146,30 @@ describe(
     });
 
     class the {
-      static styledDiv = ScenarioTestingHarness.forAll('div').first();
-      static paramIdDiv = ScenarioTestingHarness.forAll('ngtx_route-param');
-      static text = ScenarioTestingHarness.forAll(TextComponent, {
+      static textsFrom1to3 = ScenarioTestingHarness.forAll<
+        HTMLElement,
+        TextComponent
+      >('ngtx_textbox');
+      static styledDiv = ScenarioTestingHarness.forAll('.div-style');
+      static paramIdDiv = ScenarioTestingHarness.for('ngtx_route-param');
+      static text = ScenarioTestingHarness.for(TextComponent, {
         displayName: 'PageTitle',
       });
-      static button = ScenarioTestingHarness.forAll(ButtonComponent);
-      static divWithValueTextContent = ScenarioTestingHarness.forAll('#value');
-      static divWithSubjectTextContent =
-        ScenarioTestingHarness.forAll('#subject');
-      static divWithSignalTextContent =
-        ScenarioTestingHarness.forAll('#signal');
+      static button = ScenarioTestingHarness.for(ButtonComponent);
+      static divWithValueTextContent = ScenarioTestingHarness.for('#value');
+      static divWithSubjectTextContent = ScenarioTestingHarness.for('#subject');
+      static divWithSignalTextContent = ScenarioTestingHarness.for('#signal');
 
       static links = ScenarioTestingHarness.forAll('a');
-      static firstLink = ScenarioTestingHarness.forAll('a').first();
-      static thirdLink = ScenarioTestingHarness.forAll('a').nth(3);
-      static secondAndThirdLink = ScenarioTestingHarness.forAll('a').range(
-        2,
-        3,
-      );
-      static secondToFourthLink = ScenarioTestingHarness.forAll('a').range(2);
-      static lastLink = ScenarioTestingHarness.forAll('a').last();
+      static firstLink = this.links.first();
+      static thirdLink = this.links.nth(3);
+      static secondAndThirdLink = this.links.range(2, 3);
+      static secondToFourthLink = this.links.range(2);
+      static evenLinks = this.links.where({
+        name: ':even',
+        filter: (_, index) => (index + 1) % 2 === 0,
+      });
+      static lastLink = this.links.last();
     }
 
     class that {
@@ -172,8 +180,9 @@ describe(
     scenario('links').expect(
       the.links.toBeFound({ times: 4 }),
       the.firstLink.toContainText('A'),
-      the.secondAndThirdLink.toBeFound({ times: 2 }),
-      the.secondToFourthLink.toBeFound({ times: 3 }),
+      the.secondAndThirdLink.toContainText(['B', 'C']),
+      the.secondToFourthLink.toContainText(['B', 'C', 'D']),
+      the.evenLinks.toContainText(['B', 'D']),
       the.lastLink.toContainText('D'),
     );
 
@@ -187,6 +196,11 @@ describe(
         withChangeDetectionAfterSetup(),
       )
       .expect(
+        the.textsFrom1to3.toHaveState([
+          { text: '1' },
+          { text: '2' },
+          { text: '3' },
+        ]),
         the.styledDiv.toBeFound(),
         the.styledDiv.not.toBeMissing(),
         the.text.toHaveState({ text: 'Jane' }),
@@ -210,6 +224,10 @@ describe(
       )
       .expect(
         the.styledDiv.toHaveStyle({ background: 'blue' }),
+        the.styledDiv.toHaveStyle([
+          { background: 'blue' },
+          { background: 'blue' },
+        ]),
         the.styledDiv.not.toBeMissing(),
         the.text.toHaveState({ text: 'Henry' }),
         the.text.not.toHaveState({ text: 'Jane' }),
