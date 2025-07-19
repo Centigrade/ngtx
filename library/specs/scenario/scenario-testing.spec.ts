@@ -161,15 +161,6 @@ describe(
       static divWithSignalTextContent = ScenarioTestingHarness.for('#signal');
 
       static links = ScenarioTestingHarness.forAll('a');
-      static firstLink = this.links.first();
-      static thirdLink = this.links.nth(3);
-      static secondAndThirdLink = this.links.range(2, 3);
-      static secondToFourthLink = this.links.range(2);
-      static evenLinks = this.links.where({
-        name: ':even',
-        filter: (_, index) => (index + 1) % 2 === 0,
-      });
-      static lastLink = this.links.last();
     }
 
     class that {
@@ -179,11 +170,13 @@ describe(
 
     scenario('links').expect(
       the.links.toBeFound({ times: 4 }),
-      the.firstLink.toContainText('A'),
-      the.secondAndThirdLink.toContainText(['B', 'C']),
-      the.secondToFourthLink.toContainText(['B', 'C', 'D']),
-      the.evenLinks.toContainText(['B', 'D']),
-      the.lastLink.toContainText('D'),
+      the.links.first().toContainText('A'),
+      the.links.range(2, 3).toContainText(['B', 'C']),
+      the.links.range(2, 4).toContainText(['B', 'C', 'D']),
+      the.links
+        .where({ name: ':even', filter: (_, i) => (i + 1) % 2 === 0 })
+        .toContainText(['B', 'D']),
+      the.links.last().toContainText('D'),
     );
 
     scenario('Jane')
