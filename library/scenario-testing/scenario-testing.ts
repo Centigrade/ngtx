@@ -275,7 +275,9 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     );
   }
 
-  public toBeFound(opts: FindingOptions = {}): ScenarioTestCaseGeneratorFn {
+  public toBeFound = (
+    opts: FindingOptions = {},
+  ): ScenarioTestCaseGeneratorFn => {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
@@ -291,9 +293,9 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         }
       });
     };
-  }
+  };
 
-  public toBeMissing(): ScenarioTestCaseGeneratorFn {
+  public toBeMissing = (): ScenarioTestCaseGeneratorFn => {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
 
     return ({ query }) => {
@@ -307,9 +309,11 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         }
       });
     };
-  }
+  };
 
-  public toContainText(text: string | string[]): ScenarioTestCaseGeneratorFn {
+  public toContainText = (
+    text: string | string[],
+  ): ScenarioTestCaseGeneratorFn => {
     const verb = this.isAssertionNegated ? 'not contain' : 'contain';
 
     return ({ query }) => {
@@ -339,9 +343,9 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         });
       }
     };
-  }
+  };
 
-  public toBeEnabled(value = true): ScenarioTestCaseGeneratorFn {
+  public toBeEnabled = (value = true): ScenarioTestCaseGeneratorFn => {
     const verb = this.isAssertionNegated ? 'not be' : 'be';
     const state = value ? 'enabled' : 'disabled';
 
@@ -387,13 +391,13 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         }
       });
     };
-  }
+  };
 
-  public toHaveState(
+  public toHaveState = (
     stateDef:
       | StateWithUnwrappedSignals<Component>
       | StateWithUnwrappedSignals<Component>[],
-  ): ScenarioTestCaseGeneratorFn {
+  ): ScenarioTestCaseGeneratorFn => {
     const verb = this.isAssertionNegated ? 'not have' : 'have';
 
     return ({ query }) => {
@@ -429,11 +433,11 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         }
       }
     };
-  }
+  };
 
-  public toHaveStyle(
+  public toHaveStyle = (
     styleDef: Partial<CSSStyleDeclaration> | Partial<CSSStyleDeclaration>[],
-  ): ScenarioTestCaseGeneratorFn {
+  ): ScenarioTestCaseGeneratorFn => {
     const verb = this.isAssertionNegated ? 'not have' : 'have';
 
     return ({ query }) => {
@@ -468,11 +472,11 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
         }
       }
     };
-  }
+  };
 
-  public to(
+  public readonly to = (
     ...testAssertions: NgtxScenarioTestingHarnessExtensionFn<Html, Component>[]
-  ): ScenarioTestCaseGeneratorFn {
+  ): ScenarioTestCaseGeneratorFn => {
     return (env) =>
       testAssertions.forEach((assertion) =>
         assertion({
@@ -482,7 +486,7 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
           isAssertionNegated: this.isAssertionNegated,
         }),
       );
-  }
+  };
 
   protected clone(): ScenarioTestingHarness<Html, Component> {
     const harnessConstructor = this.constructor as any;
