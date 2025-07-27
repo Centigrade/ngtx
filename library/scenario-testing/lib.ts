@@ -18,14 +18,14 @@ export function withHost() {
     fixtureRef().componentInstance;
 
   return {
-    havingState<T>(
-      state: StateWithUnwrappedSignals<T>,
-    ): ScenarioTestingSetupFn<T> {
+    havingState<TComponent, TState extends TComponent>(
+      state: StateWithUnwrappedSignals<TState>,
+    ): ScenarioTestingSetupFn<TComponent> {
       return {
         phase: 'setup',
         run: ({ fixtureRef }) => {
           const instance = getTarget(fixtureRef);
-          const stateProperties = Object.keys(state) as (keyof T)[];
+          const stateProperties = Object.keys(state) as (keyof TComponent)[];
 
           for (const property of stateProperties) {
             if (isWritableSignal(instance[property])) {
@@ -38,10 +38,10 @@ export function withHost() {
         },
       };
     },
-    emittingOnProperty$<T, Property extends keyof T>(
+    emittingOnProperty$<TComponent, Property extends keyof TComponent>(
       property: Property,
-      value: T[Property],
-    ): ScenarioTestingSetupFn<T> {
+      value: TComponent[Property],
+    ): ScenarioTestingSetupFn<TComponent> {
       return {
         phase: 'setup',
         run: ({ fixtureRef }) => {
@@ -54,7 +54,9 @@ export function withHost() {
         },
       };
     },
-    emitting$<T>(value: T): ScenarioTestingSetupFn<T> {
+    emitting$<TComponent>(
+      value: TComponent,
+    ): ScenarioTestingSetupFn<TComponent> {
       return {
         phase: 'setup',
         run: ({ fixtureRef }) => {
@@ -67,14 +69,14 @@ export function withHost() {
         },
       };
     },
-    calling<T, Property extends keyof T>(
-      methodName: T[Property] extends (...args: any[]) => unknown
+    calling<TComponent, Property extends keyof TComponent>(
+      methodName: TComponent[Property] extends (...args: any[]) => unknown
         ? Property
         : never,
-      ...args: T[Property] extends (...args: any[]) => unknown
-        ? Parameters<T[Property]>
+      ...args: TComponent[Property] extends (...args: any[]) => unknown
+        ? Parameters<TComponent[Property]>
         : never
-    ): ScenarioTestingSetupFn<T> {
+    ): ScenarioTestingSetupFn<TComponent> {
       return {
         phase: 'setup',
         run: ({ fixtureRef }) => {
@@ -87,17 +89,21 @@ export function withHost() {
   };
 }
 
-export function withProvider<T>(token: Type<T>) {
+export function withProvider<TToken, TState extends TToken>(
+  token: Type<TToken>,
+) {
   const getTarget = (fixtureRef: ComponentFixtureRef) =>
     fixtureRef().debugElement.injector.get(token);
 
   return {
-    havingState(state: StateWithUnwrappedSignals<T>): ScenarioTestingSetupFn {
+    havingState(
+      state: StateWithUnwrappedSignals<TState>,
+    ): ScenarioTestingSetupFn {
       return {
         phase: 'setup',
         run: ({ fixtureRef }) => {
           const instance = getTarget(fixtureRef);
-          const stateProperties = Object.keys(state) as (keyof T)[];
+          const stateProperties = Object.keys(state) as (keyof TToken)[];
 
           for (const property of stateProperties) {
             if (isWritableSignal(instance[property])) {
@@ -110,9 +116,9 @@ export function withProvider<T>(token: Type<T>) {
         },
       };
     },
-    emittingOnProperty$<Property extends keyof T>(
+    emittingOnProperty$<Property extends keyof TToken>(
       property: Property,
-      value: T[Property],
+      value: TToken[Property],
     ): ScenarioTestingSetupFn {
       return {
         phase: 'setup',
@@ -126,7 +132,7 @@ export function withProvider<T>(token: Type<T>) {
         },
       };
     },
-    emitting$(value: T): ScenarioTestingSetupFn {
+    emitting$(value: TToken): ScenarioTestingSetupFn {
       return {
         phase: 'setup',
         run: ({ fixtureRef }) => {
@@ -139,12 +145,12 @@ export function withProvider<T>(token: Type<T>) {
         },
       };
     },
-    calling<Property extends keyof T>(
-      methodName: T[Property] extends (...args: any[]) => unknown
+    calling<Property extends keyof TToken>(
+      methodName: TToken[Property] extends (...args: any[]) => unknown
         ? Property
         : never,
-      ...args: T[Property] extends (...args: any[]) => unknown
-        ? Parameters<T[Property]>
+      ...args: TToken[Property] extends (...args: any[]) => unknown
+        ? Parameters<TToken[Property]>
         : never
     ): ScenarioTestingSetupFn {
       return {
