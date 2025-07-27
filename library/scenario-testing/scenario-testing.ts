@@ -230,14 +230,14 @@ export class ScenarioTestingHarness<
   [NgtxScenarioTestIsAssertionNegated] = false;
   [NgtxScenarioTestTargetFilter]?: TargetFilter<Html, Component>;
 
-  static forAll<Html extends HTMLElement, Component>(
+  static forAll<Html extends HTMLElement = HTMLElement, Component = any>(
     queryTarget?: QueryTarget<Component>,
     options?: TestScenarioOptions,
   ) {
     return new ScenarioTestingHarness<Html, Component>(queryTarget, options);
   }
 
-  static for<Html extends HTMLElement, Component>(
+  static for<Html extends HTMLElement = HTMLElement, Component = any>(
     queryTarget?: QueryTarget<Component>,
     options?: TestScenarioOptions,
   ): HarnessWithoutFilters<Html, Component> {
