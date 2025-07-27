@@ -91,9 +91,16 @@ export class TestingModule implements ITestingModule {
   ) {}
 
   forComponent(componentType: Type<any>, opts: ForComponentOptions = {}) {
+    // hint: auto add component under test:
+    const imports = isStandalone(componentType)
+      ? this.imports.concat(componentType)
+      : this.imports;
+    const declarations = isStandalone(componentType)
+      ? this.declarations
+      : this.declarations.concat(componentType);
     const module: ITestingModule = {
-      imports: this.imports,
-      declarations: this.declarations,
+      imports,
+      declarations,
       providers: this.providers,
     };
 
