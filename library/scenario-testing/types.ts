@@ -1,6 +1,7 @@
 import { ComponentFixture } from '@angular/core/testing';
 import { TargetRef } from '../declarative-testing/types';
 import { QueryTarget, TypedDebugElement } from '../types';
+import { ScenarioTestingHarness } from './scenario-testing';
 
 //#region general types
 export type ComponentFixtureRef<T = any> = () => ComponentFixture<T>;
@@ -66,4 +67,16 @@ export type NgtxScenarioTestingHarnessExtensionFn<
   Html extends HTMLElement = HTMLElement,
   Component = any,
 > = (ctx: ScenarioTestingHarnessExtensionContext<Html, Component>) => unknown;
+export type NgtxChildComponentTestCaseGeneratorFn<
+  Html extends HTMLElement = HTMLElement,
+  Component = any,
+> = (
+  ctx: HarnessWithoutFilters<Html, Component> &
+    ScenarioTestingHarnessExtensionContext<Html, Component>,
+) => unknown;
+
+export type HarnessWithoutFilters<Html extends HTMLElement, Component> = Omit<
+  ScenarioTestingHarness<Html, Component>,
+  'nth' | 'first' | 'last' | 'range' | 'where'
+>;
 //#endregion

@@ -138,101 +138,112 @@ const MyTestingModule = TestingModule.configure({
 
 describe(
   'ScenarioTestComponent',
-  ngtx<ScenarioTestComponent>(({ When, host, get, scenario, useFixture }) => {
-    beforeEach(() => {
-      MyTestingModule.forComponent(ScenarioTestComponent);
-      const fixture = TestBed.createComponent(ScenarioTestComponent);
-      useFixture(fixture);
-    });
-
-    class the {
-      static textsFrom1to3 = ScenarioTestingHarness.forAll<
-        HTMLElement,
-        TextComponent
-      >('ngtx_textbox');
-      static styledDiv = ScenarioTestingHarness.forAll('.div-style');
-      static paramIdDiv = ScenarioTestingHarness.for('ngtx_route-param');
-      static text = ScenarioTestingHarness.for(TextComponent, {
-        displayName: 'PageTitle',
+  ngtx<ScenarioTestComponent>(
+    ({ When, host, get, scenario, expect, useFixture }) => {
+      beforeEach(() => {
+        MyTestingModule.forComponent(ScenarioTestComponent);
+        const fixture = TestBed.createComponent(ScenarioTestComponent);
+        useFixture(fixture);
       });
-      static button = ScenarioTestingHarness.for(ButtonComponent);
-      static divWithValueTextContent = ScenarioTestingHarness.for('#value');
-      static divWithSubjectTextContent = ScenarioTestingHarness.for('#subject');
-      static divWithSignalTextContent = ScenarioTestingHarness.for('#signal');
 
-      static links = ScenarioTestingHarness.forAll('a');
-    }
+      class the {
+        static textsFrom1to3 = ScenarioTestingHarness.forAll<
+          HTMLElement,
+          TextComponent
+        >('ngtx_textbox');
+        static styledDiv = ScenarioTestingHarness.forAll('.div-style');
+        static paramIdDiv = ScenarioTestingHarness.for('ngtx_route-param');
+        static text = ScenarioTestingHarness.for(TextComponent, {
+          displayName: 'PageTitle',
+        });
+        static button = ScenarioTestingHarness.for(ButtonComponent, {
+          displayName: 'SubmitButton',
+        });
+        static divWithValueTextContent = ScenarioTestingHarness.for('#value');
+        static divWithSubjectTextContent =
+          ScenarioTestingHarness.for('#subject');
+        static divWithSignalTextContent = ScenarioTestingHarness.for('#signal');
 
-    class that {
-      static button = () => get(ButtonComponent);
-      static text = () => get(TextComponent);
-    }
+        static links = ScenarioTestingHarness.forAll('a');
+      }
 
-    scenario('links').expect(
-      the.links.toBeFound({ times: 4 }),
-      the.links.first().toContainText('A'),
-      the.links.range(2, 3).toContainText(['B', 'C']),
-      the.links.range(2, 4).toContainText(['B', 'C', 'D']),
-      the.links
-        .where({ name: ':even', filter: (_, i) => (i + 1) % 2 === 0 })
-        .toContainText(['B', 'D']),
-      the.links.last().toContainText('D'),
-    );
+      class that {
+        static button = () => get(ButtonComponent);
+        static text = () => get(TextComponent);
+      }
 
-    scenario('Jane')
-      .setup(
-        withProvider(MyService).havingState({
-          value: 'Jane',
-          signal: 'Jane',
-          subject$: new BehaviorSubject('Jane'),
-        }),
-        withChangeDetectionAfterSetup(),
-      )
-      .expect(
-        the.textsFrom1to3.toHaveState([
-          { text: '1' },
-          { text: '2' },
-          { text: '3' },
-        ]),
-        the.styledDiv.toBeFound(),
-        the.styledDiv.not.toBeMissing(),
-        the.text.toHaveState({ text: 'Jane' }),
-        the.divWithValueTextContent.toContainText('Jane'),
-        the.divWithSubjectTextContent.toContainText('Jane'),
-        the.divWithSignalTextContent.toContainText('Jane'),
-        the.text.not.toHaveState({ text: 'Henry' }),
-        the.button.toBeEnabled(),
-        the.button.not.toBeEnabled(false),
-        the.text.to(haveComponentType(TextComponent)),
-        the.text.not.to(haveComponentType(ButtonComponent)),
-        the.paramIdDiv.toBeMissing(),
+      scenario('links').expect(
+        the.links.toBeFound({ times: 4 }),
+        the.links.first().toContainText('A'),
+        the.links.range(2, 3).toContainText(['B', 'C']),
+        the.links.range(2, 4).toContainText(['B', 'C', 'D']),
+        the.links
+          .where({ name: ':even', filter: (_, i) => (i + 1) % 2 === 0 })
+          .toContainText(['B', 'D']),
+        the.links.last().toContainText('D'),
       );
 
-    scenario('Henry')
-      .setup(
-        withRouteParams({ id: '42' }),
-        withProvider(MyService).havingState({ value: 'Henry' }),
-        withHost().havingState({ color: 'blue' }),
-        withChangeDetectionAfterSetup(),
-      )
-      .expect(
-        the.styledDiv.toHaveStyle({ background: 'blue' }),
-        the.styledDiv.toHaveStyle([
-          { background: 'blue' },
-          { background: 'blue' },
-        ]),
-        the.styledDiv.not.toBeMissing(),
-        the.text.toHaveState({ text: 'Henry' }),
-        the.text.not.toHaveState({ text: 'Jane' }),
-        the.button.toBeEnabled(),
-        the.button.not.toBeEnabled(false),
-        the.text.to(haveComponentType(TextComponent)),
-        the.text.not.to(haveComponentType(ButtonComponent)),
-        the.paramIdDiv.toBeFound(),
+      scenario('Jane')
+        .setup(
+          withProvider(MyService).havingState({
+            value: 'Jane',
+            signal: 'Jane',
+            subject$: new BehaviorSubject('Jane'),
+          }),
+          withChangeDetectionAfterSetup(),
+        )
+        .expect(
+          the.textsFrom1to3.toHaveState([
+            { text: '1' },
+            { text: '2' },
+            { text: '3' },
+          ]),
+          the.styledDiv.toBeFound(),
+          the.styledDiv.not.toBeMissing(),
+          the.text.toHaveState({ text: 'Jane' }),
+          the.divWithValueTextContent.toContainText('Jane'),
+          the.divWithSubjectTextContent.toContainText('Jane'),
+          the.divWithSignalTextContent.toContainText('Jane'),
+          the.text.not.toHaveState({ text: 'Henry' }),
+          the.button.toBeEnabled(),
+          the.button.not.toBeEnabled(false),
+          the.text.to(haveComponentType(TextComponent)),
+          the.text.not.to(haveComponentType(ButtonComponent)),
+          the.paramIdDiv.toBeMissing(),
+        );
+
+      scenario('Henry')
+        .setup(
+          withRouteParams({ id: '42' }),
+          withProvider(MyService).havingState({ value: 'Henry' }),
+          withHost().havingState({ color: 'blue' }),
+          withChangeDetectionAfterSetup(),
+        )
+        .expect(
+          the.styledDiv.toHaveStyle({ background: 'blue' }),
+          the.styledDiv.toHaveStyle([
+            { background: 'blue' },
+            { background: 'blue' },
+          ]),
+          the.styledDiv.not.toBeMissing(),
+          the.text.toHaveState({ text: 'Henry' }),
+          the.text.not.toHaveState({ text: 'Jane' }),
+          the.button.toBeEnabled(),
+          the.button.not.toBeEnabled(false),
+          the.text.to(haveComponentType(TextComponent)),
+          the.text.not.to(haveComponentType(ButtonComponent)),
+          the.paramIdDiv.toBeFound(),
+        );
+
+      expect(the.button).to(
+        ({ toHaveState }) => toHaveState({ text: 'click me!' }),
+        ({ toBeEnabled }) => toBeEnabled(),
+        haveComponentType(ButtonComponent),
       );
 
-    it('should work', () => {
-      When(host).rendered().expect(that.text).not.to(containText('Jane'));
-    });
-  }),
+      it('should work', () => {
+        When(host).rendered().expect(that.text).not.to(containText('Jane'));
+      });
+    },
+  ),
 );

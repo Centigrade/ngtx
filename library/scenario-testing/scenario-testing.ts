@@ -17,9 +17,12 @@ import {
 } from './symbols';
 import {
   ComponentFixtureRef,
+  HarnessWithoutFilters,
+  NgtxChildComponentTestCaseGeneratorFn,
   NgtxScenarioTestingHarnessExtensionFn,
   NgtxTestingFrameworkAdapter,
   ScenarioTestCaseGeneratorFn,
+  ScenarioTestingHarnessExtensionContext,
   SetupInstruction,
   TargetFilter,
   TestActionFn,
@@ -57,10 +60,53 @@ export class ScenarioTestingEnvironment<Component> {
         ),
     },
   );
+
+  public readonly addChildComponentTest = Object.assign(
+    <Component>(targetHarness: HarnessWithoutFilters<any, Component>) =>
+      new ChildComponentTest<Component>(targetHarness, this.#fixtureRef, false),
+    {
+      only: (targetHarness: HarnessWithoutFilters<any, Component>) =>
+        new ChildComponentTest<Component>(
+          targetHarness,
+          this.#fixtureRef,
+          true,
+        ),
+    },
+  );
 }
 
-export class TestScenario<Component> {
-  #fixtureRef: ComponentFixtureRef;
+class TestBase {
+  constructor(
+    protected readonly fixtureRef: ComponentFixtureRef,
+    public readonly isFocusedTest: boolean,
+  ) {}
+
+  protected readonly query = <Html extends HTMLElement, Component>(
+    target: QueryTarget<Component> | undefined,
+    filter: TargetFilter<Html, Component>,
+  ): TypedDebugElement<Html, Component>[] => {
+    if (target == undefined) {
+      return [this.fixtureRef().debugElement].filter(filter.filter);
+    }
+
+    let searchMethod: Predicate<DebugElement>;
+
+    if (typeof target === 'string') {
+      const selector = isNgtxQuerySelector(target)
+        ? `[data-ngtx="${target}"]`.replace('ngtx_', '')
+        : target;
+
+      searchMethod = By.css(selector);
+    } else {
+      searchMethod = By.directive(target);
+    }
+
+    const results = this.fixtureRef().debugElement.queryAll(searchMethod);
+    return results.length > 0 ? results.filter(filter.filter) : (null as any);
+  };
+}
+
+export class TestScenario<Component> extends TestBase {
   #testingFrameworkAdapter: NgtxTestingFrameworkAdapter;
   #setupFns: TestActionFn<Component>[] = [];
   #afterSetupFns: TestActionFn<Component>[] = [];
@@ -69,9 +115,9 @@ export class TestScenario<Component> {
     public readonly description: string,
     fixtureRef: ComponentFixtureRef,
     testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
-    public readonly isFocusedTest = false,
+    isFocusedTest = false,
   ) {
-    this.#fixtureRef = fixtureRef;
+    super(fixtureRef, isFocusedTest);
     this.#testingFrameworkAdapter = testingFrameworkAdapter;
   }
 
@@ -97,15 +143,15 @@ export class TestScenario<Component> {
       beforeEach(async () => {
         for (const setup of this.#setupFns) {
           await setup({
-            fixtureRef: this.#fixtureRef,
-            query: this.#query,
+            fixtureRef: this.fixtureRef,
+            query: this.query,
           });
         }
 
         for (const afterSetup of this.#afterSetupFns) {
           await afterSetup({
-            fixtureRef: this.#fixtureRef,
-            query: this.#query,
+            fixtureRef: this.fixtureRef,
+            query: this.query,
           });
         }
       });
@@ -113,42 +159,69 @@ export class TestScenario<Component> {
       // hint: immediately call test generator fns to add tests
       for (const test of tests) {
         test({
-          fixtureRef: this.#fixtureRef,
-          query: this.#query,
+          fixtureRef: this.fixtureRef,
+          query: this.query,
         });
       }
     });
   }
-
-  readonly #query = <Html extends HTMLElement, Component>(
-    target: QueryTarget<Component> | undefined,
-    filter: TargetFilter<Html, Component>,
-  ): TypedDebugElement<Html, Component>[] => {
-    if (target == undefined) {
-      return [this.#fixtureRef().debugElement].filter(filter.filter);
-    }
-
-    let searchMethod: Predicate<DebugElement>;
-
-    if (typeof target === 'string') {
-      const selector = isNgtxQuerySelector(target)
-        ? `[data-ngtx="${target}"]`.replace('ngtx_', '')
-        : target;
-
-      searchMethod = By.css(selector);
-    } else {
-      searchMethod = By.directive(target);
-    }
-
-    const results = this.#fixtureRef().debugElement.queryAll(searchMethod);
-    return results.length > 0 ? results.filter(filter.filter) : (null as any);
-  };
 }
 
-type HarnessWithoutFilters<Html extends HTMLElement, Component> = Omit<
-  ScenarioTestingHarness<Html, Component>,
-  'nth' | 'first' | 'last' | 'range' | 'where'
->;
+export class ChildComponentTest<Component> extends TestBase {
+  constructor(
+    protected readonly targetHarness: HarnessWithoutFilters<any, Component>,
+    fixtureRef: ComponentFixtureRef,
+    isFocussedTest: boolean,
+  ) {
+    super(fixtureRef, isFocussedTest);
+  }
+
+  public readonly to = (
+    ...tests: NgtxChildComponentTestCaseGeneratorFn<HTMLElement, Component>[]
+  ) => {
+    describe(this.targetHarness['displayName'], () => {
+      for (const test of tests) {
+        const target = this.targetHarness as ScenarioTestingHarness<
+          any,
+          Component
+        >;
+
+        const context: ScenarioTestingHarnessExtensionContext<
+          HTMLElement,
+          Component
+        > = {
+          displayName: target['displayName'],
+          isAssertionNegated: target['isAssertionNegated'],
+          fixtureRef: this.fixtureRef,
+          query: this.query,
+          targetRef: () => this.query(target['queryTarget'], target['filter']),
+        };
+
+        const testGeneratorFnOrVoid = test({
+          ...this.targetHarness,
+          ...context,
+        });
+
+        /* 
+            hint: we also pack the scenario-testing harness into the evn, so the user could call e.g. 
+
+              expect(the.button).to({ toBeEnabled }) => toBeEnabled())
+            
+            which returns a TestingScenarioExtensionFn, which has to be called with the context object again,
+            to add their tests.
+
+            If the user passes in an own TestingScenarioExtensionFn, the maybeTestGeneratorFn variable is expected to be void / undefined,
+            e.g.
+
+              expect(the.button).to(beFocussed())
+        */
+        if (typeof testGeneratorFnOrVoid === 'function') {
+          testGeneratorFnOrVoid(context);
+        }
+      }
+    });
+  };
+}
 
 export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
   [NgtxScenarioTestIsAssertionNegated] = false;
@@ -165,10 +238,17 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     queryTarget?: QueryTarget<Component>,
     options?: TestScenarioOptions,
   ): HarnessWithoutFilters<Html, Component> {
-    return new ScenarioTestingHarness<Html, Component>(
+    const harness = new ScenarioTestingHarness<Html, Component>(
       queryTarget,
       options,
     ).first();
+
+    // hint: remove filter name (":first"), so that it does not appear in displayName, as there is obviously only one target existing (thus using ".for" instead of ".forAll"):
+    if (harness[NgtxScenarioTestTargetFilter]) {
+      harness[NgtxScenarioTestTargetFilter].name = '';
+    }
+
+    return harness;
   }
 
   private constructor(
@@ -195,16 +275,17 @@ export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
     return name + this.filter.name;
   }
 
-  public readonly not: Omit<typeof this, 'not'> = new Proxy(this, {
-    get: (_, property) => {
-      const harnessClone = this.clone();
+  public readonly not: Omit<HarnessWithoutFilters<Html, Component>, 'not'> =
+    new Proxy(this, {
+      get: (_, property) => {
+        const harnessClone = this.clone();
 
-      harnessClone[NgtxScenarioTestIsAssertionNegated] =
-        !this[NgtxScenarioTestIsAssertionNegated];
+        harnessClone[NgtxScenarioTestIsAssertionNegated] =
+          !this[NgtxScenarioTestIsAssertionNegated];
 
-      return (harnessClone as any)[property];
-    },
-  });
+        return (harnessClone as any)[property];
+      },
+    });
 
   //#region filter functions
   public readonly nth = (
