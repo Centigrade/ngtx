@@ -12,35 +12,7 @@ import {
   ScenarioTestingSetupFn,
 } from './types';
 
-export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
-  return {
-    phase: 'afterSetup',
-    run: ({ fixtureRef }) => {
-      const fixture = fixtureRef();
-      const changeDetectorRef =
-        fixture.debugElement.injector.get(ChangeDetectorRef);
-      const component = fixture.debugElement.componentInstance;
-      const componentInputs = inputsOf(component);
-
-      if ('ngOnChanges' in component) {
-        const changes = toSimpleChanges(componentInputs);
-        component.ngOnChanges(changes);
-      }
-      if ('ngOnInit' in component) {
-        component.ngOnInit();
-      }
-      // TODO: other hooks
-
-      // hint: detecting via ChangeDetectorRef also updates OnPush components:
-      changeDetectorRef.detectChanges();
-    },
-  };
-}
-
-type StripMethods<T> = {
-  [K in keyof T as T[K] extends Function ? never : K]: T[K];
-};
-
+//#region scenario setup fns
 export function withHost() {
   return new WithActions((fixtureRef) => fixtureRef().componentInstance);
 }
@@ -65,7 +37,9 @@ export function withRouteParams(
     },
   };
 }
+//#endregion
 
+//#region after scenario setup fns
 export function debugAfterSetup<T>(
   opts: DebugOptions<T> = {},
 ): ScenarioTestingSetupFn {
@@ -112,6 +86,36 @@ export function debugAfterSetup<T>(
     },
   };
 }
+
+export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
+  return {
+    phase: 'afterSetup',
+    run: ({ fixtureRef }) => {
+      const fixture = fixtureRef();
+      const changeDetectorRef =
+        fixture.debugElement.injector.get(ChangeDetectorRef);
+      const component = fixture.debugElement.componentInstance;
+      const componentInputs = inputsOf(component);
+
+      if ('ngOnChanges' in component) {
+        const changes = toSimpleChanges(componentInputs);
+        component.ngOnChanges(changes);
+      }
+      if ('ngOnInit' in component) {
+        component.ngOnInit();
+      }
+      // TODO: other hooks
+
+      // hint: detecting via ChangeDetectorRef also updates OnPush components:
+      changeDetectorRef.detectChanges();
+    },
+  };
+}
+//#endregion
+
+//#region scenario testing harness extension fns
+
+//#endregion
 
 // ---------------------------------------
 // module internals
