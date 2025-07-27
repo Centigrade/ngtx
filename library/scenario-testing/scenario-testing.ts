@@ -223,7 +223,10 @@ export class ChildComponentTest<Component> extends TestBase {
   };
 }
 
-export class ScenarioTestingHarness<Html extends HTMLElement, Component> {
+export class ScenarioTestingHarness<
+  Html extends HTMLElement = HTMLElement,
+  Component = any,
+> {
   [NgtxScenarioTestIsAssertionNegated] = false;
   [NgtxScenarioTestTargetFilter]?: TargetFilter<Html, Component>;
 
