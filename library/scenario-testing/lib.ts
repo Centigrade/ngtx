@@ -14,13 +14,149 @@ import {
 
 //#region scenario setup fns
 export function withHost() {
-  return new WithActions((fixtureRef) => fixtureRef().componentInstance);
+  const getTarget = (fixtureRef: ComponentFixtureRef) =>
+    fixtureRef().componentInstance;
+
+  return {
+    havingState<T>(
+      state: StateWithUnwrappedSignals<T>,
+    ): ScenarioTestingSetupFn<T> {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const stateProperties = Object.keys(state) as (keyof T)[];
+
+          for (const property of stateProperties) {
+            if (isWritableSignal(instance[property])) {
+              instance[property].set(state[property]!);
+              continue;
+            }
+
+            (instance as any)[property] = state[property];
+          }
+        },
+      };
+    },
+    emittingOnProperty$<T, Property extends keyof T>(
+      property: Property,
+      value: T[Property],
+    ): ScenarioTestingSetupFn<T> {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const subject: any = instance[property];
+
+          if ('next' in subject) {
+            subject.next(value);
+          }
+        },
+      };
+    },
+    emitting$<T>(value: T): ScenarioTestingSetupFn<T> {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const subject: any = instance;
+
+          if ('next' in subject) {
+            subject.next(value);
+          }
+        },
+      };
+    },
+    calling<T, Property extends keyof T>(
+      methodName: T[Property] extends (...args: any[]) => unknown
+        ? Property
+        : never,
+      ...args: T[Property] extends (...args: any[]) => unknown
+        ? Parameters<T[Property]>
+        : never
+    ): ScenarioTestingSetupFn<T> {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const method = instance[methodName] as (...args: any[]) => unknown;
+          method.call(instance, ...args);
+        },
+      };
+    },
+  };
 }
 
 export function withProvider<T>(token: Type<T>) {
-  return new WithActions((fixtureRef) =>
-    fixtureRef().debugElement.injector.get(token),
-  );
+  const getTarget = (fixtureRef: ComponentFixtureRef) =>
+    fixtureRef().debugElement.injector.get(token);
+
+  return {
+    havingState(state: StateWithUnwrappedSignals<T>): ScenarioTestingSetupFn {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const stateProperties = Object.keys(state) as (keyof T)[];
+
+          for (const property of stateProperties) {
+            if (isWritableSignal(instance[property])) {
+              instance[property].set(state[property]!);
+              continue;
+            }
+
+            (instance as any)[property] = state[property];
+          }
+        },
+      };
+    },
+    emittingOnProperty$<Property extends keyof T>(
+      property: Property,
+      value: T[Property],
+    ): ScenarioTestingSetupFn {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const subject: any = instance[property];
+
+          if ('next' in subject) {
+            subject.next(value);
+          }
+        },
+      };
+    },
+    emitting$(value: T): ScenarioTestingSetupFn {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const subject: any = instance;
+
+          if ('next' in subject) {
+            subject.next(value);
+          }
+        },
+      };
+    },
+    calling<Property extends keyof T>(
+      methodName: T[Property] extends (...args: any[]) => unknown
+        ? Property
+        : never,
+      ...args: T[Property] extends (...args: any[]) => unknown
+        ? Parameters<T[Property]>
+        : never
+    ): ScenarioTestingSetupFn {
+      return {
+        phase: 'setup',
+        run: ({ fixtureRef }) => {
+          const instance = getTarget(fixtureRef);
+          const method = instance[methodName] as (...args: any[]) => unknown;
+          method.call(instance, ...args);
+        },
+      };
+    },
+  };
 }
 
 export function withRouteParams(
@@ -120,76 +256,3 @@ export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
 // ---------------------------------------
 // module internals
 // ---------------------------------------
-
-class WithActions<T> {
-  #getTarget: (fixtureRef: ComponentFixtureRef) => T;
-
-  constructor(getTarget: (fixtureRef: ComponentFixtureRef) => T) {
-    this.#getTarget = getTarget;
-  }
-
-  havingState(state: StateWithUnwrappedSignals<T>): ScenarioTestingSetupFn {
-    return {
-      phase: 'setup',
-      run: ({ fixtureRef }) => {
-        const instance = this.#getTarget(fixtureRef);
-        const stateProperties = Object.keys(state) as (keyof T)[];
-
-        for (const property of stateProperties) {
-          if (isWritableSignal(instance[property])) {
-            instance[property].set(state[property]!);
-            continue;
-          }
-
-          (instance as any)[property] = state[property];
-        }
-      },
-    };
-  }
-  emittingOnProperty$<Property extends keyof T>(
-    property: Property,
-    value: T[Property],
-  ): ScenarioTestingSetupFn {
-    return {
-      phase: 'setup',
-      run: ({ fixtureRef }) => {
-        const instance = this.#getTarget(fixtureRef);
-        const subject: any = instance[property];
-
-        if ('next' in subject) {
-          subject.next(value);
-        }
-      },
-    };
-  }
-  emitting$(value: T): ScenarioTestingSetupFn {
-    return {
-      phase: 'setup',
-      run: ({ fixtureRef }) => {
-        const instance = this.#getTarget(fixtureRef);
-        const subject: any = instance;
-
-        if ('next' in subject) {
-          subject.next(value);
-        }
-      },
-    };
-  }
-  calling<Property extends keyof T>(
-    methodName: T[Property] extends (...args: any[]) => unknown
-      ? Property
-      : never,
-    ...args: T[Property] extends (...args: any[]) => unknown
-      ? Parameters<T[Property]>
-      : never
-  ): ScenarioTestingSetupFn {
-    return {
-      phase: 'setup',
-      run: ({ fixtureRef }) => {
-        const instance = this.#getTarget(fixtureRef);
-        const method = instance[methodName] as (...args: any[]) => unknown;
-        method.call(instance, ...args);
-      },
-    };
-  }
-}
