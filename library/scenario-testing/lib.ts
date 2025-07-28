@@ -254,8 +254,9 @@ export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
         component.ngOnInit();
       }
 
-      // hint: detecting via ChangeDetectorRef also updates OnPush components:
+      // hint: detecting via ChangeDetectorRef to also update OnPush components:
       changeDetectorRef.detectChanges();
+      fixture.detectChanges();
     },
   };
 }
