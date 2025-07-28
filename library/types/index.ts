@@ -42,7 +42,7 @@ export type NgtxSuite<T> = Omit<
   When: WhenStatement;
   host(): NgtxElement<HTMLElement, T>;
   scenario: ScenarioTestingEnvironment<T>['addTestScenario'];
-  expect: ScenarioTestingEnvironment<T>['addChildComponentTest'];
+  expectChild: ScenarioTestingEnvironment<T>['addChildComponentTest'];
 };
 
 /** Defines options that affects how ngtx gets initialized. */

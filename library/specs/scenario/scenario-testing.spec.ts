@@ -139,7 +139,7 @@ const MyTestingModule = TestingModule.configure({
 describe(
   'ScenarioTestComponent',
   ngtx<ScenarioTestComponent>(
-    ({ When, host, get, scenario, expect, useFixture }) => {
+    ({ When, host, get, scenario, expectChild, useFixture }) => {
       beforeEach(() => {
         MyTestingModule.forComponent(ScenarioTestComponent);
         const fixture = TestBed.createComponent(ScenarioTestComponent);
@@ -235,7 +235,7 @@ describe(
           the.paramIdDiv.toBeFound(),
         );
 
-      expect(the.button).to(
+      expectChild(the.button).to(
         ({ toHaveState }) => toHaveState({ text: 'click me!' }),
         ({ toBeEnabled }) => toBeEnabled(),
         haveComponentType(ButtonComponent),
