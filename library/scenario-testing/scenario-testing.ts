@@ -203,7 +203,11 @@ export class ChildComponentTest<Host, Component> extends TestBase<Host> {
   }
 
   public readonly to = (
-    ...tests: NgtxChildComponentTestCaseGeneratorFn<HTMLElement, Component>[]
+    ...tests: NgtxChildComponentTestCaseGeneratorFn<
+      HTMLElement,
+      Component,
+      Host
+    >[]
   ) => {
     describe(this.targetHarness['displayName'], () => {
       for (const test of tests) {
@@ -214,7 +218,8 @@ export class ChildComponentTest<Host, Component> extends TestBase<Host> {
 
         const context: ScenarioTestingHarnessExtensionContext<
           HTMLElement,
-          Component
+          Component,
+          Host
         > = {
           displayName: target['displayName'],
           isAssertionNegated: target['isAssertionNegated'],

@@ -59,7 +59,8 @@ export type ScenarioTestingHarnessOptions = {
 export type ScenarioTestingHarnessExtensionContext<
   Html extends HTMLElement,
   Component,
-> = TestActionContext<any> & {
+  Host,
+> = TestActionContext<Host> & {
   targetRef: () => TypedDebugElement<Html, Component>[];
   displayName: string;
   isAssertionNegated: boolean;
@@ -69,13 +70,17 @@ export type ScenarioTestingSetupFn<T = any> = SetupInstruction<T>;
 export type NgtxScenarioTestingHarnessExtensionFn<
   Html extends HTMLElement = HTMLElement,
   Component = any,
-> = (ctx: ScenarioTestingHarnessExtensionContext<Html, Component>) => unknown;
+  Host = any,
+> = (
+  ctx: ScenarioTestingHarnessExtensionContext<Html, Component, Host>,
+) => unknown;
 export type NgtxChildComponentTestCaseGeneratorFn<
   Html extends HTMLElement = HTMLElement,
   Component = any,
+  Host = any,
 > = (
   ctx: ScenarioTestingHarnessWithoutFilters<Html, Component> &
-    ScenarioTestingHarnessExtensionContext<Html, Component>,
+    ScenarioTestingHarnessExtensionContext<Html, Component, Host>,
 ) => unknown;
 
 export type ScenarioTestingHarnessWithoutFilters<
