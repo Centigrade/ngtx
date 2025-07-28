@@ -38,19 +38,19 @@ import {
 // hint: scenario testing user-initialization is done here: <project-root>/library/ngtx.ts
 // ------------------------------------------------------------------------------------------------
 
-export class ScenarioTestingEnvironment<Component> {
-  readonly #fixtureRef: ComponentFixtureRef<Component>;
+export class ScenarioTestingEnvironment<Host> {
+  readonly #fixtureRef: ComponentFixtureRef<Host>;
 
   constructor(
     public readonly testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
-    fixtureRef: ComponentFixtureRef<Component>,
+    fixtureRef: ComponentFixtureRef<Host>,
   ) {
     this.#fixtureRef = fixtureRef;
   }
 
   public readonly addTestScenario = Object.assign(
     (description: string, opts: TestScenarioOptions = {}) =>
-      new TestScenario<Component>(
+      new TestScenario<Host>(
         description,
         this.#fixtureRef,
         this.testingFrameworkAdapter,
@@ -59,7 +59,7 @@ export class ScenarioTestingEnvironment<Component> {
       ),
     {
       only: (description: string, opts: TestScenarioOptions = {}) =>
-        new TestScenario<Component>(
+        new TestScenario<Host>(
           description,
           this.#fixtureRef,
           this.testingFrameworkAdapter,
@@ -73,12 +73,16 @@ export class ScenarioTestingEnvironment<Component> {
     <Component>(
       targetHarness: ScenarioTestingHarnessWithoutFilters<any, Component>,
     ) =>
-      new ChildComponentTest<Component>(targetHarness, this.#fixtureRef, false),
+      new ChildComponentTest<Host, Component>(
+        targetHarness,
+        this.#fixtureRef,
+        false,
+      ),
     {
-      only: (
+      only: <Component>(
         targetHarness: ScenarioTestingHarnessWithoutFilters<any, Component>,
       ) =>
-        new ChildComponentTest<Component>(
+        new ChildComponentTest<Host, Component>(
           targetHarness,
           this.#fixtureRef,
           true,
@@ -87,9 +91,9 @@ export class ScenarioTestingEnvironment<Component> {
   );
 }
 
-class TestBase {
+class TestBase<Host> {
   constructor(
-    protected readonly fixtureRef: ComponentFixtureRef,
+    protected readonly fixtureRef: ComponentFixtureRef<Host>,
     public readonly isFocusedTest: boolean,
   ) {}
 
@@ -118,11 +122,11 @@ class TestBase {
   };
 }
 
-export class TestScenario<Component> extends TestBase {
+export class TestScenario<Host> extends TestBase<Host> {
   #testingFrameworkAdapter: NgtxTestingFrameworkAdapter;
   #options: TestScenarioOptions;
-  #setupFns: TestActionFn<Component>[] = [];
-  #afterSetupFns: TestActionFn<Component>[] = [];
+  #setupFns: TestActionFn<Host>[] = [];
+  #afterSetupFns: TestActionFn<Host>[] = [];
 
   constructor(
     public readonly description: string,
@@ -136,7 +140,7 @@ export class TestScenario<Component> extends TestBase {
     this.#options = opts;
   }
 
-  public setup(...setupInstructions: SetupInstruction<Component>[]) {
+  public setup(...setupInstructions: SetupInstruction<Host>[]) {
     const setupFns = setupInstructions
       .filter((e) => e.phase === 'setup')
       .map((e) => e.run);
@@ -186,13 +190,13 @@ export class TestScenario<Component> extends TestBase {
   }
 }
 
-export class ChildComponentTest<Component> extends TestBase {
+export class ChildComponentTest<Host, Component> extends TestBase<Host> {
   constructor(
     protected readonly targetHarness: ScenarioTestingHarnessWithoutFilters<
       any,
       Component
     >,
-    fixtureRef: ComponentFixtureRef,
+    fixtureRef: ComponentFixtureRef<Host>,
     isFocussedTest: boolean,
   ) {
     super(fixtureRef, isFocussedTest);
