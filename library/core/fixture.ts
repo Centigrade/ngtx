@@ -1,8 +1,8 @@
 import { SimpleChanges, Type } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
-import { NgtxMultiElement } from '.';
 import { LifeCycleHooks, QueryTarget, TypeObjectMap } from '../types/index';
 import { NgtxElement } from './element';
+import { NgtxMultiElement } from './multi-element';
 
 export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
   private root: NgtxElement<HostHtml, HostComponent>;

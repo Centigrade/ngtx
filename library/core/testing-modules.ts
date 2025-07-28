@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PublicApi } from '@centigrade/hypertyper';
+import { isComponent, isDirective, isNgModule, isPipe } from '../utility';
 import { TestingModuleSymbol } from './symbols';
 import {
   DeclarationPluginContext,
@@ -296,29 +297,6 @@ export class TestingModule implements ITestingModule {
 // ------------------------------------
 // module internals
 // ------------------------------------
-function isStandaloneDeclaration(value: any): value is Type<any> {
-  if (!value || Array.isArray(value)) return false;
-  return isStandalone(value);
-}
-function isComponent(value: any): value is Type<any> {
-  if (!value || Array.isArray(value)) return false;
-  return value?.ɵcmp != undefined;
-}
-function isDirective(value: any): value is Type<any> {
-  return value?.ɵdir != undefined && value?.ɵcmp == undefined;
-}
-function isPipe(value: any): value is Type<any> {
-  return value?.ɵpipe != undefined;
-}
-function isNgModule(value: any): value is Type<any> {
-  return (
-    // hint: usual modules
-    value?.ɵmod != undefined ||
-    // hint: forRoot() | forChild() patterns
-    ('ngModule' in value && value?.ngModule.ɵmod != undefined)
-  );
-}
-
 function flatten<T>(array: (T | T[])[]): T[] {
   return array.flat(Infinity) as T[];
 }

@@ -1,10 +1,6 @@
 import { NgtxElement, NgtxMultiElement } from '../core';
-import { isTargetFound } from '../utility';
+import { asArray, isTargetFound } from '../utility';
 import { ElementList, ElementListRef, TargetRef } from './types';
-
-export function asArray<T>(value: T | T[]): T[] {
-  return Array.isArray(value) ? value : [value];
-}
 
 /**
  * Takes a value and checks if it is already an array of the desired length. If it is, is simply returns it unmodified.

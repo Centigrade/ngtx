@@ -2,9 +2,12 @@ import { ChangeDetectorRef, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { StateWithUnwrappedSignals } from '../types';
-import { toHtmlString } from '../utility';
-import { inputsOf, toSimpleChanges } from '../utility/angular.utilities';
-import { isWritableSignal } from '../utility/signals';
+import {
+  inputsOf,
+  isWritableSignal,
+  toHtmlString,
+  toSimpleChanges,
+} from '../utility';
 import { isNgtxElementOrMultiElement } from '../utility/type-guards';
 import {
   ComponentFixtureRef,

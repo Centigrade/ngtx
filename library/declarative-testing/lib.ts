@@ -3,6 +3,7 @@ import { tick } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { NgtxElement } from '../core';
 import { Maybe } from '../types';
+import { asArray } from '../utility';
 import { createExtension } from './declarative-testing';
 import {
   CallBaseOptions,
@@ -21,7 +22,6 @@ import {
   Token,
 } from './types';
 import {
-  asArray,
   asNgtxElementListRef,
   checkListsHaveSameSize,
   expandValueToArrayWithLength,

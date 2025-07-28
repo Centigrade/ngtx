@@ -1,9 +1,13 @@
 import { Type } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ConverterFn, QueryTarget, TypedDebugElement } from '../types';
-import { isNgtxQuerySelector, queryAll, toHtmlString } from '../utility';
-import { removeDuplicates } from '../utility/filter.utilities';
-import { queryNgtxMarker } from '../utility/query-ngtx-marker';
+import {
+  isNgtxQuerySelector,
+  queryAll,
+  queryNgtxMarker,
+  removeDuplicates,
+  toHtmlString,
+} from '../utility';
 import { NgtxMultiElement } from './multi-element';
 import { NgtxElementSymbol } from './symbols';
 
@@ -53,8 +57,8 @@ export class NgtxElement<
         isNgtxQuerySelector(query)
           ? queryNgtxMarker(query as string, this.debugElement)
           : typeof query === 'string'
-          ? this.debugElement.query(By.css(query))
-          : this.debugElement.query(By.directive(query));
+            ? this.debugElement.query(By.css(query))
+            : this.debugElement.query(By.directive(query));
 
       if (debugElement) {
         results.push(new NgtxElement(debugElement));

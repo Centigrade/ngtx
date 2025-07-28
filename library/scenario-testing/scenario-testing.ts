@@ -1,17 +1,19 @@
 import { DebugElement, Predicate } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FindingOptions } from '../declarative-testing/lib';
-import { asArray } from '../declarative-testing/utility';
 import {
   QueryTarget,
   StateWithUnwrappedSignals,
   TypedDebugElement,
 } from '../types';
-import { isNgtxQuerySelector } from '../utility';
-import { keysOf } from '../utility/object.utilities';
-import { valueOf } from '../utility/signals';
-import { getClassName } from '../utility/string.utilities';
-import { adaptExpectedValuesToFoundTargets } from '../utility/testing-utility';
+import {
+  adaptExpectedValuesToFoundTargets,
+  asArray,
+  getClassName,
+  isNgtxQuerySelector,
+  keysOf,
+  valueOf,
+} from '../utility';
 import {
   NgtxScenarioTestIsAssertionNegated,
   NgtxScenarioTestTargetFilter,
