@@ -1,4 +1,5 @@
 export { toSimpleChanges } from './angular.utilities';
+export { entriesOf, keysOf } from './object.utilities';
 export { isWritableSignal, valueOf } from './signals';
 export { getClassName } from './string.utilities';
 export { adaptExpectedValuesToFoundTargets } from './testing-utility';
