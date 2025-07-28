@@ -588,7 +588,7 @@ export class ScenarioTestingHarness<
     };
   };
 
-  public toHaveClass = (
+  public toHaveCssClass = (
     firstCssClass: string,
     ...classOrClasses: string[]
   ): ScenarioTestCaseGeneratorFn => {
@@ -603,12 +603,10 @@ export class ScenarioTestingHarness<
           expect(targets).toBeTruthy();
 
           targets.forEach((target) => {
-            const classList = Array.from(target.nativeElement.classList);
-
             if (this.isAssertionNegated) {
-              expect(classList.includes(cssClass)).toEqual(false);
+              expect(target.nativeElement.className).not.toContain(cssClass);
             } else {
-              expect(classList.includes(cssClass)).toEqual(true);
+              expect(target.nativeElement.className).toContain(cssClass);
             }
           });
         });
