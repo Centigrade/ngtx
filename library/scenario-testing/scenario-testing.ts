@@ -481,19 +481,17 @@ export class ScenarioTestingHarness<
   };
 
   public toHaveState = (
-    stateDef:
+    stateOrStates:
       | StateWithUnwrappedSignals<Component>
       | StateWithUnwrappedSignals<Component>[],
   ): ScenarioTestCaseGeneratorFn => {
     const verb = this.isAssertionNegated ? 'not have' : 'have';
 
     return ({ query }) => {
-      const stateDefs = asArray(stateDef);
+      const states = asArray(stateOrStates);
 
-      for (const stateDef of stateDefs) {
-        const objectKeys = Object.keys(stateDef) as (keyof Component)[];
-
-        for (const propertyName of objectKeys) {
+      for (const state of states) {
+        for (const propertyName of keysOf(state)) {
           const propertyNameAsString = propertyName.toString();
 
           it(`[${this.displayName}] should ${verb} correct value for property "${propertyNameAsString}"`, () => {
@@ -501,7 +499,7 @@ export class ScenarioTestingHarness<
             expect(targets).toBeTruthy();
 
             const expectedStates = adaptExpectedValuesToFoundTargets({
-              valueOrValues: stateDefs,
+              valueOrValues: states,
               targets,
             });
 
