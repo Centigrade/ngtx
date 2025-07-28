@@ -1,4 +1,12 @@
-export { toSimpleChanges } from './angular.utilities';
+export {
+  isComponent,
+  isDirective,
+  isNgModule,
+  isPipe,
+  isStandaloneDeclaration,
+  toSimpleChanges,
+} from './angular.utilities';
+export { asArray } from './array.utilities';
 export { entriesOf, keysOf } from './object.utilities';
 export { isWritableSignal, valueOf } from './signals';
 export { getClassName } from './string.utilities';
