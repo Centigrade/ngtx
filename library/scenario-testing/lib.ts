@@ -189,7 +189,7 @@ export function withRouteParams(
 //#endregion
 
 //#region after scenario setup fns
-export function debugAfterSetup<T>(
+export function withDebugOutputAfterSetup<T>(
   opts: DebugOptions<T> = {},
 ): ScenarioTestingSetupFn {
   const { stateOf, map } = opts;
