@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { EmissionOptions } from '../declarative-testing/types';
 import { StateWithUnwrappedSignals } from '../types';
 import {
   adaptExpectedValuesToFoundTargets,
@@ -15,6 +16,7 @@ import { isNgtxElementOrMultiElement } from '../utility/type-guards';
 import {
   ComponentFixtureRef,
   DebugOptions,
+  NgtxChildComponentTestCaseGeneratorFn,
   NgtxScenarioTestingHarnessExtensionFn,
   ScenarioTestingSetupFn,
 } from './types';
@@ -263,6 +265,70 @@ export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
 //#endregion
 
 //#region scenario testing harness extension fns
+
+function bind<Host, Property extends keyof Host, Component>(
+  property: Property,
+  opts: { to: keyof Component },
+  value: Host[Property],
+): NgtxChildComponentTestCaseGeneratorFn<HTMLElement, Component, Host> {
+  return ({ isAssertionNegated, targetRef, fixtureRef }) => {
+    const verb = isAssertionNegated ? 'not bind' : 'bind';
+    const { to } = opts;
+
+    it(`should ${verb} the "${property.toString()}" to "${to.toString()}"`, () => {
+      const targets = targetRef();
+      const fixture = fixtureRef();
+
+      // TODO: set value
+      fixture.componentInstance;
+
+      for (const target of targets) {
+        if (isAssertionNegated) {
+          expect(target.componentInstance[to]).not.toEqual(
+            fixture.componentInstance[property],
+          );
+        } else {
+          expect(target.componentInstance[to]).toEqual(
+            fixture.componentInstance[property],
+          );
+        }
+      }
+    });
+  };
+}
+
+function emit<Host>(event: keyof Host, opts?: EmissionOptions) {
+  return {
+    on: (
+      eventName: string,
+      args?: any,
+    ): NgtxChildComponentTestCaseGeneratorFn<HTMLElement, any, Host> => {
+      return ({ isAssertionNegated, fixtureRef, targetRef }) => {
+        const verb = isAssertionNegated ? 'not emit' : 'emit';
+
+        it(`should ${verb} the event "${event.toString()}"`, () => {
+          targetRef().forEach((target) => {
+            // arrange
+            const fixture = fixtureRef();
+            const spy = jest.fn();
+            fixture.debugElement.componentInstance[event].emit = spy;
+
+            // act
+            target.triggerEventHandler(eventName, args);
+
+            // assert
+            expect(spy).toHaveBeenCalledTimes(opts?.times ?? 1);
+
+            if (opts?.arg) {
+              expect(spy).toHaveBeenCalledWith(opts.arg);
+            }
+          });
+        });
+      };
+    },
+  };
+}
+
 export function haveProvider<T>(provider: Type<T>) {
   return {
     withState: (
