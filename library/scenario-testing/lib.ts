@@ -3,8 +3,11 @@ import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { StateWithUnwrappedSignals } from '../types';
 import {
+  adaptExpectedValuesToFoundTargets,
+  asArray,
   inputsOf,
   isWritableSignal,
+  keysOf,
   toHtmlString,
   toSimpleChanges,
 } from '../utility';
@@ -12,6 +15,7 @@ import { isNgtxElementOrMultiElement } from '../utility/type-guards';
 import {
   ComponentFixtureRef,
   DebugOptions,
+  NgtxScenarioTestingHarnessExtensionFn,
   ScenarioTestingSetupFn,
 } from './types';
 
@@ -259,7 +263,45 @@ export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
 //#endregion
 
 //#region scenario testing harness extension fns
+export function haveProvider<T>(provider: Type<T>) {
+  return {
+    withState: (
+      stateOrStates:
+        | Partial<StateWithUnwrappedSignals<T>>
+        | Partial<StateWithUnwrappedSignals<T>>[],
+    ): NgtxScenarioTestingHarnessExtensionFn => {
+      return ({ targetRef, displayName, isAssertionNegated }) => {
+        const verb = isAssertionNegated ? 'not have' : 'have';
+        const states = asArray(stateOrStates);
 
+        for (const state of states) {
+          for (const property of keysOf(state)) {
+            it(`[${displayName}] should ${verb} provider with expected value on property "${property}"`, () => {
+              const targets = targetRef();
+              const expectedStates = adaptExpectedValuesToFoundTargets({
+                valueOrValues: states,
+                targets,
+              });
+
+              targets.forEach((target, index) => {
+                const expectedState = expectedStates[index];
+                const instance = target.injector.get(provider);
+
+                if (isAssertionNegated) {
+                  expect(instance[property]).not.toEqual(
+                    expectedState[property],
+                  );
+                } else {
+                  expect(instance[property]).toEqual(expectedState[property]);
+                }
+              });
+            });
+          }
+        }
+      };
+    },
+  };
+}
 //#endregion
 
 // ---------------------------------------
