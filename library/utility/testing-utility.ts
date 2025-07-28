@@ -1,5 +1,5 @@
-import { asArray } from '../declarative-testing/utility';
 import { TypedDebugElement } from '../types';
+import { asArray } from './array.utilities';
 
 export function adaptExpectedValuesToFoundTargets<
   Html extends HTMLElement,
