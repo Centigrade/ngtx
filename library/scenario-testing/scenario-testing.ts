@@ -11,6 +11,7 @@ import { isNgtxQuerySelector } from '../utility';
 import { keysOf } from '../utility/object.utilities';
 import { valueOf } from '../utility/signals';
 import { getClassName } from '../utility/string.utilities';
+import { adaptExpectedValuesToFoundTargets } from '../utility/testing-utility';
 import {
   NgtxScenarioTestIsAssertionNegated,
   NgtxScenarioTestTargetFilter,
@@ -408,10 +409,10 @@ export class ScenarioTestingHarness<
           const targets = query(this.queryTarget, this.filter);
           expect(targets).toBeTruthy();
 
-          const expectedTexts = this.adaptExpectedValuesInputToFoundTargets(
+          const expectedTexts = adaptExpectedValuesToFoundTargets({
+            valueOrValues: texts,
             targets,
-            texts,
-          );
+          });
 
           targets.forEach((target, index) => {
             if (this.isAssertionNegated) {
@@ -497,10 +498,10 @@ export class ScenarioTestingHarness<
             const targets = query(this.queryTarget, this.filter);
             expect(targets).toBeTruthy();
 
-            const expectedStates = this.adaptExpectedValuesInputToFoundTargets(
+            const expectedStates = adaptExpectedValuesToFoundTargets({
+              valueOrValues: stateDefs,
               targets,
-              stateDefs,
-            );
+            });
 
             targets.forEach((target, index) => {
               const state = expectedStates[index];
@@ -537,10 +538,10 @@ export class ScenarioTestingHarness<
             const targets = query(this.queryTarget, this.filter);
             expect(targets).toBeTruthy();
 
-            const expectedStyles = this.adaptExpectedValuesInputToFoundTargets(
+            const expectedStyles = adaptExpectedValuesToFoundTargets({
+              valueOrValues: styleDefs,
               targets,
-              styleDefs,
-            );
+            });
 
             targets.forEach((target, index) => {
               const style = expectedStyles[index];
@@ -586,25 +587,5 @@ export class ScenarioTestingHarness<
         `[${this.displayName}] Filters like "nth", "first" or "range" can only be used once per harness instance.`,
       );
     }
-  }
-
-  protected adaptExpectedValuesInputToFoundTargets(
-    targets: TypedDebugElement<Html, Component>[],
-    valueOrValues: any,
-  ) {
-    const values = asArray(valueOrValues);
-
-    // one value for all targets
-    if (values.length === 1) {
-      return new Array(targets.length).fill(values.at(0));
-    }
-    // number of values matches number of found targets
-    if (values.length === targets.length) {
-      return values;
-    }
-
-    throw new Error(
-      `The number targets found (${targets.length}) does not match the number of expected values (${valueOrValues.length}).`,
-    );
   }
 }
