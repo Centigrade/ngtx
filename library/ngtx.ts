@@ -42,7 +42,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   //#endregion
 
   //#region ngtx main library
-  const library = {
+  const library: NgtxSuite<T> = {
     useFixture: <Html extends HTMLElement = HTMLElement, T = any>(
       fixture: ComponentFixture<T>,
       opts: UseFixtureOptions | boolean = {},
@@ -68,7 +68,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
     triggerEvent: ngtxFixture.triggerEvent.bind(ngtxFixture),
     // scenario testing
     scenario: scenarioTestingEnv.addTestScenario,
-    expect: scenarioTestingEnv.addChildComponentTest,
+    expectChild: scenarioTestingEnv.addChildComponentTest,
   };
   //#endregion
 
