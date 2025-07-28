@@ -74,11 +74,14 @@ export type NgtxChildComponentTestCaseGeneratorFn<
   Html extends HTMLElement = HTMLElement,
   Component = any,
 > = (
-  ctx: HarnessWithoutFilters<Html, Component> &
+  ctx: ScenarioTestingHarnessWithoutFilters<Html, Component> &
     ScenarioTestingHarnessExtensionContext<Html, Component>,
 ) => unknown;
 
-export type HarnessWithoutFilters<Html extends HTMLElement, Component> = Omit<
+export type ScenarioTestingHarnessWithoutFilters<
+  Html extends HTMLElement,
+  Component,
+> = Omit<
   ScenarioTestingHarness<Html, Component>,
   'nth' | 'first' | 'last' | 'range' | 'where'
 >;

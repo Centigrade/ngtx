@@ -7,5 +7,6 @@ export {
   NgtxTestingFrameworkAdapter,
   ScenarioTestCaseGeneratorFn,
   ScenarioTestingHarnessExtensionContext,
+  ScenarioTestingHarnessWithoutFilters,
   ScenarioTestingSetupFn,
 } from './types';

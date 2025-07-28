@@ -21,13 +21,13 @@ import {
 } from './symbols';
 import {
   ComponentFixtureRef,
-  HarnessWithoutFilters,
   NgtxChildComponentTestCaseGeneratorFn,
   NgtxScenarioTestingHarnessExtensionFn,
   NgtxTestingFrameworkAdapter,
   ScenarioTestCaseGeneratorFn,
   ScenarioTestingHarnessExtensionContext,
   ScenarioTestingHarnessOptions,
+  ScenarioTestingHarnessWithoutFilters,
   SetupInstruction,
   TargetFilter,
   TestActionFn,
@@ -70,10 +70,14 @@ export class ScenarioTestingEnvironment<Component> {
   );
 
   public readonly addChildComponentTest = Object.assign(
-    <Component>(targetHarness: HarnessWithoutFilters<any, Component>) =>
+    <Component>(
+      targetHarness: ScenarioTestingHarnessWithoutFilters<any, Component>,
+    ) =>
       new ChildComponentTest<Component>(targetHarness, this.#fixtureRef, false),
     {
-      only: (targetHarness: HarnessWithoutFilters<any, Component>) =>
+      only: (
+        targetHarness: ScenarioTestingHarnessWithoutFilters<any, Component>,
+      ) =>
         new ChildComponentTest<Component>(
           targetHarness,
           this.#fixtureRef,
@@ -184,7 +188,10 @@ export class TestScenario<Component> extends TestBase {
 
 export class ChildComponentTest<Component> extends TestBase {
   constructor(
-    protected readonly targetHarness: HarnessWithoutFilters<any, Component>,
+    protected readonly targetHarness: ScenarioTestingHarnessWithoutFilters<
+      any,
+      Component
+    >,
     fixtureRef: ComponentFixtureRef,
     isFocussedTest: boolean,
   ) {
@@ -255,7 +262,7 @@ export class ScenarioTestingHarness<
   static for<Html extends HTMLElement = HTMLElement, Component = any>(
     queryTarget?: QueryTarget<Component>,
     options?: ScenarioTestingHarnessOptions,
-  ): HarnessWithoutFilters<Html, Component> {
+  ): ScenarioTestingHarnessWithoutFilters<Html, Component> {
     const harness = new ScenarioTestingHarness<Html, Component>(
       queryTarget,
       options,
@@ -293,22 +300,24 @@ export class ScenarioTestingHarness<
     return name + this.filter.name;
   }
 
-  public readonly not: Omit<HarnessWithoutFilters<Html, Component>, 'not'> =
-    new Proxy(this, {
-      get: (_, property) => {
-        const harnessClone = this.clone();
+  public readonly not: Omit<
+    ScenarioTestingHarnessWithoutFilters<Html, Component>,
+    'not'
+  > = new Proxy(this, {
+    get: (_, property) => {
+      const harnessClone = this.clone();
 
-        harnessClone[NgtxScenarioTestIsAssertionNegated] =
-          !this[NgtxScenarioTestIsAssertionNegated];
+      harnessClone[NgtxScenarioTestIsAssertionNegated] =
+        !this[NgtxScenarioTestIsAssertionNegated];
 
-        return (harnessClone as any)[property];
-      },
-    });
+      return (harnessClone as any)[property];
+    },
+  });
 
   //#region filter functions
   public readonly nth = (
     nth: number,
-  ): HarnessWithoutFilters<Html, Component> => {
+  ): ScenarioTestingHarnessWithoutFilters<Html, Component> => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -319,7 +328,10 @@ export class ScenarioTestingHarness<
 
     return harnessClone;
   };
-  public readonly first = (): HarnessWithoutFilters<Html, Component> => {
+  public readonly first = (): ScenarioTestingHarnessWithoutFilters<
+    Html,
+    Component
+  > => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -330,7 +342,10 @@ export class ScenarioTestingHarness<
 
     return harnessClone;
   };
-  public readonly last = (): HarnessWithoutFilters<Html, Component> => {
+  public readonly last = (): ScenarioTestingHarnessWithoutFilters<
+    Html,
+    Component
+  > => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -344,7 +359,7 @@ export class ScenarioTestingHarness<
   public readonly range = (
     from: number,
     to?: number,
-  ): HarnessWithoutFilters<Html, Component> => {
+  ): ScenarioTestingHarnessWithoutFilters<Html, Component> => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
@@ -358,7 +373,7 @@ export class ScenarioTestingHarness<
   };
   public readonly where = (
     filter: TargetFilter<Html, Component>,
-  ): HarnessWithoutFilters<Html, Component> => {
+  ): ScenarioTestingHarnessWithoutFilters<Html, Component> => {
     this.checkNoFilterSet();
 
     const harnessClone = this.clone();
