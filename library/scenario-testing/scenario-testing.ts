@@ -290,12 +290,14 @@ export class ScenarioTestingHarness<
       return this.options.displayName + this.filter.name;
     }
 
-    const name =
+    const nameOrUndefined =
       typeof this.queryTarget === 'string'
         ? isNgtxQuerySelector(this.queryTarget)
           ? this.queryTarget.replace('ngtx_', '')
           : this.queryTarget
         : getClassName(this.queryTarget);
+
+    const name = nameOrUndefined ?? 'host';
 
     return name + this.filter.name;
   }
