@@ -75,13 +75,13 @@ class ButtonComponent {
   standalone: false,
   template: `
     <div
-      class="div-style"
+      class="div-style bold"
       style="color: red; fontSize: 12px"
       [style.background]="css"
     >
       {{ myService.value }}
     </div>
-    <div class="div-style" [style.background]="css"></div>
+    <div class="div-style bold" [style.background]="css"></div>
 
     <app-text [text]="myService.value" />
     <app-text data-ngtx="textbox" text="1" />
@@ -199,6 +199,8 @@ describe(
             { text: '3' },
           ]),
           the.styledDiv.toBeFound(),
+          the.styledDiv.toHaveClass('div-style', 'bold'),
+          the.styledDiv.not.toHaveClass('div-style123'),
           the.styledDiv.not.toBeMissing(),
           the.text.toHaveState({ text: 'Jane' }),
           the.divWithValueTextContent.toContainText('Jane'),

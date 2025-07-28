@@ -586,6 +586,34 @@ export class ScenarioTestingHarness<
     };
   };
 
+  public toHaveClass = (
+    firstCssClass: string,
+    ...classOrClasses: string[]
+  ): ScenarioTestCaseGeneratorFn => {
+    const verb = this.isAssertionNegated ? 'not have' : 'have';
+
+    return ({ query }) => {
+      const classes = [firstCssClass, ...classOrClasses];
+
+      for (const cssClass of classes) {
+        it(`[${this.displayName}] should ${verb} the css class "${cssClass}"`, () => {
+          const targets = query(this.queryTarget, this.filter);
+          expect(targets).toBeTruthy();
+
+          targets.forEach((target) => {
+            const classList = Array.from(target.nativeElement.classList);
+
+            if (this.isAssertionNegated) {
+              expect(classList.includes(cssClass)).toEqual(false);
+            } else {
+              expect(classList.includes(cssClass)).toEqual(true);
+            }
+          });
+        });
+      }
+    };
+  };
+
   public readonly to = (
     ...testAssertions: NgtxScenarioTestingHarnessExtensionFn<Html, Component>[]
   ): ScenarioTestCaseGeneratorFn => {
