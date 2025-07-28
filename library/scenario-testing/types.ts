@@ -25,6 +25,9 @@ export interface DebugOptions<T> {
 //#endregion
 
 //#region scenario testing class types
+export type TestScenarioOptions = {
+  skipInitialChangeDetection?: boolean;
+};
 type SetupPhase = 'setup' | 'afterSetup';
 export type SetupInstruction<T> = {
   phase: SetupPhase;
@@ -50,7 +53,7 @@ export type TestActionContext<T> = {
 //#endregion
 
 //#region harness types
-export type TestScenarioOptions = {
+export type ScenarioTestingHarnessOptions = {
   displayName: string;
 };
 export type ScenarioTestingHarnessExtensionContext<

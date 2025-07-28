@@ -235,6 +235,16 @@ describe(
           the.paramIdDiv.toBeFound(),
         );
 
+      scenario('skipInitialChangeDetection = false (default)')
+        .setup(withRouteParams({ id: '42' }))
+        .expect(the.paramIdDiv.toBeFound());
+
+      scenario('skipInitialChangeDetection = true (explicit)', {
+        skipInitialChangeDetection: true,
+      })
+        .setup(withRouteParams({ id: '42' }))
+        .expect(the.paramIdDiv.toBeMissing());
+
       expectChild(the.button).to(
         ({ toHaveState }) => toHaveState({ text: 'click me!' }),
         ({ toBeEnabled }) => toBeEnabled(),

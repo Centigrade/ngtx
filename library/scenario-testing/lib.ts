@@ -253,7 +253,6 @@ export function withChangeDetectionAfterSetup(): ScenarioTestingSetupFn {
       if ('ngOnInit' in component) {
         component.ngOnInit();
       }
-      // TODO: other hooks
 
       // hint: detecting via ChangeDetectorRef also updates OnPush components:
       changeDetectorRef.detectChanges();

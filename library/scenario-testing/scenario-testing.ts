@@ -14,6 +14,7 @@ import {
   keysOf,
   valueOf,
 } from '../utility';
+import { withChangeDetectionAfterSetup } from './lib';
 import {
   NgtxScenarioTestIsAssertionNegated,
   NgtxScenarioTestTargetFilter,
@@ -26,6 +27,7 @@ import {
   NgtxTestingFrameworkAdapter,
   ScenarioTestCaseGeneratorFn,
   ScenarioTestingHarnessExtensionContext,
+  ScenarioTestingHarnessOptions,
   SetupInstruction,
   TargetFilter,
   TestActionFn,
@@ -47,19 +49,22 @@ export class ScenarioTestingEnvironment<Component> {
   }
 
   public readonly addTestScenario = Object.assign(
-    (description: string) =>
+    (description: string, opts: TestScenarioOptions = {}) =>
       new TestScenario<Component>(
         description,
         this.#fixtureRef,
         this.testingFrameworkAdapter,
+        false,
+        opts,
       ),
     {
-      only: (description: string) =>
+      only: (description: string, opts: TestScenarioOptions = {}) =>
         new TestScenario<Component>(
           description,
           this.#fixtureRef,
           this.testingFrameworkAdapter,
           true,
+          opts,
         ),
     },
   );
@@ -111,6 +116,7 @@ class TestBase {
 
 export class TestScenario<Component> extends TestBase {
   #testingFrameworkAdapter: NgtxTestingFrameworkAdapter;
+  #options: TestScenarioOptions;
   #setupFns: TestActionFn<Component>[] = [];
   #afterSetupFns: TestActionFn<Component>[] = [];
 
@@ -119,9 +125,11 @@ export class TestScenario<Component> extends TestBase {
     fixtureRef: ComponentFixtureRef,
     testingFrameworkAdapter: NgtxTestingFrameworkAdapter,
     isFocusedTest = false,
+    opts: TestScenarioOptions = {},
   ) {
     super(fixtureRef, isFocusedTest);
     this.#testingFrameworkAdapter = testingFrameworkAdapter;
+    this.#options = opts;
   }
 
   public setup(...setupInstructions: SetupInstruction<Component>[]) {
@@ -149,6 +157,10 @@ export class TestScenario<Component> extends TestBase {
             fixtureRef: this.fixtureRef,
             query: this.query,
           });
+        }
+
+        if (!this.#options.skipInitialChangeDetection) {
+          this.#afterSetupFns.push(withChangeDetectionAfterSetup().run);
         }
 
         for (const afterSetup of this.#afterSetupFns) {
@@ -235,14 +247,14 @@ export class ScenarioTestingHarness<
 
   static forAll<Html extends HTMLElement = HTMLElement, Component = any>(
     queryTarget?: QueryTarget<Component>,
-    options?: TestScenarioOptions,
+    options?: ScenarioTestingHarnessOptions,
   ) {
     return new ScenarioTestingHarness<Html, Component>(queryTarget, options);
   }
 
   static for<Html extends HTMLElement = HTMLElement, Component = any>(
     queryTarget?: QueryTarget<Component>,
-    options?: TestScenarioOptions,
+    options?: ScenarioTestingHarnessOptions,
   ): HarnessWithoutFilters<Html, Component> {
     const harness = new ScenarioTestingHarness<Html, Component>(
       queryTarget,
@@ -259,7 +271,7 @@ export class ScenarioTestingHarness<
 
   private constructor(
     protected readonly queryTarget?: QueryTarget<Component>,
-    protected readonly options?: TestScenarioOptions,
+    protected readonly options?: ScenarioTestingHarnessOptions,
   ) {}
 
   public get isAssertionNegated() {
