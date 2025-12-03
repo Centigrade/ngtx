@@ -3,7 +3,7 @@ import { tick } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { NgtxElement } from '../core';
 import { Maybe } from '../types';
-import { asArray } from '../utility';
+import { asArray, setValue, valueOf } from '../utility';
 import { createExtension } from './declarative-testing';
 import {
   CallBaseOptions,
@@ -395,10 +395,10 @@ export const state = <T>(
 
       states.forEach((state, index) => {
         const subject = element[index];
-        const props = Object.entries(state) as [keyof T, any][];
+        const props = Object.entries(state) as [keyof T & string, any][];
 
         props.forEach(([key, value]) => {
-          subject.componentInstance[key] = value;
+          setValue(key, subject.componentInstance, value, fixture.ngFixture);
         });
 
         fixture.detectChanges();
@@ -706,11 +706,12 @@ export const haveState = <T, StateDef extends T>(
 
           props.forEach(([key, value]) => {
             const property = subject.componentInstance[key];
+            const rawValue = valueOf(value);
 
             if (isAssertionNegated) {
-              expect(property).not.toEqual(value);
+              expect(property).not.toEqual(rawValue);
             } else {
-              expect(property).toEqual(value);
+              expect(property).toEqual(rawValue);
             }
           });
         });

@@ -11,8 +11,8 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
     return this.root;
   }
 
-  constructor(private fixture?: ComponentFixture<any>) {
-    this.root = new NgtxElement(fixture?.debugElement!);
+  constructor(public ngFixture?: ComponentFixture<any>) {
+    this.root = new NgtxElement(ngFixture?.debugElement!);
   }
 
   /**
@@ -42,10 +42,10 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
     fixture: ComponentFixture<Component>,
     skipInitialChangeDetection = false,
   ): NgtxFixture<Html, Component> {
-    this.fixture = fixture;
+    this.ngFixture = fixture;
 
     this.root = new NgtxElement<Html, Component>(
-      this.fixture.debugElement,
+      this.ngFixture.debugElement,
     ) as any;
 
     if (!skipInitialChangeDetection) {
@@ -104,7 +104,7 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
     component?.ngOnChanges?.(changes as SimpleChanges);
     component?.ngOnInit?.();
 
-    this.fixture!.detectChanges();
+    this.ngFixture!.detectChanges();
   }
 
   public get<Html extends HTMLElement, Component = any>(
@@ -154,7 +154,7 @@ export class NgtxFixture<HostHtml extends HTMLElement, HostComponent> {
   }
 
   private checkFixture() {
-    if (this.fixture == null) {
+    if (this.ngFixture == null) {
       throw new Error(
         '[ngtx] No fixture was passed via "useFixture" helper, or the test-fixture failed to build.',
       );

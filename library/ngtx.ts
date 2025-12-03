@@ -37,7 +37,7 @@ export function ngtx<T = any>(suite: (ngtx: NgtxSuite<T>) => void) {
   const { testingFrameworkAdapter } = NGTX_GLOBAL_CONFIG;
   const scenarioTestingEnv = new ScenarioTestingEnvironment<T>(
     testingFrameworkAdapter!,
-    () => ngtxFixture['fixture']!,
+    () => ngtxFixture['ngFixture']!,
   );
   //#endregion
 
