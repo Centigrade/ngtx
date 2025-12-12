@@ -3,7 +3,15 @@ import { ComponentFixture } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { StateWithUnwrappedSignals } from '../types';
 
-export function valueOf<T>(value: T | Signal<T>): T {
+export function valueOf<T, A extends Signal<T>[]>(value: T): T[];
+export function valueOf<T>(value: T | Signal<T>): T;
+export function valueOf<T, A extends Signal<T>[]>(
+  value: A | T | Signal<T>,
+): T | T[] {
+  if (Array.isArray(value)) {
+    return value.map((v) => valueOf(v)) as T[];
+  }
+
   return isSignal(value) ? untracked(() => value()) : value;
 }
 

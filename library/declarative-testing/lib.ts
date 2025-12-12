@@ -705,7 +705,7 @@ export const haveState = <T, StateDef extends T>(
           const props = Object.entries(resolvedState) as [keyof T, any][];
 
           props.forEach(([key, value]) => {
-            const property = subject.componentInstance[key];
+            const property = valueOf(subject.componentInstance[key]);
             const rawValue = valueOf(value);
 
             if (isAssertionNegated) {

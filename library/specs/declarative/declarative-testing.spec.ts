@@ -3,7 +3,9 @@ import {
   EventEmitter,
   HostListener,
   Injectable,
+  input,
   Input,
+  output,
   Output,
 } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -50,7 +52,7 @@ class AlertService extends AlertBaseService {
   template: `
     <section
       data-ngtx="dropdown-item:content-container"
-      [attr.title]="value || null"
+      [attr.title]="value() || null"
       (click)="showDialog()"
     >
       <ng-content></ng-content>
@@ -58,14 +60,14 @@ class AlertService extends AlertBaseService {
   `,
 })
 class DropDownItemComponent {
-  @Input() value!: string;
-  @Output() activate = new EventEmitter<string>();
+  readonly value = input.required<string>();
+  readonly activate = output<string>();
 
   constructor(private alert: AlertBaseService) {}
 
   public showDialog(): void {
-    this.alert.show(`You clicked the option "${this.value}"`);
-    this.activate.emit(this.value);
+    this.alert.show(`You clicked the option "${this.value()}"`);
+    this.activate.emit(this.value());
   }
 }
 
