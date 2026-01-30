@@ -15,7 +15,7 @@ import {
   ForComponentOptions,
   ForServiceOptions,
   ITestingModule,
-  TestingModulePlugin,
+  NgtxTestingModulePlugin,
 } from './types';
 
 /**
@@ -70,7 +70,7 @@ export class TestingModule implements ITestingModule {
 
   static configure(
     configuration: ITestingModule = {},
-    plugins: TestingModulePlugin[] | TestingModulePlugin[][] = [],
+    plugins: NgtxTestingModulePlugin[] | NgtxTestingModulePlugin[][] = [],
   ) {
     return new TestingModule(
       flatten(configuration.imports ?? []),
@@ -88,7 +88,7 @@ export class TestingModule implements ITestingModule {
     public readonly imports: any[] = [],
     public readonly declarations: any[] = [],
     public readonly providers: any[] = [],
-    public readonly plugins: TestingModulePlugin[] = [],
+    public readonly plugins: NgtxTestingModulePlugin[] = [],
   ) {}
 
   forComponent(componentType: Type<any>, opts: ForComponentOptions = {}) {

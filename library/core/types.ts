@@ -37,7 +37,7 @@ export type ForServiceOptions = {
   providers?: Provider[];
 };
 
-export type TestingModulePlugin = {
+export type NgtxTestingModulePlugin = {
   /** Transform components into something custom, e.g. mocking with [ng-mocks](https://ng-mocks.sudo.eu). */
   transformComponents?: (ctx: DeclarationPluginContext) => any;
   /** Transform directives into something custom, e.g. mocking with [ng-mocks](https://ng-mocks.sudo.eu). */

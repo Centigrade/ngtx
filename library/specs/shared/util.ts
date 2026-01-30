@@ -1,7 +1,7 @@
 import { NgModule, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MockDeclaration, MockProvider } from 'ng-mocks';
-import { TestingModulePlugin } from '../../core/types';
+import { NgtxTestingModulePlugin } from '../../core/types';
 
 export function configureTestModule(
   component: Type<any>,
@@ -24,7 +24,7 @@ export function configureTestModule(
   });
 }
 
-export const ngMocksPlugin: TestingModulePlugin = {
+export const ngMocksPlugin: NgtxTestingModulePlugin = {
   transformComponents({ declaration, objectUnderTest }) {
     // hint: we don't want to mock the component under test:
     return declaration === objectUnderTest
