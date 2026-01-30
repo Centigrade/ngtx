@@ -1,6 +1,6 @@
 import { isSignal, Signal, untracked, WritableSignal } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, isObservable, Subject } from 'rxjs';
 import { StateWithUnwrappedSignals } from '../types';
 
 export function valueOf<T, A extends Signal<T>[]>(value: T): T[];
@@ -38,7 +38,9 @@ export function setValue<T, K extends keyof T & string>(
         object[property],
       );
   } else if (isSubject(object[property])) {
-    object[property].next(unwrappedValue);
+    if (isObservable(unwrappedValue))
+      (object as any)[property] = unwrappedValue;
+    else object[property].next(unwrappedValue);
   } else {
     (object as any)[property] = unwrappedValue;
   }
